@@ -1,12 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-function ImageMeasurementTool({ imageUrl, zoom = 1 }) {
+function ImageMeasurementTool({ Url, zoom = 1 }) {
   const [points, setPoints] = useState([]);
   const [dragIndex, setDragIndex] = useState(null);
   const [distances, setDistances] = useState([]);
   const [scale, setScale] = useState(1);
   const imageRef = useRef(null);
   const containerRef = useRef(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const response = await fetch(`${Url}/api/scan-image`);
+        setImageUrl(`${Url}/api/scan-image`);
+      } catch (error) {
+        console.error('Error fetching image:', error);
+      }
+    };
+
+    fetchImage();
+  }, []);
 
   useEffect(() => {
     fetchPoints();
@@ -14,7 +28,7 @@ function ImageMeasurementTool({ imageUrl, zoom = 1 }) {
 
   const fetchPoints = async () => {
     try {
-      const response = await fetch('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/api/points');
+      const response = await fetch(`${Url}/api/points`);
       const data = await response.json();
       setPoints(data.points);
       setDistances(data.distances);
@@ -25,7 +39,7 @@ function ImageMeasurementTool({ imageUrl, zoom = 1 }) {
 
   const updatePointsOnServer = async (newPoints) => {
     try {
-      const response = await fetch('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/api/points/update', {
+      const response = await fetch(`${Url}/api/points/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,24 +124,77 @@ function ImageMeasurementTool({ imageUrl, zoom = 1 }) {
       y: (point1.y + point2.y) / 2
     };
   };
+  const gridSize = 50; // Size of each grid square in pixels
 
+  const createGrid = () => {
+    const horizontalLines = [];
+    const verticalLines = [];
+
+    for (let i = gridSize; i < imageSize.height; i += gridSize) {
+      horizontalLines.push(
+        <line 
+          key={`h${i}`} 
+          x1="0" 
+          y1={i} 
+          x2={imageSize.width} 
+          y2={i} 
+          stroke="rgba(255,255,255,0.5)" 
+          strokeWidth="1"
+        />
+      );
+    }
+
+    for (let i = gridSize; i < imageSize.width; i += gridSize) {
+      verticalLines.push(
+        <line 
+          key={`v${i}`} 
+          x1={i} 
+          y1="0" 
+          x2={i} 
+          y2={imageSize.height} 
+          stroke="rgba(255,255,255,0.5)" 
+          strokeWidth="1"
+        />
+      );
+    }
+
+    return [...horizontalLines, ...verticalLines];
+  };
   return (
     <div 
       style={{ 
         position: 'relative', 
         display: 'inline-block', 
-        cursor: 'crosshair',
         transform: `scale(${zoom})`,
         transformOrigin: 'top left'
       }}
-      onClick={handleImageClick}
     >
       <img 
         ref={imageRef} 
-        src={getImageSrc()} 
+        src={imageUrl} 
         alt="Measurement Image" 
-        style={{ userSelect: 'none' }}
+        style={{ display: 'block' }}
+        onLoad={() => {
+          setImageSize({
+            width: imageRef.current.naturalWidth,
+            height: imageRef.current.naturalHeight
+          });
+        }}
       />
+      <svg 
+        style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none'
+        }}
+        viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}
+      >
+        {createGrid()}
+      </svg>
+
 
       {points.length > 0 && (
         <svg 

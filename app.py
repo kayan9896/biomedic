@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, Response
 from flask_cors import CORS
 import math
+from PIL import Image
 
 app = Flask(__name__)
 CORS(app)
@@ -49,6 +50,16 @@ def update_points():
             "distances": distances
         })
     return jsonify({"error": "Invalid points data"}), 400
+
+@app.route('/api/scan-image', methods=['GET'])
+def get_scanned_image():
+    # Code to interact with the scanner and get the image
+    # This is pseudo-code and will depend on your scanner's API
+    img_io=Image.open('bio/src/gf.gif') 
+    
+    
+    return send_file('bio/src/gf.gif', mimetype='image/jpeg')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
