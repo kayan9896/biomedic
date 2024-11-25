@@ -1,40 +1,151 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 import math
+import threading
+import time
+
+class CircularProgressbar:
+    def __init__(self, canvas, x, y, radius, **kwargs):
+        self.canvas = canvas
+        self.x, self.y = x, y
+        self.radius = radius
+        self.angle = 0
+        self.outer_circle = canvas.create_oval(x-radius, y-radius, x+radius, y+radius, 
+                                               width=5, outline="blue")
+        self.inner_circle = canvas.create_oval(x-radius+5, y-radius+5, 
+                                               x+radius-5, y+radius-5, fill="red")
+        self.text = canvas.create_text(x, y, text="Loading", fill="white")
+    
+    def complete(self):
+        self.canvas.itemconfig(self.inner_circle, fill="green")
+        self.canvas.itemconfig(self.text, text="Done")
 
 class PointDraggingApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Point Dragging Application")
-        
-        self.canvas = tk.Canvas(root, width=800, height=600)
-        self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
-        
-        self.load_button = tk.Button(root, text="Load Image", command=self.load_image)
-        self.load_button.pack()
-        
-        self.add_default_button = tk.Button(root, text="Add Default Points", command=self.add_default_points)
-        self.add_default_button.pack()
-        
+        self.root.title("Multi-tab Application")
+        self.root.geometry("1200x800")
+
+        self.notebook = ttk.Notebook(root)
+        self.notebook.pack(expand=True, fill='both')
+
+        self.eval_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.eval_frame, text='Evaluation')
+
+        self.report_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.report_frame, text='Report')
+
+        self.setup_evaluation_tab()
+
         self.points = []
         self.lines = []
         self.distance_texts = []
         self.dragging_point = None
         self.start_drag_pos = None
         self.photo = None
+
+    def setup_evaluation_tab(self):
+        self.left_frame = ttk.Frame(self.eval_frame)
+        self.left_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+
+        self.right_frame = ttk.Frame(self.eval_frame)
+        self.right_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+
+        self.eval_frame.columnconfigure(0, weight=3)
+        self.eval_frame.columnconfigure(1, weight=1)
+        self.eval_frame.rowconfigure(0, weight=1)
+
+        self.canvas_frame = ttk.Frame(self.left_frame, borderwidth=2, relief="groove")
+        self.canvas_frame.pack(expand=True, fill='both', padx=5, pady=5)
         
+        self.canvas = tk.Canvas(self.canvas_frame, width=800, height=600, bg='white')
+        self.canvas.pack(expand=True, fill='both')
+
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
-    
+
+        self.setup_control_panel()
+
+    def setup_control_panel(self):
+        title_label = ttk.Label(self.right_frame, text="Control Panel", font=('Arial', 14, 'bold'))
+        title_label.pack(pady=10)
+
+        # Loading indicator canvas
+        self.loading_canvas = tk.Canvas(self.right_frame, width=100, height=100, 
+                                        highlightthickness=0)
+        self.loading_canvas.pack(pady=10)
+        self.progress_indicator = CircularProgressbar(self.loading_canvas, 50, 50, 40)
+
+        image_frame = ttk.LabelFrame(self.right_frame, text="Image Controls", padding=10)
+        image_frame.pack(fill='x', padx=5, pady=5)
+
+        load_button = ttk.Button(image_frame, text="Load Image", command=self.start_load_image)
+        load_button.pack(fill='x', pady=5)
+
+        point_frame = ttk.LabelFrame(self.right_frame, text="Point Controls", padding=10)
+        point_frame.pack(fill='x', padx=5, pady=5)
+
+        add_default_button = ttk.Button(point_frame, text="Add Default Points", 
+                                       command=self.add_default_points)
+        add_default_button.pack(fill='x', pady=5)
+
+        clear_points_button = ttk.Button(point_frame, text="Clear All Points", 
+                                        command=self.clear_all_points)
+        clear_points_button.pack(fill='x', pady=5)
+
+    def start_load_image(self):
+        # Create progress bar
+        self.progress_var = tk.DoubleVar()
+        self.progress_bar = ttk.Progressbar(self.canvas, variable=self.progress_var, 
+                                            maximum=100, mode='determinate')
+        self.progress_bar.place(relx=0.5, rely=0.5, anchor=tk.CENTER, width=300)
+        
+        # Start loading in a separate thread
+        threading.Thread(target=self.load_image).start()
+
     def load_image(self):
         file_path = filedialog.askopenfilename()
         if file_path:
+            # Simulate loading progress
+            for i in range(101):
+                time.sleep(0.02)  # Simulate processing time
+                self.progress_var.set(i)
+                self.root.update_idletasks()
+            
+            # Actually load and process the image
             image = Image.open(file_path)
+            canvas_ratio = self.canvas.winfo_width() / self.canvas.winfo_height()
+            image_ratio = image.width / image.height
+            
+            if image_ratio > canvas_ratio:
+                new_width = self.canvas.winfo_width()
+                new_height = int(new_width / image_ratio)
+            else:
+                new_height = self.canvas.winfo_height()
+                new_width = int(new_height * image_ratio)
+            
+            image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
             self.photo = ImageTk.PhotoImage(image)
-            self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
-    
+            self.canvas.delete("all")
+            self.canvas.create_image(
+                self.canvas.winfo_width()//2, 
+                self.canvas.winfo_height()//2, 
+                image=self.photo, 
+                anchor=tk.CENTER
+            )
+            
+            # Remove progress bar and update loading indicator
+            self.progress_bar.destroy()
+            self.progress_indicator.complete()
+
+    def clear_all_points(self):
+        for point in self.points:
+            self.canvas.delete(point)
+        self.points.clear()
+        self.update_lines_and_distances()
+
     def add_default_points(self):
         default_positions = [(100, 100), (200, 200), (300, 150), (400, 250)]
         for pos in default_positions:
@@ -72,7 +183,6 @@ class PointDraggingApp:
         if self.dragging_point:
             if self.start_drag_pos:
                 if math.dist(self.start_drag_pos, (event.x, event.y)) < 2:
-                    # Point wasn't moved significantly, so remove it
                     self.remove_point(self.dragging_point)
             self.dragging_point = None
             self.start_drag_pos = None
@@ -84,7 +194,6 @@ class PointDraggingApp:
             self.update_lines_and_distances()
     
     def update_lines_and_distances(self):
-        # Remove existing lines and distance texts
         for line in self.lines:
             self.canvas.delete(line)
         for text in self.distance_texts:
@@ -92,7 +201,6 @@ class PointDraggingApp:
         self.lines.clear()
         self.distance_texts.clear()
         
-        # Redraw lines and distances
         for i in range(len(self.points) - 1):
             coords1 = self.canvas.coords(self.points[i])
             coords2 = self.canvas.coords(self.points[i+1])
