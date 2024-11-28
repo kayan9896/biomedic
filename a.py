@@ -1,7 +1,36 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtGui import QPainter, QPainterPath, QColor
+
+class AngleBracketFrame(QFrame):
+    def __init__(self, text, is_completed=False):
+        super().__init__()
+        self.text = text
+        self.is_completed = is_completed
+        self.setFixedSize(100, 40)  # Fixed size to ensure width > height
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Define the path for the angle bracket shape
+        path = QPainterPath()
+        path.moveTo(0, 0)
+        path.lineTo(80, 0)
+        path.lineTo(100, 20)
+        path.lineTo(80, 40)
+        path.lineTo(0, 40)
+        path.lineTo(20, 20)
+        path.lineTo(0, 0)
+
+        # Fill with blue if completed, otherwise just stroke
+        if self.is_completed:
+            painter.fillPath(path, QColor("#3498db"))
+        painter.strokePath(path, painter.pen())
+
+        # Draw text
+        painter.drawText(self.rect(), Qt.AlignCenter, self.text)
 
 class SurgeonSoftwareView(QWidget):
     def __init__(self):
@@ -18,29 +47,13 @@ class SurgeonSoftwareView(QWidget):
         
         # Horizontal layout for process steps
         process_layout = QHBoxLayout()
+        process_layout.setSpacing(0)  # Remove spacing between frames
         
         for i, step in enumerate(steps):
-            step_frame = QFrame()
-            step_frame.setFrameShape(QFrame.StyledPanel)
-            
-            # Set background color for completed steps
-            if i < completed_steps:
-                step_frame.setStyleSheet("background-color: #3498db; color: white;")
-            
-            step_layout = QVBoxLayout()
-            step_label = QLabel(step)
-            step_label.setAlignment(Qt.AlignCenter)
-            step_layout.addWidget(step_label)
-            step_frame.setLayout(step_layout)
-            
+            step_frame = AngleBracketFrame(step, i < completed_steps)
             process_layout.addWidget(step_frame)
-            
-            # Add angle bracket separator except for the last step
-            if i < len(steps) - 1:
-                separator = QLabel('>')
-                separator.setAlignment(Qt.AlignCenter)
-                process_layout.addWidget(separator)
-        
+
+        process_layout.addStretch()
         main_layout.addLayout(process_layout)
         
         # Content area (text and image placeholders)
