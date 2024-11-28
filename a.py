@@ -1,36 +1,24 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPainter, QPainterPath, QColor
+from PyQt5.QtGui import QPolygon, QColor, QPalette, QPainter
+from PyQt5.QtCore import QPoint
 
 class AngleBracketFrame(QFrame):
-    def __init__(self, text, is_completed=False):
-        super().__init__()
-        self.text = text
-        self.is_completed = is_completed
-        self.setFixedSize(100, 40)  # Fixed size to ensure width > height
-
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-
-        # Define the path for the angle bracket shape
-        path = QPainterPath()
-        path.moveTo(0, 0)
-        path.lineTo(80, 0)
-        path.lineTo(100, 20)
-        path.lineTo(80, 40)
-        path.lineTo(0, 40)
-        path.lineTo(20, 20)
-        path.lineTo(0, 0)
-
-        # Fill with blue if completed, otherwise just stroke
-        if self.is_completed:
-            painter.fillPath(path, QColor("#3498db"))
-        painter.strokePath(path, painter.pen())
-
-        # Draw text
-        painter.drawText(self.rect(), Qt.AlignCenter, self.text)
+        color = QColor("#3498db") if self.property("completed") else QColor("#ffffff")
+        painter.fillRect(self.rect(), color)
+        
+        polygon = QPolygon([
+            QPoint(0, 0),
+            QPoint(self.width() - 10, 0),
+            QPoint(self.width(), self.height() / 2),
+            QPoint(self.width() - 10, self.height()),
+            QPoint(0, self.height())
+        ])
+        painter.setPen(Qt.black)
+        painter.drawPolygon(polygon)
 
 class SurgeonSoftwareView(QWidget):
     def __init__(self):
@@ -47,13 +35,21 @@ class SurgeonSoftwareView(QWidget):
         
         # Horizontal layout for process steps
         process_layout = QHBoxLayout()
-        process_layout.setSpacing(0)  # Remove spacing between frames
+        process_layout.setSpacing(0)  # Remove spacing between steps
         
         for i, step in enumerate(steps):
-            step_frame = AngleBracketFrame(step, i < completed_steps)
+            step_frame = AngleBracketFrame()
+            step_frame.setProperty("completed", i < completed_steps)
+            step_frame.setFixedHeight(40)  # Set a fixed height
+            
+            step_layout = QVBoxLayout()
+            step_label = QLabel(step)
+            step_label.setAlignment(Qt.AlignCenter)
+            step_layout.addWidget(step_label)
+            step_frame.setLayout(step_layout)
+            
             process_layout.addWidget(step_frame)
-
-        process_layout.addStretch()
+        
         main_layout.addLayout(process_layout)
         
         # Content area (text and image placeholders)
