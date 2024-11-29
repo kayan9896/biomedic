@@ -1,23 +1,18 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QPushButton
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPainter, QPainterPath, QColor
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
+                             QPushButton, QLabel, QFrame)
+from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen, QFont
+from PyQt5.QtCore import Qt, QRect, QSize
 
-class AngleBracketFrame(QFrame):
-    def __init__(self, text, is_completed=False, total_steps=5, step_index=0):
+class ChevronProgressBar(QWidget):
+    def __init__(self, steps):
         super().__init__()
-        self.text = text
-        self.is_completed = is_completed
-        self.total_steps = total_steps
-        self.step_index = step_index
-        self.setSizePolicy(self.sizePolicy().Expanding, self.sizePolicy().Fixed)
-        self.setFixedHeight(40)
-        
-        # Adjust size to account for overlap
-        if step_index > 0:
-            self.overlap = 20
-        else:
-            self.overlap = 0
+        self.steps = steps
+        self.current_step = 0
+        self.initUI()
+
+    def initUI(self):
+        self.setFixedHeight(60)  # Fixed height for progress bar
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -25,123 +20,166 @@ class AngleBracketFrame(QFrame):
 
         width = self.width()
         height = self.height()
+        step_width = width / len(self.steps)
+        chevron_width = 20
+
+        # Set larger font for step text
+        font = painter.font()
+        font.setPointSize(12)  # Larger text
+        font.setBold(True)     # Bold text
+        painter.setFont(font)
+
+        for i, step in enumerate(self.steps):
+            if i <= self.current_step:
+                color = QColor("#2196F3")
+                text_color = Qt.white
+            else:
+                color = QColor("#e0e0e0")
+                text_color = Qt.black
+
+            path = QPainterPath()
+            x_start = i * step_width
+            
+            if i == 0:  # First step
+                path.moveTo(x_start, 0)
+                path.lineTo(x_start + step_width, 0)
+                path.lineTo(x_start + step_width + chevron_width, height / 2)
+                path.lineTo(x_start + step_width, height)
+                path.lineTo(x_start, height)
+                path.lineTo(x_start, 0)
+            elif i == len(self.steps) - 1:  # Last step
+                path.moveTo(x_start, 0)
+                path.lineTo(x_start + step_width, 0)
+                path.lineTo(x_start + step_width, height)
+                path.lineTo(x_start, height)
+                path.lineTo(x_start + chevron_width, height / 2)
+            else:  # Middle steps
+                path.moveTo(x_start, 0)
+                path.lineTo(x_start + step_width, 0)
+                path.lineTo(x_start + step_width + chevron_width, height / 2)
+                path.lineTo(x_start + step_width, height)
+                path.lineTo(x_start, height)
+                path.lineTo(x_start + chevron_width, height / 2)
+
+            painter.fillPath(path, color)
+
+            text_rect = QRect(x_start, 0, step_width, height)
+            painter.setPen(text_color)
+            painter.drawText(text_rect, Qt.AlignCenter, step)
+
+class ContentArea(QFrame):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
         
-        # Define the path for the angle bracket shape
-        path = QPainterPath()
-        
-        if self.step_index == 0:  # First step (straight left side)
-            path.moveTo(0, 0)
-            path.lineTo(width - 20, 0)
-            path.lineTo(width, height / 2)
-            path.lineTo(width - 20, height)
-            path.lineTo(0, height)
-            path.closeSubpath()
-        else:  # Subsequent steps (right angle bracket on both sides)
-            path.moveTo(20, height / 2)
-            path.lineTo(0, 0)
-            path.lineTo(width - 20, 0)
-            path.lineTo(width, height / 2)
-            path.lineTo(width - 20, height)
-            path.lineTo(0, height)
-            path.closeSubpath()
+        # Title
+        self.title = QLabel()
+        title_font = self.title.font()
+        title_font.setPointSize(16)
+        title_font.setBold(True)
+        self.title.setFont(title_font)
+        self.title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.title)
 
-        # Fill with blue if completed, otherwise just stroke
-        if self.is_completed:
-            painter.fillPath(path, QColor("#3498db"))
-        painter.strokePath(path, painter.pen())
+        # Image placeholder
+        self.image_placeholder = QFrame()
+        self.image_placeholder.setStyleSheet("""
+            QFrame {
+                background-color: #f0f0f0;
+                border: 2px dashed #cccccc;
+                border-radius: 5px;
+            }
+        """)
+        self.image_placeholder.setFixedSize(400, 300)
+        layout.addWidget(self.image_placeholder, 0, Qt.AlignHCenter)
 
-        # Draw text
-        painter.drawText(self.rect(), Qt.AlignCenter, self.text)
+        # Content text
+        self.content = QLabel()
+        self.content.setWordWrap(True)
+        self.content.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.content)
 
-class SurgeonSoftwareView(QWidget):
+        # Next button
+        self.next_button = QPushButton('Complete & Proceed to Next Step')
+        layout.addWidget(self.next_button, 0, Qt.AlignHCenter)
+
+        self.setLayout(layout)
+
+class HipOperationSoftware(QWidget):
     def __init__(self):
         super().__init__()
-        self.current_step = 0
+        self.steps = ['Preparation', 'Image Taking', 'Adjustment', 'Report', 'Completion']
         self.initUI()
-    
+
     def initUI(self):
-        # Main vertical layout
         main_layout = QVBoxLayout()
         
-        # Process steps
-        self.steps = ['Preparation', 'Image Taking', 'Adjustment', 'Report', 'Completion']
+        # Progress bar
+        self.progress_bar = ChevronProgressBar(self.steps)
+        main_layout.addWidget(self.progress_bar)
+
+        # Content area
+        self.content_area = ContentArea()
+        self.content_area.next_button.clicked.connect(self.handleNextStep)
         
-        # Horizontal layout for process steps
-        self.process_layout = QHBoxLayout()
-        self.process_layout.setSpacing(0)  # Remove spacing between frames
-        self.process_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
+        # Center the content area
+        content_container = QHBoxLayout()
+        content_container.addStretch()
+        content_container.addWidget(self.content_area)
+        content_container.addStretch()
         
-        self.update_process_steps()
-        
-        main_layout.addLayout(self.process_layout)
-        
-        # Content area (text and image placeholders)
-        content_layout = QHBoxLayout()
-        
-        # Text placeholder
-        text_placeholder = QFrame()
-        text_placeholder.setFrameShape(QFrame.StyledPanel)
-        text_placeholder.setStyleSheet("background-color: #ecf0f1;")
-        text_label = QLabel("Text Content Placeholder")
-        text_label.setAlignment(Qt.AlignCenter)
-        text_layout = QVBoxLayout()
-        text_layout.addWidget(text_label)
-        text_placeholder.setLayout(text_layout)
-        content_layout.addWidget(text_placeholder)
-        
-        # Image placeholder
-        image_placeholder = QFrame()
-        image_placeholder.setFrameShape(QFrame.StyledPanel)
-        image_placeholder.setStyleSheet("background-color: #bdc3c7;")
-        image_label = QLabel("Image Placeholder")
-        image_label.setAlignment(Qt.AlignCenter)
-        image_layout = QVBoxLayout()
-        image_layout.addWidget(image_label)
-        image_placeholder.setLayout(image_layout)
-        content_layout.addWidget(image_placeholder)
-        
-        main_layout.addLayout(content_layout)
-        
-        # Next button
-        next_button = QPushButton('Next Step')
-        next_button.clicked.connect(self.next_step)
-        main_layout.addWidget(next_button)
-        
+        main_layout.addLayout(content_container)
+        main_layout.addStretch()  # Push everything up
+
         self.setLayout(main_layout)
-        self.setWindowTitle('Surgeon Software View')
-        self.setGeometry(100, 100, 800, 600)
-        self.show()
-    
-    def update_process_steps(self):
-        # Clear existing widgets
-        for i in reversed(range(self.process_layout.count())): 
-            self.process_layout.itemAt(i).widget().setParent(None)
+        self.updateContent()
+
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                font-size: 16px;
+                min-width: 250px;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+            QLabel {
+                font-size: 14px;
+                margin: 10px;
+            }
+        """)
+
+    def handleNextStep(self):
+        if self.progress_bar.current_step < len(self.steps) - 1:
+            self.progress_bar.current_step += 1
+            self.progress_bar.update()
+            self.updateContent()
+
+    def updateContent(self):
+        current_step = self.progress_bar.current_step
+        self.content_area.title.setText(self.steps[current_step])
+        self.content_area.content.setText(f"Content for {self.steps[current_step]} step goes here.")
         
-        total_overlap = 0
-        frames = []
-        
-        # Create frames and calculate total overlap
-        for i, step in enumerate(self.steps):
-            step_frame = AngleBracketFrame(step, 
-                                           i <= self.current_step, 
-                                           len(self.steps), 
-                                           i)
-            frames.append(step_frame)
-            total_overlap += step_frame.overlap
-        
-        # Add frames to layout, adjusting for overlap
-        for frame in frames:
-            self.process_layout.addWidget(frame)
-            if frame.step_index > 0:
-                self.process_layout.setStretch(frame.step_index, 1)
-                frame.setContentsMargins(-20, 0, 0, 0)  # Negative left margin for overlap
-    
-    def next_step(self):
-        if self.current_step < len(self.steps) - 1:
-            self.current_step += 1
-            self.update_process_steps()
+        if current_step == len(self.steps) - 1:
+            self.content_area.next_button.hide()
+            completion_label = QLabel("All steps completed!")
+            completion_label.setStyleSheet("color: #4CAF50; font-weight: bold; font-size: 16px;")
+            self.content_area.layout().addWidget(completion_label, 0, Qt.AlignHCenter)
+
+def main():
+    app = QApplication(sys.argv)
+    ex = HipOperationSoftware()
+    ex.setGeometry(100, 100, 1000, 600)
+    ex.setWindowTitle('Hip Operation Software')
+    ex.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    view = SurgeonSoftwareView()
-    sys.exit(app.exec_())
+    main()
