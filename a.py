@@ -12,6 +12,12 @@ class AngleBracketFrame(QFrame):
         self.step_index = step_index
         self.setSizePolicy(self.sizePolicy().Expanding, self.sizePolicy().Fixed)
         self.setFixedHeight(40)
+        
+        # Adjust size to account for overlap
+        if step_index > 0:
+            self.overlap = 20
+        else:
+            self.overlap = 0
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -19,11 +25,6 @@ class AngleBracketFrame(QFrame):
 
         width = self.width()
         height = self.height()
-        
-        # Translate the painter to allow drawing outside the widget bounds
-        if self.step_index > 0:
-            painter.translate(-20, 0)
-            width += 20  # Increase width to compensate for translation
         
         # Define the path for the angle bracket shape
         path = QPainterPath()
@@ -49,11 +50,8 @@ class AngleBracketFrame(QFrame):
             painter.fillPath(path, QColor("#3498db"))
         painter.strokePath(path, painter.pen())
 
-        # Draw text (adjust text position if translated)
-        text_rect = self.rect()
-        if self.step_index > 0:
-            text_rect.translate(20, 0)
-        painter.drawText(text_rect, Qt.AlignCenter, self.text)
+        # Draw text
+        painter.drawText(self.rect(), Qt.AlignCenter, self.text)
 
 class SurgeonSoftwareView(QWidget):
     def __init__(self):
