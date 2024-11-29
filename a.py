@@ -22,22 +22,25 @@ class AngleBracketFrame(QFrame):
         
         # Define the path for the angle bracket shape
         path = QPainterPath()
+        
         if self.step_index == 0:  # First step
             path.moveTo(0, 0)
-            path.lineTo(width - 20, 0)
         else:
-            path.moveTo(20, 0)
-            path.lineTo(width - 20, 0)
-        
-        path.lineTo(width, height / 2)
-        path.lineTo(width - 20, height)
-        
-        if self.step_index == 0:  # First step
+            # For all other steps, start with a right angle bracket on the left side
+            path.moveTo(0, 0)
+            path.lineTo(20, height/2)
             path.lineTo(0, height)
+            path.lineTo(20, height)
+        
+        # Right side of the box (same for all steps)
+        path.lineTo(width - 20, height)
+        path.lineTo(width, height/2)
+        path.lineTo(width - 20, 0)
+        
+        # Complete the path
+        if self.step_index == 0:
             path.lineTo(0, 0)
         else:
-            path.lineTo(20, height)
-            path.lineTo(0, height / 2)
             path.lineTo(20, 0)
 
         # Fill with blue if completed, otherwise just stroke
