@@ -30,13 +30,13 @@ class AngleBracketFrame(QFrame):
             path.lineTo(width - 20, height)
             path.lineTo(0, height)
             path.closeSubpath()
-        else:  # Subsequent steps (right angle brackets on both sides)
-            path.moveTo(0, height / 2)
-            path.lineTo(20, 0)
+        else:  # Subsequent steps (right angle bracket on both sides)
+            path.moveTo(20, height / 2)
+            path.lineTo(0, 0)
             path.lineTo(width - 20, 0)
             path.lineTo(width, height / 2)
             path.lineTo(width - 20, height)
-            path.lineTo(20, height)
+            path.lineTo(0, height)
             path.closeSubpath()
 
         # Fill with blue if completed, otherwise just stroke
