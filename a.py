@@ -4,11 +4,14 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QPainterPath, QColor
 
 class AngleBracketFrame(QFrame):
-    def __init__(self, text, is_completed=False):
+    def __init__(self, text, is_completed=False, total_steps=5, step_index=0):
         super().__init__()
         self.text = text
         self.is_completed = is_completed
-        self.setMinimumHeight(40)  # Fixed height
+        self.total_steps = total_steps
+        self.step_index = step_index
+        self.setSizePolicy(self.sizePolicy().Expanding, self.sizePolicy().Fixed)
+        self.setFixedHeight(40)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -16,17 +19,26 @@ class AngleBracketFrame(QFrame):
 
         width = self.width()
         height = self.height()
-        bracket_depth = 20  # The depth of the angle
-
+        
         # Define the path for the angle bracket shape
         path = QPainterPath()
-        path.moveTo(0, 0)
-        path.lineTo(width - bracket_depth, 0)
-        path.lineTo(width, height/2)
-        path.lineTo(width - bracket_depth, height)
-        path.lineTo(0, height)
-        path.lineTo(bracket_depth, height/2)
-        path.lineTo(0, 0)
+        if self.step_index == 0:  # First step
+            path.moveTo(0, 0)
+            path.lineTo(width - 20, 0)
+        else:
+            path.moveTo(20, 0)
+            path.lineTo(width - 20, 0)
+        
+        path.lineTo(width, height / 2)
+        path.lineTo(width - 20, height)
+        
+        if self.step_index == 0:  # First step
+            path.lineTo(0, height)
+            path.lineTo(0, 0)
+        else:
+            path.lineTo(20, height)
+            path.lineTo(0, height / 2)
+            path.lineTo(20, 0)
 
         # Fill with blue if completed, otherwise just stroke
         if self.is_completed:
@@ -40,27 +52,23 @@ class SurgeonSoftwareView(QWidget):
     def __init__(self):
         super().__init__()
         self.current_step = 0
-        self.steps = ['Preparation', 'Image Taking', 'Adjustment', 'Report', 'Completion']
         self.initUI()
     
     def initUI(self):
         # Main vertical layout
         main_layout = QVBoxLayout()
         
+        # Process steps
+        self.steps = ['Preparation', 'Image Taking', 'Adjustment', 'Report', 'Completion']
+        
         # Horizontal layout for process steps
         self.process_layout = QHBoxLayout()
         self.process_layout.setSpacing(0)  # Remove spacing between frames
         self.process_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
         
-        self.step_frames = []
-        for step in self.steps:
-            step_frame = AngleBracketFrame(step)
-            self.step_frames.append(step_frame)
-            self.process_layout.addWidget(step_frame, 1)  # Equal stretch factor
-
-        process_widget = QWidget()
-        process_widget.setLayout(self.process_layout)
-        main_layout.addWidget(process_widget)
+        self.update_process_steps()
+        
+        main_layout.addLayout(self.process_layout)
         
         # Content area (text and image placeholders)
         content_layout = QHBoxLayout()
@@ -88,27 +96,34 @@ class SurgeonSoftwareView(QWidget):
         content_layout.addWidget(image_placeholder)
         
         main_layout.addLayout(content_layout)
-
+        
         # Next button
-        next_button = QPushButton("Next Step")
+        next_button = QPushButton('Next Step')
         next_button.clicked.connect(self.next_step)
         main_layout.addWidget(next_button)
         
         self.setLayout(main_layout)
         self.setWindowTitle('Surgeon Software View')
         self.setGeometry(100, 100, 800, 600)
-        self.update_steps()
         self.show()
-
+    
+    def update_process_steps(self):
+        # Clear existing widgets
+        for i in reversed(range(self.process_layout.count())): 
+            self.process_layout.itemAt(i).widget().setParent(None)
+        
+        # Add new widgets
+        for i, step in enumerate(self.steps):
+            step_frame = AngleBracketFrame(step, 
+                                           i <= self.current_step, 
+                                           len(self.steps), 
+                                           i)
+            self.process_layout.addWidget(step_frame)
+    
     def next_step(self):
-        if self.current_step < len(self.steps):
+        if self.current_step < len(self.steps) - 1:
             self.current_step += 1
-            self.update_steps()
-
-    def update_steps(self):
-        for i, frame in enumerate(self.step_frames):
-            frame.is_completed = i < self.current_step
-            frame.update()
+            self.update_process_steps()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
