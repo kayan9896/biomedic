@@ -117,13 +117,24 @@ class SurgeonSoftwareView(QWidget):
         for i in reversed(range(self.process_layout.count())): 
             self.process_layout.itemAt(i).widget().setParent(None)
         
-        # Add new widgets
+        total_overlap = 0
+        frames = []
+        
+        # Create frames and calculate total overlap
         for i, step in enumerate(self.steps):
             step_frame = AngleBracketFrame(step, 
                                            i <= self.current_step, 
                                            len(self.steps), 
                                            i)
-            self.process_layout.addWidget(step_frame)
+            frames.append(step_frame)
+            total_overlap += step_frame.overlap
+        
+        # Add frames to layout, adjusting for overlap
+        for frame in frames:
+            self.process_layout.addWidget(frame)
+            if frame.step_index > 0:
+                self.process_layout.setStretch(frame.step_index, 1)
+                frame.setContentsMargins(-20, 0, 0, 0)  # Negative left margin for overlap
     
     def next_step(self):
         if self.current_step < len(self.steps) - 1:
