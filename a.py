@@ -1,56 +1,66 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QPushButton
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPolygon, QColor, QPalette, QPainter
-from PyQt5.QtCore import QPoint
+from PyQt5.QtGui import QPainter, QPainterPath, QColor
 
 class AngleBracketFrame(QFrame):
+    def __init__(self, text, is_completed=False):
+        super().__init__()
+        self.text = text
+        self.is_completed = is_completed
+        self.setMinimumHeight(40)  # Fixed height
+
     def paintEvent(self, event):
         painter = QPainter(self)
-        color = QColor("#3498db") if self.property("completed") else QColor("#ffffff")
-        painter.fillRect(self.rect(), color)
-        
-        polygon = QPolygon([
-            QPoint(0, 0),
-            QPoint(self.width() - 10, 0),
-            QPoint(self.width(), self.height() / 2),
-            QPoint(self.width() - 10, self.height()),
-            QPoint(0, self.height())
-        ])
-        painter.setPen(Qt.black)
-        painter.drawPolygon(polygon)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        width = self.width()
+        height = self.height()
+        bracket_depth = 20  # The depth of the angle
+
+        # Define the path for the angle bracket shape
+        path = QPainterPath()
+        path.moveTo(0, 0)
+        path.lineTo(width - bracket_depth, 0)
+        path.lineTo(width, height/2)
+        path.lineTo(width - bracket_depth, height)
+        path.lineTo(0, height)
+        path.lineTo(bracket_depth, height/2)
+        path.lineTo(0, 0)
+
+        # Fill with blue if completed, otherwise just stroke
+        if self.is_completed:
+            painter.fillPath(path, QColor("#3498db"))
+        painter.strokePath(path, painter.pen())
+
+        # Draw text
+        painter.drawText(self.rect(), Qt.AlignCenter, self.text)
 
 class SurgeonSoftwareView(QWidget):
     def __init__(self):
         super().__init__()
+        self.current_step = 0
+        self.steps = ['Preparation', 'Image Taking', 'Adjustment', 'Report', 'Completion']
         self.initUI()
     
     def initUI(self):
         # Main vertical layout
         main_layout = QVBoxLayout()
         
-        # Process steps
-        steps = ['Preparation', 'Image Taking', 'Adjustment', 'Report', 'Completion']
-        completed_steps = 2  # Assuming first two steps are completed
-        
         # Horizontal layout for process steps
-        process_layout = QHBoxLayout()
-        process_layout.setSpacing(0)  # Remove spacing between steps
+        self.process_layout = QHBoxLayout()
+        self.process_layout.setSpacing(0)  # Remove spacing between frames
+        self.process_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
         
-        for i, step in enumerate(steps):
-            step_frame = AngleBracketFrame()
-            step_frame.setProperty("completed", i < completed_steps)
-            step_frame.setFixedHeight(40)  # Set a fixed height
-            
-            step_layout = QVBoxLayout()
-            step_label = QLabel(step)
-            step_label.setAlignment(Qt.AlignCenter)
-            step_layout.addWidget(step_label)
-            step_frame.setLayout(step_layout)
-            
-            process_layout.addWidget(step_frame)
-        
-        main_layout.addLayout(process_layout)
+        self.step_frames = []
+        for step in self.steps:
+            step_frame = AngleBracketFrame(step)
+            self.step_frames.append(step_frame)
+            self.process_layout.addWidget(step_frame, 1)  # Equal stretch factor
+
+        process_widget = QWidget()
+        process_widget.setLayout(self.process_layout)
+        main_layout.addWidget(process_widget)
         
         # Content area (text and image placeholders)
         content_layout = QHBoxLayout()
@@ -78,11 +88,27 @@ class SurgeonSoftwareView(QWidget):
         content_layout.addWidget(image_placeholder)
         
         main_layout.addLayout(content_layout)
+
+        # Next button
+        next_button = QPushButton("Next Step")
+        next_button.clicked.connect(self.next_step)
+        main_layout.addWidget(next_button)
         
         self.setLayout(main_layout)
         self.setWindowTitle('Surgeon Software View')
         self.setGeometry(100, 100, 800, 600)
+        self.update_steps()
         self.show()
+
+    def next_step(self):
+        if self.current_step < len(self.steps):
+            self.current_step += 1
+            self.update_steps()
+
+    def update_steps(self):
+        for i, frame in enumerate(self.step_frames):
+            frame.is_completed = i < self.current_step
+            frame.update()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
