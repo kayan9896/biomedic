@@ -80,6 +80,43 @@
   color: #4CAF50;
   font-weight: bold;
 }
+
+.reference-container {
+  width: 100%;
+}
+
+.image-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.error-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.image-area {
+  position: relative;
+}
+
+.detection-status, .phase-transition {
+  margin-top: 10px;
+  text-align: center;
+  font-style: italic;
+}
+
+.phase-transition {
+  color: #0066cc;
+  font-weight: bold;
+}
 @media (max-width: 768px) {
   .step-text {
     font-size: 14px;
