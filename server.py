@@ -25,8 +25,8 @@ image_states = {
     3: ImageState(),  # Third image
     4: ImageState()   # Fourth image
 }
-current_phase = 1  # 1-4 for each image phase
-comparison_pairs = {2: 1, 4: 3}  # Which images to compare: 2 compares with 1, 4 compares with 3
+current_phase = 1  # 1-4 for each image
+comparison_pairs = {2: 1, 4: 3}  # which images to compare
 
 def reset_states():
     global current_phase
@@ -46,6 +46,8 @@ def compare_images(img1, img2):
     return np.array_equal(arr1, arr2)
 
 def image_detection_thread():
+    global current_phase
+    
     while True:
         time.sleep(5)  # Check every 5 seconds
         
@@ -65,10 +67,10 @@ def image_detection_thread():
                     current_state.error_message = "Image validation failed"
             
             elif current_phase in [2, 4]:  # Second image of each pair
-                comparison_phase = comparison_pairs[current_phase]
-                if image_states[comparison_phase].has_valid_image:
+                compare_with = comparison_pairs[current_phase]
+                if image_states[compare_with].has_valid_image:
                     new_image = Image.open(image_path)
-                    are_different = not compare_images(image_states[comparison_phase].image, new_image)
+                    are_different = not compare_images(image_states[compare_with].image, new_image)
                     
                     if are_different:
                         current_state.has_valid_image = True
@@ -104,17 +106,16 @@ def get_image(phase):
 @app.route('/start-phase/<int:phase>')
 def start_phase(phase):
     global current_phase
-    if 1 <= phase <= 4:
-        current_phase = phase
-        image_states[phase].is_detecting = True
-        image_states[phase].has_valid_image = False
-        image_states[phase].error_message = None
+    current_phase = phase
+    image_states[phase].is_detecting = True
+    image_states[phase].has_valid_image = False
+    image_states[phase].error_message = None
     return jsonify({'status': f'Phase {phase} started'})
 
 @app.route('/reset')
 def reset():
     reset_states()
-    return jsonify({'status': 'All phases reset'})
+    return jsonify({'status': 'All states reset'})
 
 if __name__ == '__main__':
     app.run(debug=True)

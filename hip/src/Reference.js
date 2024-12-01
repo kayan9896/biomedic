@@ -9,8 +9,7 @@ export default function Reference() {
     has_valid_image: false
   });
   const [collectedImages, setCollectedImages] = useState({});
-  const [phaseComplete, setPhaseComplete] = useState(false);
-  const [allPhasesComplete, setAllPhasesComplete] = useState(false);
+  const [showFinalGrid, setShowFinalGrid] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -21,23 +20,31 @@ export default function Reference() {
   }, [phase]);
 
   useEffect(() => {
-    if (phaseComplete && phase < 4) {
-      const timer = setTimeout(() => {
-        startNextPhase();
-      }, 5000);
-      return () => clearTimeout(timer);
-    } else if (phaseComplete && phase === 4) {
-      setAllPhasesComplete(true);
-    }
-  }, [phaseComplete, phase]);
+    if (backendStatus.has_valid_image) {
+      setCollectedImages(prev => ({
+        ...prev,
+        [phase]: `https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/image/${phase}?t=${new Date().getTime()}`
+      }));
 
-  const startNextPhase = async () => {
-    const nextPhase = phase + 1;
+      if (phase < 4) {
+        const timer = setTimeout(() => {
+          startNextPhase(phase + 1);
+        }, 5000);
+        return () => clearTimeout(timer);
+      } else {
+        const timer = setTimeout(() => {
+          setShowFinalGrid(true);
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [backendStatus.has_valid_image, phase]);
+
+  const startNextPhase = async (nextPhase) => {
     try {
       await fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/start-phase/${nextPhase}`);
       setPhase(nextPhase);
       setShowImages(false);
-      setPhaseComplete(false);
       setBackendStatus({
         is_detecting: true,
         error_message: null,
@@ -48,46 +55,22 @@ export default function Reference() {
     }
   };
 
-  const resetAll = async () => {
-    try {
-      await fetch('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/reset');
-      setPhase(1);
-      setShowImages(false);
-      setPhaseComplete(false);
-      setAllPhasesComplete(false);
-      setCollectedImages({});
-      setBackendStatus({
-        is_detecting: true,
-        error_message: null,
-        has_valid_image: false
-      });
-    } catch (error) {
-      console.error('Error resetting:', error);
-    }
-  };
-
   useEffect(() => {
     const checkStatus = async () => {
       try {
         const response = await fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/status/${phase}`);
         const data = await response.json();
         setBackendStatus(data);
-
-        if (data.has_valid_image) {
-          const imageUrl = `https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/image/${phase}?t=${new Date().getTime()}`;
-          setCollectedImages(prev => ({...prev, [phase]: imageUrl}));
-          setPhaseComplete(true);
-        }
       } catch (error) {
         console.error('Error fetching status:', error);
       }
     };
 
-    if (!allPhasesComplete) {
+    if (!showFinalGrid) {
       const statusInterval = setInterval(checkStatus, 1000);
       return () => clearInterval(statusInterval);
     }
-  }, [phase, allPhasesComplete]);
+  }, [phase, showFinalGrid]);
 
   const getLeftImage = () => {
     switch(phase) {
@@ -99,20 +82,35 @@ export default function Reference() {
     }
   };
 
-  if (allPhasesComplete) {
+  const handleRedo = async () => {
+    try {
+      await fetch('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/reset');
+      setPhase(1);
+      setShowImages(false);
+      setCollectedImages({});
+      setShowFinalGrid(false);
+      setBackendStatus({
+        is_detecting: true,
+        error_message: null,
+        has_valid_image: false
+      });
+    } catch (error) {
+      console.error('Error resetting:', error);
+    }
+  };
+
+  if (showFinalGrid) {
     return (
-      <div className="final-grid-container">
-        <div className="image-grid">
-          <div className="grid-row">
-            <img src={collectedImages[1]} alt="Image 1" />
-            <img src={collectedImages[2]} alt="Image 2" />
-          </div>
-          <div className="grid-row">
-            <img src={collectedImages[3]} alt="Image 3" />
-            <img src={collectedImages[4]} alt="Image 4" />
-          </div>
+      <div className="final-grid">
+        <div className="grid-row">
+          <div className="grid-item"><img src={collectedImages[1]} alt="Image 1" /></div>
+          <div className="grid-item"><img src={collectedImages[2]} alt="Image 2" /></div>
         </div>
-        <button onClick={resetAll} className="redo-button">Redo All Phases</button>
+        <div className="grid-row">
+          <div className="grid-item"><img src={collectedImages[3]} alt="Image 3" /></div>
+          <div className="grid-item"><img src={collectedImages[4]} alt="Image 4" /></div>
+        </div>
+        <button onClick={handleRedo} className="redo-button">Redo All Phases</button>
       </div>
     );
   }
@@ -144,9 +142,6 @@ export default function Reference() {
           </div>
           {backendStatus.is_detecting && (
             <div className="detection-status">Detecting image... (Phase {phase})</div>
-          )}
-          {phaseComplete && phase < 4 && (
-            <div className="phase-transition">Preparing for next phase...</div>
           )}
         </>
       )}
