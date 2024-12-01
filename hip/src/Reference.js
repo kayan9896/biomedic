@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Draggable from 'react-draggable';
 
 export default function Reference() {
   const [phase, setPhase] = useState(1);
@@ -10,6 +11,9 @@ export default function Reference() {
   });
   const [collectedImages, setCollectedImages] = useState({});
   const [showFinalGrid, setShowFinalGrid] = useState(false);
+  const [imageData, setImageData] = useState({});
+  const [expandedImage, setExpandedImage] = useState(null);
+  const [imageBounds, setImageBounds] = useState({});
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,7 +27,7 @@ export default function Reference() {
     if (backendStatus.has_valid_image) {
       setCollectedImages(prev => ({
         ...prev,
-        [phase]: `https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/image/${phase}?t=${new Date().getTime()}`
+        [phase]: `https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/raw-image/${phase}?t=${new Date().getTime()}`
       }));
 
       if (phase < 4) {
@@ -99,16 +103,108 @@ export default function Reference() {
     }
   };
 
+  useEffect(() => {
+    if (backendStatus.has_valid_image) {
+      fetchImageWithPoints(phase);
+    }
+  }, [backendStatus.has_valid_image]);
+
+  const fetchImageWithPoints = async (phase) => {
+    try {
+      const response = await fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/image/${phase}`);
+      const data = await response.json();
+      setImageData(prev => ({
+        ...prev,
+        [phase]: {
+          imageUrl: `https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev${data.imageUrl}`,
+          points: data.points
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching image data:', error);
+    }
+  };
+
+  const handlePointDrag = (phase, index, e, data) => {
+    const bounds = imageBounds[phase];
+    if (!bounds) return;
+
+    const newX = Math.max(0, Math.min(data.x, bounds.width));
+    const newY = Math.max(0, Math.min(data.y, bounds.height));
+
+    const newImageData = {...imageData};
+    newImageData[phase].points[index] = { x: newX, y: newY };
+    setImageData(newImageData);
+
+    // Send updated points to backend
+    fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/update-points/${phase}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        points: newImageData[phase].points
+      }),
+    });
+  };
+
+  const handleImageLoad = (phase, e) => {
+    setImageBounds(prev => ({
+      ...prev,
+      [phase]: {
+        width: e.target.width,
+        height: e.target.height
+      }
+    }));
+  };
+
+  const renderImage = (phase, isExpanded = false) => {
+    const data = imageData[phase];
+    if (!data) return null;
+
+    return (
+      <div className={`image-container ${isExpanded ? 'expanded' : ''}`}
+           onClick={() => !isExpanded && setExpandedImage(phase)}>
+        <img
+          src={data.imageUrl}
+          alt={`Phase ${phase}`}
+          onLoad={(e) => handleImageLoad(phase, e)}
+        />
+        {data.points.map((point, index) => (
+          <Draggable
+            key={index}
+            position={{x: point.x, y: point.y}}
+            onDrag={(e, data) => handlePointDrag(phase, index, e, data)}
+            disabled={!isExpanded}
+          >
+            <div className="point" />
+          </Draggable>
+        ))}
+      </div>
+    );
+  };
+
   if (showFinalGrid) {
+    if (expandedImage) {
+      return (
+        <div className="expanded-view">
+          {renderImage(expandedImage, true)}
+          <button onClick={() => setExpandedImage(null)} className="close-button">
+            Close
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="final-grid">
         <div className="grid-row">
-          <div className="grid-item"><img src={collectedImages[1]} alt="Image 1" /></div>
-          <div className="grid-item"><img src={collectedImages[2]} alt="Image 2" /></div>
+          {renderImage(1)}
+          {renderImage(2)}
         </div>
         <div className="grid-row">
-          <div className="grid-item"><img src={collectedImages[3]} alt="Image 3" /></div>
-          <div className="grid-item"><img src={collectedImages[4]} alt="Image 4" /></div>
+          {renderImage(3)}
+          {renderImage(4)}
         </div>
         <button onClick={handleRedo} className="redo-button">Redo All Phases</button>
       </div>

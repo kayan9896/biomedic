@@ -157,6 +157,58 @@
 .redo-button:hover {
   background-color: #0052a3;
 }
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.point {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  cursor: move;
+  z-index: 1000;
+}
+
+.expanded-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.expanded-view .image-container {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.expanded-view img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background: white;
+  border: none;
+  cursor: pointer;
+}
+
+.image-container.expanded {
+  cursor: default;
+}
 @media (max-width: 768px) {
   .step-text {
     font-size: 14px;

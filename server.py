@@ -1,4 +1,4 @@
-from flask import Flask, send_file, jsonify
+from flask import Flask, send_file, jsonify,request
 import threading
 import time
 import random
@@ -16,6 +16,7 @@ class ImageState:
         self.error_message = None
         self.has_valid_image = False
         self.image = None
+        self.points = []
 
 # Global variables
 image_path = '2.png'
@@ -95,13 +96,45 @@ def get_status(phase):
         'has_valid_image': state.has_valid_image
     })
 
+def generate_random_points(image):
+    width, height = image.size
+    num_points = random.randint(3, 6)  # Random number of points between 3 and 6
+    points = []
+    for _ in range(num_points):
+        x = random.randint(0, width - 1)
+        y = random.randint(0, height - 1)
+        points.append({"x": x, "y": y})
+    return points
+
 @app.route('/image/<int:phase>')
 def get_image(phase):
+    state = image_states[phase]
+    if state.has_valid_image:
+        # If points haven't been generated yet, generate them
+        if not state.points:
+            state.points = generate_random_points(state.image)
+        
+        return jsonify({
+            'imageUrl': f'/raw-image/{phase}',
+            'points': state.points
+        })
+    else:
+        return jsonify({'error': 'No valid image available'}), 404
+
+@app.route('/raw-image/<int:phase>')
+def get_raw_image(phase):
     state = image_states[phase]
     if state.has_valid_image:
         return send_file(image_path, mimetype='image/png')
     else:
         return jsonify({'error': 'No valid image available'}), 404
+
+@app.route('/update-points/<int:phase>', methods=['POST'])
+def update_points(phase):
+    data = request.json
+    new_points = data.get('points', [])
+    image_states[phase].points = new_points
+    return jsonify({'status': 'Points updated successfully'})
 
 @app.route('/start-phase/<int:phase>')
 def start_phase(phase):
