@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
+import Reference from './Reference';
 
 const steps = [
   'Preparation',
@@ -15,6 +16,15 @@ function HipOperationSoftware() {
   const handleNextStep = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1: // Image Taking step
+        return <Reference backendImage={null} />; // Replace null with actual backend image when available
+      default:
+        return <p>Content for {steps[currentStep]} step goes here.</p>;
     }
   };
 
@@ -34,7 +44,7 @@ function HipOperationSoftware() {
       
       <div className="content-area">
         <h2>{steps[currentStep]}</h2>
-        <p>Content for {steps[currentStep]} step goes here.</p>
+        {renderStepContent()}
         
         {currentStep < steps.length - 1 && (
           <button onClick={handleNextStep} className="next-button">
