@@ -10,6 +10,7 @@
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
     "react-scripts": "5.0.1",
+    "ps-tree": "^1.2.0",
     "web-vitals": "^2.1.4"
   },
   "main": "public/electron.js",
@@ -42,7 +43,6 @@
     "electron": "",
     "electron-builder": "",
     "concurrently": "",
-    "ps-tree": "^1.2.0",
     "wait-on": ""
   },
   "homepage": "./",
