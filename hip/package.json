@@ -28,6 +28,12 @@
       "build/**/*",
       "node_modules/**/*"
     ],
+    "extraResources": [
+      {
+        "from": "../dist/server.exe",
+        "to": "server.exe"
+      }
+    ],
     "directories": {
       "buildResources": "assets"
     }
