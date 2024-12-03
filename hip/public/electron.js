@@ -6,10 +6,12 @@ import('electron-is-dev').then(module => {
   isDev = module.default;
 });
 
+let mainWindow;
 let serverProcess;
 
 function startServer() {
-  const serverPath = isDev
+  // Path to your server executable
+  const serverPath = isDev 
     ? path.join(__dirname, '../../dist/server.exe')
     : path.join(process.resourcesPath, 'server.exe');
 
@@ -29,10 +31,11 @@ function startServer() {
 }
 
 function createWindow() {
+  // Start the server first
   startServer();
 
-  // Create the browser window.
-  const win = new BrowserWindow({
+  // Create the browser window
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -41,7 +44,7 @@ function createWindow() {
   });
 
   // Load the index.html from a url
-  win.loadURL(
+  mainWindow.loadURL(
     isDev
       ? 'http://localhost:3000'
       : `file://${path.join(__dirname, '../build/index.html')}`
@@ -51,9 +54,11 @@ function createWindow() {
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
+  // Kill the server process when closing the app
   if (serverProcess) {
     serverProcess.kill();
   }
+  
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -62,5 +67,12 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
+  }
+});
+
+// Handle app quit
+app.on('quit', () => {
+  if (serverProcess) {
+    serverProcess.kill();
   }
 });
