@@ -1,7 +1,6 @@
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
-const { spawn, exec } = require('child_process');
-const psTree = require('ps-tree'); 
+const { spawn } = require('child_process');
 let isDev;
 import('electron-is-dev').then(module => {
   isDev = module.default;
@@ -9,39 +8,14 @@ import('electron-is-dev').then(module => {
 
 let mainWindow;
 let serverProcess;
-let serverPID;
-
-function killProcess(pid) {
-  if (process.platform === 'win32') {
-    // For Windows
-    exec('taskkill /pid ' + pid + ' /T /F', (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error killing process: ${error}`);
-      }
-    });
-  } else {
-    // For Unix-based systems
-    psTree(pid, (err, children) => {
-      const pids = children.map(p => p.PID);
-      pids.push(pid);
-      pids.forEach(pid => {
-        try {
-          process.kill(pid, 'SIGKILL');
-        } catch (e) {
-          console.error(`Failed to kill process ${pid}: ${e}`);
-        }
-      });
-    });
-  }
-}
 
 function startServer() {
+  // Path to your server executable
   const serverPath = isDev 
     ? path.join(__dirname, '../../dist/server.exe')
     : path.join(process.resourcesPath, 'server.exe');
 
   serverProcess = spawn(serverPath);
-  serverPID = serverProcess.pid;
 
   serverProcess.stdout.on('data', (data) => {
     console.log(`Server stdout: ${data}`);
@@ -49,6 +23,23 @@ function startServer() {
 
   serverProcess.stderr.on('data', (data) => {
     console.error(`Server stderr: ${data}`);
+  });
+
+  serverProcess.on('close', (code) => {
+    console.log(`Server process exited with code ${code}`);
+  });
+}
+
+function terminateServer() {
+  return new Promise((resolve) => {
+    if (serverProcess) {
+      treeKill(serverProcess.pid, 'SIGTERM', (err) => {
+        if (err) console.error('Failed to kill server process:', err);
+        resolve();
+      });
+    } else {
+      resolve();
+    }
   });
 }
 
@@ -75,36 +66,19 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-app.on('window-all-closed', () => {
-  if (serverProcess) {
-    killProcess(serverPID);
-  }
-  
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-// Add before-quit event handler
-app.on('before-quit', (event) => {
-  if (serverProcess) {
-    event.preventDefault();
-    killProcess(serverPID);
-    setTimeout(() => {
-      app.quit();
-    }, 500); // Give some time for the process to be killed
-  }
-});
-
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-// Handle app quit
-app.on('quit', () => {
-  if (serverProcess) {
-    serverProcess.kill();
+app.on('window-all-closed', async () => {
+  await terminateServer();
+  if (process.platform !== 'darwin') {
+    app.quit();
   }
+});
+
+app.on('quit', async () => {
+  await terminateServer();
 });
