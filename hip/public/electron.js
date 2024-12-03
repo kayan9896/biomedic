@@ -2,7 +2,10 @@ const path = require('path');
 const { app, BrowserWindow } = require('electron');
 const { spawn, exec } = require('child_process');
 const psTree = require('ps-tree'); 
-let isDev=require('electron-is-dev')
+let isDev;
+import('electron-is-dev').then(module => {
+  isDev = module.default;
+});
 
 let mainWindow;
 let serverProcess;
