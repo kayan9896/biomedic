@@ -5,6 +5,7 @@ let isDev;
 import('electron-is-dev').then(module => {
   isDev = module.default;
 });
+const treeKill = require('tree-kill');
 
 let mainWindow;
 let serverProcess;
