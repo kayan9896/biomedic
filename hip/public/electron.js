@@ -36,8 +36,9 @@ function terminateServer() {
     if (serverProcess) {
       treeKill(serverProcess.pid, 'SIGTERM', (err) => {
         if (err) console.error('Failed to kill server process:', err);
-        resolve();
+        resolve(serverProcess.pid);
       });
+      console.log()
     } else {
       resolve();
     }
