@@ -1,21 +1,43 @@
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
-const { spawn } = require('child_process');
-let isDev;
-import('electron-is-dev').then(module => {
-  isDev = module.default;
-});
+const { spawn, exec } = require('child_process');
+const psTree = require('ps-tree'); // You'll need to install this package
 
 let mainWindow;
 let serverProcess;
+let serverPID;
+
+function killProcess(pid) {
+  if (process.platform === 'win32') {
+    // For Windows
+    exec('taskkill /pid ' + pid + ' /T /F', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error killing process: ${error}`);
+      }
+    });
+  } else {
+    // For Unix-based systems
+    psTree(pid, (err, children) => {
+      const pids = children.map(p => p.PID);
+      pids.push(pid);
+      pids.forEach(pid => {
+        try {
+          process.kill(pid, 'SIGKILL');
+        } catch (e) {
+          console.error(`Failed to kill process ${pid}: ${e}`);
+        }
+      });
+    });
+  }
+}
 
 function startServer() {
-  // Path to your server executable
   const serverPath = isDev 
     ? path.join(__dirname, '../../dist/server.exe')
     : path.join(process.resourcesPath, 'server.exe');
 
   serverProcess = spawn(serverPath);
+  serverPID = serverProcess.pid;
 
   serverProcess.stdout.on('data', (data) => {
     console.log(`Server stdout: ${data}`);
@@ -23,10 +45,6 @@ function startServer() {
 
   serverProcess.stderr.on('data', (data) => {
     console.error(`Server stderr: ${data}`);
-  });
-
-  serverProcess.on('close', (code) => {
-    console.log(`Server process exited with code ${code}`);
   });
 }
 
@@ -54,13 +72,23 @@ function createWindow() {
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
-  // Kill the server process when closing the app
   if (serverProcess) {
-    serverProcess.kill();
+    killProcess(serverPID);
   }
   
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+// Add before-quit event handler
+app.on('before-quit', (event) => {
+  if (serverProcess) {
+    event.preventDefault();
+    killProcess(serverPID);
+    setTimeout(() => {
+      app.quit();
+    }, 500); // Give some time for the process to be killed
   }
 });
 
