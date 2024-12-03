@@ -14,6 +14,7 @@ export default function Reference() {
   const [imageData, setImageData] = useState({});
   const [expandedImage, setExpandedImage] = useState(null);
   const [imageBounds, setImageBounds] = useState({});
+  const [imageDimensions, setImageDimensions] = useState({});
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -27,7 +28,7 @@ export default function Reference() {
     if (backendStatus.has_valid_image) {
       setCollectedImages(prev => ({
         ...prev,
-        [phase]: `https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/raw-image/${phase}?t=${new Date().getTime()}`
+        [phase]: `http://localhost:5000/raw-image/${phase}?t=${new Date().getTime()}`
       }));
 
       if (phase < 4) {
@@ -46,7 +47,7 @@ export default function Reference() {
 
   const startNextPhase = async (nextPhase) => {
     try {
-      await fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/start-phase/${nextPhase}`);
+      await fetch(`http://localhost:5000/start-phase/${nextPhase}`);
       setPhase(nextPhase);
       setShowImages(false);
       setBackendStatus({
@@ -62,7 +63,7 @@ export default function Reference() {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/status/${phase}`);
+        const response = await fetch(`http://localhost:5000/status/${phase}`);
         const data = await response.json();
         setBackendStatus(data);
       } catch (error) {
@@ -88,7 +89,7 @@ export default function Reference() {
 
   const handleRedo = async () => {
     try {
-      await fetch('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/reset');
+      await fetch('http://localhost:5000/reset');
       setPhase(1);
       setShowImages(false);
       setCollectedImages({});
@@ -111,33 +112,37 @@ export default function Reference() {
 
   const fetchImageWithPoints = async (phase) => {
     try {
-      const response = await fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/image/${phase}`);
+      const response = await fetch(`http://localhost:5000/image/${phase}`);
       const data = await response.json();
       setImageData(prev => ({
         ...prev,
         [phase]: {
-          imageUrl: `https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev${data.imageUrl}`,
+          imageUrl: `http://localhost:5000${data.imageUrl}`,
           points: data.points
         }
+      }));
+      setImageDimensions(prev => ({
+        ...prev,
+        [phase]: { width: data.width, height: data.height }
       }));
     } catch (error) {
       console.error('Error fetching image data:', error);
     }
   };
 
-  const handlePointDrag = (phase, index, e, data) => {
-    const bounds = imageBounds[phase];
-    if (!bounds) return;
-
-    const newX = Math.max(0, Math.min(data.x, bounds.width));
-    const newY = Math.max(0, Math.min(data.y, bounds.height));
-
+  const handlePointDrag = (phase, index, e, dragData) => {
+    const ratio = imageRatios[phase];
+    if (!ratio) return;
+  
     const newImageData = {...imageData};
-    newImageData[phase].points[index] = { x: newX, y: newY };
+    newImageData[phase].points[index] = { 
+      x: dragData.x / ratio.widthRatio,
+      y: dragData.y / ratio.heightRatio
+    };
     setImageData(newImageData);
-
+  
     // Send updated points to backend
-    fetch(`https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/update-points/${phase}`, {
+    fetch(`http://localhost:5000/update-points/${phase}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -147,42 +152,63 @@ export default function Reference() {
       }),
     });
   };
-
-  const handleImageLoad = (phase, e) => {
-    setImageBounds(prev => ({
-      ...prev,
-      [phase]: {
-        width: e.target.width,
-        height: e.target.height
-      }
-    }));
-  };
+  
 
   const renderImage = (phase, isExpanded = false) => {
     const data = imageData[phase];
     if (!data) return null;
-
+  
+    const containerStyle = isExpanded ? { width: '80vw', height: '80vh' } : { width: '300px', height: '300px' };
+  
     return (
       <div className={`image-container ${isExpanded ? 'expanded' : ''}`}
-           onClick={() => !isExpanded && setExpandedImage(phase)}>
+           onClick={() => !isExpanded && setExpandedImage(phase)}
+           style={containerStyle}>
         <img
           src={data.imageUrl}
           alt={`Phase ${phase}`}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           onLoad={(e) => handleImageLoad(phase, e)}
         />
         {data.points.map((point, index) => (
           <Draggable
             key={index}
-            position={{x: point.x, y: point.y}}
-            onDrag={(e, data) => handlePointDrag(phase, index, e, data)}
+            position={calculatePointPosition(point, phase, isExpanded)}
+            onDrag={(e, dragData) => handlePointDrag(phase, index, e, dragData)}
+            bounds="parent"
             disabled={!isExpanded}
           >
-            <div className="point" />
+            <div className="point" style={{ width: '10px', height: '10px', background: 'red', borderRadius: '50%' }} />
           </Draggable>
         ))}
       </div>
     );
   };
+
+  const [imageRatios, setImageRatios] = useState({});
+
+const handleImageLoad = (phase, e) => {
+  const { naturalWidth, naturalHeight, width, height } = e.target;
+  setImageRatios(prev => ({
+    ...prev,
+    [phase]: { 
+      widthRatio: width / naturalWidth,
+      heightRatio: height / naturalHeight
+    }
+  }));
+};
+
+const calculatePointPosition = (point, phase, isExpanded) => {
+  const ratio = imageRatios[phase];
+  if (!ratio) return { x: 0, y: 0 };
+
+  const containerStyle = isExpanded ? { width: '80vw', height: '80vh' } : { width: 300, height: 300 };
+  
+  return {
+    x: point.x * ratio.widthRatio,
+    y: point.y * ratio.heightRatio
+  };
+};
 
   if (showFinalGrid) {
     if (expandedImage) {
