@@ -1,7 +1,8 @@
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
 const { spawn, exec } = require('child_process');
-const psTree = require('ps-tree'); // You'll need to install this package
+const psTree = require('ps-tree'); 
+let isDev=require('electron-is-dev')
 
 let mainWindow;
 let serverProcess;
