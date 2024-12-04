@@ -99,13 +99,11 @@ export default function Reference() {
         error_message: null,
         has_valid_image: false
       });
-      setImageData({}); // Reset imageData
-      setImageRatios({}); // Also reset image ratios
-      setImageDimensions({}); // Reset image dimensions
     } catch (error) {
       console.error('Error resetting:', error);
     }
   };
+
   useEffect(() => {
     if (backendStatus.has_valid_image) {
       fetchImageWithPoints(phase);
@@ -119,7 +117,7 @@ export default function Reference() {
       setImageData(prev => ({
         ...prev,
         [phase]: {
-          imageUrl: `http://localhost:5000${data.imageUrl}`,
+          imageUrl: `http://localhost:5000${data.imageUrl}?t=${new Date().getTime()}`, // Add timestamp
           points: data.points
         }
       }));
