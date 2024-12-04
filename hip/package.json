@@ -6,11 +6,12 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "ps-tree": "^1.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
     "react-scripts": "5.0.1",
-    "ps-tree": "^1.2.0",
+    "tree-kill": "^1.2.2",
     "web-vitals": "^2.1.4"
   },
   "main": "public/electron.js",
@@ -40,9 +41,9 @@
     }
   },
   "devDependencies": {
+    "concurrently": "",
     "electron": "",
     "electron-builder": "",
-    "concurrently": "",
     "wait-on": ""
   },
   "homepage": "./",
