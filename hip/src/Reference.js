@@ -79,11 +79,11 @@ export default function Reference() {
 
   const getLeftImage = () => {
     switch(phase) {
-      case 1: return "./1.png";
-      case 2: return "./1_2.png";
-      case 3: return "./2_1.png";
-      case 4: return "./2_2.png";
-      default: return "./1.png";
+      case 1: return require("./1.png");
+      case 2: return require("./1_2.png");
+      case 3: return require("./2_1.png");
+      case 4: return require("./2_2.png");
+      default: return require("./1.png");
     }
   };
 
@@ -99,11 +99,13 @@ export default function Reference() {
         error_message: null,
         has_valid_image: false
       });
+      setImageData({}); // Reset imageData
+      setImageRatios({}); // Also reset image ratios
+      setImageDimensions({}); // Reset image dimensions
     } catch (error) {
       console.error('Error resetting:', error);
     }
   };
-
   useEffect(() => {
     if (backendStatus.has_valid_image) {
       fetchImageWithPoints(phase);
