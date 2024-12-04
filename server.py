@@ -29,6 +29,8 @@ image_states = {
 }
 current_phase = 1
 comparison_pairs = {2: 1, 4: 3}
+is_detection_active = False
+
 
 def reset_states():
     global current_phase
@@ -52,14 +54,18 @@ def frame_difference(frame1, frame2):
     return np.mean(diff) > 10 
 
 def image_detection_thread():
-    global current_phase
+    global current_phase, is_detection_active
     
-    cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW) 
+    cap = cv2.VideoCapture(0) 
     if not cap.isOpened():
         print("Error: Could not open camera")
         return
 
     while True:
+        if not is_detection_active:
+            time.sleep(1)  # Sleep when detection is not active
+            continue
+
         ret, frame = cap.read()
         if not ret:
             continue
@@ -127,6 +133,18 @@ def get_raw_image(phase):
     else:
         return jsonify({'error': 'No valid image available'}), 404
 
+@app.route('/start-detection')
+def start_detection():
+    global is_detection_active
+    is_detection_active = True
+    return jsonify({'status': 'Detection started'})
+
+@app.route('/stop-detection')
+def stop_detection():
+    global is_detection_active
+    is_detection_active = False
+    return jsonify({'status': 'Detection stopped'})
+
 @app.route('/status/<int:phase>')
 def get_status(phase):
     state = image_states[phase]
@@ -181,6 +199,8 @@ def start_phase(phase):
 
 @app.route('/reset')
 def reset():
+    global is_detection_active
+    is_detection_active = False
     reset_states()
     return jsonify({'status': 'All states reset'})
 
