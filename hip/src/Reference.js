@@ -25,6 +25,23 @@ export default function Reference() {
   }, [phase]);
 
   useEffect(() => {
+    const startDetection = async () => {
+      try {
+        await fetch('http://localhost:5000/start-detection');
+      } catch (error) {
+        console.error('Error starting detection:', error);
+      }
+    };
+  
+    startDetection();
+  
+    // Cleanup function to stop detection when component unmounts
+    return () => {
+      fetch('http://localhost:5000/stop-detection').catch(console.error);
+    };
+  }, []);
+
+  useEffect(() => {
     if (backendStatus.has_valid_image) {
       setCollectedImages(prev => ({
         ...prev,
@@ -61,6 +78,8 @@ export default function Reference() {
   };
 
   useEffect(() => {
+    let statusInterval;
+  
     const checkStatus = async () => {
       try {
         const response = await fetch(`http://localhost:5000/status/${phase}`);
@@ -70,11 +89,16 @@ export default function Reference() {
         console.error('Error fetching status:', error);
       }
     };
-
+  
     if (!showFinalGrid) {
-      const statusInterval = setInterval(checkStatus, 1000);
-      return () => clearInterval(statusInterval);
+      statusInterval = setInterval(checkStatus, 1000);
     }
+  
+    return () => {
+      if (statusInterval) {
+        clearInterval(statusInterval);
+      }
+    };
   }, [phase, showFinalGrid]);
 
   const getLeftImage = () => {
@@ -90,6 +114,7 @@ export default function Reference() {
   const handleRedo = async () => {
     try {
       await fetch('http://localhost:5000/reset');
+      await fetch('http://localhost:5000/start-detection'); // Start detection after reset
       setPhase(1);
       setShowImages(false);
       setCollectedImages({});
@@ -99,6 +124,9 @@ export default function Reference() {
         error_message: null,
         has_valid_image: false
       });
+      setImageData({});
+      setImageDimensions({});
+      setImageRatios({});
     } catch (error) {
       console.error('Error resetting:', error);
     }
@@ -249,7 +277,7 @@ const calculatePointPosition = (point, phase, isExpanded) => {
         <>
           <div className="image-container">
             <div className="image-area">
-              <img src={getLeftImage()} alt="Reference" />
+              <img src={getLeftImage()} style={{width:'60%', height:'60%'}} alt="Reference" />
             </div>
             <div className="image-area">
               {backendStatus.error_message && (
