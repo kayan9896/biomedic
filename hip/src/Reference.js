@@ -186,7 +186,7 @@ export default function Reference() {
     const data = imageData[phase];
     if (!data) return null;
   
-    const containerStyle = isExpanded ? { width: '80vw', height: '80vh' } : { width: '300px', height: '300px' };
+    const containerStyle = isExpanded ? { width: '600px', height: '600px' } : { width: '300px', height: '300px' };
   
     return (
       <div className={`image-container ${isExpanded ? 'expanded' : ''}`}
@@ -195,7 +195,7 @@ export default function Reference() {
         <img
           src={data.imageUrl}
           alt={`Phase ${phase}`}
-          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          style={{ width: '100%', height: '100%', objectFit: 'fill' }}
           onLoad={(e) => handleImageLoad(phase, e)}
         />
         {data.points.map((point, index) => (
@@ -230,8 +230,6 @@ const calculatePointPosition = (point, phase, isExpanded) => {
   const ratio = imageRatios[phase];
   if (!ratio) return { x: 0, y: 0 };
 
-  const containerStyle = isExpanded ? { width: '80vw', height: '80vh' } : { width: 300, height: 300 };
-  
   return {
     x: point.x * ratio.widthRatio,
     y: point.y * ratio.heightRatio
