@@ -8,7 +8,8 @@ const PhaseSquare = ({
   onRetake, 
   onResetPoints, 
   onConfirm,
-  isLoading
+  isLoading,
+  hideButtons
 }) => {
   const imageToShow = imageData[phaseNumber]?.imageUrl || require(`/${phaseNumber}.png`);
   const pointsToShow = phaseNumber === currentPhase ? currentPoints[phaseNumber] : imageData[phaseNumber]?.points;
@@ -31,7 +32,7 @@ const PhaseSquare = ({
             }}
           />
         ))}
-        {phaseNumber === currentPhase && backendStatus.has_valid_image && (
+        {phaseNumber === currentPhase && backendStatus.has_valid_image &&!hideButtons&& (
           <div className={"buttonContainer"}>
             <button 
               className={"button"} 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import PhaseSquare from './PhaseSquare'; 
 
-export default function Reference({setdo}) {
+export default function Reference({ onAllPhasesCompleted }) {
   const [phase, setPhase] = useState(1);
   const [backendStatus, setBackendStatus] = useState({
     is_detecting: true,
@@ -14,6 +14,7 @@ export default function Reference({setdo}) {
   const [imageDimensions, setImageDimensions] = useState({});
   const [imageRatios, setImageRatios] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [allButtonsHidden, setAllButtonsHidden] = useState(false);
 
   useEffect(() => {
     const startDetection = async () => {
@@ -85,14 +86,6 @@ export default function Reference({setdo}) {
       y: dragData.y / ratio.heightRatio
     };
     setImageData(newImageData);
-    setCurrentPoints(prev => {
-      const newPoints = [...prev[phase]];
-      newPoints[index] = { 
-        x: dragData.x / ratio.widthRatio,
-        y: dragData.y / ratio.heightRatio
-      };
-      return { ...prev, [phase]: newPoints };
-    });
 
   };
 
@@ -170,9 +163,12 @@ export default function Reference({setdo}) {
   };
 
   const handleResetPoints = () => {
-    setCurrentPoints(prev => ({
+    setImageData(prev => ({
       ...prev,
-      [phase]: [...imageData[phase].points]
+      [phase]: {
+        ...prev[phase],
+        points: [...currentPoints[phase]]
+      }
     }));
   };
 
@@ -216,8 +212,28 @@ const handleConfirm = async () => {
       setIsLoading(false);
     }
   } else {
-    setdo(true)
-    console.log('All phases completed');
+    try {
+      setIsLoading(true);
+      
+      // Send final points to backend
+      await fetch(`http://localhost:5000/update-points/${phase}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          points: currentPoints[phase]
+        }),
+      });
+
+      // Hide all buttons and notify parent component
+      setAllButtonsHidden(true);
+      onAllPhasesCompleted(true);
+    } catch (error) {
+      console.error('Error confirming final phase:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 };
   return (
@@ -258,6 +274,7 @@ const handleConfirm = async () => {
             onResetPoints={handleResetPoints}
             onConfirm={handleConfirm}
             isLoading={isLoading}
+            hideButtons={allButtonsHidden && p === 4}
           />
         ))}
       </div>
