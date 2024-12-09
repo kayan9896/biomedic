@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import PhaseSquare from './PhaseSquare'; 
 
-export default function Reference() {
+export default function Reference({setdo}) {
   const [phase, setPhase] = useState(1);
   const [backendStatus, setBackendStatus] = useState({
     is_detecting: true,
@@ -10,8 +10,10 @@ export default function Reference() {
     has_valid_image: false
   });
   const [imageData, setImageData] = useState({});
+  const [currentPoints, setCurrentPoints] = useState({});
   const [imageDimensions, setImageDimensions] = useState({});
   const [imageRatios, setImageRatios] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const startDetection = async () => {
@@ -34,17 +36,20 @@ export default function Reference() {
       try {
         const response = await fetch(`http://localhost:5000/status/${phase}`);
         const data = await response.json();
-        setBackendStatus(data);
-        if (data.has_valid_image) {
+        
+        // Only fetch image data if we don't have it and backend says it's valid
+        if (data.has_valid_image && !imageData[phase]) {
           fetchImageWithPoints(phase);
         }
+        
+        setBackendStatus(data);
       } catch (error) {
         console.error('Error fetching status:', error);
       }
     }, 1000);
-
+  
     return () => clearInterval(statusInterval);
-  }, [phase]);
+  }, [phase, imageData]);
 
   const fetchImageWithPoints = async (phase) => {
     try {
@@ -61,6 +66,10 @@ export default function Reference() {
         ...prev,
         [phase]: { width: data.width, height: data.height }
       }));
+      setCurrentPoints(prev => ({
+        ...prev,
+        [phase]: [...data.points]
+      }));
     } catch (error) {
       console.error('Error fetching image data:', error);
     }
@@ -76,16 +85,15 @@ export default function Reference() {
       y: dragData.y / ratio.heightRatio
     };
     setImageData(newImageData);
-  
-    fetch(`http://localhost:5000/update-points/${phase}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        points: newImageData[phase].points
-      }),
+    setCurrentPoints(prev => {
+      const newPoints = [...prev[phase]];
+      newPoints[index] = { 
+        x: dragData.x / ratio.widthRatio,
+        y: dragData.y / ratio.heightRatio
+      };
+      return { ...prev, [phase]: newPoints };
     });
+
   };
 
   const handleImageLoad = (phase, e) => {
@@ -162,21 +170,38 @@ export default function Reference() {
   };
 
   const handleResetPoints = () => {
-    const newImageData = {...imageData};
-    newImageData[phase].points = [];
-    setImageData(newImageData);
-
-    fetch(`http://localhost:5000/reset-points/${phase}`, {
-      method: 'POST',
-    });
+    setCurrentPoints(prev => ({
+      ...prev,
+      [phase]: [...imageData[phase].points]
+    }));
   };
-
-  const [isLoading, setIsLoading] = useState(false);
 
 const handleConfirm = async () => {
   if (phase < 4) {
     try {
       setIsLoading(true);
+      
+      // Send current points to backend
+      await fetch(`http://localhost:5000/update-points/${phase}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          points: currentPoints[phase]
+        }),
+      });
+
+      // Update imageData with confirmed points
+      setImageData(prev => ({
+        ...prev,
+        [phase]: {
+          ...prev[phase],
+          points: [...currentPoints[phase]]
+        }
+      }));
+
+      // Move to next phase
       const nextPhase = phase + 1;
       await fetch(`http://localhost:5000/start-phase/${nextPhase}`);
       setPhase(nextPhase);
@@ -186,10 +211,13 @@ const handleConfirm = async () => {
         has_valid_image: false
       });
     } catch (error) {
-      console.error('Error starting next phase:', error);
+      console.error('Error confirming phase:', error);
     } finally {
       setIsLoading(false);
     }
+  } else {
+    setdo(true)
+    console.log('All phases completed');
   }
 };
   return (
@@ -223,11 +251,13 @@ const handleConfirm = async () => {
             phaseNumber={p}
             currentPhase={phase}
             backendStatus={backendStatus}
+            imageData={imageData}
+            imageDimensions={imageDimensions}
+            currentPoints={currentPoints}
             onRetake={handleRetake}
             onResetPoints={handleResetPoints}
             onConfirm={handleConfirm}
             isLoading={isLoading}
-            imageData={imageData}
           />
         ))}
       </div>

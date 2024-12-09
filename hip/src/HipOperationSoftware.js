@@ -12,6 +12,7 @@ const steps = [
 
 function HipOperationSoftware() {
   const [currentStep, setCurrentStep] = useState(0);
+  const[done,setisdone]=useState(false)
 
   const handleNextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -22,7 +23,7 @@ function HipOperationSoftware() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 1: // Image Taking step
-        return <Reference backendImage={null} />; // Replace null with actual backend image when available
+        return <Reference setdo={setisdone} />; // Replace null with actual backend image when available
       default:
         return <p>Content for {steps[currentStep]} step goes here.</p>;
     }
@@ -46,7 +47,7 @@ function HipOperationSoftware() {
         <h2>{steps[currentStep]}</h2>
         {renderStepContent()}
         
-        {currentStep < steps.length - 1 && (
+        {((currentStep === 1 && done)|| ((1< currentStep < steps.length - 1 && currentStep > 1 )||currentStep ===0)) && (
           <button onClick={handleNextStep} className="next-button">
             Complete & Proceed to Next Step
           </button>

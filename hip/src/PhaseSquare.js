@@ -2,14 +2,16 @@ const PhaseSquare = ({
   phaseNumber, 
   currentPhase, 
   backendStatus,
-  imageData,  // Add this prop
+  imageData,
+  imageDimensions,
+  currentPoints,
   onRetake, 
   onResetPoints, 
   onConfirm,
   isLoading
 }) => {
-  // Determine which image to show
   const imageToShow = imageData[phaseNumber]?.imageUrl || require(`/${phaseNumber}.png`);
+  const pointsToShow = phaseNumber === currentPhase ? currentPoints[phaseNumber] : imageData[phaseNumber]?.points;
   
   return (
     <div className={`phaseSquare ${phaseNumber === currentPhase ? "active" : ''}`}>
@@ -19,6 +21,16 @@ const PhaseSquare = ({
           alt={`Phase ${phaseNumber}`} 
           className={"phaseImage"}
         />
+        {pointsToShow && pointsToShow.map((point, index) => (
+          <div
+            key={index}
+            className={"point"}
+            style={{
+              left: `${(point.x / imageDimensions.width) * 100}%`,
+              top: `${(point.y / imageDimensions.height) * 100}%`
+            }}
+          />
+        ))}
         {phaseNumber === currentPhase && backendStatus.has_valid_image && (
           <div className={"buttonContainer"}>
             <button 
