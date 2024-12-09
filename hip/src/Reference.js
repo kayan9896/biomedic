@@ -137,14 +137,27 @@ export default function Reference() {
 
   const handleRetake = async () => {
     try {
-      await fetch(`http://localhost:5000/retake/${phase}`);
+      setIsLoading(true);
+      // This will reset the state for the current phase and restart detection
+      await fetch(`http://localhost:5000/start-phase/${phase}`);
+      
+      // Reset local state for this phase
       setBackendStatus({
         is_detecting: true,
         error_message: null,
         has_valid_image: false
       });
+      
+      // Clear the image data for this phase
+      setImageData(prev => {
+        const newImageData = {...prev};
+        delete newImageData[phase];
+        return newImageData;
+      });
     } catch (error) {
       console.error('Error retaking image:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -213,6 +226,8 @@ const handleConfirm = async () => {
             onRetake={handleRetake}
             onResetPoints={handleResetPoints}
             onConfirm={handleConfirm}
+            isLoading={isLoading}
+            imageData={imageData}
           />
         ))}
       </div>
