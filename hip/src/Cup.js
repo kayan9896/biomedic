@@ -11,6 +11,15 @@ function Cup() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
+  if (bottomRowRef.current) {
+    const container = document.querySelector('.image-pairs-container');
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }
+}, [imagePairs]);
+
+  useEffect(() => {
     const handleKeyPress = async (event) => {
       if (event.key === 'a') {
         // Find the next empty slot
