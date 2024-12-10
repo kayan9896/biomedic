@@ -27,6 +27,14 @@
   color: white;
 }
 
+.step.clickable {
+  cursor: pointer;
+}
+
+.step.clickable:hover {
+  background-color: #f0f0f0; /* or whatever hover effect you prefer */
+}
+
 .step-text {
   z-index: 1;
   white-space: nowrap;

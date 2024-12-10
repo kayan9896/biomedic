@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import Reference from './Reference';
+import Cup from './Cup';
 
 const steps = [
   'Preparation',
@@ -14,16 +15,17 @@ function HipOperationSoftware() {
   const [currentStep, setCurrentStep] = useState(0);
   const [allPhasesCompleted, setAllPhasesCompleted] = useState(false);
 
-  const handleNextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
+  // Handler for progress bar clicks
+  const handleStepClick = (index) => {
+    setCurrentStep(index);
   };
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 1: // Image Taking step
-        return <Reference onAllPhasesCompleted={setAllPhasesCompleted} />; // Replace null with actual backend image when available
+        return <Reference onAllPhasesCompleted={setAllPhasesCompleted} />;
+      case 2: // Adjustment step
+        return <Cup />;
       default:
         return <p>Content for {steps[currentStep]} step goes here.</p>;
     }
@@ -35,7 +37,11 @@ function HipOperationSoftware() {
         {steps.map((step, index) => (
           <div
             key={step}
-            className={`step ${index <= currentStep ? 'completed' : ''}`}
+            className={`step ${index <= currentStep ? 'completed' : ''} ${
+              index <= currentStep + 1 || (index === 1 && allPhasesCompleted) ? 'clickable' : ''
+            }`}
+            onClick={() => handleStepClick(index)}
+            style={{ cursor: index <= currentStep + 1 || (index === 1 && allPhasesCompleted) ? 'pointer' : 'default' }}
           >
             <span className="step-text">{step}</span>
             {index < steps.length - 1 && <div className="chevron"></div>}
@@ -47,12 +53,6 @@ function HipOperationSoftware() {
         <h2>{steps[currentStep]}</h2>
         {renderStepContent()}
         
-        {(currentStep===0||(currentStep < steps.length - 1 && allPhasesCompleted ))&& (
-          <button onClick={handleNextStep} className="next-button">
-            Complete & Proceed to Next Step
-          </button>
-        )}
-        
         {currentStep === steps.length - 1 && (
           <div className="completion-message">
             All steps completed!
@@ -62,5 +62,4 @@ function HipOperationSoftware() {
     </div>
   );
 }
-
 export default HipOperationSoftware;

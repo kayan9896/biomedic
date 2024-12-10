@@ -1,0 +1,67 @@
+.cup-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .left-area {
+    width: 50%;
+    padding: 20px;
+  }
+  
+  .large-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .right-area {
+    width: 50%;
+    padding: 20px;
+  }
+  
+  .image-pairs-container {
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .image-pair-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .image-container {
+    width: 48%;
+    aspect-ratio: 1;
+    position: relative;
+  }
+  
+  .placeholder-image, .captured-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .placeholder-image {
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .capture-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .placeholder-image:hover .capture-overlay {
+    opacity: 1;
+  }
