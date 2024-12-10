@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Reference from './Reference';
 import Cup from './Cup';
@@ -14,17 +14,38 @@ const steps = [
 function HipOperationSoftware() {
   const [currentStep, setCurrentStep] = useState(0);
   const [allPhasesCompleted, setAllPhasesCompleted] = useState(false);
+  const [serverTime, setServerTime] = useState('');
 
-  // Handler for progress bar clicks
+  // Fetch server time
+  useEffect(() => {
+    const fetchServerTime = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/time');
+        const data = await response.json();
+        setServerTime(data.time);
+      } catch (error) {
+        console.error('Error fetching server time:', error);
+      }
+    };
+
+    // Initial fetch
+    fetchServerTime();
+
+    // Update every second
+    const interval = setInterval(fetchServerTime, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleStepClick = (index) => {
     setCurrentStep(index);
   };
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case 1: // Image Taking step
+      case 1:
         return <Reference onAllPhasesCompleted={setAllPhasesCompleted} />;
-      case 2: // Adjustment step
+      case 2:
         return <Cup />;
       default:
         return <p>Content for {steps[currentStep]} step goes here.</p>;
@@ -34,18 +55,23 @@ function HipOperationSoftware() {
   return (
     <div className="hip-operation-container">
       <div className="progress-bar">
-        {steps.map((step, index) => (
-          <div
-            key={step}
-            className={`step ${index <= currentStep ? 'completed' : ''} 
-            }`}
-            onClick={() => handleStepClick(index)}
-            style={{ cursor: 'pointer' }}
-          >
-            <span className="step-text">{step}</span>
-            {index < steps.length - 1 && <div className="chevron"></div>}
-          </div>
-        ))}
+        <div className="steps-container">
+          {steps.map((step, index) => (
+            <div
+              key={step}
+              className={`step ${index <= currentStep ? 'completed' : ''} 
+              }`}
+              onClick={() => handleStepClick(index)}
+              style={{ cursor: 'pointer' }}
+            >
+              <span className="step-text">{step}</span>
+              {index < steps.length - 1 && <div className="chevron"></div>}
+            </div>
+          ))}
+        </div>
+        <div className="server-time">
+          {serverTime}
+        </div>
       </div>
       
       <div className="content-area">
@@ -61,4 +87,5 @@ function HipOperationSoftware() {
     </div>
   );
 }
+
 export default HipOperationSoftware;
