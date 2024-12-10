@@ -37,11 +37,10 @@ function HipOperationSoftware() {
         {steps.map((step, index) => (
           <div
             key={step}
-            className={`step ${index <= currentStep ? 'completed' : ''} ${
-              index <= currentStep + 1 || (index === 1 && allPhasesCompleted) ? 'clickable' : ''
+            className={`step ${index <= currentStep ? 'completed' : ''} 
             }`}
             onClick={() => handleStepClick(index)}
-            style={{ cursor: index <= currentStep + 1 || (index === 1 && allPhasesCompleted) ? 'pointer' : 'default' }}
+            style={{ cursor: 'pointer' }}
           >
             <span className="step-text">{step}</span>
             {index < steps.length - 1 && <div className="chevron"></div>}

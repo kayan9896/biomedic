@@ -5,8 +5,87 @@ function Cup() {
   const [imagePairs, setImagePairs] = useState([
     { id: 1, images: [null, null] }
   ]);
-  const [selectedImage, setSelectedImage] = useState(null); // Add state for selected image
+  const [selectedImage, setSelectedImage] = useState(null);
   const bottomRowRef = useRef(null);
+  const [currentPairIndex, setCurrentPairIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const handleKeyPress = async (event) => {
+      if (event.key === 'a') {
+        // Find the next empty slot
+        const currentPair = imagePairs[currentPairIndex];
+        if (currentPair && currentPair.images[currentImageIndex] === null) {
+          await handleImageCapture(currentPairIndex, currentImageIndex);
+          
+          // Update indices for next capture
+          if (currentImageIndex === 0) {
+            setCurrentImageIndex(1);
+          } else {
+            setCurrentImageIndex(0);
+            setCurrentPairIndex(prev => prev + 1);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [currentPairIndex, currentImageIndex, imagePairs]);
+  
+  // Function to render points based on image dimensions
+  const renderPoints = (points, imageRef,w,h) => {
+    if (!points || !imageRef) return null;
+
+    const imageRect = imageRef.getBoundingClientRect();
+    
+    return points.map((point, index) => (
+      <div 
+        key={index}
+        className="point"
+        style={{
+          left: point.x /w* imageRect.width,
+          top: point.y /h* imageRect.height
+        }}
+      />
+    ));
+  };
+
+  const ImageWithPoints = ({ image, onClick, className }) => {
+    const imageRef = useRef(null);
+    const [pointElements, setPointElements] = useState(null);
+
+    useEffect(() => {
+      if (imageRef.current && image.points) {
+        const updatePoints = () => {
+          setPointElements(renderPoints(image.points, imageRef.current,image.width,image.height));
+        };
+
+        updatePoints();
+        window.addEventListener('resize', updatePoints);
+
+        return () => window.removeEventListener('resize', updatePoints);
+      }
+    }, [image, imageRef.current]);
+
+    return (
+      <div className="image-wrapper">
+        <img 
+          ref={imageRef}
+          src={image.imageUrl} 
+          alt="Captured"
+          className={className}
+          onClick={onClick}
+          style={{ cursor: onClick ? 'pointer' : 'default' }}
+        />
+        <div className="points-overlay">
+          {pointElements}
+        </div>
+      </div>
+    );
+  };
 
   const fetchImageData = async (pairId, imageIndex) => {
     try {
@@ -14,7 +93,9 @@ function Cup() {
       const data = await response.json();
       return {
         imageUrl: `http://localhost:5000${data.imageUrl}`,
-        points: data.points
+        points: data.points,
+        width:data.width,
+        height:data.height
       };
     } catch (error) {
       console.error('Error fetching image:', error);
@@ -30,12 +111,9 @@ function Cup() {
       const newImagePairs = [...imagePairs];
       newImagePairs[pairIndex].images[imageIndex] = imageData;
       
-      // Set the newly captured image as selected
       setSelectedImage(imageData);
       
-      // Check if both images in the pair are captured
       if (newImagePairs[pairIndex].images.every(img => img !== null)) {
-        // If this was the last pair, add a new pair
         if (pairIndex === imagePairs.length - 1) {
           newImagePairs.push({ id: Date.now(), images: [null, null] });
         }
@@ -45,7 +123,6 @@ function Cup() {
     }
   };
 
-  // Add handler for clicking captured images
   const handleImageClick = (image) => {
     setSelectedImage(image);
   };
@@ -54,9 +131,8 @@ function Cup() {
     <div className="cup-container">
       <div className="left-area">
         {selectedImage ? (
-          <img 
-            src={selectedImage.imageUrl} 
-            alt="Large preview" 
+          <ImageWithPoints 
+            image={selectedImage} 
             className="large-preview"
           />
         ) : (
@@ -78,23 +154,22 @@ function Cup() {
               {pair.images.map((image, imageIndex) => (
                 <div key={imageIndex} className="image-container">
                   {image ? (
-                    <img 
-                      src={image.imageUrl} 
-                      alt={`Captured ${pairIndex}-${imageIndex}`} 
+                    <ImageWithPoints 
+                      image={image}
+                      onClick={() => handleImageClick(image)}
                       className="captured-image"
-                      onClick={() => handleImageClick(image)} // Add click handler
-                      style={{ cursor: 'pointer' }} // Add pointer cursor
                     />
                   ) : (
-                    <div 
-                      className="placeholder-image"
-                      onClick={() => handleImageCapture(pairIndex, imageIndex)}
-                    >
+                    <div className="placeholder-image">
                       <img 
                         src={require('./react.png')} 
                         alt="Placeholder" 
                       />
-                      <div className="capture-overlay">Click to capture</div>
+                      <div className="capture-overlay">
+                        {pairIndex === currentPairIndex && 
+                         imageIndex === currentImageIndex ? 
+                         "Press 'a' to capture" : ""}
+                      </div>
                     </div>
                   )}
                 </div>
