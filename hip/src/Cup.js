@@ -5,41 +5,67 @@ function Cup() {
   const [imagePairs, setImagePairs] = useState([
     { id: 1, images: [null, null] }
   ]);
+  const [selectedImage, setSelectedImage] = useState(null); // Add state for selected image
   const bottomRowRef = useRef(null);
 
-  // Scroll to bottom when new row is added
-  useEffect(() => {
-    if (bottomRowRef.current) {
-      bottomRowRef.current.scrollIntoView({ behavior: 'smooth' });
+  const fetchImageData = async (pairId, imageIndex) => {
+    try {
+      const response = await fetch(`http://localhost:5000/cup/image/${pairId}/${imageIndex}`);
+      const data = await response.json();
+      return {
+        imageUrl: `http://localhost:5000${data.imageUrl}`,
+        points: data.points
+      };
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      return null;
     }
-  }, [imagePairs]);
+  };
 
-  const handleImageCapture = (pairIndex, imageIndex) => {
-    // This is where you'd handle actual image capture
-    // For now, we'll simulate it by just setting a "captured" state
+  const handleImageCapture = async (pairIndex, imageIndex) => {
+    const pairId = imagePairs[pairIndex].id;
+    const imageData = await fetchImageData(pairId, imageIndex);
     
-    const newImagePairs = [...imagePairs];
-    newImagePairs[pairIndex].images[imageIndex] = 'captured';
-    
-    // Check if both images in the pair are captured
-    if (newImagePairs[pairIndex].images.every(img => img === 'captured')) {
-      // If this was the last pair, add a new pair
-      if (pairIndex === imagePairs.length - 1) {
-        newImagePairs.push({ id: Date.now(), images: [null, null] });
+    if (imageData) {
+      const newImagePairs = [...imagePairs];
+      newImagePairs[pairIndex].images[imageIndex] = imageData;
+      
+      // Set the newly captured image as selected
+      setSelectedImage(imageData);
+      
+      // Check if both images in the pair are captured
+      if (newImagePairs[pairIndex].images.every(img => img !== null)) {
+        // If this was the last pair, add a new pair
+        if (pairIndex === imagePairs.length - 1) {
+          newImagePairs.push({ id: Date.now(), images: [null, null] });
+        }
       }
+      
+      setImagePairs(newImagePairs);
     }
-    
-    setImagePairs(newImagePairs);
+  };
+
+  // Add handler for clicking captured images
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
   };
 
   return (
     <div className="cup-container">
       <div className="left-area">
-        <img 
-          src={require('./react.png')} 
-          alt="Large preview" 
-          className="large-preview"
-        />
+        {selectedImage ? (
+          <img 
+            src={selectedImage.imageUrl} 
+            alt="Large preview" 
+            className="large-preview"
+          />
+        ) : (
+          <img 
+            src={require('./react.png')} 
+            alt="Large preview" 
+            className="large-preview"
+          />
+        )}
       </div>
       <div className="right-area">
         <div className="image-pairs-container">
@@ -51,11 +77,13 @@ function Cup() {
             >
               {pair.images.map((image, imageIndex) => (
                 <div key={imageIndex} className="image-container">
-                  {image === 'captured' ? (
+                  {image ? (
                     <img 
-                      src={require('./react.png')} 
+                      src={image.imageUrl} 
                       alt={`Captured ${pairIndex}-${imageIndex}`} 
                       className="captured-image"
+                      onClick={() => handleImageClick(image)} // Add click handler
+                      style={{ cursor: 'pointer' }} // Add pointer cursor
                     />
                   ) : (
                     <div 
