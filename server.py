@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 import io
 from flask_cors import CORS
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -203,6 +204,68 @@ def reset():
     is_detection_active = False
     reset_states()
     return jsonify({'status': 'All states reset'})
+
+
+IMAGE_PATHS = ['1.png', '2.png', '3.png', '4.png']
+
+# Add this to your global state if needed
+cup_image_states = {}
+
+class CupImageState:
+    def __init__(self):
+        self.image = None
+        self.points = None
+        self.image_path = None
+
+    def load_random_image(self):
+        self.image_path = random.choice(IMAGE_PATHS)
+        self.image = Image.open(self.image_path)
+        self.points = generate_random_points(self.image)
+
+def get_or_create_cup_state(pair_id, image_index):
+    state_key = f"{pair_id}_{image_index}"
+    if state_key not in cup_image_states:
+        cup_image_states[state_key] = CupImageState()
+    return cup_image_states[state_key]
+
+@app.route('/cup/image/<int:pair_id>/<int:image_index>')
+def get_cup_image(pair_id, image_index):
+    state = get_or_create_cup_state(pair_id, image_index)
+    
+    if not state.image:
+        state.load_random_image()
+    
+    width, height = state.image.size
+    return jsonify({
+        'imageUrl': f'/cup/raw-image/{pair_id}/{image_index}',
+        'points': state.points,
+        'width': width,
+        'height': height,
+        'imagePath': state.image_path
+    })
+
+@app.route('/cup/raw-image/<int:pair_id>/<int:image_index>')
+def get_cup_raw_image(pair_id, image_index):
+    state = get_or_create_cup_state(pair_id, image_index)
+    
+    if state.image:
+        img_io = io.BytesIO()
+        state.image.save(img_io, 'PNG')
+        img_io.seek(0)
+        return send_file(img_io, mimetype='image/jpeg')
+    else:
+        return jsonify({'error': 'No image available'}), 404
+
+# Optional: Add a route to reset or clear cup states if needed
+@app.route('/cup/reset', methods=['POST'])
+def reset_cup_states():
+    cup_image_states.clear()
+    return jsonify({'message': 'Cup states reset successfully'})
+
+@app.route('/time')
+def get_server_time():
+    current_time = datetime.now().strftime("%H:%M:%S")
+    return jsonify({'time': current_time})
 
 if __name__ == '__main__':
     app.run(debug=True)
