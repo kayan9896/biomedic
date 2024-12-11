@@ -79,6 +79,7 @@ function Cup() {
   
         updatePoints();
         window.addEventListener('resize', updatePoints);
+  
         return () => window.removeEventListener('resize', updatePoints);
       }
     }, [image, imageRef.current]);
@@ -86,26 +87,20 @@ function Cup() {
     const handleWheel = (e) => {
       e.preventDefault();
       const delta = e.deltaY * -0.01;
-      const newScale = Math.min(Math.max(0.1, scale + delta), 4);
+      const newScale = Math.min(Math.max(scale + delta, 1), 5);
       setScale(newScale);
     };
   
     const handleMouseDown = (e) => {
-      if (e.button === 0) { // Left mouse button
-        setIsDragging(true);
-        setDragStart({
-          x: e.clientX - position.x,
-          y: e.clientY - position.y
-        });
-      }
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     };
   
     const handleMouseMove = (e) => {
       if (isDragging) {
-        setPosition({
-          x: e.clientX - dragStart.x,
-          y: e.clientY - dragStart.y
-        });
+        const newX = e.clientX - dragStart.x;
+        const newY = e.clientY - dragStart.y;
+        setPosition({ x: newX, y: newY });
       }
     };
   
@@ -115,33 +110,28 @@ function Cup() {
   
     return (
       <div 
+        className="zoomable-container"
         ref={containerRef}
-        className="image-wrapper"
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        style={{ overflow: 'hidden' }}
       >
-        <div
+        <div 
+          className="image-wrapper"
           style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transformOrigin: '0 0',
-            transition: isDragging ? 'none' : 'transform 0.1s',
-            cursor: isDragging ? 'grabbing' : 'grab'
+            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
+            transformOrigin: '0 0'
           }}
         >
           <img 
             ref={imageRef}
             src={image.imageUrl} 
             alt="Captured"
-            className={className}
+            className={`${className} zoomable-image`}
             onClick={onClick}
-            style={{ 
-              cursor: onClick ? 'pointer' : 'grab',
-              userSelect: 'none'
-            }}
+            style={{ cursor: onClick ? 'pointer' : 'move' }}
           />
           <div className="points-overlay">
             {pointElements}
