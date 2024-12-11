@@ -72,11 +72,12 @@
   }
 
 
-.image-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
+  .image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 
 .points-overlay {
   position: absolute;
@@ -94,18 +95,6 @@
   background-color: red;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-}
-
-.zoomable-container {
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.zoomable-image {
-  transition: transform 0.3s ease;
-  cursor: move;
 }
 
 .captured-image {
