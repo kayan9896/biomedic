@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import Reference from './Reference';
 import Cup from './Cup';
-import TimeDisplay from './TimeDisplay';
+import ServerTime from './ServerTime';
 
 const steps = [
   'Preparation',
@@ -48,7 +48,7 @@ function HipOperationSoftware() {
             </div>
           ))}
         </div>
-        <TimeDisplay />
+        <ServerTime />
       </div>
       
       <div className="content-area">

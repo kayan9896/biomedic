@@ -62,55 +62,169 @@ function Cup() {
     ));
   };
 
-  const ImageWithPoints = ({ image, onClick, className }) => {
+  const ImageWithPoints = ({ image, onClick, className, onPointsUpdate }) => {
     const imageRef = useRef(null);
     const containerRef = useRef(null);
-    const [pointElements, setPointElements] = useState(null);
+    const [points, setPoints] = useState(image.points || []);
     const [scale, setScale] = useState(1);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [draggingPointIndex, setDraggingPointIndex] = useState(null);
+    const [lastDistance, setLastDistance] = useState(null);
   
-    useEffect(() => {
-      if (imageRef.current && image.points) {
-        const updatePoints = () => {
-          setPointElements(renderPoints(image.points, imageRef.current, image.width, image.height));
-        };
-  
-        updatePoints();
-        window.addEventListener('resize', updatePoints);
-        return () => window.removeEventListener('resize', updatePoints);
+    // Handle touch zoom (pinch gesture)
+    const handleTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const distance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        );
+        setLastDistance(distance);
+      } else if (e.touches.length === 1) {
+        setIsDragging(true);
+        setDragStart({
+          x: e.touches[0].clientX - position.x,
+          y: e.touches[0].clientY - position.y
+        });
       }
-    }, [image, imageRef.current]);
+    };
+  
+    const handleTouchMove = (e) => {
+      e.preventDefault(); // Prevent page scrolling during touch
+  
+      if (e.touches.length === 2) {
+        // Pinch to zoom
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const distance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        );
+  
+        if (lastDistance !== null) {
+          const delta = (distance - lastDistance) * 0.01;
+          const newScale = Math.min(Math.max(0.1, scale + delta), 4);
+          
+          // Calculate the center point of the two touches
+          const centerX = (touch1.clientX + touch2.clientX) / 2;
+          const centerY = (touch1.clientY + touch2.clientY) / 2;
+          const rect = containerRef.current.getBoundingClientRect();
+          const x = centerX - rect.left;
+          const y = centerY - rect.top;
+  
+          const newPosition = {
+            x: x - (x - position.x) * (newScale / scale),
+            y: y - (y - position.y) * (newScale / scale)
+          };
+  
+          setScale(newScale);
+          setPosition(newPosition);
+        }
+        setLastDistance(distance);
+      } else if (isDragging && draggingPointIndex === null) {
+        // Move image
+        setPosition({
+          x: e.touches[0].clientX - dragStart.x,
+          y: e.touches[0].clientY - dragStart.y
+        });
+      } else if (draggingPointIndex !== null) {
+        // Move point
+        const rect = imageRef.current.getBoundingClientRect();
+        const x = (e.touches[0].clientX - rect.left) / rect.width;
+        const y = (e.touches[0].clientY - rect.top) / rect.height;
+        
+        const newPoints = [...points];
+        newPoints[draggingPointIndex] = {
+          x: Math.max(0, Math.min(1, x)) * image.width,
+          y: Math.max(0, Math.min(1, y)) * image.height
+        };
+        
+        setPoints(newPoints);
+        if (onPointsUpdate) {
+          onPointsUpdate(newPoints);
+        }
+      }
+    };
+  
+    const handleTouchEnd = () => {
+      setIsDragging(false);
+      setDraggingPointIndex(null);
+      setLastDistance(null);
+    };
   
     const handleWheel = (e) => {
       e.preventDefault();
       const delta = e.deltaY * -0.01;
       const newScale = Math.min(Math.max(0.1, scale + delta), 4);
+      
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const newPosition = {
+        x: x - (x - position.x) * (newScale / scale),
+        y: y - (y - position.y) * (newScale / scale)
+      };
+  
       setScale(newScale);
+      setPosition(newPosition);
     };
   
     const handleMouseDown = (e) => {
-      if (e.button === 0) { // Left mouse button
-        setIsDragging(true);
-        setDragStart({
-          x: e.clientX - position.x,
-          y: e.clientY - position.y
-        });
-      }
+      e.preventDefault();
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      });
     };
   
     const handleMouseMove = (e) => {
-      if (isDragging) {
+      if (isDragging && draggingPointIndex === null) {
         setPosition({
           x: e.clientX - dragStart.x,
           y: e.clientY - dragStart.y
         });
+      } else if (draggingPointIndex !== null) {
+        const rect = imageRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        
+        const newPoints = [...points];
+        newPoints[draggingPointIndex] = {
+          x: Math.max(0, Math.min(1, x)) * image.width,
+          y: Math.max(0, Math.min(1, y)) * image.height
+        };
+        
+        setPoints(newPoints);
+        if (onPointsUpdate) {
+          onPointsUpdate(newPoints);
+        }
       }
     };
   
     const handleMouseUp = () => {
       setIsDragging(false);
+      setDraggingPointIndex(null);
+    };
+  
+    const handlePointMouseDown = (e, index) => {
+      e.stopPropagation();
+      setDraggingPointIndex(index);
+    };
+  
+    useEffect(() => {
+      const preventDefault = (e) => e.preventDefault();
+      containerRef.current.addEventListener('wheel', preventDefault, { passive: false });
+      return () => containerRef.current.removeEventListener('wheel', preventDefault);
+    }, []);
+  
+    const handlePointTouchStart = (e, index) => {
+      e.stopPropagation();
+      setDraggingPointIndex(index);
     };
   
     return (
@@ -122,14 +236,18 @@ function Cup() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        style={{ overflow: 'hidden' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ overflow: 'hidden', position: 'relative' }}
       >
         <div
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transformOrigin: '0 0',
             transition: isDragging ? 'none' : 'transform 0.1s',
-            cursor: isDragging ? 'grabbing' : 'grab'
+            cursor: isDragging ? 'grabbing' : 'grab',
+            position: 'relative'
           }}
         >
           <img 
@@ -139,18 +257,36 @@ function Cup() {
             className={className}
             onClick={onClick}
             style={{ 
-              cursor: onClick ? 'pointer' : 'grab',
-              userSelect: 'none'
+              cursor: 'grab',
+              userSelect: 'none',
+              width: '100%',
+              height: '100%',
+              display: 'block',
+              touchAction: 'none' // Prevent default touch actions
             }}
+            draggable="false"
           />
           <div className="points-overlay">
-            {pointElements}
+            {points.map((point, index) => (
+              <div 
+                key={index}
+                className="point"
+                style={{
+                  left: `${(point.x / image.width) * 100}%`,
+                  top: `${(point.y / image.height) * 100}%`,
+                  width: `${10 / scale}px`,
+                  height: `${10 / scale}px`,
+                  cursor: 'move'
+                }}
+                onMouseDown={(e) => handlePointMouseDown(e, index)}
+                onTouchStart={(e) => handlePointTouchStart(e, index)}
+              />
+            ))}
           </div>
         </div>
       </div>
     );
   };
-
   const fetchImageData = async (pairId, imageIndex) => {
     try {
       const response = await fetch(`http://localhost:5000/cup/image/${pairId}/${imageIndex}`);
