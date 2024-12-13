@@ -197,8 +197,8 @@ function Cup() {
       containerRef.current.addEventListener('wheel', preventDefault, { passive: false });
       containerRef.current.addEventListener('touchmove', preventDefault, { passive: false });
       return () => {
-        containerRef.current.removeEventListener('wheel', preventDefault);
-        containerRef.current.removeEventListener('touchmove', preventDefault);
+        containerRef.current?.removeEventListener('wheel', preventDefault);
+        containerRef.current?.removeEventListener('touchmove', preventDefault);
       };
     }, []);
   

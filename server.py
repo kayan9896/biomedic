@@ -31,6 +31,7 @@ image_states = {
 current_phase = 1
 comparison_pairs = {2: 1, 4: 3}
 is_detection_active = False
+p=None
 
 
 def reset_states():
@@ -55,7 +56,7 @@ def frame_difference(frame1, frame2):
     return np.mean(diff) > 10 
 
 def image_detection_thread():
-    global current_phase, is_detection_active
+    global current_phase, is_detection_active, p
     
     cap = cv2.VideoCapture(0) 
     if not cap.isOpened():
@@ -70,50 +71,52 @@ def image_detection_thread():
         ret, frame = cap.read()
         if not ret:
             continue
-
+        if not frame_difference(frame, p):
+            continue
+        p=frame
         current_state = image_states[current_phase]
         if current_state.is_detecting == False: continue
         if current_phase in [1, 3]:  # First image of each pair
-            if frame_difference(frame, current_state.last_frame):
-                current_state.last_frame = frame.copy()
+            
+            current_state.last_frame = frame.copy()
+            
+            if validate_image(frame):
+                # Convert CV2 frame to PIL Image
+                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                pil_image = Image.fromarray(rgb_frame)
                 
-                if validate_image(frame):
-                    # Convert CV2 frame to PIL Image
-                    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    pil_image = Image.fromarray(rgb_frame)
-                    
-                    current_state.has_valid_image = True
-                    current_state.error_message = None
-                    current_state.is_detecting = False
-                    current_state.image = pil_image
-                    print(frame,current_phase,current_state.is_detecting,current_state.has_valid_image)
-                else:
-                    current_state.has_valid_image = False
-                    current_state.error_message = "Image validation failed"
+                current_state.has_valid_image = True
+                current_state.error_message = None
+                current_state.is_detecting = False
+                current_state.image = pil_image
+                print(frame,current_phase,current_state.is_detecting,current_state.has_valid_image)
+            else:
+                current_state.has_valid_image = False
+                current_state.error_message = "Image validation failed"
                     
                 
         elif current_phase in [2, 4]:  # Second image of each pair
             compare_with = comparison_pairs[current_phase]
             if image_states[compare_with].has_valid_image:
-                if frame_difference(frame, current_state.last_frame):
-                    current_state.last_frame = frame.copy()
-                    
-                    # Convert current frame to RGB for comparison
-                    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    current_array = np.array(rgb_frame)
-                    previous_array = np.array(image_states[compare_with].image)
-                    
-                    if not np.array_equal(current_array, previous_array):
-                        pil_image = Image.fromarray(rgb_frame)
-                        current_state.has_valid_image = True
-                        current_state.error_message = None
-                        current_state.is_detecting = False
-                        current_state.image = pil_image
-                    else:
-                        current_state.has_valid_image = False
-                        current_state.error_message = "Images are too similar"
+                
+                current_state.last_frame = frame.copy()
+                
+                # Convert current frame to RGB for comparison
+                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                current_array = np.array(rgb_frame)
+                previous_array = np.array(image_states[compare_with].image)
+                
+                if not np.array_equal(current_array, previous_array):
+                    pil_image = Image.fromarray(rgb_frame)
+                    current_state.has_valid_image = True
+                    current_state.error_message = None
+                    current_state.is_detecting = False
+                    current_state.image = pil_image
+                else:
+                    current_state.has_valid_image = False
+                    current_state.error_message = "Images are too similar"
 
-        time.sleep(10)  # Small delay to prevent excessive CPU usage
+        time.sleep(3)  # Small delay to prevent excessive CPU usage
 
     cap.release()
 
@@ -264,8 +267,9 @@ def reset_cup_states():
 
 @app.route('/time')
 def get_server_time():
-    current_time = datetime.now().strftime("%H:%M:%S")
-    return jsonify({'time': current_time})
+    current_time = datetime.now()
+    print(current_time)
+    return jsonify({'time': str(current_time)})
 
 if __name__ == '__main__':
     app.run(debug=True)
