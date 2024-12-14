@@ -253,6 +253,26 @@
   }
 }
 
+.keyboard-container {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  width: 700px;  /* Increased width */
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Keyboard customization */
+.simple-keyboard {
+  max-width: 700px;  /* Increased width */
+}
+
+.simple-keyboard .hg-button {
+  height: 40px;
+  font-size: 16px;
+}
+
 @media (max-width: 480px) {
   .step-text {
     font-size: 12px;
