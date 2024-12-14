@@ -117,7 +117,6 @@ function App() {
                 keyboardRef={r => (keyboard.current = r)}
                 layoutName={layoutName}
                 onKeyPress={onKeyboardInput}
-                onChange={onChange}
               />
             </div>
           )}
