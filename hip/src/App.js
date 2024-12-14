@@ -1,40 +1,66 @@
 import React, { useState, useEffect, useRef } from 'react';
+import HipOperationSoftware from './HipOperationSoftware';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
-import './App.css';
-
+function closewin(){
+  const remote=(window.require)?window.require('electron').remote:null;
+  const w=remote.getCurrentWindow()
+  w.close()
+}
 function App() {
   const [streamActive, setStreamActive] = useState(false);
   const [input, setInput] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [layoutName, setLayoutName] = useState("default");
+  const [cursorPosition, setCursorPosition] = useState(0);
   const keyboardRef = useRef(null);
   const inputRef = useRef(null);
-  const keyboard = useRef();
+  const keyboard = useRef(null);
 
-  const startStream = () => {
+  function startStream(){
     setStreamActive(true);
   };
 
-  const stopStream = () => {
+  function stopStream(){
     setStreamActive(false);
   };
+  const onChange = (input) => {
+    setInput(input);
+  };
 
-  const onKeyboardInput = (key, e) => {
-    let currentInput = input;
+  const onKeyboardInput = (key) => {
+    const inputElement = inputRef.current;
+    const currentInput = input;
+    let newInput = currentInput;
+    let newCursorPosition = cursorPosition;
 
     if (key === "{backspace}") {
-      currentInput = currentInput.slice(0, -1);
+      if (cursorPosition > 0) {
+        newInput = currentInput.slice(0, cursorPosition - 1) + currentInput.slice(cursorPosition);
+        newCursorPosition = cursorPosition - 1;
+      }
     } else if (key === "{space}") {
-      currentInput += ' ';
+      newInput = currentInput.slice(0, cursorPosition) + ' ' + currentInput.slice(cursorPosition);
+      newCursorPosition = cursorPosition + 1;
     } else if (key === "{shift}" || key === "{lock}") {
       setLayoutName(layoutName === "default" ? "shift" : "default");
       return;
     } else {
-      currentInput += key;
+      newInput = currentInput.slice(0, cursorPosition) + key + currentInput.slice(cursorPosition);
+      newCursorPosition = cursorPosition + 1;
     }
 
-    setInput(currentInput);
+    setInput(newInput);
+    setCursorPosition(newCursorPosition);
+
+    // Set cursor position after state update
+    setTimeout(() => {
+      inputElement.setSelectionRange(newCursorPosition, newCursorPosition);
+    }, 0);
+  };
+
+  const handleInputClick = (event) => {
+    setCursorPosition(event.target.selectionStart || 0);
   };
 
   const onChangeInput = (event) => {
@@ -62,28 +88,28 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Camera Stream</h1>
+      <HipOperationSoftware />
       <div className="controls">
         <button onClick={startStream}>Start Stream</button>
         <button onClick={stopStream}>Stop Stream</button>
       </div>
-      <div className="content-container">
-        {streamActive && (
-          <div className="video-container">
-            <img
-              src="http://localhost:5000/video_feed"
-              alt="Camera Stream"
-              style={{ maxWidth: '100%', height: 'auto' }}
-            />
-          </div>
-        )}
-        <div className="input-container">
-          <input
+      {streamActive && (
+        <div className="video-container">
+          <img
+            src="http://localhost:5000/video_feed"
+            alt="Camera Stream"
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
+        </div>
+      )}
+      <div className="input-container">
+      <input
             ref={inputRef}
             value={input}
             placeholder="Type here..."
             onFocus={handleInputFocus}
             onChange={onChangeInput}
+            onClick={handleInputClick}
           />
           {keyboardVisible && (
             <div className="keyboard-container" ref={keyboardRef}>
@@ -91,27 +117,11 @@ function App() {
                 keyboardRef={r => (keyboard.current = r)}
                 layoutName={layoutName}
                 onKeyPress={onKeyboardInput}
-                layout={{
-                  default: [
-                    "1 2 3 4 5 6 7 8 9 0",
-                    "q w e r t y u i o p",
-                    "a s d f g h j k l",
-                    "{shift} z x c v b n m {backspace}",
-                    ".com @ {space}"
-                  ],
-                  shift: [
-                    "1 2 3 4 5 6 7 8 9 0",
-                    "Q W E R T Y U I O P",
-                    "A S D F G H J K L",
-                    "{shift} Z X C V B N M {backspace}",
-                    ".com @ {space}"
-                  ]
-                }}
               />
             </div>
           )}
         </div>
-      </div>
+      <button onClick={closewin}>close</button>
     </div>
   );
 }
