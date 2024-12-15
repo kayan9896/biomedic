@@ -6,15 +6,26 @@ from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
+last=None
+def frame_difference(frame1, frame2):
+    if frame1 is None or frame2 is None:
+        return True
+    
+    diff = cv2.absdiff(frame1, frame2)
+    return np.mean(diff) > 10 
 
 def generate_frames():
+    global last
     camera = cv2.VideoCapture(0)  # Use 0 for default camera
 
     while True:
         success, frame = camera.read()
         if not success:
             break
+        if not frame_difference(last,frame):
+            continue
         else:
+            last=frame
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
