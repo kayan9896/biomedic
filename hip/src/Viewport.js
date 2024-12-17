@@ -16,6 +16,51 @@ const Viewport = () => {
   const MAX_ZOOM = 3;
   const ZOOM_SPEED = 0.1;
   const ZOOM_INCREASE_FACTOR = 1.1; // 10% increase
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processProgress, setProcessProgress] = useState(0);
+
+  const simulateProcessing = async () => {
+    setIsProcessing(true);
+
+    // Simulate 30 stages over 2 seconds
+    for (let i = 0; i < 30; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000 / 30));
+      setProcessProgress(i);
+    }
+
+    setIsProcessing(false);
+    return true;
+  };
+
+  const ProcessingWindow = ({ progress }) => {
+    const size = 200; // Size of the processing window
+  
+    return (
+      <div style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: `${size}px`,
+        height: `${size}px`,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        borderRadius: '10px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000
+      }}>
+        <img 
+          src={require(`./a/Loading Circle1_000${progress}.png`)}
+          alt="Processing"
+          style={{
+            width: '150px',
+            height: '150px'
+          }}
+        />
+      </div>
+    );
+  };
 
   const centerViewportOnImage = (imageX, imageY, newZoom) => {
     const imageCenter = {
@@ -38,6 +83,9 @@ const Viewport = () => {
     const handleKeyPress = async (event) => {
       if (event.key === 'x') {
         try {
+          // Start processing animation
+          await simulateProcessing();
+
           const response = await axios.get('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/image', { responseType: 'blob' });
           const imageUrl = URL.createObjectURL(response.data);
           
@@ -211,6 +259,7 @@ const Viewport = () => {
           />
         ))}
         {renderViewfinder()}
+        {isProcessing && <ProcessingWindow progress={processProgress} />}
       </div>
     </div>
   );
