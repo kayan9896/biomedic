@@ -116,7 +116,7 @@ def image_detection_thread():
                     current_state.has_valid_image = False
                     current_state.error_message = "Images are too similar"
 
-        time.sleep(3)  # Small delay to prevent excessive CPU usage
+        #time.sleep(3)  # Small delay to prevent excessive CPU usage
 
     cap.release()
 

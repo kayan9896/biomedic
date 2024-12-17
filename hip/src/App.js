@@ -29,7 +29,7 @@ function App() {
     let newInput = currentInput;
     let newCursorPosition = cursorPosition;
 
-    if (key === "{backspace}") {
+    if (key === "{bksp}") {
       if (cursorPosition > 0) {
         newInput = currentInput.slice(0, cursorPosition - 1) + currentInput.slice(cursorPosition);
         newCursorPosition = cursorPosition - 1;
