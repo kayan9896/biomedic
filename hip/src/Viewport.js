@@ -15,7 +15,6 @@ const Viewport = () => {
   const MIN_ZOOM = 0.5;
   const MAX_ZOOM = 3;
   const ZOOM_SPEED = 0.1;
-  const VIEWFINDER_DURATION = 2000;
   const ZOOM_INCREASE_FACTOR = 1.1; // 10% increase
 
   const centerViewportOnImage = (imageX, imageY, newZoom) => {
@@ -74,9 +73,6 @@ const Viewport = () => {
             // Center viewport on new image
             const newPosition = centerViewportOnImage(newImage.x, newImage.y, newZoom);
             setViewportPosition(newPosition);
-
-            // Clear the viewfinder after duration
-            setTimeout(() => setViewfinder(null), VIEWFINDER_DURATION);
 
             return [...prevImages, newImage];
           });
@@ -151,7 +147,7 @@ const Viewport = () => {
       <svg
         style={{
           position: 'absolute',
-          left: `${x}px`,
+          left: `${x- (longBase - shortBase) / 2}px`,
           top: `${y}px`,
           width: `${longBase}px`,
           height: `${height}px`,
