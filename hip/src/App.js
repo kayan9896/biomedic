@@ -4,6 +4,7 @@ import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import Livecam from './Livecam';
 import Ap from './Ap';
+import Viewport from './Viewport';
 function closewin(){
   const remote=(window.require)?window.require('electron').remote:null;
   const w=remote.getCurrentWindow()
@@ -84,7 +85,7 @@ function App() {
   return (
     <div className="App">
       <HipOperationSoftware />
-      
+      <Viewport/>
       <Ap/>
       <div className="input-container">
       <input
