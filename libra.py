@@ -21,7 +21,7 @@ def compute():
     total_steps = 100  # Let's say our computation has 100 steps
     for step in range(total_steps):
         # Simulate some work
-        time.sleep(random.uniform(0.13, 0.19))
+        time.sleep(random.uniform(0.03, 0.09))
 
         # Update progress
         progress = int((step + 1) / total_steps * 100)

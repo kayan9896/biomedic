@@ -17,13 +17,7 @@ const Viewport = () => {
   const ZOOM_SPEED = 0.1;
   const ZOOM_INCREASE_FACTOR = 1.1; // 10% increase
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const simulateProcessing = async () => {
-    setIsProcessing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsProcessing(false);
-    return true;
-  };
+  const [progress, setProgress] = useState(0);
 
   const ProcessingWindow = () => {
     return (
@@ -37,12 +31,12 @@ const Viewport = () => {
         backgroundColor: '#E6EEF2',
         borderRadius: '15px',
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000
       }}>
         <svg width="120" height="120" viewBox="0 0 120 120">
-          {/* Outer circle */}
           <circle
             cx="60"
             cy="60"
@@ -51,8 +45,6 @@ const Viewport = () => {
             stroke="#2C3E50"
             strokeWidth="2"
           />
-  
-          {/* Inner circle */}
           <circle
             cx="60"
             cy="60"
@@ -61,8 +53,6 @@ const Viewport = () => {
             stroke="#1B4D3E"
             strokeWidth="2"
           />
-  
-          {/* Growing arc */}
           <circle
             cx="60"
             cy="60"
@@ -70,20 +60,20 @@ const Viewport = () => {
             fill="none"
             stroke="#3498DB"
             strokeWidth="9"
-            strokeDasharray="0 312" // Start with 0 length
+            strokeDasharray={`${progress * 3.12} 312`}
             strokeLinecap="round"
             style={{
-              animation: 'grow 2s linear forwards',
               transformOrigin: 'center',
-              transform: 'rotate(-90deg)' // Start from top
+              transform: 'rotate(-90deg)'
             }}
           />
         </svg>
+        <div style={{ marginTop: '10px' }}>{progress}%</div>
       </div>
     );
   };
-  
-  // Add this CSS to your stylesheet
+
+
   const styles = `
     @keyframes grow {
       from {
@@ -120,13 +110,26 @@ document.head.appendChild(styleSheet);
   useEffect(() => {
     const handleKeyPress = async (event) => {
       if (event.key === 'x') {
-        try {
-          // Start processing animation
-          await simulateProcessing();
+        setIsProcessing(true);
+        setProgress(0);
 
+        // Start listening for progress updates
+        const eventSource = new EventSource('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/progress');
+
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          setProgress(data.progress);
+
+          if (data.progress === 100) {
+            eventSource.close();
+            setIsProcessing(false)
+          }
+        };
+
+        try {
           const response = await axios.get('https://legendary-goldfish-qg6rjrrw7gv3xvg4-5000.app.github.dev/image', { responseType: 'blob' });
           const imageUrl = URL.createObjectURL(response.data);
-          
+
           setImages(prevImages => {
             let newImage;
             if (prevImages.length === 0) {
@@ -169,7 +172,9 @@ document.head.appendChild(styleSheet);
     };
 
     window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
   }, [zoom]); // Added zoom to dependencies
 
   const handleMouseDown = (event) => {
