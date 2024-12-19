@@ -1,18 +1,31 @@
-from flask import Flask, jsonify
+from flask import Flask, Response
 import time
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
-
-@app.route('/route1')from flask import Flask, Response
 import json
 from flask_cors import CORS
+from libra import compute
 import threading
-from libra import compute, progress_tracker
 
 app = Flask(__name__)
 CORS(app)
+
+# Global variable to store computation progress
+computation_progress = 0
+
+def background_computation():
+    global computation_progress
+    start_time = time.time()
+    expected_duration = 6  # Average of 13 and 19 seconds
+
+    # Start the actual computation in a separate thread
+    result_thread = threading.Thread(target=compute)
+    result_thread.start()
+
+    while result_thread.is_alive():
+        elapsed_time = time.time() - start_time
+        computation_progress = min(95, int((elapsed_time / expected_duration) * 100))
+        time.sleep(0.1)
+
+    computation_progress = 100
 
 @app.route('/route1')
 def route1():
@@ -25,43 +38,26 @@ def route2():
 
 @app.route('/route3')
 def route3():
-    progress_tracker.update(0)  # Reset progress
+    global computation_progress
+    computation_progress = 0
 
-    # Start computation in a separate thread
-    thread = threading.Thread(target=compute)
+    # Start background computation
+    thread = threading.Thread(target=background_computation)
     thread.start()
 
-    # Wait for computation to complete
-    thread.join()
-
-    return {'result': 1}
+    res = compute()
+    return {'result': res}
 
 @app.route('/progress')
 def progress():
     def generate():
-        last_progress = -1
-        while True:
-            current_progress = progress_tracker.get()
-            if current_progress != last_progress:
-                yield f"data: {json.dumps({'progress': current_progress})}\n\n"
-                last_progress = current_progress
-
-            if current_progress == 100:
-                break
-
-            
+        global computation_progress
+        while computation_progress < 100:
+            yield f"data: {json.dumps({'progress': computation_progress})}\n\n"
+            time.sleep(0.1)
+        yield f"data: {json.dumps({'progress': 100})}\n\n"
 
     return Response(generate(), mimetype='text/event-stream')
 
 if __name__ == '__main__':
     app.run(debug=True)
-def route1():
-    time.sleep(20)  # Wait for 20 seconds
-    return jsonify({"result": 20})
-
-@app.route('/route2')
-def route2():
-    return jsonify({"result": 0})
-
-if __name__ == '__main__':
-    app.run(debug=True,threaded=False)

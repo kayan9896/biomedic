@@ -27,8 +27,10 @@
     </div>
     <div id="progressText"></div>
     <div id="results"></div>
+
     <script>
         let eventSource;
+
         async function callRoute1() {
             const startTime = new Date().getTime();
             const response = await fetch('http://localhost:5000/route1');
@@ -37,6 +39,7 @@
             document.getElementById('results').innerHTML += 
                 `Route 1 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
         }
+
         async function callRoute2() {
             const startTime = new Date().getTime();
             const response = await fetch('http://localhost:5000/route2');
@@ -45,24 +48,29 @@
             document.getElementById('results').innerHTML += 
                 `Route 2 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
         }
+
         async function callRoute3() {
             // Reset progress
             document.getElementById('progressBar').style.width = '0%';
             document.getElementById('progressText').textContent = '0%';
+
             // Close existing event source if any
             if (eventSource) {
                 eventSource.close();
             }
+
             // Start progress monitoring
             eventSource = new EventSource('http://localhost:5000/progress');
             eventSource.onmessage = function(event) {
                 const data = JSON.parse(event.data);
                 document.getElementById('progressBar').style.width = `${data.progress}%`;
                 document.getElementById('progressText').textContent = `${data.progress}%`;
+
                 if (data.progress === 100) {
                     eventSource.close();
                 }
             };
+
             const startTime = new Date().getTime();
             const response = await fetch('http://localhost:5000/route3');
             const data = await response.json();

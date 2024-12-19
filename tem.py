@@ -6,8 +6,7 @@ import io
 import random
 import json
 import threading
-from libra import compute, progress_tracker  # Import the progress tracker
-
+from libra import compute, progress_tracker 
 app = Flask(__name__)
 CORS(app)
 
