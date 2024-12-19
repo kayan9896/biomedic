@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        .progress-bar {
+            width: 300px;
+            height: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="callRoute1()">Call Route 1</button>
+    <button onclick="callRoute2()">Call Route 2</button>
+    <button onclick="callRoute3()">Call Route 3</button>
+    <div class="progress-bar">
+        <div id="progressBar" class="progress"></div>
+    </div>
+    <div id="progressText"></div>
+    <div id="results"></div>
+    <script>
+        let eventSource;
+        async function callRoute1() {
+            const startTime = new Date().getTime();
+            const response = await fetch('http://localhost:5000/route1');
+            const data = await response.json();
+            const endTime = new Date().getTime();
+            document.getElementById('results').innerHTML += 
+                `Route 1 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
+        }
+        async function callRoute2() {
+            const startTime = new Date().getTime();
+            const response = await fetch('http://localhost:5000/route2');
+            const data = await response.json();
+            const endTime = new Date().getTime();
+            document.getElementById('results').innerHTML += 
+                `Route 2 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
+        }
+        async function callRoute3() {
+            // Reset progress
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+            // Close existing event source if any
+            if (eventSource) {
+                eventSource.close();
+            }
+            // Start progress monitoring
+            eventSource = new EventSource('http://localhost:5000/progress');
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                document.getElementById('progressBar').style.width = `${data.progress}%`;
+                document.getElementById('progressText').textContent = `${data.progress}%`;
+                if (data.progress === 100) {
+                    eventSource.close();
+                }
+            };
+            const startTime = new Date().getTime();
+            const response = await fetch('http://localhost:5000/route3');
+            const data = await response.json();
+            const endTime = new Date().getTime();
+            document.getElementById('results').innerHTML += 
+                `Route 3 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
+        }
+    </script>
+</body>
+</html>

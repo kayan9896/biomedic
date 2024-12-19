@@ -17,50 +17,83 @@ const Viewport = () => {
   const ZOOM_SPEED = 0.1;
   const ZOOM_INCREASE_FACTOR = 1.1; // 10% increase
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processProgress, setProcessProgress] = useState(0);
 
   const simulateProcessing = async () => {
     setIsProcessing(true);
-
-    // Simulate 30 stages over 2 seconds
-    for (let i = 0; i < 30; i++) {
-      await new Promise(resolve => setTimeout(resolve, 2000 / 30));
-      setProcessProgress(i);
-    }
-
+    await new Promise(resolve => setTimeout(resolve, 2000));
     setIsProcessing(false);
     return true;
   };
 
-  const ProcessingWindow = ({ progress }) => {
-    const size = 200; // Size of the processing window
-  
+  const ProcessingWindow = () => {
     return (
       <div style={{
         position: 'fixed',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: `${size}px`,
-        height: `${size}px`,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        borderRadius: '10px',
+        width: '200px',
+        height: '200px',
+        backgroundColor: '#E6EEF2',
+        borderRadius: '15px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000
       }}>
-        <img 
-          src={require(`./a/Loading Circle1_000${progress}.png`)}
-          alt="Processing"
-          style={{
-            width: '150px',
-            height: '150px'
-          }}
-        />
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          {/* Outer circle */}
+          <circle
+            cx="60"
+            cy="60"
+            r="54"
+            fill="none"
+            stroke="#2C3E50"
+            strokeWidth="2"
+          />
+  
+          {/* Inner circle */}
+          <circle
+            cx="60"
+            cy="60"
+            r="45"
+            fill="none"
+            stroke="#1B4D3E"
+            strokeWidth="2"
+          />
+  
+          {/* Growing arc */}
+          <circle
+            cx="60"
+            cy="60"
+            r="49.5"
+            fill="none"
+            stroke="#3498DB"
+            strokeWidth="9"
+            strokeDasharray="0 312" // Start with 0 length
+            strokeLinecap="round"
+            style={{
+              animation: 'grow 2s linear forwards',
+              transformOrigin: 'center',
+              transform: 'rotate(-90deg)' // Start from top
+            }}
+          />
+        </svg>
       </div>
     );
   };
+  
+  // Add this CSS to your stylesheet
+  const styles = `
+    @keyframes grow {
+      from {
+        stroke-dasharray: 0 312;
+      }
+      to {
+        stroke-dasharray: 312 312;
+      }
+    }
+  `;
 
   const centerViewportOnImage = (imageX, imageY, newZoom) => {
     const imageCenter = {
@@ -78,6 +111,11 @@ const Viewport = () => {
       y: Math.max(0, Math.min(newPosition.y, PLANE_SIZE - VIEWPORT_SIZE / newZoom))
     };
   };
+
+// Add the styles to the document
+const styleSheet = document.createElement("style");
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
 
   useEffect(() => {
     const handleKeyPress = async (event) => {
@@ -259,7 +297,7 @@ const Viewport = () => {
           />
         ))}
         {renderViewfinder()}
-        {isProcessing && <ProcessingWindow progress={processProgress} />}
+        {isProcessing && <ProcessingWindow />}
       </div>
     </div>
   );
