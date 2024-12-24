@@ -13,6 +13,7 @@ class ImageProcessingController:
         
         self.is_running = False
         self.process_thread = None
+        self.stitch_thread = None  # New thread for stitching
         
         # Model storage
         self.first_cropped_image = None
@@ -20,36 +21,31 @@ class ImageProcessingController:
         self.stitched_result = None
         
         self.check_interval = 0.1  # Check for new frames every 100ms
+        self.is_stitching = False  # Flag to indicate stitching in progress
         
         self.logger = frame_grabber.logger  # Reuse the logger from frame_grabber
 
-    def start_processing(self):
-        """Start the frame processing loop in a separate thread."""
-        if self.is_running:
-            self.logger.warning("Processing is already running")
-            return
-        
-        self.is_running = True
-        self.process_thread = threading.Thread(target=self._process_loop)
-        self.process_thread.start()
-        self.logger.info("Started image processing")
-
-    def stop_processing(self):
-        """Stop the frame processing loop."""
-        if not self.is_running:
-            self.logger.warning("Processing is not running")
-            return
-        
-        self.is_running = False
-        if self.process_thread:
-            self.process_thread.join()
-            self.process_thread = None
-        self.logger.info("Stopped image processing")
+    def _stitch_worker(self):
+        """Worker function to run stitching in a separate thread"""
+        try:
+            self.stitched_result = self.analyze_box.stitch(
+                self.first_cropped_image, 
+                self.second_cropped_image
+            )
+            self.logger.info("Stitching completed and result stored")
+        except Exception as e:
+            self.logger.error(f"Error during stitching: {str(e)}")
+            self.stitched_result = None
+        finally:
+            self.is_stitching = False
+            # Reset for next pair of images
+            self.first_cropped_image = None
+            self.second_cropped_image = None
 
     def _process_loop(self):
         """Main processing loop that checks for new frames and processes them."""
         while self.is_running:
-            if self.frame_grabber._is_new_frame_available:
+            if self.frame_grabber._is_new_frame_available and not self.is_stitching:
                 # Fetch the new frame
                 frame = self.frame_grabber.fetchFrame()
                 if frame is not None:
@@ -66,28 +62,10 @@ class ImageProcessingController:
                         self.second_cropped_image = cropped_frame
                         self.logger.info("Stored second cropped image, starting stitch")
                         
-                        try:
-                            # Start the stitching process
-                            self.analyze_box.stitch(self.first_cropped_image, self.second_cropped_image)
-                            
-                            # Wait for stitching to complete
-                            while self.analyze_box.is_stitching:
-                                print(f"Stitching progress: {controller.analyze_box.stitch_progress}%")
-                                time.sleep(0.5)
-                            
-                            # Get the result
-                            self.stitched_result = self.analyze_box.get_result()
-                            self.logger.info("Stitching completed and result stored")
-                            
-                            # Reset for next pair of images
-                            self.first_cropped_image = None
-                            self.second_cropped_image = None
-                            
-                        except RuntimeError as e:
-                            self.logger.error(f"Stitching error: {str(e)}")
-                            # If there's an error, we'll try again with the next frames
-                            self.first_cropped_image = None
-                            self.second_cropped_image = None
+                        # Start the stitching process in a separate thread
+                        self.is_stitching = True
+                        self.stitch_thread = threading.Thread(target=self._stitch_worker)
+                        self.stitch_thread.start()
             
             # Wait before next check
             time.sleep(self.check_interval)
@@ -103,11 +81,41 @@ class ImageProcessingController:
             "is_processing": self.is_running,
             "has_first_image": self.first_cropped_image is not None,
             "has_second_image": self.second_cropped_image is not None,
-            "is_stitching": self.analyze_box.is_stitching,
-            "stitch_progress": self.analyze_box.stitch_progress,
+            "is_stitching": self.is_stitching,
+            "stitch_progress": self.analyze_box._stitch_progress if hasattr(self.analyze_box, '_stitch_progress') else 0,
             "has_stitched_result": self.stitched_result is not None
         }
         return state
+
+    def stop_processing(self):
+        """Stop the frame processing loop."""
+        if not self.is_running:
+            self.logger.warning("Processing is not running")
+            return
+        
+        self.is_running = False
+        if self.process_thread:
+            self.process_thread.join()
+            self.process_thread = None
+        
+        # Wait for stitching to complete if it's in progress
+        if self.is_stitching and self.stitch_thread:
+            self.stitch_thread.join()
+            self.stitch_thread = None
+        
+        self.logger.info("Stopped image processing")
+
+    def start_processing(self):
+        """Start the frame processing loop in a separate thread."""
+        if self.is_running:
+            self.logger.warning("Processing is already running")
+            return
+        
+        self.is_running = True
+        self.process_thread = threading.Thread(target=self._process_loop)
+        self.process_thread.start()
+        self.logger.info("Started image processing")
+
 
 # Example usage:
 if __name__ == "__main__":
@@ -131,24 +139,36 @@ if __name__ == "__main__":
         # Start processing
         controller.start_processing()
         
+        cv2.namedWindow('Stitched Result', cv2.WINDOW_NORMAL)
+    
         try:
-            # Run for 30 seconds as an example
-            while controller.is_running:
+            while True:
+                # Check if we have a new stitched result
+                if controller.stitched_result is not None:
+                    # Display the stitched result
+                    cv2.imshow('Stitched Result', controller.stitched_result)
+                    
+                    # Reset the stitched result in the controller
+                    controller.stitched_result = None
                 
-                print(f"Stitching progress: {controller.analyze_box.stitch_progress}")
-                # Get stitched result if available
-                stitched_result = controller.stitched_result
-                if stitched_result is not None:
-                    # Process or display the stitched result
-                    cv2.imshow("Stitched Result", stitched_result)
+                # Display current progress
+                state = controller.get_current_state()
+                if state['is_stitching']:
+                    print(f"Stitching progress: {state['stitch_progress']:.2f}%")
                 
-                # Break loop on 'q' key press
+                # Check for 'q' key press to quit
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
-                time.sleep(1)
-            
+                
+                time.sleep(0.01)
+        
+        except KeyboardInterrupt:
+            print("Program interrupted by user")
+        
         finally:
             # Clean up
             controller.stop_processing()
             frame_grabber.stopVideo()
             frame_grabber.closeVideo()
+            cv2.destroyAllWindows()
+            print("Program ended")

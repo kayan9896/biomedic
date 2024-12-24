@@ -5,16 +5,9 @@ import threading
 
 class AnalyzeBox:
     def __init__(self):
-        self._is_stitching = False
         self._stitch_progress = 0
         self._lock = threading.Lock()
         self._result = None
-
-    @property
-    def is_stitching(self):
-        """Returns whether the stitch operation is currently running."""
-        with self._lock:
-            return self._is_stitching
 
     @property
     def stitch_progress(self):
@@ -47,41 +40,25 @@ class AnalyzeBox:
         frame1 (numpy.ndarray): First input image frame
         frame2 (numpy.ndarray): Second input image frame
         """
-        def stitch_worker():
-            # Ensure both frames have the same height
-            if frame1.shape[0] != frame2.shape[0]:
-                max_height = max(frame1.shape[0], frame2.shape[0])
-                frame1_resized = cv2.resize(frame1, (int(frame1.shape[1] * max_height / frame1.shape[0]), max_height))
-                frame2_resized = cv2.resize(frame2, (int(frame2.shape[1] * max_height / frame2.shape[0]), max_height))
-            else:
-                frame1_resized, frame2_resized = frame1, frame2
+        
+        if frame1.shape[0] != frame2.shape[0]:
+            max_height = max(frame1.shape[0], frame2.shape[0])
+            frame1_resized = cv2.resize(frame1, (int(frame1.shape[1] * max_height / frame1.shape[0]), max_height))
+            frame2_resized = cv2.resize(frame2, (int(frame2.shape[1] * max_height / frame2.shape[0]), max_height))
+        else:
+            frame1_resized, frame2_resized = frame1, frame2
 
-            # Simulate processing with progress updates
-            k=0
-            for i in range(10000):
-                for j in range(10000):
-                    with self._lock:
-                        self._stitch_progress = (k + 1) /1000000
-                        k+=1
+        # Simulate processing with progress updates
+        k=0
+        for i in range(10000):
+            for j in range(10000):
+                with self._lock:
+                    self._stitch_progress = (k + 1) /1000000
+                    k+=1
 
-            # Stitch the images
-            result = np.hstack((frame1_resized, frame2_resized))
-            
-            with self._lock:
-                self._is_stitching = False
-                self._stitch_progress = 100
-                self._result = result
-
-        with self._lock:
-            if self._is_stitching:
-                raise RuntimeError("A stitch operation is already in progress")
-            self._is_stitching = True
-            self._stitch_progress = 0
-            self._result = None
-
-        # Start stitching in a separate thread
-        thread = threading.Thread(target=stitch_worker)
-        thread.start()
+        # Stitch the images
+        self._result = np.hstack((frame1_resized, frame2_resized))
+        return self._result
 
     def get_result(self):
         """
