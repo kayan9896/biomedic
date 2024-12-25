@@ -39,8 +39,8 @@ class ImageProcessingController:
         finally:
             self.is_stitching = False
             # Reset for next pair of images
-            self.first_cropped_image = None
-            self.second_cropped_image = None
+            #self.first_cropped_image = None
+            #self.second_cropped_image = None
 
     def _process_loop(self):
         """Main processing loop that checks for new frames and processes them."""

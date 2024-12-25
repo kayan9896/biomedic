@@ -6,6 +6,7 @@ import numpy as np
 from typing import Dict, Optional, Union
 from pygrabber.dshow_graph import FilterGraph
 from datetime import datetime
+import pythoncom
 
 class FrameGrabber:
     def __init__(self):
@@ -34,6 +35,7 @@ class FrameGrabber:
         Returns a dictionary with device names as keys and their indices as values
         """
         try:
+            pythoncom.CoInitialize()
             # Create FilterGraph instance
             graph = FilterGraph()
             # Get the list of available video input devices
