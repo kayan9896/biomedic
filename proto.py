@@ -81,34 +81,56 @@ def stop_processing():
         
         return jsonify({"message": "Processing stopped successfully"})
 
-@app.route('/image1', methods=['GET'])
-def get_first_image():
-    """Serve the first cropped image"""
+@app.route('/attempts', methods=['GET'])
+def get_attempts():
+    """Get information about all processing attempts"""
     global controller
-    if controller is None or controller.first_cropped_image is None:
-        return jsonify({"error": "No first image available"}), 404
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 400
     
-    image_bytes = encode_image_to_jpeg(controller.first_cropped_image)
+    attempts_info = [
+        {
+            "index": i,
+            "timestamp": attempt.timestamp,
+            "has_first_image": attempt.first_cropped_image is not None,
+            "has_second_image": attempt.second_cropped_image is not None,
+            "has_stitched_result": attempt.stitched_result is not None
+        }
+        for i, attempt in enumerate(controller.model.attempts)
+    ]
+    return jsonify({"attempts": attempts_info})
+
+@app.route('/attempt/<int:index>/image1', methods=['GET'])
+def get_attempt_first_image(index):
+    """Get the first image of a specific attempt"""
+    global controller
+    attempt = controller.model.get_attempt(index) if controller else None
+    if not attempt or attempt.first_cropped_image is None:
+        return jsonify({"error": f"No first image available for attempt {index}"}), 404
+    
+    image_bytes = encode_image_to_jpeg(attempt.first_cropped_image)
     return Response(image_bytes, mimetype='image/jpeg')
 
-@app.route('/image2', methods=['GET'])
-def get_second_image():
-    """Serve the second cropped image"""
+@app.route('/attempt/<int:index>/image2', methods=['GET'])
+def get_attempt_sec_image(index):
+    """Get the first image of a specific attempt"""
     global controller
-    if controller is None or controller.second_cropped_image is None:
-        return jsonify({"error": "No second image available"}), 404
+    attempt = controller.model.get_attempt(index) if controller else None
+    if not attempt or attempt.second_cropped_image is None:
+        return jsonify({"error": f"No 2 image available for attempt {index}"}), 404
     
-    image_bytes = encode_image_to_jpeg(controller.second_cropped_image)
+    image_bytes = encode_image_to_jpeg(attempt.second_cropped_image)
     return Response(image_bytes, mimetype='image/jpeg')
-
-@app.route('/stitch', methods=['GET'])
-def get_stitched_image():
+    
+@app.route('/attempt/<int:index>/stitch', methods=['GET'])
+def get_stitched_image(index):
     """Serve the stitched image"""
     global controller
-    if controller is None or controller.stitched_result is None:
-        return jsonify({"error": "No stitched image available"}), 404
-    
-    image_bytes = encode_image_to_jpeg(controller.stitched_result)
+    attempt = controller.model.get_attempt(index) if controller else None
+    if not attempt or attempt.second_cropped_image is None:
+        return jsonify({"error": f"No 2 image available for attempt {index}"}), 404
+     
+    image_bytes = encode_image_to_jpeg(attempt.stitched_result)
     return Response(image_bytes, mimetype='image/jpeg')
 
 @app.route('/progress', methods=['GET'])
@@ -150,7 +172,54 @@ def redo_processing():
         controller.is_stitching = False
         
         return jsonify({"message": "Processing restarted"})
+
+@app.route('/new_processing', methods=['POST'])
+def new_processing():
+    """Reset images and prepare for new processing attempt"""
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 400
         
+        # Start a new attempt
+        controller.model.new_attempt()
+        print(controller.model.current_attempt)
+        
+        return jsonify({"message": "New processing attempt initialized"})
+
+@app.route('/current/image1', methods=['GET'])
+def get_current_first_image():
+    """Serve the first cropped image of the current attempt"""
+    global controller
+    current_attempt = controller.model.current_attempt if controller else None
+    if not current_attempt or current_attempt.first_cropped_image is None:
+        return jsonify({"error": "No first image available"}), 404
+    
+    image_bytes = encode_image_to_jpeg(current_attempt.first_cropped_image)
+    return Response(image_bytes, mimetype='image/jpeg')
+
+@app.route('/current/image2', methods=['GET'])
+def get_current_second_image():
+    """Serve the second cropped image of the current attempt"""
+    global controller
+    current_attempt = controller.model.current_attempt if controller else None
+    if not current_attempt or current_attempt.second_cropped_image is None:
+        return jsonify({"error": "No second image available"}), 404
+    
+    image_bytes = encode_image_to_jpeg(current_attempt.second_cropped_image)
+    return Response(image_bytes, mimetype='image/jpeg')
+
+@app.route('/current/stitch', methods=['GET'])
+def get_current_stitched_image():
+    """Serve the stitched image of the current attempt"""
+    global controller
+    current_attempt = controller.model.current_attempt if controller else None
+    if not current_attempt or current_attempt.stitched_result is None:
+        return jsonify({"error": "No stitched image available"}), 404
+    
+    image_bytes = encode_image_to_jpeg(current_attempt.stitched_result)
+    return Response(image_bytes, mimetype='image/jpeg')
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 from ab import AnalyzeBox
 from fg import FrameGrabber
+from mod import ProcessingModel
 
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
@@ -13,79 +14,93 @@ class ImageProcessingController:
         
         self.is_running = False
         self.process_thread = None
-        self.stitch_thread = None  # New thread for stitching
+        self.stitch_thread = None
         
-        # Model storage
-        self.first_cropped_image = None
-        self.second_cropped_image = None
-        self.stitched_result = None
+        # Use the new ProcessingModel instead of individual variables
+        self.model = ProcessingModel()
         
-        self.check_interval = 0.1  # Check for new frames every 100ms
-        self.is_stitching = False  # Flag to indicate stitching in progress
+        self.check_interval = 0.1
+        self.is_stitching = False
         
-        self.logger = frame_grabber.logger  # Reuse the logger from frame_grabber
+        self.logger = frame_grabber.logger
 
     def _stitch_worker(self):
         """Worker function to run stitching in a separate thread"""
         try:
-            self.stitched_result = self.analyze_box.stitch(
-                self.first_cropped_image, 
-                self.second_cropped_image
-            )
-            self.logger.info("Stitching completed and result stored")
+            current_attempt = self.model.current_attempt
+            if current_attempt and current_attempt.first_cropped_image is not None and current_attempt.second_cropped_image is not None:
+                stitched_result = self.analyze_box.stitch(
+                    current_attempt.first_cropped_image, 
+                    current_attempt.second_cropped_image
+                )
+                self.model.set_stitched_result(stitched_result)
+                self.logger.info("Stitching completed and result stored")
+            else:
+                self.logger.error("Cannot stitch: missing first or second image")
         except Exception as e:
             self.logger.error(f"Error during stitching: {str(e)}")
-            self.stitched_result = None
         finally:
             self.is_stitching = False
-            # Reset for next pair of images
-            #self.first_cropped_image = None
-            #self.second_cropped_image = None
 
     def _process_loop(self):
         """Main processing loop that checks for new frames and processes them."""
+        self.model.new_attempt()  # Start a new attempt when processing begins
+        
         while self.is_running:
             if self.frame_grabber._is_new_frame_available and not self.is_stitching:
-                # Fetch the new frame
                 frame = self.frame_grabber.fetchFrame()
                 if frame is not None:
-                    # Crop the frame
                     cropped_frame = self.analyze_box.crop_center(frame)
+                    current_attempt = self.model.current_attempt
                     
-                    # Check if we already have a first image
-                    if self.first_cropped_image is None:
-                        # This is the first image
-                        self.first_cropped_image = cropped_frame
+                    if current_attempt.first_cropped_image is None:
+                        self.model.set_first_image(cropped_frame)
                         self.logger.info("Stored first cropped image")
-                    else:
-                        # This is the second image, time to stitch
-                        self.second_cropped_image = cropped_frame
+                    elif current_attempt.second_cropped_image is None:
+                        self.model.set_second_image(cropped_frame)
                         self.logger.info("Stored second cropped image, starting stitch")
                         
-                        # Start the stitching process in a separate thread
                         self.is_stitching = True
                         self.stitch_thread = threading.Thread(target=self._stitch_worker)
                         self.stitch_thread.start()
             
-            # Wait before next check
             time.sleep(self.check_interval)
 
     def get_current_state(self):
-        """
-        Get the current state of processing.
-        
-        Returns:
-            dict: A dictionary containing the current state information
-        """
+        """Get the current state of processing."""
+        current_attempt = self.model.current_attempt
         state = {
             "is_processing": self.is_running,
-            "has_first_image": self.first_cropped_image is not None,
-            "has_second_image": self.second_cropped_image is not None,
+            "has_first_image": current_attempt and current_attempt.first_cropped_image is not None,
+            "has_second_image": current_attempt and current_attempt.second_cropped_image is not None,
             "is_stitching": self.is_stitching,
             "stitch_progress": self.analyze_box._stitch_progress if hasattr(self.analyze_box, '_stitch_progress') else 0,
-            "has_stitched_result": self.stitched_result is not None
+            "has_stitched_result": current_attempt and current_attempt.stitched_result is not None
         }
         return state
+
+
+    def start_new_attempt(self):
+        """Start a new processing attempt"""
+        self.model.start_new_attempt()
+        self.is_stitching = False
+
+    def get_attempt_images(self, index: Optional[int] = None):
+        """Get images for a specific attempt or current attempt"""
+        if index is not None:
+            attempt = self.model.get_attempt(index)
+        else:
+            attempt = self.model.get_current_attempt()
+            
+        if attempt is None:
+            return None
+            
+        return {
+            "first_image": attempt.first_cropped_image,
+            "second_image": attempt.second_cropped_image,
+            "stitched_result": attempt.stitched_result,
+            "timestamp": attempt.timestamp
+        }
 
     def stop_processing(self):
         """Stop the frame processing loop."""

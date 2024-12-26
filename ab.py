@@ -51,9 +51,9 @@ class AnalyzeBox:
         # Simulate processing with progress updates
         k=0
         for i in range(10000):
-            for j in range(10000):
+            for j in range(3000):
                 with self._lock:
-                    self._stitch_progress = (k + 1) /1000000
+                    self._stitch_progress = (k + 1) /300000
                     k+=1
 
         # Stitch the images
