@@ -100,18 +100,15 @@ function App() {
     }
   };
 
-  // Modify the fetchImages function to prevent clearing previous images
   const fetchImages = async () => {
     try {
       const checkAndFetchImage = async (endpoint, currentUrl) => {
         const response = await fetch(endpoint);
         if (response.ok) {
           const blob = await response.blob();
-          // Revoke old URL if it exists
-          if (currentUrl) URL.revokeObjectURL(currentUrl);
           return URL.createObjectURL(blob);
         }
-        return currentUrl; // Keep the current URL if fetch fails
+        return null; 
       };
 
       const [image1Url, image2Url, stitchUrl] = await Promise.all([
