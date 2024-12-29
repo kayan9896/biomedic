@@ -8,6 +8,16 @@ class AnalyzeBox:
         self._stitch_progress = 0
         self._lock = threading.Lock()
         self._result = None
+        self._first_image = None
+        self._second_image = None
+        self._is_processing = False
+        self._stitch_thread = None
+
+    @property
+    def is_processing(self):
+        """Returns whether the AnalyzeBox is currently processing (storing images or stitching)."""
+        with self._lock:
+            return self._is_processing
 
     @property
     def stitch_progress(self):
@@ -15,17 +25,58 @@ class AnalyzeBox:
         with self._lock:
             return self._stitch_progress
 
-    def crop_center(self, frame, target_size=700):
+    def process_frame(self, frame, model):
         """
-        Crop the input frame to keep the central square region.
+        Process a new frame: store it as first or second image, or start stitching.
         
         Args:
-        frame (numpy.ndarray): Input image frame
-        target_size (int): Size of the square crop (default: 700)
-        
-        Returns:
-        numpy.ndarray: Cropped image
+        frame (numpy.ndarray): New frame to process
+        model (ProcessingModel): Model to store the results
         """
+        with self._lock:
+            if self._is_processing:
+                return  # Skip this frame if we're already processing
+
+            cropped_frame = self.crop_center(frame)
+            current_attempt = model.current_attempt
+
+            if current_attempt.first_cropped_image is None:
+                model.set_first_image(cropped_frame)
+                self._first_image = cropped_frame
+            elif current_attempt.second_cropped_image is None:
+                model.set_second_image(cropped_frame)
+                self._second_image = cropped_frame
+        
+        if self._second_image is not None:
+            self._start_stitch(model)
+
+    def _start_stitch(self, model):
+        """
+        Start the stitching process in a separate thread.
+        
+        Args:
+        model (ProcessingModel): Model to store the result
+        """
+        with self._lock:
+            self._is_processing = True
+            self._stitch_progress = 0
+            self._result = None
+        
+        def stitch_worker():
+            try:
+                result = self.stitch(self._first_image, self._second_image)
+                model.set_stitched_result(result)
+            finally:
+                with self._lock:
+                    self._is_processing = False
+                    self._first_image = None
+                    self._second_image = None
+        
+        self._stitch_thread = threading.Thread(target=stitch_worker)
+        self._stitch_thread.start()
+
+    def crop_center(self, frame, target_size=700):
+        """Crop the input frame to keep the central square region."""
         height, width = frame.shape[:2]
         start_x = max(0, width // 2 - target_size // 2)
         start_y = max(0, height // 2 - target_size // 2)
@@ -33,14 +84,7 @@ class AnalyzeBox:
         return cropped
 
     def stitch(self, frame1, frame2):
-        """
-        Start the stitching process in a separate thread.
-        
-        Args:
-        frame1 (numpy.ndarray): First input image frame
-        frame2 (numpy.ndarray): Second input image frame
-        """
-        
+        """Stitch two frames together."""
         if frame1.shape[0] != frame2.shape[0]:
             max_height = max(frame1.shape[0], frame2.shape[0])
             frame1_resized = cv2.resize(frame1, (int(frame1.shape[1] * max_height / frame1.shape[0]), max_height))
@@ -59,65 +103,3 @@ class AnalyzeBox:
         # Stitch the images
         self._result = np.hstack((frame1_resized, frame2_resized))
         return self._result
-
-    def get_result(self):
-        """
-        Get the result of the stitching operation.
-        
-        Returns:
-        numpy.ndarray or None: The stitched image if completed, None if still processing
-        """
-        with self._lock:
-            return self._result
-
-
-def main():
-    analyze_box = AnalyzeBox()
-    cap = cv2.VideoCapture(0)
-    
-    if not cap.isOpened():
-        print("Error: Could not open video capture.")
-        return
-    
-    ret1, frame1 = cap.read()
-    ret2, frame2 = cap.read()
-    cap.release()
-    
-    if not ret1 or not ret2:
-        print("Error: Could not read frames.")
-        return
-    
-    cropped_frame1 = analyze_box.crop_center(frame1)
-    cropped_frame2 = analyze_box.crop_center(frame2)
-    
-    print("Starting stitch operation...")
-    
-    try:
-        # Start the stitching process
-        analyze_box.stitch(cropped_frame1, cropped_frame2)
-        
-        # Monitor and display progress while stitching
-        while analyze_box.is_stitching:
-            print(f"Stitching progress: {analyze_box.stitch_progress}%")
-            time.sleep(0.5)
-        
-        print(f"Stitching completed: {analyze_box.stitch_progress}%")
-        
-        # Get the result
-        stitched_frame = analyze_box.get_result()
-        
-        if stitched_frame is not None:
-            cv2.imshow("Original Frame 1", frame1)
-            cv2.imshow("Original Frame 2", frame2)
-            cv2.imshow("Cropped Frame 1", cropped_frame1)
-            cv2.imshow("Cropped Frame 2", cropped_frame2)
-            cv2.imshow("Stitched Frame", stitched_frame)
-            
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-    
-    except RuntimeError as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    main()
