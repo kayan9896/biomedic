@@ -44,7 +44,7 @@ class ImageProcessingController:
 
     def _process_loop(self):
         """Main processing loop that checks for new frames and processes them."""
-        self.model.new_attempt()  # Start a new attempt when processing begins
+        #self.model.new_attempt()  # Start a new attempt when processing begins
         
         while self.is_running:
             if self.frame_grabber._is_new_frame_available and not self.is_stitching:

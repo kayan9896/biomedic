@@ -68,7 +68,7 @@ def stop_processing():
         
         controller.stop()
         return jsonify({"message": "Processing stopped successfully"})
-        
+
 @app.route('/attempts', methods=['GET'])
 def get_attempts():
     """Get information about all processing attempts"""
@@ -115,7 +115,7 @@ def get_stitched_image(index):
     """Serve the stitched image"""
     global controller
     attempt = controller.model.get_attempt(index) if controller else None
-    if not attempt or attempt.second_cropped_image is None:
+    if not attempt or attempt.stitched_result is None:
         return jsonify({"error": f"No 2 image available for attempt {index}"}), 404
      
     image_bytes = encode_image_to_jpeg(attempt.stitched_result)
@@ -176,38 +176,6 @@ def new_processing():
         
         return jsonify({"message": "New processing attempt initialized"})
 
-@app.route('/current/image1', methods=['GET'])
-def get_current_first_image():
-    """Serve the first cropped image of the current attempt"""
-    global controller
-    current_attempt = controller.model.current_attempt if controller else None
-    if not current_attempt or current_attempt.first_cropped_image is None:
-        return jsonify({"error": "No first image available"}), 404
-    
-    image_bytes = encode_image_to_jpeg(current_attempt.first_cropped_image)
-    return Response(image_bytes, mimetype='image/jpeg')
-
-@app.route('/current/image2', methods=['GET'])
-def get_current_second_image():
-    """Serve the second cropped image of the current attempt"""
-    global controller
-    current_attempt = controller.model.current_attempt if controller else None
-    if not current_attempt or current_attempt.second_cropped_image is None:
-        return jsonify({"error": "No second image available"}), 404
-    
-    image_bytes = encode_image_to_jpeg(current_attempt.second_cropped_image)
-    return Response(image_bytes, mimetype='image/jpeg')
-
-@app.route('/current/stitch', methods=['GET'])
-def get_current_stitched_image():
-    """Serve the stitched image of the current attempt"""
-    global controller
-    current_attempt = controller.model.current_attempt if controller else None
-    if not current_attempt or current_attempt.stitched_result is None:
-        return jsonify({"error": "No stitched image available"}), 404
-    
-    image_bytes = encode_image_to_jpeg(current_attempt.stitched_result)
-    return Response(image_bytes, mimetype='image/jpeg')
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

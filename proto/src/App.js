@@ -58,22 +58,22 @@ function App() {
 
   const fetchImages = async () => {
     try {
+      const currentIndex = processingAttempts.length - 1; // Get the index of the current attempt
       const checkAndFetchImage = async (endpoint) => {
-        const response = await fetch(`http://localhost:5000/current/${endpoint}`);
+        const response = await fetch(`http://localhost:5000/attempt/${currentIndex}/${endpoint}`);
         if (response.ok) {
           const blob = await response.blob();
           return URL.createObjectURL(blob);
         }
         return null;
       };
-
+  
       const [image1Url, image2Url, stitchUrl] = await Promise.all([
         checkAndFetchImage('image1'),
         checkAndFetchImage('image2'),
         checkAndFetchImage('stitch')
       ]);
-
-      // Update the current attempt's images
+  
       setProcessingAttempts(prev => {
         const newAttempts = [...prev];
         const currentAttempt = newAttempts[newAttempts.length - 1];
@@ -154,13 +154,13 @@ function App() {
       
       if (!response.ok) throw new Error('Failed to start new processing');
       
-      // Create new attempt in frontend state
+      const newIndex = processingAttempts.length;
       setProcessingAttempts(prev => [...prev, {
         images: { image1: null, image2: null, stitch: null },
         progress: {},
         timestamp: new Date().toISOString()
       }]);
-      setCurrentAttemptIndex(processingAttempts.length);
+      setCurrentAttemptIndex(newIndex);
     } catch (err) {
       setError(err.message);
       alert('Error starting new processing: ' + err.message);
