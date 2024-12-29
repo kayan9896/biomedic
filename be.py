@@ -79,12 +79,6 @@ class ImageProcessingController:
         }
         return state
 
-
-    def start_new_attempt(self):
-        """Start a new processing attempt"""
-        self.model.start_new_attempt()
-        self.is_stitching = False
-
     def get_attempt_images(self, index: Optional[int] = None):
         """Get images for a specific attempt or current attempt"""
         if index is not None:
@@ -130,6 +124,27 @@ class ImageProcessingController:
         self.process_thread = threading.Thread(target=self._process_loop)
         self.process_thread.start()
         self.logger.info("Started image processing")
+
+    def start(self, device_name: str):
+        """
+        Connect to a video device and start processing.
+        Returns True on success, error message on failure.
+        """
+        # Connect to the video device
+        result = self.frame_grabber.initiateVideo(device_name)
+        if isinstance(result, str):
+            return result
+        
+        # Start video capture and processing
+        self.frame_grabber.startVideo()
+        self.start_processing()
+        return True
+
+    def stop(self):
+        """Stop video capture and frame processing"""
+        self.stop_processing()
+        self.frame_grabber.stopVideo()
+        self.frame_grabber.closeVideo()
 
 
 # Example usage:

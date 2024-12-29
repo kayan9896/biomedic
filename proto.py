@@ -28,59 +28,47 @@ def encode_image_to_jpeg(image):
 @app.route('/devices', methods=['GET'])
 def get_devices():
     """Get available video devices"""
-    global frame_grabber
-    if frame_grabber is None:
-        frame_grabber = FrameGrabber()
-    devices = frame_grabber.get_available_devices()
+    global controller
+    if controller is None:
+        controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+    devices = controller.frame_grabber.get_available_devices()
     return jsonify({"devices": list(devices.keys())})
 
 @app.route('/run', methods=['POST'])
 def start_processing():
     """Start video capture and frame processing"""
-    global frame_grabber, analyze_box, controller
+    global controller
     
     with server_lock:
-        if controller and controller.is_running:
+        if controller is None:
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+        
+        if controller.is_running:
             return jsonify({"error": "Processing is already running"}), 400
         
         device_name = request.json.get('device_name')
         if not device_name:
             return jsonify({"error": "Device name is required"}), 400
         
-        # Initialize components if not already initialized
-        if frame_grabber is None:
-            frame_grabber = FrameGrabber()
-        if analyze_box is None:
-            analyze_box = AnalyzeBox()
-        if controller is None:
-            controller = ImageProcessingController(frame_grabber, analyze_box)
-        
-        # Connect to the video device
-        result = frame_grabber.initiateVideo(device_name)
+        # Connect to the video device and start processing
+        result = controller.start(device_name)
         if isinstance(result, str):
             return jsonify({"error": result}), 500
-        
-        # Start video capture and processing
-        frame_grabber.startVideo()
-        controller.start_processing()
         
         return jsonify({"message": f"Started processing on device: {device_name}"})
 
 @app.route('/end', methods=['POST'])
 def stop_processing():
     """Stop video capture and frame processing"""
-    global controller, frame_grabber
+    global controller
     
     with server_lock:
         if controller is None or not controller.is_running:
             return jsonify({"error": "Processing is not running"}), 400
         
-        controller.stop_processing()
-        frame_grabber.stopVideo()
-        frame_grabber.closeVideo()
-        
+        controller.stop()
         return jsonify({"message": "Processing stopped successfully"})
-
+        
 @app.route('/attempts', methods=['GET'])
 def get_attempts():
     """Get information about all processing attempts"""
