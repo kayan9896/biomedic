@@ -8,8 +8,8 @@ class AnalyzeBox:
         self._stitch_progress = 0
         self._lock = threading.Lock()
         self._result = None
-        self._first_image = None
-        self._second_image = None
+        self.images = [[None]*4, [None]*2, [None]*2]  # Initialize with proper structure
+        self.stitched_result = [None]*2  # For rhp results
         self._is_processing = False
         self._stitch_thread = None
 
@@ -25,38 +25,8 @@ class AnalyzeBox:
         with self._lock:
             return self._stitch_progress
 
-    def process_frame(self, frame, model):
-        """
-        Process a new frame: store it as first or second image, or start stitching.
-        
-        Args:
-        frame (numpy.ndarray): New frame to process
-        model (ProcessingModel): Model to store the results
-        """
-        with self._lock:
-            if self._is_processing:
-                return  # Skip this frame if we're already processing
-
-            cropped_frame = self.crop_center(frame)
-            current_attempt = model.current_attempt
-
-            if current_attempt.first_cropped_image is None:
-                model.set_first_image(cropped_frame)
-                self._first_image = cropped_frame
-            elif current_attempt.second_cropped_image is None:
-                model.set_second_image(cropped_frame)
-                self._second_image = cropped_frame
-        
-        if self._second_image is not None:
-            self._start_stitch(model)
-
-    def _start_stitch(self, model):
-        """
-        Start the stitching process in a separate thread.
-        
-        Args:
-        model (ProcessingModel): Model to store the result
-        """
+    def rhp(self, i):
+        """Stitch horizontal pairs of images."""
         with self._lock:
             self._is_processing = True
             self._stitch_progress = 0
@@ -64,24 +34,79 @@ class AnalyzeBox:
         
         def stitch_worker():
             try:
-                result = self.stitch(self._first_image, self._second_image)
-                model.set_stitched_result(result)
+                result = self.stitch(self.images[0][i*2], self.images[0][i*2+1])
+                self.stitched_result[i] = result
             finally:
                 with self._lock:
                     self._is_processing = False
-                    self._first_image = None
-                    self._second_image = None
         
         self._stitch_thread = threading.Thread(target=stitch_worker)
         self._stitch_thread.start()
 
-    def crop_center(self, frame, target_size=700):
-        """Crop the input frame to keep the central square region."""
-        height, width = frame.shape[:2]
-        start_x = max(0, width // 2 - target_size // 2)
-        start_y = max(0, height // 2 - target_size // 2)
-        cropped = frame[start_y:start_y+target_size, start_x:start_x+target_size]
-        return cropped
+    def rwp(self):
+        """Stitch two rhp results vertically."""
+        with self._lock:
+            self._is_processing = True
+            self._stitch_progress = 0
+            self._result = None
+        
+        def stitch_worker():
+            try:
+                # Vertical stitch of the two horizontal pairs
+                if self.stitched_result[0] is not None and self.stitched_result[1] is not None:
+                    self._result = np.vstack((self.stitched_result[0], self.stitched_result[1]))
+            finally:
+                with self._lock:
+                    self._is_processing = False
+        
+        self._stitch_thread = threading.Thread(target=stitch_worker)
+        self._stitch_thread.start()
+
+    def analyzecup(self):
+        """Analyze cup images at stage 2."""
+        with self._lock:
+            self._is_processing = True
+            self._stitch_progress = 0
+        
+        try:
+            if self.images[1][0] is not None and self.images[1][1] is not None:
+                result = self.stitch(self.images[1][0], self.images[1][1])
+                return True, result, None
+            return False, None, "Missing images for cup analysis"
+        except Exception as e:
+            return False, None, str(e)
+        finally:
+            with self._lock:
+                self._is_processing = False
+
+    def analyzetrial(self):
+        """Analyze trial images at stage 3."""
+        with self._lock:
+            self._is_processing = True
+            self._stitch_progress = 0
+        
+        try:
+            if self.images[2][0] is not None and self.images[2][1] is not None:
+                result = self.stitch(self.images[2][0], self.images[2][1])
+                return True, result, None
+            return False, None, "Missing images for trial analysis"
+        except Exception as e:
+            return False, None, str(e)
+        finally:
+            with self._lock:
+                self._is_processing = False
+
+    def analyzeframe(self, current_stage, current_frame, frame, target_size=700):
+        """Analyze and store a single frame."""
+        try:
+            height, width = frame.shape[:2]
+            start_x = max(0, width // 2 - target_size // 2)
+            start_y = max(0, height // 2 - target_size // 2)
+            cropped = frame[start_y:start_y+target_size, start_x:start_x+target_size]
+            self.images[current_stage-1][current_frame-1] = cropped
+            return True, cropped
+        except Exception as e:
+            return False, str(e)
 
     def stitch(self, frame1, frame2):
         """Stitch two frames together."""

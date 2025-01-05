@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress from './CircularProgress';
 import './App.css';
-const ProcessingAttempt = ({ images, progress, isActive }) => {
+const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
+  const currentImages = subAttempts[currentSubAttempt] || {};
+
   return (
     <div className={`processing-attempt ${isActive ? 'active' : ''}`}>
       <div className="top-row">
         <div className="square-box">
-          {images.image1 ? (
-            <img src={images.image1} alt="First capture" />
+          {currentImages.image1 ? (
+            <img src={currentImages.image1} alt="First capture" />
           ) : (
             <div className="loading">Waiting for first image...</div>
           )}
         </div>
         <div className="square-box">
-          {images.image2 ? (
-            <img src={images.image2} alt="Second capture" />
+          {currentImages.image2 ? (
+            <img src={currentImages.image2} alt="Second capture" />
           ) : (
             <div className="loading">Waiting for second image...</div>
           )}
@@ -22,8 +24,8 @@ const ProcessingAttempt = ({ images, progress, isActive }) => {
       </div>
       <div className="bottom-row">
         <div className="rectangle-box">
-          {images.stitch ? (
-            <img src={images.stitch} alt="Stitched result" />
+          {currentImages.stitch ? (
+            <img src={currentImages.stitch} alt="Stitched result" />
           ) : (
             <div className="loading">
               {progress.stitch_progress !== 0 && 
@@ -45,6 +47,8 @@ function App() {
   const [error, setError] = useState(null);
   const [processingAttempts, setProcessingAttempts] = useState([]);
   const [currentAttemptIndex, setCurrentAttemptIndex] = useState(0);
+  const [currentSubAttempt, setCurrentSubAttempt] = useState(0);
+  const [maxSubAttempts, setMaxSubAttempts] = useState(3); // 3 stages
   const [images, setImages] = useState({
     image1: null,
     image2: null,
@@ -58,37 +62,55 @@ function App() {
 
   const fetchImages = async () => {
     try {
-      const currentIndex = processingAttempts.length - 1; // Get the index of the current attempt
-      const checkAndFetchImage = async (endpoint) => {
-        const response = await fetch(`http://localhost:5000/attempt/${currentIndex}/${endpoint}`);
+      const currentIndex = processingAttempts.length - 1;
+      const checkAndFetchImage = async (stage, frame) => {
+        const response = await fetch(`http://localhost:5000/attempt/${currentIndex}/stage/${stage}/frame/${frame}`);
         if (response.ok) {
           const blob = await response.blob();
           return URL.createObjectURL(blob);
         }
         return null;
       };
-  
+
+      const stage = Math.floor(currentSubAttempt / 2) + 1;
+      const frameOffset = (currentSubAttempt % 2) * 2;
+
       const [image1Url, image2Url, stitchUrl] = await Promise.all([
-        checkAndFetchImage('image1'),
-        checkAndFetchImage('image2'),
-        checkAndFetchImage('stitch')
+        checkAndFetchImage(stage, frameOffset + 1),
+        checkAndFetchImage(stage, frameOffset + 2),
+        checkAndFetchImage(stage, 'stitch')
       ]);
-  
+
       setProcessingAttempts(prev => {
         const newAttempts = [...prev];
-        const currentAttempt = newAttempts[newAttempts.length - 1];
-        if (currentAttempt) {
-          newAttempts[newAttempts.length - 1] = {
-            ...currentAttempt,
-            images: { image1: image1Url, image2: image2Url, stitch: stitchUrl }
-          };
+        const currentAttempt = newAttempts[currentIndex];
+        
+        if (!currentAttempt.subAttempts) {
+          currentAttempt.subAttempts = [];
         }
+        
+        currentAttempt.subAttempts[currentSubAttempt] = {
+          image1: image1Url,
+          image2: image2Url,
+          stitch: stitchUrl
+        };
+
         return newAttempts;
       });
     } catch (err) {
       console.error('Error fetching images:', err);
     }
   };
+
+  const moveToNextSubAttempt = () => {
+    if (currentSubAttempt < maxSubAttempts - 1) {
+      setCurrentSubAttempt(prev => prev + 1);
+    } else {
+      // All sub-attempts completed, start a new attempt
+      startNewProcessing();
+    }
+  };
+
 
   // Polling effect for current attempt
   useEffect(() => {
@@ -156,14 +178,33 @@ function App() {
       
       const newIndex = processingAttempts.length;
       setProcessingAttempts(prev => [...prev, {
-        images: { image1: null, image2: null, stitch: null },
+        subAttempts: [],
         progress: {},
         timestamp: new Date().toISOString()
       }]);
       setCurrentAttemptIndex(newIndex);
+      setCurrentSubAttempt(0);
     } catch (err) {
       setError(err.message);
       alert('Error starting new processing: ' + err.message);
+    }
+  };
+
+  const resetAllAttempts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/reset_all', {
+        method: 'POST',
+      });
+      
+      if (!response.ok) throw new Error('Failed to reset attempts');
+      
+      setProcessingAttempts([]);
+      setCurrentAttemptIndex(0);
+      setCurrentSubAttempt(0);
+      startNewProcessing();
+    } catch (err) {
+      setError(err.message);
+      alert('Error resetting attempts: ' + err.message);
     }
   };
 
@@ -224,27 +265,6 @@ function App() {
     }
   };
 
-  const handleRedo = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/new_processing', {
-        method: 'POST',
-      });
-      
-      if (!response.ok) throw new Error('Redo failed');
-      
-      // Clear all images
-      setImages({
-        image1: null,
-        image2: null,
-        stitch: null
-      });
-      
-    } catch (err) {
-      setError(err.message);
-      alert('Error during redo: ' + err.message);
-    }
-  };
-
   return (
     <div className="App">
       {!isConnected ? (
@@ -264,23 +284,28 @@ function App() {
         <div className="main-container">
           {/* Current Processing Display */}
           <div className="processing-display">
-            {processingAttempts.length > 0 && (
-              <ProcessingAttempt 
-                {...processingAttempts[currentAttemptIndex]}
-                metadata={attemptsMetadata[currentAttemptIndex]}
-                isActive={true}
-              />
-            )}
-            <div className="control-panel">
-              <button 
-                onClick={startNewProcessing}
-                disabled={!processingAttempts[currentAttemptIndex]?.images?.stitch}
-              >
-                Next Processing
-              </button>
-            </div>
+          {processingAttempts.length > 0 && (
+            <ProcessingAttempt 
+              subAttempts={processingAttempts[currentAttemptIndex].subAttempts}
+              currentSubAttempt={currentSubAttempt}
+              progress={processingAttempts[currentAttemptIndex].progress}
+              isActive={true}
+            />
+          )}
+          <div className="control-panel">
+            <button 
+              onClick={moveToNextSubAttempt}
+              disabled={
+                !processingAttempts[currentAttemptIndex]?.subAttempts[currentSubAttempt]?.stitch ||
+                currentSubAttempt >= maxSubAttempts - 1
+              }
+            >
+              Next
+            </button>
+            <button onClick={resetAllAttempts}>Reset All and Start New</button>
           </div>
-
+        </div>
+        
           {/* Navigation Bar with Enhanced Information */}
           {processingAttempts.length > 1 && (
             <div className="navigation-bar">

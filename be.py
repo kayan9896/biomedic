@@ -3,6 +3,7 @@ import time
 from typing import Optional
 import numpy as np
 import cv2
+import os
 from ab import AnalyzeBox
 from fg import FrameGrabber
 from mod import ProcessingModel
@@ -10,39 +11,193 @@ from mod import ProcessingModel
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
         self.frame_grabber = frame_grabber
-        self.analyze_box = analyze_box
+        self.model = analyze_box
         
         self.is_running = False
         self.process_thread = None
         self.stitch_thread = None
         
         # Use the new ProcessingModel instead of individual variables
-        self.model = ProcessingModel()
+        self.viewmodel = ProcessingModel()
         
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
 
-    def _process_loop(self):
-        """Main processing loop that checks for new frames and sends them to AnalyzeBox."""
-        while self.is_running:
-            if self.frame_grabber._is_new_frame_available:
-                frame = self.frame_grabber.fetchFrame()
-                if frame is not None:
-                    self.analyze_box.process_frame(frame, self.model)
+    def decide_next(self, ResBool, current_stage, current_frame):
+        if not ResBool:
+            self.errortext=sth
+            return 0, current_stage, current_frame
+        
+        # Stage 1
+        if current_stage == 1:
+            if current_frame == 1:
+                return 0, 1, 2
+            elif current_frame == 2:
+                return 1, 1, 3  # Call rhp
+            elif current_frame == 3:
+                return 0, 1, 4
+            elif current_frame == 4:
+                return 2, 2, 1  # Call rhp and rwp
+        
+        # Stage 2
+        elif current_stage == 2:
+            if current_frame == 1:
+                return 0, 2, 2
+            elif current_frame == 2:
+                return 3, 3, 1  # Call analyzecup
+        
+        # Stage 3
+        elif current_stage == 3:
+            if current_frame == 1:
+                return 0, 3, 2
+            elif current_frame == 2:
+                return 4, 0, 0  # Call analyzetrial
+        
+        return 0, current_stage, current_frame
+
+    def run_simulation(self):
+        """Set up simulation mode and load mock data."""
+        self.mode = 0  # 0 for simulation mode, 1 for normal mode
+        self.mockdata = []
+        
+        # Load mock images from the download folder
+        download_path = os.path.join('../../', 'Downloads')
+        try:
+            # Get all files starting with 'drr' and sort them naturally
+            files = [f for f in os.listdir(download_path) if f.startswith('drr')]
+            files.sort(key=lambda x: int(x.split('(')[1].split(')')[0]) if '(' in x else 0)
             
-            time.sleep(self.check_interval)
+            for filename in files:
+                filepath = os.path.join(download_path, filename)
+                img = cv2.imread(filepath)
+                if img is not None:
+                    self.mockdata.append(img)
+                else:
+                    print(f"Warning: Could not load image {filename}")
+            
+            if not self.mockdata:
+                raise ValueError("No valid mock images found")
+            
+            print(f"Loaded {len(self.mockdata)} mock images for simulation")
+            
+        except Exception as e:
+            print(f"Error setting up simulation mode: {e}")
+            self.mode = 1  # Revert to normal mode if setup fails
+            return False
+        
+        return True
+
+    def stop_simulation(self):
+        """Stop simulation and clear mock data."""
+        self.mode = 1
+        self.mockdata.clear()
+
+    def _process_loop(self):
+        case_number = 0
+        
+        while self.is_running:
+            # Get frame based on mode
+            if self.mode == 1:  # Normal mode
+                if not self.frame_grabber._is_new_frame_available or self.model.is_processing:
+                    continue
+                frame = self.frame_grabber.fetchFrame()
+            else:  # Simulation mode
+                if not self.mockdata or self.model.is_processing:
+                    continue
+                try:
+                    frame = self.mockdata.pop(0)
+                    # Optional: Add delay to simulate real-time processing
+                    time.sleep(0.1)  
+                except IndexError:
+                    print("Simulation completed: No more mock frames available")
+                    self.is_running = False
+                    break
+
+            if frame is not None:
+                # Rest of the processing remains the same
+                ResBool, image_data = self.model.analyzeframe(
+                    self.current_stage, 
+                    self.current_frame,
+                    frame
+                )
+                
+                if not ResBool:
+                    self.errortext = image_data
+                    print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}: {self.errortext}")
+                    continue
+                
+                self.viewmodel.current_attempt.images[self.current_stage-1][self.current_frame-1] = image_data
+                
+                case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
+                
+                updatenext = False
+                # Execute functions based on case number
+                match case_number:
+                    case 0:
+                        updatenext = True
+                    case 1:
+                        try:
+                            self.model.rhp(0)  # First horizontal pair
+                            updatenext = True
+                        except Exception as error:
+                            self.errortext = str(error)
+                            self.current_stage = 1
+                            self.current_frame = 1
+                            print(f"Error in rhp: {error}")
+                    case 2:
+                        try:
+                            self.model.rhp(1)  # Second horizontal pair
+                            self.model.rwp()
+                            updatenext = True
+                        except Exception as error:
+                            self.errortext = str(error)
+                            self.current_stage = 1
+                            self.current_frame = 1
+                            print(f"Error in rhp/rwp: {error}")
+                    case 3:
+                        try:
+                            cup_bool, data, error = self.model.analyzecup()
+                            if cup_bool:
+                                updatenext = True
+                                self.viewmodel.cup = data
+                            else:
+                                self.errortext = error
+                                self.current_stage = 2
+                                self.current_frame = 1
+                        except Exception as error:
+                            self.errortext = str(error)
+                            self.current_stage = 2
+                            self.current_frame = 1
+                            print(f"Error in analyzecup: {error}")
+                    case 4:
+                        try:
+                            trial_bool, data, error = self.model.analyzetrial()
+                            if trial_bool:
+                                updatenext = True
+                                self.viewmodel.trial = data
+                            else:
+                                self.errortext = error
+                                self.current_stage = 3
+                                self.current_frame = 1
+                        except Exception as error:
+                            self.errortext = str(error)
+                            self.current_stage = 3
+                            self.current_frame = 1
+                            print(f"Error in analyzetrial: {error}")
+                
+                # Update stage and frame for next iteration
+                if updatenext:
+                    self.current_stage = next_stage
+                    self.current_frame = next_frame
+
 
     def get_current_state(self):
         """Get the current state of processing."""
-        current_attempt = self.model.current_attempt
+        current_attempt = self.viewmodel.current_attempt
         state = {
-            "is_processing": self.is_running,
-            "has_first_image": current_attempt and current_attempt.first_cropped_image is not None,
-            "has_second_image": current_attempt and current_attempt.second_cropped_image is not None,
-            "is_stitching": self.analyze_box.is_processing,
-            "stitch_progress": self.analyze_box.stitch_progress,
-            "has_stitched_result": current_attempt and current_attempt.stitched_result is not None
+            "is_processing": self.model.is_processing,
+            "stitch_progress": self.model.stitch_progress,
         }
         return state
 
@@ -104,51 +259,12 @@ if __name__ == "__main__":
     analyze_box = AnalyzeBox()
     controller = ImageProcessingController(frame_grabber, analyze_box)
 
-    # Connect to a video device
-    available_devices = frame_grabber.get_available_devices()
-    if available_devices:
-        device_name = list(available_devices.keys())[1]  # Use the first available device
-        result = frame_grabber.initiateVideo(device_name)
-        if isinstance(result, str):
-            print(f"Error: {result}")
-            exit(1)
-        
-        # Start video capture
-        frame_grabber.startVideo()
-        
-        # Start processing
-        controller.start_processing()
-        
-        cv2.namedWindow('Stitched Result', cv2.WINDOW_NORMAL)
-    
-        try:
-            while True:
-                # Check if we have a new stitched result
-                if controller.stitched_result is not None:
-                    # Display the stitched result
-                    cv2.imshow('Stitched Result', controller.stitched_result)
-                    
-                    # Reset the stitched result in the controller
-                    controller.stitched_result = None
+    controller.run_simulation()
+    for i in controller.mockdata:
+        while True:
+            cv2.imshow('',i)
                 
-                # Display current progress
-                state = controller.get_current_state()
-                if state['is_stitching']:
-                    print(f"Stitching progress: {state['stitch_progress']:.2f}%")
-                
-                # Check for 'q' key press to quit
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-                
-                time.sleep(0.01)
+            # Check for 'q' key press to quit
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
         
-        except KeyboardInterrupt:
-            print("Program interrupted by user")
-        
-        finally:
-            # Clean up
-            controller.stop_processing()
-            frame_grabber.stopVideo()
-            frame_grabber.closeVideo()
-            cv2.destroyAllWindows()
-            print("Program ended")

@@ -76,51 +76,93 @@ def get_attempts():
     if not controller:
         return jsonify({"error": "Controller not initialized"}), 400
     
-    attempts_info = [
-        {
+    attempts_info = []
+    for i, attempt in enumerate(controller.viewmodel.attempts):
+        stage_info = []
+        for stage_idx, stage in enumerate(attempt.stages):
+            sub_attempts_info = []
+            for sub_idx, sub in enumerate(stage.sub_attempts):
+                sub_attempts_info.append({
+                    "has_image1": sub.image1 is not None,
+                    "has_image2": sub.image2 is not None,
+                    "has_stitch": sub.stitch is not None
+                })
+            stage_info.append({"sub_attempts": sub_attempts_info})
+        
+        attempts_info.append({
             "index": i,
             "timestamp": attempt.timestamp,
-            "has_first_image": attempt.first_cropped_image is not None,
-            "has_second_image": attempt.second_cropped_image is not None,
-            "has_stitched_result": attempt.stitched_result is not None
-        }
-        for i, attempt in enumerate(controller.model.attempts)
-    ]
+            "stages": stage_info
+        })
+    
     return jsonify({"attempts": attempts_info})
 
-@app.route('/attempt/<int:index>/image1', methods=['GET'])
-def get_attempt_first_image(index):
-    """Get the first image of a specific attempt"""
+@app.route('/attempt/<int:index>/stage/<int:stage>/frame/<int:frame>', methods=['GET'])
+def get_attempt_frame(index, stage, frame):
+    """Get a specific frame from a stage"""
     global controller
-    attempt = controller.model.get_attempt(index) if controller else None
-    if not attempt or attempt.first_cropped_image is None:
-        return jsonify({"error": f"No first image available for attempt {index}"}), 404
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 400
     
-    image_bytes = encode_image_to_jpeg(attempt.first_cropped_image)
+    attempt = controller.viewmodel.get_attempt(index)
+    if not attempt or stage < 0 or stage >= len(attempt.stages):
+        return jsonify({"error": "Invalid attempt or stage"}), 404
+    
+    stage_obj = attempt.stages[stage]
+    sub_attempt_idx = (frame - 1) // 2
+    frame_in_sub = (frame - 1) % 2 + 1
+    
+    if sub_attempt_idx >= len(stage_obj.sub_attempts):
+        return jsonify({"error": "Invalid frame number"}), 404
+    
+    image = None
+    if frame_in_sub == 1:
+        image = stage_obj.sub_attempts[sub_attempt_idx].image1
+    else:
+        image = stage_obj.sub_attempts[sub_attempt_idx].image2
+    
+    if image is None:
+        return jsonify({"error": "Image not available"}), 404
+    
+    image_bytes = encode_image_to_jpeg(image)
     return Response(image_bytes, mimetype='image/jpeg')
 
-@app.route('/attempt/<int:index>/image2', methods=['GET'])
-def get_attempt_sec_image(index):
-    """Get the first image of a specific attempt"""
+@app.route('/attempt/<int:index>/stage/<int:stage>/sub_attempt/<int:sub>/stitch', methods=['GET'])
+def get_stitch_result(index, stage, sub):
+    """Get the stitched result for a specific sub-attempt"""
     global controller
-    attempt = controller.model.get_attempt(index) if controller else None
-    if not attempt or attempt.second_cropped_image is None:
-        return jsonify({"error": f"No 2 image available for attempt {index}"}), 404
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 400
     
-    image_bytes = encode_image_to_jpeg(attempt.second_cropped_image)
-    return Response(image_bytes, mimetype='image/jpeg')
+    attempt = controller.viewmodel.get_attempt(index)
+    if not attempt or stage < 0 or stage >= len(attempt.stages):
+        return jsonify({"error": "Invalid attempt or stage"}), 404
     
-@app.route('/attempt/<int:index>/stitch', methods=['GET'])
-def get_stitched_image(index):
-    """Serve the stitched image"""
-    global controller
-    attempt = controller.model.get_attempt(index) if controller else None
-    if not attempt or attempt.stitched_result is None:
-        return jsonify({"error": f"No 2 image available for attempt {index}"}), 404
-     
-    image_bytes = encode_image_to_jpeg(attempt.stitched_result)
+    stage_obj = attempt.stages[stage]
+    if sub >= len(stage_obj.sub_attempts):
+        return jsonify({"error": "Invalid sub-attempt"}), 404
+    
+    stitch = stage_obj.sub_attempts[sub].stitch
+    if stitch is None:
+        return jsonify({"error": "Stitch result not available"}), 404
+    
+    image_bytes = encode_image_to_jpeg(stitch)
     return Response(image_bytes, mimetype='image/jpeg')
 
+@app.route('/reset_all', methods=['POST'])
+def reset_all():
+    """Reset all attempts and start fresh"""
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 400
+        
+        controller.viewmodel.clear()
+        controller.viewmodel.new_attempt()
+        
+        return jsonify({"message": "All attempts reset successfully"})
+        
 @app.route('/progress', methods=['GET'])
 def get_progress():
     """Get current processing progress"""
@@ -171,8 +213,8 @@ def new_processing():
             return jsonify({"error": "Controller not initialized"}), 400
         
         # Start a new attempt
-        controller.model.new_attempt()
-        print(controller.model.current_attempt)
+        controller.viewmodel.new_attempt()
+        print(controller.viewmodel.current_attempt)
         
         return jsonify({"message": "New processing attempt initialized"})
 
