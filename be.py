@@ -12,7 +12,9 @@ class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
         self.frame_grabber = frame_grabber
         self.model = analyze_box
-        
+        self.mode = 1
+        self.current_stage = 1
+        self.current_frame = 1
         self.is_running = False
         self.process_thread = None
         self.stitch_thread = None
@@ -97,6 +99,11 @@ class ImageProcessingController:
         case_number = 0
         
         while self.is_running:
+            # Ensure we have a current attempt
+            if not self.viewmodel.current_attempt:
+                print(3)
+                continue
+
             # Get frame based on mode
             if self.mode == 1:  # Normal mode
                 if not self.frame_grabber._is_new_frame_available or self.model.is_processing:
@@ -115,7 +122,8 @@ class ImageProcessingController:
                     break
 
             if frame is not None:
-                # Rest of the processing remains the same
+                
+                # Get analysis results
                 ResBool, image_data = self.model.analyzeframe(
                     self.current_stage, 
                     self.current_frame,
@@ -123,11 +131,16 @@ class ImageProcessingController:
                 )
                 
                 if not ResBool:
-                    self.errortext = image_data
-                    print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}: {self.errortext}")
+                    print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}")
                     continue
                 
-                self.viewmodel.current_attempt.images[self.current_stage-1][self.current_frame-1] = image_data
+
+                # Store the frame in the viewmodel
+                self.viewmodel.set_frame(
+                    stage=self.current_stage,
+                    frame=self.current_frame,
+                    image=image_data
+                )
                 
                 case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
                 
@@ -138,7 +151,8 @@ class ImageProcessingController:
                         updatenext = True
                     case 1:
                         try:
-                            self.model.rhp(0)  # First horizontal pair
+                            result=self.model.rhp(0)
+                            self.viewmodel.set_stitched(stage=self.current_stage, image=result)
                             updatenext = True
                         except Exception as error:
                             self.errortext = str(error)
@@ -147,8 +161,9 @@ class ImageProcessingController:
                             print(f"Error in rhp: {error}")
                     case 2:
                         try:
-                            self.model.rhp(1)  # Second horizontal pair
-                            self.model.rwp()
+                            self.model.rhp(1)  
+                            result=self.model.rwp()
+                            self.viewmodel.set_stitched(stage=self.current_stage, image=result)
                             updatenext = True
                         except Exception as error:
                             self.errortext = str(error)
@@ -160,7 +175,7 @@ class ImageProcessingController:
                             cup_bool, data, error = self.model.analyzecup()
                             if cup_bool:
                                 updatenext = True
-                                self.viewmodel.cup = data
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=data)
                             else:
                                 self.errortext = error
                                 self.current_stage = 2
@@ -175,7 +190,7 @@ class ImageProcessingController:
                             trial_bool, data, error = self.model.analyzetrial()
                             if trial_bool:
                                 updatenext = True
-                                self.viewmodel.trial = data
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=data)
                             else:
                                 self.errortext = error
                                 self.current_stage = 3

@@ -63,6 +63,9 @@ function App() {
   const fetchImages = async () => {
     try {
       const currentIndex = processingAttempts.length - 1;
+      const stage = Math.floor(currentSubAttempt / 2) + 1;
+      const frameOffset = (currentSubAttempt % 2) * 2;
+  
       const checkAndFetchImage = async (stage, frame) => {
         const response = await fetch(`http://localhost:5000/attempt/${currentIndex}/stage/${stage}/frame/${frame}`);
         if (response.ok) {
@@ -71,32 +74,34 @@ function App() {
         }
         return null;
       };
-
-      const stage = Math.floor(currentSubAttempt / 2) + 1;
-      const frameOffset = (currentSubAttempt % 2) * 2;
-
+  
       const [image1Url, image2Url, stitchUrl] = await Promise.all([
         checkAndFetchImage(stage, frameOffset + 1),
         checkAndFetchImage(stage, frameOffset + 2),
         checkAndFetchImage(stage, 'stitch')
       ]);
-
-      setProcessingAttempts(prev => {
-        const newAttempts = [...prev];
-        const currentAttempt = newAttempts[currentIndex];
-        
-        if (!currentAttempt.subAttempts) {
-          currentAttempt.subAttempts = [];
-        }
-        
-        currentAttempt.subAttempts[currentSubAttempt] = {
-          image1: image1Url,
-          image2: image2Url,
-          stitch: stitchUrl
-        };
-
-        return newAttempts;
-      });
+  
+      // Only update if we have new data
+      if (image1Url || image2Url || stitchUrl) {
+        setProcessingAttempts(prev => {
+          const newAttempts = [...prev];
+          const currentAttempt = { ...newAttempts[currentIndex] };
+          
+          if (!currentAttempt.subAttempts) {
+            currentAttempt.subAttempts = [];
+          }
+          
+          // Create a new object for the current sub-attempt
+          currentAttempt.subAttempts[currentSubAttempt] = {
+            image1: image1Url || currentAttempt.subAttempts[currentSubAttempt]?.image1,
+            image2: image2Url || currentAttempt.subAttempts[currentSubAttempt]?.image2,
+            stitch: stitchUrl || currentAttempt.subAttempts[currentSubAttempt]?.stitch
+          };
+  
+          newAttempts[currentIndex] = currentAttempt;
+          return newAttempts;
+        });
+      }
     } catch (err) {
       console.error('Error fetching images:', err);
     }
@@ -125,7 +130,7 @@ function App() {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isConnected, currentAttemptIndex, processingAttempts.length]);
+  }, [isConnected, currentAttemptIndex, processingAttempts.length, currentSubAttempt]);
 
   // Function to fetch historical attempt images
   const fetchHistoricalAttemptImages = async (attemptIndex) => {
@@ -160,12 +165,9 @@ function App() {
     }
   };
 
-  const handleAttemptClick = async (index) => {
-    setCurrentAttemptIndex(index);
-    if (index !== processingAttempts.length - 1 && 
-        !processingAttempts[index]?.images?.image1) {
-      await fetchHistoricalAttemptImages(index);
-    }
+  const handleSubAttemptClick = (attemptIndex, subIndex) => {
+    setCurrentAttemptIndex(attemptIndex);
+    setCurrentSubAttempt(subIndex);
   };
 
   const startNewProcessing = async () => {
@@ -201,7 +203,18 @@ function App() {
       setProcessingAttempts([]);
       setCurrentAttemptIndex(0);
       setCurrentSubAttempt(0);
-      startNewProcessing();
+      
+      // Start a new processing attempt
+      const newAttempt = {
+        subAttempts: [],
+        progress: {},
+        timestamp: new Date().toISOString()
+      };
+      
+      setProcessingAttempts([newAttempt]);
+      
+      // Fetch images for the first sub-attempt (stage 1, frames 1 and 2)
+      fetchImages();
     } catch (err) {
       setError(err.message);
       alert('Error resetting attempts: ' + err.message);
@@ -296,8 +309,7 @@ function App() {
             <button 
               onClick={moveToNextSubAttempt}
               disabled={
-                !processingAttempts[currentAttemptIndex]?.subAttempts[currentSubAttempt]?.stitch ||
-                currentSubAttempt >= maxSubAttempts - 1
+                !processingAttempts[currentAttemptIndex]?.subAttempts[currentSubAttempt]?.stitch
               }
             >
               Next
@@ -309,29 +321,26 @@ function App() {
           {/* Navigation Bar with Enhanced Information */}
           {processingAttempts.length > 1 && (
             <div className="navigation-bar">
-              {processingAttempts.map((attempt, index) => {
-                const metadata = attemptsMetadata[index];
-                return (
-                  <div
-                    key={index}
-                    className={`nav-item ${index === currentAttemptIndex ? 'active' : ''}`}
-                    onClick={() => handleAttemptClick(index)}
-                  >
-                    <div className="attempt-header">
-                      Processing {index + 1}
-                      <span className="timestamp">
-                        {new Date(attempt.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
-                    {metadata && (
-                      <div className="attempt-status">
-                        {metadata.has_stitched_result ? 'Complete' : 'In Progress'}
-                      </div>
-                    )}
+            {processingAttempts.map((attempt, attemptIndex) => (
+              attempt.subAttempts && attempt.subAttempts.map((subAttempt, subIndex) => (
+                <div
+                  key={`${attemptIndex}-${subIndex}`}
+                  className={`nav-item ${
+                    attemptIndex === currentAttemptIndex && 
+                    subIndex === currentSubAttempt ? 'active' : ''
+                  }`}
+                  onClick={() => handleSubAttemptClick(attemptIndex, subIndex)}
+                >
+                  <div className="attempt-header">
+                    Attempt {attemptIndex + 1} - Stage {Math.floor(subIndex / 2) + 1}
+                    <span className="timestamp">
+                      {new Date(attempt.timestamp).toLocaleTimeString()}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              ))
+            ))}
+          </div>
           )}
         </div>
       )}
