@@ -115,7 +115,7 @@ class ImageProcessingController:
                 try:
                     frame = self.mockdata.pop(0)
                     # Optional: Add delay to simulate real-time processing
-                    time.sleep(0.1)  
+                    time.sleep(5) 
                 except IndexError:
                     print("Simulation completed: No more mock frames available")
                     self.is_running = False
@@ -124,7 +124,7 @@ class ImageProcessingController:
             if frame is not None:
                 
                 # Get analysis results
-                ResBool, image_data = self.model.analyzeframe(
+                ResBool, image_data, metadata = self.model.analyzeframe(
                     self.current_stage, 
                     self.current_frame,
                     frame

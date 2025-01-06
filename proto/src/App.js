@@ -24,7 +24,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
       </div>
       <div className="bottom-row">
         <div className="rectangle-box">
-          {currentImages.stitch ? (
+          {(currentImages.image1&&currentImages.image2&&currentImages.stitch)? (
             <img src={currentImages.stitch} alt="Stitched result" />
           ) : (
             <div className="loading">
@@ -271,6 +271,24 @@ function App() {
     }
   };
 
+  const handleMock = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/mock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Connection failed');
+      setIsConnected(true);
+      startNewProcessing()
+    } catch (err) {
+      setError(err.message);
+      alert('Error connecting to device: ' + err.message);
+    }
+  };
+
   return (
     <div className="App">
       {!isConnected ? (
@@ -285,6 +303,7 @@ function App() {
             ))}
           </select>
           <button onClick={handleConnect}>Connect</button>
+          <button onClick={handleMock}>Mock</button>
         </div>
       ) : (
         <div className="main-container">

@@ -104,7 +104,12 @@ class AnalyzeBox:
             start_y = max(0, height // 2 - target_size // 2)
             cropped = frame[start_y:start_y+target_size, start_x:start_x+target_size]
             self.images[current_stage-1][current_frame-1] = cropped
-            return True, cropped
+            meta={}
+            meta['curves'] = [
+            [(x,x*x) for x in range(10)],
+            [(x,x**3) for x in range(10)]]
+            meta['points'] = [(50,50),(50,80)]
+            return True, cropped, meta
         except Exception as e:
             return False, str(e)
 

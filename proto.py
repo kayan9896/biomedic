@@ -34,6 +34,24 @@ def get_devices():
     devices = controller.frame_grabber.get_available_devices()
     return jsonify({"devices": list(devices.keys())})
 
+@app.route('/mock', methods=['POST'])
+def mock():
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+
+        if controller.mode == 1:
+            controller.mode = 0
+            controller.run_simulation()
+            controller.start_processing()
+        else:
+            controller.mode = 0
+            controller.stop_simulation()
+        return jsonify({"message": f"Started simulation"})
+
+
 @app.route('/run', methods=['POST'])
 def start_processing():
     """Start video capture and frame processing"""
