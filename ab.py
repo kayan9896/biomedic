@@ -52,7 +52,7 @@ class AnalyzeBox:
                 # Vertical stitch of the two horizontal pairs
                 if self.stitched_result[0] is not None and self.stitched_result[1] is not None:
                     self._result = np.vstack((self.stitched_result[0], self.stitched_result[1]))
-                    return self._result
+                    
             finally:
                 with self._lock:
                     self._is_processing = False
@@ -60,6 +60,7 @@ class AnalyzeBox:
         self._stitch_thread = threading.Thread(target=stitch_worker)
         self._stitch_thread.start()
         self._stitch_thread.join()
+        return self._result
 
     def analyzecup(self):
         """Analyze cup images at stage 2."""

@@ -63,8 +63,8 @@ function App() {
   const fetchImages = async () => {
     try {
       const currentIndex = processingAttempts.length - 1;
-      const stage = Math.floor(currentSubAttempt / 2) + 1;
-      const frameOffset = (currentSubAttempt % 2) * 2;
+      const stage = currentSubAttempt===0?1:currentSubAttempt;
+      const frameOffset = currentSubAttempt===1?2:0;
   
       const checkAndFetchImage = async (stage, frame) => {
         const response = await fetch(`http://localhost:5000/attempt/${currentIndex}/stage/${stage}/frame/${frame}`);
@@ -111,10 +111,25 @@ function App() {
   };
 
   const moveToNextSubAttempt = () => {
-    console.log('Current sub-attempt:', currentSubAttempt);
-    console.log('Max sub-attempts:', maxSubAttempts);
-    
     if (currentSubAttempt < maxSubAttempts) {
+      // Create a placeholder for the next sub-attempt immediately
+      setProcessingAttempts(prev => {
+        const newAttempts = [...prev];
+        const currentAttempt = { ...newAttempts[currentAttemptIndex] };
+        
+        if (!currentAttempt.subAttempts) {
+          currentAttempt.subAttempts = [];
+        }
+        
+        // Create a placeholder for the next sub-attempt if it doesn't exist
+        if (!currentAttempt.subAttempts[currentSubAttempt + 1]) {
+          currentAttempt.subAttempts[currentSubAttempt + 1] = {};
+        }
+        
+        newAttempts[currentAttemptIndex] = currentAttempt;
+        return newAttempts;
+      });
+  
       const nextSubAttempt = currentSubAttempt + 1;
       console.log('Moving to next sub-attempt:', nextSubAttempt);
       setCurrentSubAttempt(nextSubAttempt);
@@ -155,11 +170,13 @@ function App() {
       if (!response.ok) throw new Error('Failed to start new processing');
       
       const newIndex = processingAttempts.length;
-      setProcessingAttempts(prev => [...prev, {
-        subAttempts: [],
+      const newAttempt = {
+        subAttempts: Array.from({length: maxSubAttempts + 1}, () => ({})),
         progress: {},
         timestamp: new Date().toISOString()
-      }]);
+      };
+      
+      setProcessingAttempts(prev => [...prev, newAttempt]);
       setCurrentAttemptIndex(newIndex);
       setCurrentSubAttempt(0);
     } catch (err) {
@@ -295,22 +312,21 @@ function App() {
           </div>
         </div>
         
-          {/* Navigation Bar with Enhanced Information */}
-          {processingAttempts.length > 1 && (
-            <div className="navigation-bar">
+        {processingAttempts.length > 0 && (
+          <div className="navigation-bar">
             {processingAttempts.map((attempt, attemptIndex) => (
               <React.Fragment key={attemptIndex}>
-                {attempt.subAttempts && attempt.subAttempts.map((subAttempt, subIndex) => (
+                {Array.from({length: maxSubAttempts + 1}, (_, subIndex) => (
                   <div
                     key={`${attemptIndex}-${subIndex}`}
                     className={`nav-item ${
                       attemptIndex === currentAttemptIndex && 
                       subIndex === currentSubAttempt ? 'active' : ''
-                    }`}
+                    } ${attempt.subAttempts && attempt.subAttempts[subIndex]?.stitch ? 'completed' : ''}`}
                     onClick={() => handleSubAttemptClick(attemptIndex, subIndex)}
                   >
                     <div className="attempt-header">
-                      Attempt {attemptIndex + 1} - Stage {Math.floor(subIndex / 2) + 1}
+                      Attempt {attemptIndex + 1} - Stage {subIndex + 1}
                       <span className="timestamp">
                         {new Date(attempt.timestamp).toLocaleTimeString()}
                       </span>
@@ -320,7 +336,7 @@ function App() {
               </React.Fragment>
             ))}
           </div>
-          )}
+        )}
         </div>
       )}
     </div>
