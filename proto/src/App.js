@@ -81,37 +81,45 @@ function App() {
         checkAndFetchImage(stage, 'stitch')
       ]);
   
-      // Only update if we have new data
-      if (image1Url || image2Url || stitchUrl) {
-        setProcessingAttempts(prev => {
-          const newAttempts = [...prev];
-          const currentAttempt = { ...newAttempts[currentIndex] };
-          
-          if (!currentAttempt.subAttempts) {
-            currentAttempt.subAttempts = [];
-          }
-          
-          // Create a new object for the current sub-attempt
-          currentAttempt.subAttempts[currentSubAttempt] = {
-            image1: image1Url || currentAttempt.subAttempts[currentSubAttempt]?.image1,
-            image2: image2Url || currentAttempt.subAttempts[currentSubAttempt]?.image2,
-            stitch: stitchUrl || currentAttempt.subAttempts[currentSubAttempt]?.stitch
-          };
+      setProcessingAttempts(prev => {
+        const newAttempts = [...prev];
+        const currentAttempt = { ...newAttempts[currentIndex] };
+        
+        if (!currentAttempt.subAttempts) {
+          currentAttempt.subAttempts = [];
+        }
+        
+        // Always create a slot for the current sub-attempt
+        if (!currentAttempt.subAttempts[currentSubAttempt]) {
+          currentAttempt.subAttempts[currentSubAttempt] = {};
+        }
+        
+        // Update images only if they are available
+        currentAttempt.subAttempts[currentSubAttempt] = {
+          ...currentAttempt.subAttempts[currentSubAttempt],
+          image1: image1Url || currentAttempt.subAttempts[currentSubAttempt].image1,
+          image2: image2Url || currentAttempt.subAttempts[currentSubAttempt].image2,
+          stitch: stitchUrl || currentAttempt.subAttempts[currentSubAttempt].stitch
+        };
   
-          newAttempts[currentIndex] = currentAttempt;
-          return newAttempts;
-        });
-      }
+        newAttempts[currentIndex] = currentAttempt;
+        return newAttempts;
+      });
     } catch (err) {
       console.error('Error fetching images:', err);
     }
   };
 
   const moveToNextSubAttempt = () => {
-    if (currentSubAttempt < maxSubAttempts - 1) {
-      setCurrentSubAttempt(prev => prev + 1);
+    console.log('Current sub-attempt:', currentSubAttempt);
+    console.log('Max sub-attempts:', maxSubAttempts);
+    
+    if (currentSubAttempt < maxSubAttempts) {
+      const nextSubAttempt = currentSubAttempt + 1;
+      console.log('Moving to next sub-attempt:', nextSubAttempt);
+      setCurrentSubAttempt(nextSubAttempt);
     } else {
-      // All sub-attempts completed, start a new attempt
+      console.log('All sub-attempts completed, starting new processing');
       startNewProcessing();
     }
   };
@@ -132,39 +140,7 @@ function App() {
     };
   }, [isConnected, currentAttemptIndex, processingAttempts.length, currentSubAttempt]);
 
-  // Function to fetch historical attempt images
-  const fetchHistoricalAttemptImages = async (attemptIndex) => {
-    if (attemptIndex === processingAttempts.length - 1) {
-      // Don't fetch historical images for the current attempt
-      return;
-    }
-
-    try {
-      const [image1Resp, image2Resp, stitchResp] = await Promise.all([
-        fetch(`http://localhost:5000/attempt/${attemptIndex}/image1`),
-        fetch(`http://localhost:5000/attempt/${attemptIndex}/image2`),
-        fetch(`http://localhost:5000/attempt/${attemptIndex}/stitch`)
-      ]);
-
-      const [image1Url, image2Url, stitchUrl] = await Promise.all([
-        image1Resp.ok ? URL.createObjectURL(await image1Resp.blob()) : null,
-        image2Resp.ok ? URL.createObjectURL(await image2Resp.blob()) : null,
-        stitchResp.ok ? URL.createObjectURL(await stitchResp.blob()) : null
-      ]);
-
-      setProcessingAttempts(prev => {
-        const newAttempts = [...prev];
-        newAttempts[attemptIndex] = {
-          ...newAttempts[attemptIndex],
-          images: { image1: image1Url, image2: image2Url, stitch: stitchUrl }
-        };
-        return newAttempts;
-      });
-    } catch (err) {
-      console.error('Error fetching historical attempt images:', err);
-    }
-  };
-
+  
   const handleSubAttemptClick = (attemptIndex, subIndex) => {
     setCurrentAttemptIndex(attemptIndex);
     setCurrentSubAttempt(subIndex);
@@ -306,14 +282,15 @@ function App() {
             />
           )}
           <div className="control-panel">
-            <button 
-              onClick={moveToNextSubAttempt}
-              disabled={
-                !processingAttempts[currentAttemptIndex]?.subAttempts[currentSubAttempt]?.stitch
-              }
-            >
-              Next
-            </button>
+          <button 
+            onClick={moveToNextSubAttempt}
+            disabled={
+              !processingAttempts[currentAttemptIndex]?.subAttempts[currentSubAttempt]?.stitch ||
+              currentSubAttempt >= maxSubAttempts
+            }
+          >
+            {currentSubAttempt >= maxSubAttempts ? "Start New Attempt" : "Next"}
+          </button>
             <button onClick={resetAllAttempts}>Reset All and Start New</button>
           </div>
         </div>
@@ -322,23 +299,25 @@ function App() {
           {processingAttempts.length > 1 && (
             <div className="navigation-bar">
             {processingAttempts.map((attempt, attemptIndex) => (
-              attempt.subAttempts && attempt.subAttempts.map((subAttempt, subIndex) => (
-                <div
-                  key={`${attemptIndex}-${subIndex}`}
-                  className={`nav-item ${
-                    attemptIndex === currentAttemptIndex && 
-                    subIndex === currentSubAttempt ? 'active' : ''
-                  }`}
-                  onClick={() => handleSubAttemptClick(attemptIndex, subIndex)}
-                >
-                  <div className="attempt-header">
-                    Attempt {attemptIndex + 1} - Stage {Math.floor(subIndex / 2) + 1}
-                    <span className="timestamp">
-                      {new Date(attempt.timestamp).toLocaleTimeString()}
-                    </span>
+              <React.Fragment key={attemptIndex}>
+                {attempt.subAttempts && attempt.subAttempts.map((subAttempt, subIndex) => (
+                  <div
+                    key={`${attemptIndex}-${subIndex}`}
+                    className={`nav-item ${
+                      attemptIndex === currentAttemptIndex && 
+                      subIndex === currentSubAttempt ? 'active' : ''
+                    }`}
+                    onClick={() => handleSubAttemptClick(attemptIndex, subIndex)}
+                  >
+                    <div className="attempt-header">
+                      Attempt {attemptIndex + 1} - Stage {Math.floor(subIndex / 2) + 1}
+                      <span className="timestamp">
+                        {new Date(attempt.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </React.Fragment>
             ))}
           </div>
           )}
