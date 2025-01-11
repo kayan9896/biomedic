@@ -1,27 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress from './CircularProgress';
 import './App.css';
-const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
-  const currentImages = subAttempts[currentSubAttempt] || {};
+import Circle from './Circle';
+import Arc from './Arc';
+import Ellipse from './Ellipse';
+import Line from './Line';
 
-  return (
-    <div className={`processing-attempt ${isActive ? 'active' : ''}`}>
-      <div className="top-row">
-        <div className="square-box">
-          {currentImages.image1 ? (
-            <img src={currentImages.image1} alt="First capture" />
-          ) : (
-            <div className="loading">Waiting for first image...</div>
-          )}
+
+  const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
+    const currentImages = subAttempts[currentSubAttempt] || {};
+    const [metadata, setMetadata] = useState(null);
+    const [ccenter, setcCenter] = useState([100, 100]);
+    const [edgePoint, setEdgePoint] = useState([150, 100]);
+  
+    useEffect(() => {
+      // Fetch metadata when component mounts
+      const fetchMetadata = async () => {
+        try {
+          const response = await fetch('http://localhost:5000/metadata');
+          if (response.ok) {
+            const data = await response.json();
+            setMetadata(data);
+            setcCenter(data.circle.center);
+            setEdgePoint(data.circle.edgePoint);
+          }
+        } catch (err) {
+          console.error('Error fetching metadata:', err);
+        }
+      };
+  
+      fetchMetadata();
+    }, []);
+    const squareSize=400
+    const sinPoints = [];
+    for (let x = 0; x < squareSize; x += 30) {
+      const y = squareSize/2 + Math.sin(x/30) * 50;
+      sinPoints.push([x, y]);
+    }
+  
+    const handleCenterChange = (newCenter) => {
+      setcCenter(newCenter);
+      console.log("New center:", newCenter);
+    }
+  
+    const handleEdgePointChange = (newEdgePoint) => {
+      setEdgePoint(newEdgePoint);
+      console.log("New edge point:", newEdgePoint);
+    }
+  
+    // Only render the visualization components when metadata is available
+    const renderVisualizations = () => {
+      if (!metadata) return null;
+  
+      return (
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
+          <Arc arc={metadata.arc} />
+          <Circle 
+            center={ccenter}
+            edgePoint={edgePoint}
+            onCenterChange={handleCenterChange}
+            onEdgePointChange={handleEdgePointChange}
+          />
+          <Ellipse ellipse={metadata.ellipse} />
+          <Line 
+            squareSize={metadata.squareSize} 
+            points={metadata.lines.straight}
+          />
+          <Line 
+            squareSize={metadata.squareSize}
+            points={metadata.lines.sine}
+          />
         </div>
-        <div className="square-box">
-          {currentImages.image2 ? (
-            <img src={currentImages.image2} alt="Second capture" />
-          ) : (
-            <div className="loading">Waiting for second image...</div>
-          )}
+      );
+    };
+  
+    return (
+      <div className={`processing-attempt ${isActive ? 'active' : ''}`}>
+        <div className="top-row">
+          <div className="square-box">
+            {currentImages.image1 ? (
+              <img src={currentImages.image1} alt="First capture" />
+            ) : (
+              <div className="loading">Waiting for first image...</div>
+            )}
+            {renderVisualizations()}
+          </div>
+          <div className="square-box">
+            {currentImages.image2 ? (
+              <img src={currentImages.image2} alt="Second capture" />
+            ) : (
+              <div className="loading">Waiting for second image...</div>
+            )}
+            {renderVisualizations()}
+          </div>
         </div>
-      </div>
       <div className="bottom-row">
         <div className="rectangle-box">
           {(currentImages.image1&&currentImages.image2&&currentImages.stitch)? (
@@ -49,13 +121,7 @@ function App() {
   const [currentAttemptIndex, setCurrentAttemptIndex] = useState(0);
   const [currentSubAttempt, setCurrentSubAttempt] = useState(0);
   const [maxSubAttempts, setMaxSubAttempts] = useState(3); // 3 stages
-  const [images, setImages] = useState({
-    image1: null,
-    image2: null,
-    stitch: null
-  });
-  const [attemptsMetadata, setAttemptsMetadata] = useState([]);
-
+ 
   useEffect(() => {
     fetchDevices();
   }, []);

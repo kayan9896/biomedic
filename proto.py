@@ -207,6 +207,41 @@ def new_processing():
         
         return jsonify({"message": "New processing attempt initialized"})
 
+import math
+@app.route('/metadata', methods=['GET'])
+def get_metadata():
+    square_size = 400
+    
+    # Generate sin points
+    sin_points = []
+    for x in range(0, square_size, 30):
+        y = square_size/2 + math.sin(x/30) * 50
+        sin_points.append([x, y])
+
+    metadata = {
+        "circle": {
+            "center": [100, 100],
+            "edgePoint": [150, 100]
+        },
+        "arc": [
+            [50, 50],    # First point
+            [100, 100],  # Second point
+            [100, 0]     # Third point
+        ],
+        "ellipse": [
+            [50, 100],   # First vertex
+            [100, 50],   # Co-vertex
+            [150, 100]   # Second vertex
+        ],
+        "lines": {
+            "straight": [[200, 200], [300, 300]],
+            "sine": sin_points
+        },
+        "squareSize": square_size
+    }
+    
+    response = jsonify(metadata)
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
