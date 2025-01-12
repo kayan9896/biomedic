@@ -127,14 +127,13 @@ class ImageProcessingController:
                 try:
                     pop = self.mockdata.pop(0)
                     frame = pop['img']
-                    metadata = pop['metadata']
-                    
-                    # Store frame with its metadata
+                    frame_metadata = pop['metadata']  # Get metadata for this frame
+                    # Store metadata per frame
                     self.viewmodel.set_frame(
                         stage=self.current_stage,
                         frame=self.current_frame,
                         image=frame,
-                        metadata=metadata
+                        metadata=frame_metadata
                     )
                     
                     self.process_next_frame = False

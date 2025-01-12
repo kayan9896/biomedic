@@ -214,37 +214,33 @@ def save_metadata(metadata):
     with open(METADATA_FILE, 'w') as f:
         json.dump(metadata, f, indent=2)
 
-@app.route('/metadata/<int:stage>/<int:frame>', methods=['GET', 'POST'])
-def handle_frame_metadata(stage, frame):
+@app.route('/metadata/<int:attempt>/<int:stage>/<int:frame>', methods=['GET'])
+def get_frame_metadata(attempt, stage, frame):
     global controller
     if not controller:
         return jsonify({"error": "Controller not initialized"}), 404
 
-    if request.method == 'GET':
-        metadata = controller.viewmodel.get_frame_metadata(stage, frame)
-        if metadata is None:
-            return jsonify({"error": "No metadata available"}), 404
-        response = jsonify(metadata)
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
-        
-    elif request.method == 'POST':
-        try:
-            updated_metadata = request.json
-            controller.viewmodel.set_frame(
-                stage=stage,
-                frame=frame,
-                image=controller.viewmodel.get_attempt().stages[stage-1].frames[frame-1],
-                metadata=updated_metadata
-            )
-            response = jsonify({"message": "Metadata updated successfully"})
-            response.headers.add('Access-Control-Allow-Origin', '*')
-            return response
-        except Exception as e:
-            response = jsonify({"error": str(e)}), 400
-            response.headers.add('Access-Control-Allow-Origin', '*')
-            return response
+    metadata = controller.viewmodel.get_frame_metadata(attempt, stage, frame)
+    response = jsonify(metadata)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
+@app.route('/metadata/<int:attempt>/<int:stage>/<int:frame>', methods=['POST'])
+def update_frame_metadata(attempt, stage, frame):
+    global controller
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 404
+
+    try:
+        updated_metadata = request.json
+        controller.viewmodel.attempts[attempt].stages[stage-1].frames[frame-1].metadata = updated_metadata
+        response = jsonify({"message": "Metadata updated successfully"})
+    except Exception as e:
+        response = jsonify({"error": str(e)}), 400
+    
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+    
 @app.route('/next_frame', methods=['POST'])
 def next_frame():
     """Trigger processing of next frame in simulation mode"""

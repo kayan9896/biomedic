@@ -9,6 +9,8 @@ import Line from './Line';
 
 const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
   const currentImages = subAttempts[currentSubAttempt] || {};
+  const [frame1Metadata, setFrame1Metadata] = useState(null);
+  const [frame2Metadata, setFrame2Metadata] = useState(null);
   const [metadata, setMetadata] = useState(null);
   // State for Circle
   const [ccenter, setcCenter] = useState([100, 100]);
@@ -21,58 +23,37 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
   const [straightLinePoints, setStraightLinePoints] = useState([[200, 200], [300, 300]]);
   const [sinePoints, setSinePoints] = useState([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [canProgress, setCanProgress] = useState(true);
-  const [currentStage, setCurrentStage] = useState(1);
-  const [currentFrame, setCurrentFrame] = useState(1);
-
+  
+  // Fetch initial metadata
   useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/metadata/${currentStage}/${currentFrame}`);
-        if (response.ok) {
-          const data = await response.json();
-          setMetadata(data);
-        } else {
-          setMetadata(null);
+    const fetchFrameMetadata = async () => {
+      if (currentImages.image1) {
+        try {
+          const response = await fetch(`http://localhost:5000/metadata/${attemptIndex}/${currentSubAttempt + 1}/1`);
+          if (response.ok) {
+            const data = await response.json();
+            setFrame1Metadata(data);
+          }
+        } catch (err) {
+          console.error('Error fetching frame 1 metadata:', err);
         }
-      } catch (err) {
-        console.error('Error fetching metadata:', err);
-        setMetadata(null);
+      }
+
+      if (currentImages.image2) {
+        try {
+          const response = await fetch(`http://localhost:5000/metadata/${attemptIndex}/${currentSubAttempt + 1}/2`);
+          if (response.ok) {
+            const data = await response.json();
+            setFrame2Metadata(data);
+          }
+        } catch (err) {
+          console.error('Error fetching frame 2 metadata:', err);
+        }
       }
     };
 
-    // Only fetch metadata if the image exists
-    if (currentImages[`image${currentFrame}`]) {
-      fetchMetadata();
-    } else {
-      setMetadata(null);
-    }
-  }, [currentStage, currentFrame, currentImages]);
-
-  const renderVisualizations = () => {
-    if (!metadata || !currentImages[`image${currentFrame}`]) return null;
-
-    return (
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
-        <Arc arc={metadata.arc} />
-        <Circle 
-          center={metadata.circle.center}
-          edgePoint={metadata.circle.edgePoint}
-          onCenterChange={handleCenterChange}
-          onEdgePointChange={handleEdgePointChange}
-        />
-        <Ellipse ellipse={metadata.ellipse} />
-        <Line 
-          squareSize={metadata.squareSize} 
-          points={metadata.lines.straight}
-        />
-        <Line 
-          squareSize={metadata.squareSize}
-          points={metadata.lines.sine}
-        />
-      </div>
-    );
-  };
+    fetchFrameMetadata();
+  }, [currentImages, attemptIndex, currentSubAttempt]);
 
   // Handlers for Circle
   const handleCenterChange = (newCenter) => {
@@ -127,7 +108,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/metadata/${currentStage}/${currentFrame}`, {
+      const response = await fetch('http://localhost:5000/metadata', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,6 +128,40 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
     }
   };
   
+    // Only render the visualization components when metadata is available
+    const renderVisualizations = (metadata) => {
+      if (!metadata) return null;
+  
+      return (
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
+        <Arc 
+          arc={arcPoints} 
+          onChange={handleArcChange}
+        />
+        <Circle 
+          center={ccenter}
+          edgePoint={edgePoint}
+          onCenterChange={handleCenterChange}
+          onEdgePointChange={handleEdgePointChange}
+        />
+        <Ellipse 
+          ellipse={ellipsePoints}
+          onChange={handleEllipseChange}
+        />
+        <Line 
+          squareSize={metadata?.squareSize || 300}
+          points={straightLinePoints}
+          onChange={handleStraightLineChange}
+        />
+        <Line 
+          squareSize={metadata?.squareSize || 300}
+          points={sinePoints}
+          onChange={handleSineLineChange}
+        />
+      </div>
+      );
+    };
+  
     return (
       <div className={`processing-attempt ${isActive ? 'active' : ''}`}>
         <div className="top-row">
@@ -154,7 +169,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
           {currentImages.image1 ? (
             <>
               <img src={currentImages.image1} alt="First capture" />
-              {currentFrame === 1 && renderVisualizations()}
+              {renderVisualizations(frame1Metadata)}
             </>
           ) : (
             <div className="loading">Waiting for first image...</div>
@@ -164,14 +179,13 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
           {currentImages.image2 ? (
             <>
               <img src={currentImages.image2} alt="Second capture" />
-              {currentFrame === 2 && renderVisualizations()}
+              {renderVisualizations(frame2Metadata)}
             </>
           ) : (
             <div className="loading">Waiting for second image...</div>
           )}
         </div>
       </div>
-
       <div className="bottom-row">
         <div className="rectangle-box">
           {(currentImages.image1&&currentImages.image2&&currentImages.stitch)? (

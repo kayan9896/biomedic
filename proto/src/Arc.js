@@ -70,7 +70,9 @@ const Arc = ({ arc: initialArc,onChange }) => {
       const newArc = [...arc];
       newArc[draggedPointIndex] = [x, y];
       setArc(newArc);
-      onChange(newArc);
+      if (onChange) {
+        onChange(newArc);
+      }
     } else {
       // Moving the entire arc
       const dx = x - dragStart[0];

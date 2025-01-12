@@ -74,7 +74,9 @@ const Ellipse = ({ ellipse: initialEllipse ,onChange}) => {
       const newEllipse = [...ellipse];
       newEllipse[draggedPointIndex] = [x, y];
       setEllipse(newEllipse);
-      onChange(newEllipse)
+      if (onChange) {
+        onChange(newEllipse);
+      }
     } else {
       // Moving the entire ellipse
       const dx = x - dragStart[0];
