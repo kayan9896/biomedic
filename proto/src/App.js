@@ -7,7 +7,7 @@ import Ellipse from './Ellipse';
 import Line from './Line';
 
 
-const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
+const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive, attemptIndex }) => {
   const currentImages = subAttempts[currentSubAttempt] || {};
   const [frame1Metadata, setFrame1Metadata] = useState(null);
   const [frame2Metadata, setFrame2Metadata] = useState(null);
@@ -508,6 +508,7 @@ function App() {
               currentSubAttempt={currentSubAttempt}
               progress={processingAttempts[currentAttemptIndex].progress}
               isActive={true}
+              attemptIndex = {currentAttemptIndex}
             />
           )}
           <div className="control-panel">
