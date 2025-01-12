@@ -7,46 +7,118 @@ import Ellipse from './Ellipse';
 import Line from './Line';
 
 
-  const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
-    const currentImages = subAttempts[currentSubAttempt] || {};
-    const [metadata, setMetadata] = useState(null);
-    const [ccenter, setcCenter] = useState([100, 100]);
-    const [edgePoint, setEdgePoint] = useState([150, 100]);
-  
-    useEffect(() => {
-      // Fetch metadata when component mounts
-      const fetchMetadata = async () => {
-        try {
-          const response = await fetch('http://localhost:5000/metadata');
-          if (response.ok) {
-            const data = await response.json();
-            setMetadata(data);
-            setcCenter(data.circle.center);
-            setEdgePoint(data.circle.edgePoint);
-          }
-        } catch (err) {
-          console.error('Error fetching metadata:', err);
+const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
+  const currentImages = subAttempts[currentSubAttempt] || {};
+  const [metadata, setMetadata] = useState(null);
+  // State for Circle
+  const [ccenter, setcCenter] = useState([100, 100]);
+  const [edgePoint, setEdgePoint] = useState([150, 100]);
+  // State for Arc
+  const [arcPoints, setArcPoints] = useState([[50, 50], [100, 100], [100, 0]]);
+  // State for Ellipse
+  const [ellipsePoints, setEllipsePoints] = useState([[50, 100], [100, 50], [150, 100]]);
+  // State for Lines
+  const [straightLinePoints, setStraightLinePoints] = useState([[200, 200], [300, 300]]);
+  const [sinePoints, setSinePoints] = useState([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Fetch initial metadata
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/metadata');
+        if (response.ok) {
+          const data = await response.json();
+          setMetadata(data);
+          // Initialize all shape states with fetched data
+          setcCenter(data.circle.center);
+          setEdgePoint(data.circle.edgePoint);
+          setArcPoints(data.arc);
+          setEllipsePoints(data.ellipse);
+          setStraightLinePoints(data.lines.straight);
+          setSinePoints(data.lines.sine);
         }
-      };
-  
-      fetchMetadata();
-    }, []);
-    const squareSize=400
-    const sinPoints = [];
-    for (let x = 0; x < squareSize; x += 30) {
-      const y = squareSize/2 + Math.sin(x/30) * 50;
-      sinPoints.push([x, y]);
+      } catch (err) {
+        console.error('Error fetching metadata:', err);
+      }
+    };
+
+    fetchMetadata();
+  }, []);
+
+  // Handlers for Circle
+  const handleCenterChange = (newCenter) => {
+    setcCenter(newCenter);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleEdgePointChange = (newEdgePoint) => {
+    setEdgePoint(newEdgePoint);
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for Arc
+  const handleArcChange = (newArcPoints) => {
+    setArcPoints(newArcPoints);
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for Ellipse
+  const handleEllipseChange = (newEllipsePoints) => {
+    setEllipsePoints(newEllipsePoints);
+    setHasUnsavedChanges(true);
+  };
+
+  // Handlers for Lines
+  const handleStraightLineChange = (newPoints) => {
+    setStraightLinePoints(newPoints);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSineLineChange = (newPoints) => {
+    setSinePoints(newPoints);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSaveChanges = async () => {
+    if (!metadata) return;
+
+    const updatedMetadata = {
+      ...metadata,
+      circle: {
+        center: ccenter,
+        edgePoint: edgePoint
+      },
+      arc: arcPoints,
+      ellipse: ellipsePoints,
+      lines: {
+        straight: straightLinePoints,
+        sine: sinePoints
+      },
+      squareSize: metadata.squareSize
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedMetadata),
+      });
+
+      if (response.ok) {
+        setHasUnsavedChanges(false);
+        alert('Changes saved successfully!');
+      } else {
+        throw new Error('Failed to save changes');
+      }
+    } catch (err) {
+      console.error('Error saving metadata:', err);
+      alert('Error saving changes: ' + err.message);
     }
+  };
   
-    const handleCenterChange = (newCenter) => {
-      setcCenter(newCenter);
-      console.log("New center:", newCenter);
-    }
-  
-    const handleEdgePointChange = (newEdgePoint) => {
-      setEdgePoint(newEdgePoint);
-      console.log("New edge point:", newEdgePoint);
-    }
   
     // Only render the visualization components when metadata is available
     const renderVisualizations = () => {
@@ -54,23 +126,31 @@ import Line from './Line';
   
       return (
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
-          <Arc arc={metadata.arc} />
-          <Circle 
-            center={ccenter}
-            edgePoint={edgePoint}
-            onCenterChange={handleCenterChange}
-            onEdgePointChange={handleEdgePointChange}
-          />
-          <Ellipse ellipse={metadata.ellipse} />
-          <Line 
-            squareSize={metadata.squareSize} 
-            points={metadata.lines.straight}
-          />
-          <Line 
-            squareSize={metadata.squareSize}
-            points={metadata.lines.sine}
-          />
-        </div>
+        <Arc 
+          arc={arcPoints} 
+          onChange={handleArcChange}
+        />
+        <Circle 
+          center={ccenter}
+          edgePoint={edgePoint}
+          onCenterChange={handleCenterChange}
+          onEdgePointChange={handleEdgePointChange}
+        />
+        <Ellipse 
+          ellipse={ellipsePoints}
+          onChange={handleEllipseChange}
+        />
+        <Line 
+          squareSize={metadata?.squareSize || 300}
+          points={straightLinePoints}
+          onChange={handleStraightLineChange}
+        />
+        <Line 
+          squareSize={metadata?.squareSize || 300}
+          points={sinePoints}
+          onChange={handleSineLineChange}
+        />
+      </div>
       );
     };
   
@@ -108,6 +188,16 @@ import Line from './Line';
           )}
         </div>
       </div>
+      {hasUnsavedChanges && (
+        <div className="save-changes-container">
+          <button 
+            className="save-changes-button"
+            onClick={handleSaveChanges}
+          >
+            Save Changes
+          </button>
+        </div>
+      )}
     </div>
   );
 };
