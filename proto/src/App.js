@@ -21,6 +21,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
   const [straightLinePoints, setStraightLinePoints] = useState([[200, 200], [300, 300]]);
   const [sinePoints, setSinePoints] = useState([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [canProgress, setCanProgress] = useState(true);
 
   // Fetch initial metadata
   useEffect(() => {
@@ -116,6 +117,30 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
     } catch (err) {
       console.error('Error saving metadata:', err);
       alert('Error saving changes: ' + err.message);
+    }
+  };
+
+  const handleNextFrame = async () => {
+    setCanProgress(false); // Disable button while processing
+    try {
+      const response = await fetch('http://localhost:5000/next_frame', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to progress to next frame');
+      }
+      
+      // Re-enable button after a short delay to ensure frame is processed
+      setTimeout(() => setCanProgress(true), 1000);
+      
+    } catch (err) {
+      console.error('Error progressing to next frame:', err);
+      alert('Error progressing to next frame: ' + err.message);
+      setCanProgress(true);
     }
   };
   
@@ -474,6 +499,13 @@ function App() {
             />
           )}
           <div className="control-panel">
+          <button 
+            onClick={handleNextFrame}
+            disabled={!canProgress}
+            className="next-frame-button"
+          >
+            Process Next Frame
+          </button>
           <button 
             onClick={moveToNextSubAttempt}
             disabled={

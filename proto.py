@@ -238,6 +238,19 @@ def handle_metadata():
             response = jsonify({"error": str(e)}), 400
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
+
+@app.route('/next_frame', methods=['POST'])
+def next_frame():
+    """Trigger processing of next frame in simulation mode"""
+    global controller
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 404
+        
+    if controller.mode != 0:  # Check if in simulation mode
+        return jsonify({"error": "Not in simulation mode"}), 400
+        
+    controller.process_next_frame = True  # New flag to control frame progression
+    return jsonify({"message": "Processing next frame"})
             
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
