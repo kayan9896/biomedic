@@ -214,14 +214,16 @@ def save_metadata(metadata):
     with open(METADATA_FILE, 'w') as f:
         json.dump(metadata, f, indent=2)
 
-@app.route('/metadata', methods=['GET', 'POST'])
-def handle_metadata():
+@app.route('/metadata/<int:stage>/<int:frame>', methods=['GET', 'POST'])
+def handle_frame_metadata(stage, frame):
     global controller
     if not controller:
         return jsonify({"error": "Controller not initialized"}), 404
 
     if request.method == 'GET':
-        metadata = controller.viewmodel.get_metadata()
+        metadata = controller.viewmodel.get_frame_metadata(stage, frame)
+        if metadata is None:
+            return jsonify({"error": "No metadata available"}), 404
         response = jsonify(metadata)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
@@ -229,8 +231,12 @@ def handle_metadata():
     elif request.method == 'POST':
         try:
             updated_metadata = request.json
-            save_metadata(updated_metadata)
-            controller.viewmodel.set_metadata(updated_metadata)
+            controller.viewmodel.set_frame(
+                stage=stage,
+                frame=frame,
+                image=controller.viewmodel.get_attempt().stages[stage-1].frames[frame-1],
+                metadata=updated_metadata
+            )
             response = jsonify({"message": "Metadata updated successfully"})
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response

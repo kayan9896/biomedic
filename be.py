@@ -19,7 +19,7 @@ class ImageProcessingController:
         self.is_running = False
         self.process_thread = None
         self.stitch_thread = None
-        self.process_next_frame = False  # Add new flag
+        self.process_next_frame = True  # Add new flag
         
         # Use the new ProcessingModel instead of individual variables
         self.viewmodel = ProcessingModel()
@@ -120,16 +120,24 @@ class ImageProcessingController:
                 if not self.mockdata or self.model.is_processing:
                     continue
                     
-                # Wait for user confirmation before processing next frame
                 if not self.process_next_frame:
-                    time.sleep(0.1)  # Reduce CPU usage while waiting
+                    time.sleep(0.1)
                     continue
                     
                 try:
                     pop = self.mockdata.pop(0)
                     frame = pop['img']
-                    self.viewmodel.current_attempt.metadata = pop['metadata']
-                    self.process_next_frame = False  # Reset flag after processing frame
+                    metadata = pop['metadata']
+                    
+                    # Store frame with its metadata
+                    self.viewmodel.set_frame(
+                        stage=self.current_stage,
+                        frame=self.current_frame,
+                        image=frame,
+                        metadata=metadata
+                    )
+                    
+                    self.process_next_frame = False
                 except IndexError:
                     print("Simulation completed: No more mock frames available")
                     self.is_running = False

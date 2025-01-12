@@ -10,41 +10,57 @@ import Line from './Line';
 const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
   const currentImages = subAttempts[currentSubAttempt] || {};
   const [metadata, setMetadata] = useState(null);
-  // State for Circle
-  const [ccenter, setcCenter] = useState([100, 100]);
-  const [edgePoint, setEdgePoint] = useState([150, 100]);
-  // State for Arc
-  const [arcPoints, setArcPoints] = useState([[50, 50], [100, 100], [100, 0]]);
-  // State for Ellipse
-  const [ellipsePoints, setEllipsePoints] = useState([[50, 100], [100, 50], [150, 100]]);
-  // State for Lines
-  const [straightLinePoints, setStraightLinePoints] = useState([[200, 200], [300, 300]]);
-  const [sinePoints, setSinePoints] = useState([]);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  
-  // Fetch initial metadata
+  const [currentStage, setCurrentStage] = useState(1);
+  const [currentFrame, setCurrentFrame] = useState(1);
+
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        const response = await fetch('http://localhost:5000/metadata');
+        const response = await fetch(`http://localhost:5000/metadata/${currentStage}/${currentFrame}`);
         if (response.ok) {
           const data = await response.json();
           setMetadata(data);
-          // Initialize all shape states with fetched data
-          setcCenter(data.circle.center);
-          setEdgePoint(data.circle.edgePoint);
-          setArcPoints(data.arc);
-          setEllipsePoints(data.ellipse);
-          setStraightLinePoints(data.lines.straight);
-          setSinePoints(data.lines.sine);
+        } else {
+          setMetadata(null);
         }
       } catch (err) {
         console.error('Error fetching metadata:', err);
+        setMetadata(null);
       }
     };
 
-    fetchMetadata();
-  }, []);
+    // Only fetch metadata if the image exists
+    if (currentImages[`image${currentFrame}`]) {
+      fetchMetadata();
+    } else {
+      setMetadata(null);
+    }
+  }, [currentStage, currentFrame, currentImages]);
+
+  const renderVisualizations = () => {
+    if (!metadata || !currentImages[`image${currentFrame}`]) return null;
+
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
+        <Arc arc={metadata.arc} />
+        <Circle 
+          center={metadata.circle.center}
+          edgePoint={metadata.circle.edgePoint}
+          onCenterChange={handleCenterChange}
+          onEdgePointChange={handleEdgePointChange}
+        />
+        <Ellipse ellipse={metadata.ellipse} />
+        <Line 
+          squareSize={metadata.squareSize} 
+          points={metadata.lines.straight}
+        />
+        <Line 
+          squareSize={metadata.squareSize}
+          points={metadata.lines.sine}
+        />
+      </div>
+    );
+  };
 
   // Handlers for Circle
   const handleCenterChange = (newCenter) => {
@@ -99,7 +115,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
     };
 
     try {
-      const response = await fetch('http://localhost:5000/metadata', {
+      const response = await fetch(`http://localhost:5000/metadata/${currentStage}/${currentFrame}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,60 +135,31 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
     }
   };
   
-    // Only render the visualization components when metadata is available
-    const renderVisualizations = () => {
-      if (!metadata) return null;
-  
-      return (
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
-        <Arc 
-          arc={arcPoints} 
-          onChange={handleArcChange}
-        />
-        <Circle 
-          center={ccenter}
-          edgePoint={edgePoint}
-          onCenterChange={handleCenterChange}
-          onEdgePointChange={handleEdgePointChange}
-        />
-        <Ellipse 
-          ellipse={ellipsePoints}
-          onChange={handleEllipseChange}
-        />
-        <Line 
-          squareSize={metadata?.squareSize || 300}
-          points={straightLinePoints}
-          onChange={handleStraightLineChange}
-        />
-        <Line 
-          squareSize={metadata?.squareSize || 300}
-          points={sinePoints}
-          onChange={handleSineLineChange}
-        />
-      </div>
-      );
-    };
-  
     return (
       <div className={`processing-attempt ${isActive ? 'active' : ''}`}>
         <div className="top-row">
-          <div className="square-box">
-            {currentImages.image1 ? (
+        <div className="square-box">
+          {currentImages.image1 ? (
+            <>
               <img src={currentImages.image1} alt="First capture" />
-            ) : (
-              <div className="loading">Waiting for first image...</div>
-            )}
-            {renderVisualizations()}
-          </div>
-          <div className="square-box">
-            {currentImages.image2 ? (
-              <img src={currentImages.image2} alt="Second capture" />
-            ) : (
-              <div className="loading">Waiting for second image...</div>
-            )}
-            {renderVisualizations()}
-          </div>
+              {currentFrame === 1 && renderVisualizations()}
+            </>
+          ) : (
+            <div className="loading">Waiting for first image...</div>
+          )}
         </div>
+        <div className="square-box">
+          {currentImages.image2 ? (
+            <>
+              <img src={currentImages.image2} alt="Second capture" />
+              {currentFrame === 2 && renderVisualizations()}
+            </>
+          ) : (
+            <div className="loading">Waiting for second image...</div>
+          )}
+        </div>
+      </div>
+
       <div className="bottom-row">
         <div className="rectangle-box">
           {(currentImages.image1&&currentImages.image2&&currentImages.stitch)? (
