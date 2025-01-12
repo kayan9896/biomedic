@@ -1,5 +1,5 @@
 from typing import List, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
 
 @dataclass
