@@ -10,6 +10,18 @@ import Line from './Line';
 const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive }) => {
   const currentImages = subAttempts[currentSubAttempt] || {};
   const [metadata, setMetadata] = useState(null);
+  // State for Circle
+  const [ccenter, setcCenter] = useState([100, 100]);
+  const [edgePoint, setEdgePoint] = useState([150, 100]);
+  // State for Arc
+  const [arcPoints, setArcPoints] = useState([[50, 50], [100, 100], [100, 0]]);
+  // State for Ellipse
+  const [ellipsePoints, setEllipsePoints] = useState([[50, 100], [100, 50], [150, 100]]);
+  // State for Lines
+  const [straightLinePoints, setStraightLinePoints] = useState([[200, 200], [300, 300]]);
+  const [sinePoints, setSinePoints] = useState([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [canProgress, setCanProgress] = useState(true);
   const [currentStage, setCurrentStage] = useState(1);
   const [currentFrame, setCurrentFrame] = useState(1);
 
