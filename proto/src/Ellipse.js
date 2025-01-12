@@ -86,7 +86,9 @@ const Ellipse = ({ ellipse: initialEllipse ,onChange}) => {
       ]);
 
       setEllipse(newEllipse);
-      onChange(newEllipse)
+      if (onChange) {
+        onChange(newEllipse);
+      }
       setDragStart([x, y]);
     }
   }

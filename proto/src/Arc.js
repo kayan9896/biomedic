@@ -82,7 +82,9 @@ const Arc = ({ arc: initialArc,onChange }) => {
       ]);
 
       setArc(newArc);
-      onChange(newArc);
+      if (onChange) {
+        onChange(newPoints);
+      }
       setDragStart([x, y]);
     }
   }
