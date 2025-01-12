@@ -35,7 +35,9 @@ const Line = ({ squareSize, points,onChange }) => {
         const newPoints = [...curvePoints];
         newPoints[activeDotIndex] = [x, y];
         setCurvePoints(newPoints);
-        onChange(newPoints)
+        if (onChange) {
+          onChange(newPoints);
+        }
       } else if (dragLine) {
         const dx = x - dragLine.startX;
         const dy = y - dragLine.startY;
@@ -45,7 +47,9 @@ const Line = ({ squareSize, points,onChange }) => {
           Math.min(Math.max(0, point[1] + dy), squareSize)
         ]);
         setCurvePoints(newPoints);
-        onChange(newPoints)
+        if (onChange) {
+          onChange(newPoints);
+        }
       }
     };
   
