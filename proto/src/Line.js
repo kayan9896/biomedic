@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const Line = ({ squareSize, points }) => {
+const Line = ({ squareSize, points,onChange }) => {
   const [curvePoints, setCurvePoints] = useState(points);
   const [showDots, setShowDots] = useState(false);
   const [activeDotIndex, setActiveDotIndex] = useState(null);
@@ -35,6 +35,7 @@ const Line = ({ squareSize, points }) => {
         const newPoints = [...curvePoints];
         newPoints[activeDotIndex] = [x, y];
         setCurvePoints(newPoints);
+        onChange(newPoints)
       } else if (dragLine) {
         const dx = x - dragLine.startX;
         const dy = y - dragLine.startY;
@@ -44,6 +45,7 @@ const Line = ({ squareSize, points }) => {
           Math.min(Math.max(0, point[1] + dy), squareSize)
         ]);
         setCurvePoints(newPoints);
+        onChange(newPoints)
       }
     };
   

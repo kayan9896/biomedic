@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Ellipse = ({ ellipse: initialEllipse }) => {
+const Ellipse = ({ ellipse: initialEllipse ,onChange}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -74,6 +74,7 @@ const Ellipse = ({ ellipse: initialEllipse }) => {
       const newEllipse = [...ellipse];
       newEllipse[draggedPointIndex] = [x, y];
       setEllipse(newEllipse);
+      onChange(newEllipse)
     } else {
       // Moving the entire ellipse
       const dx = x - dragStart[0];
@@ -85,6 +86,7 @@ const Ellipse = ({ ellipse: initialEllipse }) => {
       ]);
 
       setEllipse(newEllipse);
+      onChange(newEllipse)
       setDragStart([x, y]);
     }
   }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Arc = ({ arc: initialArc }) => {
+const Arc = ({ arc: initialArc,onChange }) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -70,6 +70,7 @@ const Arc = ({ arc: initialArc }) => {
       const newArc = [...arc];
       newArc[draggedPointIndex] = [x, y];
       setArc(newArc);
+      onChange(newArc);
     } else {
       // Moving the entire arc
       const dx = x - dragStart[0];
@@ -81,6 +82,7 @@ const Arc = ({ arc: initialArc }) => {
       ]);
 
       setArc(newArc);
+      onChange(newArc);
       setDragStart([x, y]);
     }
   }
