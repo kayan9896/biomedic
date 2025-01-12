@@ -21,8 +21,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
   const [straightLinePoints, setStraightLinePoints] = useState([[200, 200], [300, 300]]);
   const [sinePoints, setSinePoints] = useState([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [canProgress, setCanProgress] = useState(true);
-
+  
   // Fetch initial metadata
   useEffect(() => {
     const fetchMetadata = async () => {
@@ -119,31 +118,6 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive 
       alert('Error saving changes: ' + err.message);
     }
   };
-
-  const handleNextFrame = async () => {
-    setCanProgress(false); // Disable button while processing
-    try {
-      const response = await fetch('http://localhost:5000/next_frame', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to progress to next frame');
-      }
-      
-      // Re-enable button after a short delay to ensure frame is processed
-      setTimeout(() => setCanProgress(true), 1000);
-      
-    } catch (err) {
-      console.error('Error progressing to next frame:', err);
-      alert('Error progressing to next frame: ' + err.message);
-      setCanProgress(true);
-    }
-  };
-  
   
     // Only render the visualization components when metadata is available
     const renderVisualizations = () => {
@@ -235,7 +209,8 @@ function App() {
   const [processingAttempts, setProcessingAttempts] = useState([]);
   const [currentAttemptIndex, setCurrentAttemptIndex] = useState(0);
   const [currentSubAttempt, setCurrentSubAttempt] = useState(0);
-  const [maxSubAttempts, setMaxSubAttempts] = useState(3); // 3 stages
+  const [maxSubAttempts, setMaxSubAttempts] = useState(3); 
+  const [canProgress, setCanProgress] = useState(true);
  
   useEffect(() => {
     fetchDevices();
@@ -467,6 +442,30 @@ function App() {
     } catch (err) {
       setError(err.message);
       alert('Error connecting to device: ' + err.message);
+    }
+  };
+
+  const handleNextFrame = async () => {
+    setCanProgress(false); // Disable button while processing
+    try {
+      const response = await fetch('http://localhost:5000/next_frame', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to progress to next frame');
+      }
+      
+      // Re-enable button after a short delay to ensure frame is processed
+      setTimeout(() => setCanProgress(true), 1000);
+      
+    } catch (err) {
+      console.error('Error progressing to next frame:', err);
+      alert('Error progressing to next frame: ' + err.message);
+      setCanProgress(true);
     }
   };
 
