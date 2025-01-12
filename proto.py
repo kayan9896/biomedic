@@ -207,39 +207,8 @@ def new_processing():
         
         return jsonify({"message": "New processing attempt initialized"})
 
-import math
 import json
-import os
 METADATA_FILE = 'metadata.json'
-
-# Initialize default metadata
-DEFAULT_METADATA = {
-    "circle": {
-        "center": [100, 100],
-        "edgePoint": [150, 100]
-    },
-    "arc": [
-        [50, 50],
-        [100, 100],
-        [100, 0]
-    ],
-    "ellipse": [
-        [50, 100],
-        [100, 50],
-        [150, 100]
-    ],
-    "lines": {
-        "straight": [[200, 200], [300, 300]],
-        "sine": [[x, 150 + math.sin(x/30) * 50] for x in range(0, 300, 30)]
-    },
-    "squareSize": 300
-}
-
-def load_metadata():
-    if os.path.exists(METADATA_FILE):
-        with open(METADATA_FILE, 'r') as f:
-            return json.load(f)
-    return DEFAULT_METADATA
 
 def save_metadata(metadata):
     with open(METADATA_FILE, 'w') as f:
@@ -247,8 +216,12 @@ def save_metadata(metadata):
 
 @app.route('/metadata', methods=['GET', 'POST'])
 def handle_metadata():
+    global controller
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 404
+
     if request.method == 'GET':
-        metadata = load_metadata()
+        metadata = controller.viewmodel.get_metadata()
         response = jsonify(metadata)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
@@ -257,6 +230,7 @@ def handle_metadata():
         try:
             updated_metadata = request.json
             save_metadata(updated_metadata)
+            controller.viewmodel.set_metadata(updated_metadata)
             response = jsonify({"message": "Metadata updated successfully"})
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
@@ -264,14 +238,6 @@ def handle_metadata():
             response = jsonify({"error": str(e)}), 400
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
-
-@app.route('/metadata', methods=['OPTIONS'])
-def handle_options():
-    response = make_response()
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST')
-    return response
-
+            
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

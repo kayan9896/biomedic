@@ -13,15 +13,17 @@ class ProcessingAttempt:
     """Represents a complete processing attempt with all stages"""
     stages: List[Stage]
     timestamp: float = 0.0
+    metadata: dict = field(default_factory=dict)  # Add metadata field
 
     def __init__(self):
         import time
         self.stages = [
-            Stage(frames=[None, None, None, None]),  # Stage 1: 4 frames
-            Stage(frames=[None, None]),              # Stage 2: 2 frames
-            Stage(frames=[None, None])               # Stage 3: 2 frames
+            Stage(frames=[None, None, None, None]),
+            Stage(frames=[None, None]),
+            Stage(frames=[None, None])
         ]
         self.timestamp = time.time()
+        self.metadata = {}
 
 class ProcessingModel:
     def __init__(self, max_attempts: int = 10):
@@ -55,3 +57,14 @@ class ProcessingModel:
             return self.attempts[index]
         except IndexError:
             return None
+
+    def get_metadata(self) -> dict:
+        """Get metadata from the current attempt"""
+        if self.current_attempt:
+            return self.current_attempt.metadata
+        return {}
+
+    def set_metadata(self, metadata: dict) -> None:
+        """Update metadata for the current attempt"""
+        if self.current_attempt:
+            self.current_attempt.metadata = metadata

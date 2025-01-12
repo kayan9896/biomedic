@@ -74,7 +74,12 @@ class ImageProcessingController:
                 filepath = os.path.join(download_path, filename)
                 img = cv2.imread(filepath)
                 if img is not None:
-                    self.mockdata.append(img)
+                    metadata_file = os.path.join(download_path, 'metadata.json')
+                    if os.path.exists(metadata_file):
+                        with open(metadata_file, 'r') as f:
+                            metadata = json.load(f)
+                                                    
+                    self.mockdata.append({'img':img,'metadata':metadata})
                 else:
                     print(f"Warning: Could not load image {filename}")
             
@@ -113,7 +118,10 @@ class ImageProcessingController:
                 if not self.mockdata or self.model.is_processing:
                     continue
                 try:
-                    frame = self.mockdata.pop(0)
+                    pop = self.mockdata.pop(0)
+                    frame = pop['img']
+                    self.viewmodel.current_attempt.metadata = pop['metadata']
+
                     # Optional: Add delay to simulate real-time processing
                     time.sleep(5) 
                 except IndexError:
