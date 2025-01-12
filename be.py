@@ -120,7 +120,6 @@ class ImageProcessingController:
                     continue
                 try:
                     pop = self.mockdata.pop(0)
-                    print(pop)
                     frame = pop['img']
                     self.viewmodel.current_attempt.metadata = pop['metadata']
 
