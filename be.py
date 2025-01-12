@@ -7,6 +7,7 @@ import os
 from ab import AnalyzeBox
 from fg import FrameGrabber
 from mod import ProcessingModel
+import json
 
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
@@ -64,7 +65,7 @@ class ImageProcessingController:
         self.mockdata = []
         
         # Load mock images from the download folder
-        download_path = os.path.join('../../', 'Downloads')
+        download_path = os.path.join('../', 'Downloads')
         try:
             # Get all files starting with 'drr' and sort them naturally
             files = [f for f in os.listdir(download_path) if f.startswith('drr')]
@@ -74,7 +75,7 @@ class ImageProcessingController:
                 filepath = os.path.join(download_path, filename)
                 img = cv2.imread(filepath)
                 if img is not None:
-                    metadata_file = os.path.join(download_path, 'metadata.json')
+                    metadata_file = 'metadata.json'
                     if os.path.exists(metadata_file):
                         with open(metadata_file, 'r') as f:
                             metadata = json.load(f)
@@ -119,6 +120,7 @@ class ImageProcessingController:
                     continue
                 try:
                     pop = self.mockdata.pop(0)
+                    print(pop)
                     frame = pop['img']
                     self.viewmodel.current_attempt.metadata = pop['metadata']
 
