@@ -73,6 +73,7 @@ class ProcessingModel:
             return attempt.stages[stage-1].frames[frame-1].metadata
         except (IndexError, AttributeError):
             return {}
+
     
     def set_stitched(self, stage: int, image: np.ndarray) -> None:
         """Set the stitched result for a specific stage"""
