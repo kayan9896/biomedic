@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const Circle = ({ center, edgePoint, onCenterChange, onEdgePointChange }) => {
+const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange }) => {
+  const [center,setcCenter]=useState(ori)
+  const [edgePoint,setEdgePoint]=useState(edge)
   const [isDraggingCenter, setIsDraggingCenter] = useState(false);
   const [isDraggingEdge, setIsDraggingEdge] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -48,10 +50,13 @@ const Circle = ({ center, edgePoint, onCenterChange, onEdgePointChange }) => {
     if (isDraggingCenter) {
       const dx = x - center[0];
       const dy = y - center[1];
+      setcCenter([x, y])
       onCenterChange([x, y]);
       onEdgePointChange([edgePoint[0] + dx, edgePoint[1] + dy]);
+      setEdgePoint([edgePoint[0] + dx, edgePoint[1] + dy])
     } else if (isDraggingEdge) {
       onEdgePointChange([x, y]);
+      setEdgePoint([x, y])
     }
   };
 

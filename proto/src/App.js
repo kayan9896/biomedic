@@ -89,36 +89,41 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
     setHasUnsavedChanges(true);
   };
 
-  const handleSaveChanges = async () => {
+  const handleMetadataChange = (frameNumber, type, newData) => {
+    if (frameNumber === 1) {
+      setFrame1Metadata(prev => ({
+        ...prev,
+        [type]: newData
+      }));
+      setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
+    } else {
+      setFrame2Metadata(prev => ({
+        ...prev,
+        [type]: newData
+      }));
+      setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
+    }
+  };
+
+  const handleSaveChanges = async (frameNumber) => {
+    const metadata = frameNumber === 1 ? frame1Metadata : frame2Metadata;
     if (!metadata) return;
 
-    const updatedMetadata = {
-      ...metadata,
-      circle: {
-        center: ccenter,
-        edgePoint: edgePoint
-      },
-      arc: arcPoints,
-      ellipse: ellipsePoints,
-      lines: {
-        straight: straightLinePoints,
-        sine: sinePoints
-      },
-      squareSize: metadata.squareSize
-    };
-
     try {
-      const response = await fetch('http://localhost:5000/metadata', {
+      const response = await fetch(`http://localhost:5000/metadata/${attemptIndex}/${currentSubAttempt + 1}/${frameNumber}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedMetadata),
+        body: JSON.stringify(metadata),
       });
 
       if (response.ok) {
-        setHasUnsavedChanges(false);
-        alert('Changes saved successfully!');
+        setHasUnsavedChanges(prev => ({
+          ...prev,
+          [frameNumber === 1 ? 'frame1' : 'frame2']: false
+        }));
+        alert(`Frame ${frameNumber} metadata saved successfully!`);
       } else {
         throw new Error('Failed to save changes');
       }
@@ -129,36 +134,66 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
   };
   
     // Only render the visualization components when metadata is available
-    const renderVisualizations = (metadata) => {
+    const renderVisualizations = (metadata, frameNumber) => {
       if (!metadata) return null;
   
       return (
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
-        <Arc 
-          arc={arcPoints} 
-          onChange={handleArcChange}
-        />
-        <Circle 
-          center={ccenter}
-          edgePoint={edgePoint}
-          onCenterChange={handleCenterChange}
-          onEdgePointChange={handleEdgePointChange}
-        />
-        <Ellipse 
-          ellipse={ellipsePoints}
-          onChange={handleEllipseChange}
-        />
-        <Line 
-          squareSize={metadata?.squareSize || 300}
-          points={straightLinePoints}
-          onChange={handleStraightLineChange}
-        />
-        <Line 
-          squareSize={metadata?.squareSize || 300}
-          points={sinePoints}
-          onChange={handleSineLineChange}
-        />
-      </div>
+          {metadata.arc && (
+            <Arc 
+              arc={metadata.arc} 
+              onChange={(newArc) => handleMetadataChange(frameNumber, 'arc', newArc)}
+            />
+          )}
+          {metadata.circle && (
+            <Circle 
+              center={metadata.circle.center}
+              edgePoint={metadata.circle.edgePoint}
+              onCenterChange={(newCenter) => 
+                handleMetadataChange(frameNumber, 'circle', { 
+                  ...metadata.circle, 
+                  center: newCenter 
+                })
+              }
+              onEdgePointChange={(newEdge) => 
+                handleMetadataChange(frameNumber, 'circle', { 
+                  ...metadata.circle, 
+                  edgePoint: newEdge 
+                })
+              }
+            />
+          )}
+          {metadata.ellipse && (
+            <Ellipse 
+              ellipse={metadata.ellipse} 
+              onChange={(newEllipse) => handleMetadataChange(frameNumber, 'ellipse', newEllipse)}
+            />
+          )}
+          {metadata.lines?.straight && (
+            <Line 
+              squareSize={metadata.squareSize || 300}
+              points={metadata.lines.straight}
+              onChange={(newPoints) => 
+                handleMetadataChange(frameNumber, 'lines', {
+                  ...metadata.lines,
+                  straight: newPoints
+                })
+              }
+            />
+          )}
+          {metadata.lines?.sine && (
+            <Line 
+              squareSize={metadata.squareSize || 300}
+              points={metadata.lines.sine}
+              onChange={(newPoints) => 
+                handleMetadataChange(frameNumber, 'lines', {
+                  ...metadata.lines,
+                  sine: newPoints
+                })
+              }
+            />
+          )}
+        </div>
       );
     };
   
@@ -200,16 +235,22 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
           )}
         </div>
       </div>
-      {hasUnsavedChanges && (
-        <div className="save-changes-container">
+        {hasUnsavedChanges.frame1 && (
           <button 
             className="save-changes-button"
-            onClick={handleSaveChanges}
+            onClick={() => handleSaveChanges(1)}
           >
-            Save Changes
+            Save Frame 1 Changes
           </button>
-        </div>
-      )}
+        )}
+        {hasUnsavedChanges.frame2 && (
+          <button 
+            className="save-changes-button"
+            onClick={() => handleSaveChanges(2)}
+          >
+            Save Frame 2 Changes
+          </button>
+        )}
     </div>
   );
 };

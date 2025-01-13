@@ -105,7 +105,7 @@ def get_attempt_image(index, stage, frame):
         if frame == 'stitch':
             image = attempt.stages[stage_idx].stitched
         else:
-            image = attempt.stages[stage_idx].frames[int(frame)-1]
+            image = attempt.stages[stage_idx].frames[int(frame)-1].image
 
         if image is None:
             return jsonify({"error": f"No image available for stage {stage}, frame {frame}"}), 404
