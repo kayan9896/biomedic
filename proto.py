@@ -233,6 +233,7 @@ def update_frame_metadata(attempt, stage, frame):
 
     try:
         updated_metadata = request.json
+        save_metadata(updated_metadata)
         controller.viewmodel.attempts[attempt].stages[stage-1].frames[frame-1].metadata = updated_metadata
         response = jsonify({"message": "Metadata updated successfully"})
     except Exception as e:

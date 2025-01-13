@@ -9,105 +9,132 @@ import Line from './Line';
 
 const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive, attemptIndex }) => {
   const currentImages = subAttempts[currentSubAttempt] || {};
-  const [frame1Metadata, setFrame1Metadata] = useState(null);
-  const [frame2Metadata, setFrame2Metadata] = useState(null);
-  const [metadata, setMetadata] = useState(null);
-  // State for Circle
-  const [ccenter, setcCenter] = useState([100, 100]);
-  const [edgePoint, setEdgePoint] = useState([150, 100]);
-  // State for Arc
-  const [arcPoints, setArcPoints] = useState([[50, 50], [100, 100], [100, 0]]);
-  // State for Ellipse
-  const [ellipsePoints, setEllipsePoints] = useState([[50, 100], [100, 50], [150, 100]]);
-  // State for Lines
-  const [straightLinePoints, setStraightLinePoints] = useState([[200, 200], [300, 300]]);
-  const [sinePoints, setSinePoints] = useState([]);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
-  // Fetch initial metadata
-  useEffect(() => {
-    const fetchFrameMetadata = async () => {
-      if (currentImages.image1) {
-        try {
-          const response = await fetch(`http://localhost:5000/metadata/${attemptIndex}/${currentSubAttempt + 1}/1`);
-          if (response.ok) {
-            const data = await response.json();
-            setFrame1Metadata(data);
-          }
-        } catch (err) {
-          console.error('Error fetching frame 1 metadata:', err);
-        }
-      }
+  // State for Frame 1
+  const [frame1Circle, setFrame1Circle] = useState({ center: [100, 100], edgePoint: [150, 100] });
+  const [frame1Arc, setFrame1Arc] = useState([[50, 50], [100, 100], [100, 0]]);
+  const [frame1Ellipse, setFrame1Ellipse] = useState([[50, 100], [100, 50], [150, 100]]);
+  const [frame1StraightLine, setFrame1StraightLine] = useState([[200, 200], [300, 300]]);
+  const [frame1SineLine, setFrame1SineLine] = useState(null);
 
-      if (currentImages.image2) {
+  // State for Frame 2
+  const [frame2Circle, setFrame2Circle] = useState({ center: [100, 100], edgePoint: [150, 100] });
+  const [frame2Arc, setFrame2Arc] = useState([[50, 50], [100, 100], [100, 0]]);
+  const [frame2Ellipse, setFrame2Ellipse] = useState([[50, 100], [100, 50], [150, 100]]);
+  const [frame2StraightLine, setFrame2StraightLine] = useState([[200, 200], [300, 300]]);
+  const [frame2SineLine, setFrame2SineLine] = useState(null);
+
+  // Track unsaved changes for each frame
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState({ frame1: false, frame2: false });
+
+  useEffect(() => {
+    const fetchFrameMetadata = async (frameNum) => {
+      if (currentImages[`image${frameNum}`]) {
         try {
-          const response = await fetch(`http://localhost:5000/metadata/${attemptIndex}/${currentSubAttempt + 1}/2`);
+          const response = await fetch(`http://localhost:5000/metadata/${attemptIndex}/${currentSubAttempt + 1}/${frameNum}`);
           if (response.ok) {
             const data = await response.json();
-            setFrame2Metadata(data);
+            if (frameNum === 1) {
+              if(frame1SineLine) return
+              if (data.circle) setFrame1Circle(data.circle);
+              if (data.arc) setFrame1Arc(data.arc);
+              if (data.ellipse) setFrame1Ellipse(data.ellipse);
+              if (data.lines?.straight) setFrame1StraightLine(data.lines.straight);
+              if (data.lines?.sine) setFrame1SineLine(data.lines.sine);
+            } else {
+              if(frame2SineLine) return
+              if (data.circle) setFrame2Circle(data.circle);
+              if (data.arc) setFrame2Arc(data.arc);
+              if (data.ellipse) setFrame2Ellipse(data.ellipse);
+              if (data.lines?.straight) setFrame2StraightLine(data.lines.straight);
+              if (data.lines?.sine) setFrame2SineLine(data.lines.sine);
+            }
           }
         } catch (err) {
-          console.error('Error fetching frame 2 metadata:', err);
+          console.error(`Error fetching frame ${frameNum} metadata:`, err);
         }
       }
     };
 
-    fetchFrameMetadata();
-  }, [currentImages, attemptIndex, currentSubAttempt]);
+    fetchFrameMetadata(1);
+    fetchFrameMetadata(2);
+  }, [ currentImages, attemptIndex, currentSubAttempt]);
 
-  // Handlers for Circle
-  const handleCenterChange = (newCenter) => {
-    setcCenter(newCenter);
-    setHasUnsavedChanges(true);
+  // Handlers for Frame 1
+  const handleFrame1CenterChange = (newCenter) => {
+    setFrame1Circle(prev => ({ ...prev, center: newCenter }));
+    setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
   };
 
-  const handleEdgePointChange = (newEdgePoint) => {
-    setEdgePoint(newEdgePoint);
-    setHasUnsavedChanges(true);
+  const handleFrame1EdgePointChange = (newEdgePoint) => {
+    setFrame1Circle(prev => ({ ...prev, edgePoint: newEdgePoint }));
+    setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
   };
 
-  // Handler for Arc
-  const handleArcChange = (newArcPoints) => {
-    setArcPoints(newArcPoints);
-    setHasUnsavedChanges(true);
+  const handleFrame1ArcChange = (newArcPoints) => {
+    setFrame1Arc(newArcPoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
+    console.log(frame1Arc)
   };
 
-  // Handler for Ellipse
-  const handleEllipseChange = (newEllipsePoints) => {
-    setEllipsePoints(newEllipsePoints);
-    setHasUnsavedChanges(true);
+  const handleFrame1EllipseChange = (newEllipsePoints) => {
+    setFrame1Ellipse(newEllipsePoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
   };
 
-  // Handlers for Lines
-  const handleStraightLineChange = (newPoints) => {
-    setStraightLinePoints(newPoints);
-    setHasUnsavedChanges(true);
+  const handleFrame1StraightLineChange = (newPoints) => {
+    setFrame1StraightLine(newPoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
   };
 
-  const handleSineLineChange = (newPoints) => {
-    setSinePoints(newPoints);
-    setHasUnsavedChanges(true);
+  const handleFrame1SineLineChange = (newPoints) => {
+    setFrame1SineLine(newPoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
   };
 
-  const handleMetadataChange = (frameNumber, type, newData) => {
-    if (frameNumber === 1) {
-      setFrame1Metadata(prev => ({
-        ...prev,
-        [type]: newData
-      }));
-      setHasUnsavedChanges(prev => ({ ...prev, frame1: true }));
-    } else {
-      setFrame2Metadata(prev => ({
-        ...prev,
-        [type]: newData
-      }));
-      setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
-    }
+  // Handlers for Frame 2 (similar to Frame 1)
+  const handleFrame2CenterChange = (newCenter) => {
+    setFrame2Circle(prev => ({ ...prev, center: newCenter }));
+    setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
+  };
+
+  const handleFrame2EdgePointChange = (newEdgePoint) => {
+    setFrame2Circle(prev => ({ ...prev, edgePoint: newEdgePoint }));
+    setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
+  };
+
+  const handleFrame2ArcChange = (newArcPoints) => {
+    setFrame2Arc(newArcPoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
+  };
+
+  const handleFrame2EllipseChange = (newEllipsePoints) => {
+    setFrame2Ellipse(newEllipsePoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
+  };
+
+  const handleFrame2StraightLineChange = (newPoints) => {
+    setFrame2StraightLine(newPoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
+  };
+
+  const handleFrame2SineLineChange = (newPoints) => {
+    setFrame2SineLine(newPoints);
+    setHasUnsavedChanges(prev => ({ ...prev, frame2: true }));
   };
 
   const handleSaveChanges = async (frameNumber) => {
-    const metadata = frameNumber === 1 ? frame1Metadata : frame2Metadata;
-    if (!metadata) return;
+    const metadata = {
+      circle: frameNumber === 1 ? frame1Circle : frame2Circle,
+      arc: frameNumber === 1 ? frame1Arc : frame2Arc,
+      ellipse: frameNumber === 1 ? frame1Ellipse : frame2Ellipse,
+      lines: {
+        straight: frameNumber === 1 ? frame1StraightLine : frame2StraightLine,
+        sine: frameNumber === 1 ? frame1SineLine : frame2SineLine
+      },
+      squareSize: 300
+    };
+    console.log(1, frame1Arc)
 
     try {
       const response = await fetch(`http://localhost:5000/metadata/${attemptIndex}/${currentSubAttempt + 1}/${frameNumber}`, {
@@ -132,94 +159,78 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
       alert('Error saving changes: ' + err.message);
     }
   };
-  
-    // Only render the visualization components when metadata is available
-    const renderVisualizations = (metadata, frameNumber) => {
-      if (!metadata) return null;
-  
-      return (
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
-          {metadata.arc && (
-            <Arc 
-              arc={metadata.arc} 
-              onChange={(newArc) => handleMetadataChange(frameNumber, 'arc', newArc)}
-            />
-          )}
-          {metadata.circle && (
-            <Circle 
-              center={metadata.circle.center}
-              edgePoint={metadata.circle.edgePoint}
-              onCenterChange={(newCenter) => 
-                handleMetadataChange(frameNumber, 'circle', { 
-                  ...metadata.circle, 
-                  center: newCenter 
-                })
-              }
-              onEdgePointChange={(newEdge) => 
-                handleMetadataChange(frameNumber, 'circle', { 
-                  ...metadata.circle, 
-                  edgePoint: newEdge 
-                })
-              }
-            />
-          )}
-          {metadata.ellipse && (
-            <Ellipse 
-              ellipse={metadata.ellipse} 
-              onChange={(newEllipse) => handleMetadataChange(frameNumber, 'ellipse', newEllipse)}
-            />
-          )}
-          {metadata.lines?.straight && (
-            <Line 
-              squareSize={metadata.squareSize || 300}
-              points={metadata.lines.straight}
-              onChange={(newPoints) => 
-                handleMetadataChange(frameNumber, 'lines', {
-                  ...metadata.lines,
-                  straight: newPoints
-                })
-              }
-            />
-          )}
-          {metadata.lines?.sine && (
-            <Line 
-              squareSize={metadata.squareSize || 300}
-              points={metadata.lines.sine}
-              onChange={(newPoints) => 
-                handleMetadataChange(frameNumber, 'lines', {
-                  ...metadata.lines,
-                  sine: newPoints
-                })
-              }
-            />
-          )}
-        </div>
-      );
-    };
+
+  const renderFrame = (frameNumber) => {
+    const image = currentImages[`image${frameNumber}`];
+    const circle = frameNumber === 1 ? frame1Circle : frame2Circle;
+    const arc = frameNumber === 1 ? frame1Arc : frame2Arc;
+    const ellipse = frameNumber === 1 ? frame1Ellipse : frame2Ellipse;
+    const straightLine = frameNumber === 1 ? frame1StraightLine : frame2StraightLine;
+    const sineLine = frameNumber === 1 ? frame1SineLine : frame2SineLine;
+    const frameUnsavedChanges = hasUnsavedChanges[`frame${frameNumber}`];
+
+    const handleCenterChange = frameNumber === 1 ? handleFrame1CenterChange : handleFrame2CenterChange;
+    const handleEdgePointChange = frameNumber === 1 ? handleFrame1EdgePointChange : handleFrame2EdgePointChange;
+    const handleArcChange = frameNumber === 1 ? handleFrame1ArcChange : handleFrame2ArcChange;
+    const handleEllipseChange = frameNumber === 1 ? handleFrame1EllipseChange : handleFrame2EllipseChange;
+    const handleStraightLineChange = frameNumber === 1 ? handleFrame1StraightLineChange : handleFrame2StraightLineChange;
+    const handleSineLineChange = frameNumber === 1 ? handleFrame1SineLineChange : handleFrame2SineLineChange;
+
+    return (
+      <div className="square-box">
+        {image ? (
+          <>
+            <img src={image} alt={`Frame ${frameNumber} capture`} />
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
+              {arc && (
+                <Arc 
+                  arc={arc} 
+                  onChange={handleArcChange}
+                />
+              )}
+              {circle && (
+                <Circle 
+                  center={circle.center}
+                  edgePoint={circle.edgePoint}
+                  onCenterChange={handleCenterChange}
+                  onEdgePointChange={handleEdgePointChange}
+                />
+              )}
+              {ellipse && (
+                <Ellipse 
+                  ellipse={ellipse} 
+                  onChange={handleEllipseChange}
+                />
+              )}
+              {straightLine && (
+                <Line 
+                  squareSize={300}
+                  points={straightLine}
+                  onChange={handleStraightLineChange}
+                />
+              )}
+              {sineLine && sineLine.length > 0 && (
+                <Line 
+                  squareSize={300}
+                  points={sineLine}
+                  onChange={handleSineLineChange}
+                />
+              )}
+            </div>
+            
+          </>
+        ) : (
+          <div className="loading">Waiting for image...</div>
+        )}
+      </div>
+    );
+  };
   
     return (
       <div className={`processing-attempt ${isActive ? 'active' : ''}`}>
         <div className="top-row">
-        <div className="square-box">
-          {currentImages.image1 ? (
-            <>
-              <img src={currentImages.image1} alt="First capture" />
-              {renderVisualizations(frame1Metadata)}
-            </>
-          ) : (
-            <div className="loading">Waiting for first image...</div>
-          )}
-        </div>
-        <div className="square-box">
-          {currentImages.image2 ? (
-            <>
-              <img src={currentImages.image2} alt="Second capture" />
-              {renderVisualizations(frame2Metadata)}
-            </>
-          ) : (
-            <div className="loading">Waiting for second image...</div>
-          )}
-        </div>
+        {renderFrame(1)}
+        {renderFrame(2)}
       </div>
       <div className="bottom-row">
         <div className="rectangle-box">
@@ -235,22 +246,22 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
           )}
         </div>
       </div>
-        {hasUnsavedChanges.frame1 && (
-          <button 
-            className="save-changes-button"
-            onClick={() => handleSaveChanges(1)}
-          >
-            Save Frame 1 Changes
-          </button>
-        )}
-        {hasUnsavedChanges.frame2 && (
-          <button 
-            className="save-changes-button"
-            onClick={() => handleSaveChanges(2)}
-          >
-            Save Frame 2 Changes
-          </button>
-        )}
+      { (
+              <button 
+                className="save-changes-button"
+                onClick={() => handleSaveChanges(1)}
+              >
+                Save Frame 1 Changes
+              </button>
+            )}
+            {(
+              <button 
+                className="save-changes-button"
+                onClick={() => handleSaveChanges(2)}
+              >
+                Save Frame 2 Changes
+              </button>
+            )}
     </div>
   );
 };
