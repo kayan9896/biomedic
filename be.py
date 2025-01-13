@@ -66,7 +66,7 @@ class ImageProcessingController:
         self.mockdata = []
         
         # Load mock images from the download folder
-        download_path = os.path.join('../', 'Downloads')
+        download_path = os.path.join('../../', 'Downloads')
         try:
             # Get all files starting with 'drr' and sort them naturally
             files = [f for f in os.listdir(download_path) if f.startswith('drr')]

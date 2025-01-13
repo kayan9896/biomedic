@@ -112,6 +112,14 @@ const Line = ({ squareSize, points,onChange }) => {
     setShowDots(true);
   };
 
+  const handleDotTouchStart = (e, index) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveDotIndex(index);
+    setIsMouseDown(true);
+    setShowDots(true);
+  };
+
   const calculateSmoothCurve = (points) => {
     if (points.length < 2) return '';
     if (points.length === 2) {
@@ -203,6 +211,7 @@ const Line = ({ squareSize, points,onChange }) => {
             zIndex: 10
           }}
           onMouseDown={(e) => handleDotMouseDown(e, index)}
+          onTouchStart={(e) => handleDotTouchStart(e, index)}
         />
       ))}
     </>

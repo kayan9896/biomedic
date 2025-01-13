@@ -11,17 +11,17 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
   const currentImages = subAttempts[currentSubAttempt] || {};
   
   // State for Frame 1
-  const [frame1Circle, setFrame1Circle] = useState({ center: [100, 100], edgePoint: [150, 100] });
-  const [frame1Arc, setFrame1Arc] = useState([[50, 50], [100, 100], [100, 0]]);
-  const [frame1Ellipse, setFrame1Ellipse] = useState([[50, 100], [100, 50], [150, 100]]);
-  const [frame1StraightLine, setFrame1StraightLine] = useState([[200, 200], [300, 300]]);
+  const [frame1Circle, setFrame1Circle] = useState(null);
+  const [frame1Arc, setFrame1Arc] = useState(null);
+  const [frame1Ellipse, setFrame1Ellipse] = useState(null);
+  const [frame1StraightLine, setFrame1StraightLine] = useState(null);
   const [frame1SineLine, setFrame1SineLine] = useState(null);
 
   // State for Frame 2
-  const [frame2Circle, setFrame2Circle] = useState({ center: [100, 100], edgePoint: [150, 100] });
-  const [frame2Arc, setFrame2Arc] = useState([[50, 50], [100, 100], [100, 0]]);
-  const [frame2Ellipse, setFrame2Ellipse] = useState([[50, 100], [100, 50], [150, 100]]);
-  const [frame2StraightLine, setFrame2StraightLine] = useState([[200, 200], [300, 300]]);
+  const [frame2Circle, setFrame2Circle] = useState(null);
+  const [frame2Arc, setFrame2Arc] = useState(null);
+  const [frame2Ellipse, setFrame2Ellipse] = useState(null);
+  const [frame2StraightLine, setFrame2StraightLine] = useState(null);
   const [frame2SineLine, setFrame2SineLine] = useState(null);
 
   // Track unsaved changes for each frame
