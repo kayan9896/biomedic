@@ -78,11 +78,72 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
   };
 
   useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (svgRef.current && !svgRef.current.contains(e.target)) {
+        setIsEditing(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
     document.addEventListener('mouseup', handleMouseUp);
     return () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
+  
+  useEffect(() => {
+    const handleGlobalMove = (e) => {
+      if (isDraggingCenter || isDraggingEdge) {
+        e.preventDefault();
+        const event = e.touches ? e.touches[0] : e;
+        const svgRect = svgRef.current.getBoundingClientRect();
+        const x = event.clientX - svgRect.left;
+        const y = event.clientY - svgRect.top;
+  
+        if (isDraggingCenter) {
+          // Handle center dragging
+          const dx = x - center[0];
+          const dy = y - center[1];
+          setcCenter([x, y]);
+          onCenterChange([x, y]);
+          onEdgePointChange([edgePoint[0] + dx, edgePoint[1] + dy]);
+          setEdgePoint([edgePoint[0] + dx, edgePoint[1] + dy]);
+        } else if (isDraggingEdge) {
+          // Handle edge dragging
+          onEdgePointChange([x, y]);
+          setEdgePoint([x, y]);
+        }
+      }
+    };
+  
+    const handleGlobalUp = () => {
+      setIsDraggingCenter(false);
+      setIsDraggingEdge(false);
+    };
+  
+    if (isDraggingCenter || isDraggingEdge) {
+      document.addEventListener('mousemove', handleGlobalMove);
+      document.addEventListener('mouseup', handleGlobalUp);
+      document.addEventListener('touchmove', handleGlobalMove);
+      document.addEventListener('touchend', handleGlobalUp);
+    }
+  
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMove);
+      document.removeEventListener('mouseup', handleGlobalUp);
+      document.removeEventListener('touchmove', handleGlobalMove);
+      document.removeEventListener('touchend', handleGlobalUp);
+    };
+  }, [isDraggingCenter, isDraggingEdge, center, edgePoint]);
 
   return (
     <svg 

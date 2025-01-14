@@ -182,12 +182,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
           <>
             <img src={image} alt={`Frame ${frameNumber} capture`} />
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
-              {arc && (
-                <Arc 
-                  arc={arc} 
-                  onChange={handleArcChange}
-                />
-              )}
+              
               {circle && (
                 <Circle 
                   center={circle.center}
@@ -200,6 +195,12 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
                 <Ellipse 
                   ellipse={ellipse} 
                   onChange={handleEllipseChange}
+                />
+              )}
+              {arc && (
+                <Arc 
+                  arc={arc} 
+                  onChange={handleArcChange}
                 />
               )}
               {straightLine && (

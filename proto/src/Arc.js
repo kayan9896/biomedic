@@ -1,11 +1,109 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-const Arc = ({ arc: initialArc,onChange }) => {
+const Arc = ({ arc: initialArc, onChange }) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(null);
   const [dragStart, setDragStart] = useState(null);
+  const arcRef = useRef(null);
+
+  // Add effect for document-level event handling
+  useEffect(() => {
+    const handleGlobalMove = (e) => {
+      if (!isDragging) return;
+
+      e.preventDefault();
+      const event = e.touches ? e.touches[0] : e;
+      const rect = arcRef.current.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      if (draggedPointIndex !== null) {
+        // Moving a control point
+        const newArc = [...arc];
+        newArc[draggedPointIndex] = [x, y];
+        setArc(newArc);
+        if (onChange) {
+          onChange(newArc);
+        }
+      } else {
+        // Moving the entire arc
+        const dx = x - dragStart[0];
+        const dy = y - dragStart[1];
+
+        const newArc = arc.map(point => [
+          point[0] + dx,
+          point[1] + dy
+        ]);
+
+        setArc(newArc);
+        if (onChange) {
+          onChange(newArc);
+        }
+        setDragStart([x, y]);
+      }
+    };
+
+    const handleGlobalUp = () => {
+      setIsDragging(false);
+      setDraggedPointIndex(null);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleGlobalMove);
+      document.addEventListener('mouseup', handleGlobalUp);
+      document.addEventListener('touchmove', handleGlobalMove);
+      document.addEventListener('touchend', handleGlobalUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMove);
+      document.removeEventListener('mouseup', handleGlobalUp);
+      document.removeEventListener('touchmove', handleGlobalMove);
+      document.removeEventListener('touchend', handleGlobalUp);
+    };
+  }, [isDragging, draggedPointIndex, dragStart, arc, onChange]);
+
+  // Add effect for click outside handling
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (arcRef.current && !arcRef.current.contains(e.target)) {
+        setIsSelected(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  function handleMouseDown(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const event = e.touches ? e.touches[0] : e;
+    const rect = arcRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const controlPointIndex = arc.findIndex(point => 
+      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 5
+    );
+    
+    if (controlPointIndex !== -1) {
+      setIsDragging(true);
+      setDraggedPointIndex(controlPointIndex);
+      setDragStart([x, y]);
+      setIsSelected(true);
+    } else if (e.target.tagName === 'path') {
+      setIsDragging(true);
+      setDraggedPointIndex(null);
+      setDragStart([x, y]);
+      setIsSelected(true);
+    } else {
+      setIsSelected(false);
+    }
+  }
 
   function findCircle(p1, p2, p3) {
     const x1 = p1[0], y1 = p1[1];
@@ -34,86 +132,16 @@ const Arc = ({ arc: initialArc,onChange }) => {
     return Math.atan2(point[1] - center[1], point[0] - center[0]);
   }
 
-  function handleMouseDown(e) {
-    e.preventDefault(); // Prevent default touch behavior
-    
-    // Get coordinates, whether from mouse or touch
-    const event = e.touches ? e.touches[0] : e;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-  
-    const controlPointIndex = arc.findIndex(point => 
-      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 5
-    );
-    
-    if (controlPointIndex !== -1) {
-      setIsDragging(true);
-      setDraggedPointIndex(controlPointIndex);
-      setDragStart([x, y]);
-      setIsSelected(true);
-    } else if (e.target.tagName === 'path') {
-      setIsDragging(true);
-      setDraggedPointIndex(null);
-      setDragStart([x, y]);
-      setIsSelected(true);
-    } else {
-      setIsSelected(false);
-    }
-  }
-
-  function handleMouseMove(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    const event = e.touches ? e.touches[0] : e;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    if (draggedPointIndex !== null) {
-      // Moving a control point
-      const newArc = [...arc];
-      newArc[draggedPointIndex] = [x, y];
-      setArc(newArc);
-      if (onChange) {
-        onChange(newArc);
-      }
-    } else {
-      // Moving the entire arc
-      const dx = x - dragStart[0];
-      const dy = y - dragStart[1];
-
-      const newArc = arc.map(point => [
-        point[0] + dx,
-        point[1] + dy
-      ]);
-
-      setArc(newArc);
-      if (onChange) {
-        onChange(newArc);
-      }
-      setDragStart([x, y]);
-    }
-  }
-
-  function handleMouseUp() {
-    setIsDragging(false);
-    setDraggedPointIndex(null);
-  }
-
   const { center, radius } = findCircle(arc[0], arc[1], arc[2]);
   let startAngle = calculateAngle(center, arc[0]);
   let midAngle = calculateAngle(center, arc[1]);
   let endAngle = calculateAngle(center, arc[2]);
 
-  // Ensure angles are in the correct order
   while (midAngle < startAngle) midAngle += 2 * Math.PI;
   while (endAngle < midAngle) endAngle += 2 * Math.PI;
 
-  // Determine if we need to draw the long way around
   const longWay = endAngle - startAngle > Math.PI;
 
-  // If we need to go the long way, swap start and end
   if (longWay) {
     [startAngle, endAngle] = [endAngle, startAngle];
   }
@@ -128,32 +156,39 @@ const Arc = ({ arc: initialArc,onChange }) => {
 
   return (
     <svg 
+      ref={arcRef}
       width="400" 
       height="400"
-      onMouseDown={handleMouseDown}
-      onTouchStart={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onTouchMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onTouchEnd={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      style={{ position: 'absolute', top: 0, left: 0, cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default', touchAction:'none', pointerEvents:"visible" }}
+      style={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default'
+      }}
+      pointerEvents="none"
     >
-      <path
-        d={d}
-        fill="none"
-        stroke="yellow"
-        strokeWidth="2"
-      />
-      {isSelected && arc.map((point, index) => (
-        <circle
-          key={index}
-          cx={point[0]}
-          cy={point[1]}
-          r={index === draggedPointIndex ? 8 : 4}
-          fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0.5)' : 'yellow'}
+      <g pointerEvents="auto">
+        <path
+          d={d}
+          fill="none"
+          stroke="yellow"
+          strokeWidth="2"
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleMouseDown}
+          style={{ cursor: 'pointer' }}
         />
-      ))}
+        {isSelected && arc.map((point, index) => (
+          <circle
+            key={index}
+            cx={point[0]}
+            cy={point[1]}
+            r={index === draggedPointIndex ? 8 : 4}
+            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0.5)' : 'yellow'}
+            onMouseDown={(e) => handleMouseDown(e, index)}
+            onTouchStart={(e) => handleMouseDown(e, index)}
+          />
+        ))}
+      </g>
     </svg>
   );
 };
