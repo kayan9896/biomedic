@@ -42,12 +42,12 @@ def mock():
         if controller is None:
             controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
 
-        if controller.mode == 1:
-            controller.mode = 0
+        if controller.model.mode == 1:
+            controller.model.mode = 0
             controller.run_simulation()
             controller.start_processing()
         else:
-            controller.mode = 0
+            controller.model.mode = 0
             controller.stop_simulation()
         return jsonify({"message": f"Started simulation"})
 
@@ -249,7 +249,7 @@ def next_frame():
     if not controller:
         return jsonify({"error": "Controller not initialized"}), 404
         
-    if controller.mode != 0:  # Check if in simulation mode
+    if controller.model.mode != 0:  # Check if in simulation mode
         return jsonify({"error": "Not in simulation mode"}), 400
         
     controller.process_next_frame = True  # New flag to control frame progression

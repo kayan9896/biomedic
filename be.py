@@ -13,7 +13,6 @@ class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
         self.frame_grabber = frame_grabber
         self.model = analyze_box
-        self.mode = 1
         self.current_stage = 1
         self.current_frame = 1
         self.is_running = False
@@ -62,7 +61,7 @@ class ImageProcessingController:
 
     def run_simulation(self):
         """Set up simulation mode and load mock data."""
-        self.mode = 0  # 0 for simulation mode, 1 for normal mode
+        self.model.mode = 0  # 0 for simulation mode, 1 for normal mode
         self.mockdata = []
         
         # Load mock images from the download folder
@@ -99,20 +98,19 @@ class ImageProcessingController:
 
     def stop_simulation(self):
         """Stop simulation and clear mock data."""
-        self.mode = 1
+        self.model.mode = 1
         self.mockdata.clear()
 
     def _process_loop(self):
         case_number = 0
         
         while self.is_running:
-            # Ensure we have a current attempt
             if not self.viewmodel.current_attempt:
                 print(3)
                 continue
 
             # Get frame based on mode
-            if self.mode == 1:  # Normal mode
+            if self.model.mode == 1:  # Normal mode
                 if not self.frame_grabber._is_new_frame_available or self.model.is_processing:
                     continue
                 frame = self.frame_grabber.fetchFrame()
@@ -125,17 +123,7 @@ class ImageProcessingController:
                     continue
                     
                 try:
-                    pop = self.mockdata.pop(0)
-                    frame = pop['img']
-                    frame_metadata = pop['metadata']  # Get metadata for this frame
-                    # Store metadata per frame
-                    self.viewmodel.set_frame(
-                        stage=self.current_stage,
-                        frame=self.current_frame,
-                        image=frame,
-                        metadata=frame_metadata
-                    )
-                    
+                    frame = self.mockdata.pop(0)  # Pop the entire dict
                     self.process_next_frame = False
                 except IndexError:
                     print("Simulation completed: No more mock frames available")
@@ -153,13 +141,13 @@ class ImageProcessingController:
                 if not ResBool:
                     print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}")
                     continue
-                
 
-                # Store the frame in the viewmodel
+                # Store the frame and metadata in the viewmodel
                 self.viewmodel.set_frame(
                     stage=self.current_stage,
                     frame=self.current_frame,
-                    image=image_data
+                    image=image_data,
+                    metadata=metadata
                 )
                 
                 case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)

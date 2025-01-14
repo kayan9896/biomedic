@@ -2,17 +2,19 @@ import cv2
 import numpy as np
 import time
 import threading
+import json
 
 class AnalyzeBox:
     def __init__(self):
         self._stitch_progress = 0
         self._lock = threading.Lock()
         self._result = None
-        self.images = [[None]*4, [None]*2, [None]*2]  # Initialize with proper structure
-        self.stitched_result = [None]*2  # For rhp results
+        self.images = [[None]*4, [None]*2, [None]*2]
+        self.stitched_result = [None]*2
         self._is_processing = False
         self._stitch_thread = None
-
+        self.mode = 1  # Default to normal mode
+        
     @property
     def is_processing(self):
         """Returns whether the AnalyzeBox is currently processing (storing images or stitching)."""
@@ -96,22 +98,32 @@ class AnalyzeBox:
             with self._lock:
                 self._is_processing = False
 
-    def analyzeframe(self, current_stage, current_frame, frame, target_size=700):
+    def analyzeframe(self, current_stage, current_frame, frame_or_dict, target_size=700):
         """Analyze and store a single frame."""
         try:
-            height, width = frame.shape[:2]
+            # Extract frame and metadata based on mode and input type
+            if self.mode == 0 and isinstance(frame_or_dict, dict):  # Simulation mode with dict
+                metadata = frame_or_dict.get('metadata', {})
+                frame_img = frame_or_dict.get('img')
+            else:  # Normal mode
+                frame_img = frame_or_dict
+                try:
+                    with open('calcdata.json', 'r') as f:
+                        metadata = json.load(f)
+                except Exception as e:
+                    print(e)
+                    metadata = {}  # Default empty metadata if file not found
+
+            # Process the frame image
+            height, width = frame_img.shape[:2]
             start_x = max(0, width // 2 - target_size // 2)
             start_y = max(0, height // 2 - target_size // 2)
-            cropped = frame[start_y:start_y+target_size, start_x:start_x+target_size]
+            cropped = frame_img[start_y:start_y+target_size, start_x:start_x+target_size]
             self.images[current_stage-1][current_frame-1] = cropped
-            meta={}
-            meta['curves'] = [
-            [(x,x*x) for x in range(10)],
-            [(x,x**3) for x in range(10)]]
-            meta['points'] = [(50,50),(50,80)]
-            return True, cropped, meta
+            
+            return True, cropped, metadata
         except Exception as e:
-            return False, str(e)
+            return False, None, str(e)
 
     def stitch(self, frame1, frame2):
         """Stitch two frames together."""
