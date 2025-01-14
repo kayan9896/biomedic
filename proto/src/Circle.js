@@ -43,9 +43,10 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
   const handleMouseMove = (e) => {
     if (!isDraggingCenter && !isDraggingEdge) return;
 
+    const event = e.touches ? e.touches[0] : e;
     const svgRect = svgRef.current.getBoundingClientRect();
-    const x = e.clientX - svgRect.left;
-    const y = e.clientY - svgRect.top;
+    const x = event.clientX - svgRect.left;
+    const y = event.clientY - svgRect.top;
 
     if (isDraggingCenter) {
       const dx = x - center[0];
@@ -115,6 +116,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
               cursor="grab"
               pointerEvents="auto"
               onMouseDown={(e) => handleMouseDown(e, true)}
+              onTouchStart={(e) => handleMouseDown(e, true)}
               {...(isDraggingCenter ? draggedPointStyle : normalPointStyle)}
             />
             
@@ -125,6 +127,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
               cursor="grab"
               pointerEvents="auto"
               onMouseDown={(e) => handleMouseDown(e, false)}
+              onTouchStart={(e) => handleMouseDown(e, true)}
               {...(isDraggingEdge ? draggedPointStyle : normalPointStyle)}
             />
           </>

@@ -35,10 +35,14 @@ const Arc = ({ arc: initialArc,onChange }) => {
   }
 
   function handleMouseDown(e) {
+    e.preventDefault(); // Prevent default touch behavior
+    
+    // Get coordinates, whether from mouse or touch
+    const event = e.touches ? e.touches[0] : e;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+  
     const controlPointIndex = arc.findIndex(point => 
       Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 5
     );
@@ -60,10 +64,11 @@ const Arc = ({ arc: initialArc,onChange }) => {
 
   function handleMouseMove(e) {
     if (!isDragging) return;
-
+    e.preventDefault();
+    const event = e.touches ? e.touches[0] : e;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
     if (draggedPointIndex !== null) {
       // Moving a control point
@@ -126,10 +131,13 @@ const Arc = ({ arc: initialArc,onChange }) => {
       width="400" 
       height="400"
       onMouseDown={handleMouseDown}
+      onTouchStart={handleMouseDown}
       onMouseMove={handleMouseMove}
+      onTouchMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchEnd={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      style={{ position: 'absolute', top: 0, left: 0, cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default',pointerEvents:"visible" }}
+      style={{ position: 'absolute', top: 0, left: 0, cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default', touchAction:'none', pointerEvents:"visible" }}
     >
       <path
         d={d}

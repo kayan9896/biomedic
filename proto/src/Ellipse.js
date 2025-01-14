@@ -39,9 +39,11 @@ const Ellipse = ({ ellipse: initialEllipse ,onChange}) => {
 
 
   function handleMouseDown(e) {
+    e.preventDefault();
+    const event = e.touches ? e.touches[0] : e;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
     const controlPointIndex = ellipse.findIndex(point => 
       Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 5
@@ -64,10 +66,11 @@ const Ellipse = ({ ellipse: initialEllipse ,onChange}) => {
 
   function handleMouseMove(e) {
     if (!isDragging) return;
-
+    e.preventDefault();
+    const event = e.touches ? e.touches[0] : e;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
     if (draggedPointIndex !== null) {
       // Moving a control point
@@ -107,10 +110,13 @@ const Ellipse = ({ ellipse: initialEllipse ,onChange}) => {
       width="400" 
       height="400"
       onMouseDown={handleMouseDown}
+      onTouchStart={handleMouseDown}
       onMouseMove={handleMouseMove}
+      onTouchMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchEnd={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      style={{ position: 'absolute', top: 0, left: 0, cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default' }}
+      style={{ position: 'absolute', top: 0, left: 0, cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default', touchAction:'none'}}
     >
       <ellipse
         cx={center[0]}
