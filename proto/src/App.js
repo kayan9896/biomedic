@@ -28,6 +28,28 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState({ frame1: false, frame2: false });
  
   const [processingAttempts, setProcessingAttempts] = useState(processingAttempt);
+  const [brightness1, setBrightness1] = useState(100); // 100 is normal brightness
+const [brightness2, setBrightness2] = useState(100);
+
+// Add this style to your image element
+const getBrightnessStyle = (brightness) => ({
+  filter: `brightness(${(brightness + 100) / 100})`  // Convert -100 to 100 range to 0 to 2
+});
+
+// Modify your image rendering
+
+
+// Update brightness handler for immediate feedback
+const handleBrightnessChange = (frameNumber, value) => {
+  if (frameNumber === 1) {
+    setBrightness1(value);
+  } else {
+    setBrightness2(value);
+  }
+  
+  // Optionally debounce the API call to save the adjusted image
+  debouncedSaveBrightness(frameNumber, value);
+};
 
 
   useEffect(() => {
@@ -162,49 +184,29 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
       alert('Error saving changes: ' + err.message);
     }
   };
-
-  const [brightness1, setBrightness1] = useState(0);
-const [brightness2, setBrightness2] = useState(0);
-
-
-const handleBrightnessChange = async (frameNumber, value) => {
-  if (frameNumber === 1) {
-    setBrightness1(value);
-  } else {
-    setBrightness2(value);
-  }
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
   
-  try {
-    const response = await fetch(`http://localhost:5000/adjust_brightness/${attemptIndex}/${currentSubAttempt + 1}/${frameNumber}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ brightness: value }),
-    });
-    
-    if (response.ok) {
-      const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      
-      // Update the image in state
-      setProcessingAttempts(prev => {
-        const newAttempts = [...prev];
-        const currentAttempt = { ...newAttempts[attemptIndex] };
-        
-        if (!currentAttempt.subAttempts[currentSubAttempt]) {
-          currentAttempt.subAttempts[currentSubAttempt] = {};
-        }
-        
-        currentAttempt.subAttempts[currentSubAttempt][`image${frameNumber}`] = imageUrl;
-        newAttempts[attemptIndex] = currentAttempt;
-        return newAttempts;
+  const debouncedSaveBrightness = debounce(async (frameNumber, value) => {
+    // Your existing API call to save brightness
+    try {
+      const response = await fetch(`http://localhost:5000/adjust_brightness/${attemptIndex}/${currentSubAttempt + 1}/${frameNumber}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ brightness: value }),
       });
+      // Handle response...
+    } catch (err) {
+      console.error('Error adjusting brightness:', err);
     }
-  } catch (err) {
-    console.error('Error adjusting brightness:', err);
-  }
-};
+  }, 500); 
 
 
   const renderFrame = (frameNumber) => {
@@ -237,7 +239,11 @@ const handleBrightnessChange = async (frameNumber, value) => {
       <div className="square-box">
         {image ? (
           <>
-            <img src={image} alt={`Frame ${frameNumber} capture`} />
+            <img 
+              src={image} 
+              alt={`Frame ${frameNumber} capture`} 
+              style={getBrightnessStyle(frameNumber === 1 ? brightness1 : brightness2)}
+            />
             
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
               

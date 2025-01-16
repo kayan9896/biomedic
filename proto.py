@@ -280,14 +280,8 @@ def adjust_brightness(index, stage, frame):
         # Get the original image
         original_image = controller.model.images[stage_idx][frame_idx]
 
-        if original_image is None:
-            return jsonify({"error": f"No image available for stage {stage}, frame {frame}"}), 404
         
-        # Adjust brightness using the model's function
-        adjusted_image = controller.model.adjust_brightness(original_image, brightness)
-        attempt.stages[stage_idx].frames[frame_idx].image=adjusted_image
-        # Convert the adjusted image to bytes and send it back
-        image_bytes = encode_image_to_jpeg(adjusted_image)
+        image_bytes = encode_image_to_jpeg(original_image)
         return Response(image_bytes, mimetype='image/jpeg')
     except (IndexError, AttributeError) as e:
         return jsonify({"error": f"Error accessing or adjusting image: {str(e)}"}), 404
