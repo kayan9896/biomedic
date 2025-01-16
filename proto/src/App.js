@@ -30,14 +30,41 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
   const [processingAttempts, setProcessingAttempts] = useState(processingAttempt);
   const [brightness1, setBrightness1] = useState(100); // 100 is normal brightness
 const [brightness2, setBrightness2] = useState(100);
+const [contrast1, setContrast1] = useState(100);
+const [contrast2, setContrast2] = useState(100);
+const [activeControl1, setActiveControl1] = useState(null);
+const [activeControl2, setActiveControl2] = useState(null);
 
-// Add this style to your image element
-const getBrightnessStyle = (brightness) => ({
-  filter: `brightness(${(brightness + 100) / 100})`  // Convert -100 to 100 range to 0 to 2
+// Add these style utilities
+const getImageStyle = (brightness, contrast) => ({
+  filter: `brightness(${(brightness + 100) / 100}) contrast(${contrast}%)`
 });
 
-// Modify your image rendering
-
+// Add this component for the control bar
+const ControlBar = ({ type, value, onChange, isActive, onIconClick }) => {
+  return (
+    <div className="control-bar">
+      <div 
+        className={`control-icon ${isActive ? 'active' : ''}`} 
+        onClick={onIconClick}
+      >
+        {type === 'brightness' ? '☀️' : '◐'}
+      </div>
+      {isActive && (
+        <div className="slider-container">
+          <input
+            type="range"
+            min={type === 'brightness' ? -100 : 0}
+            max={type === 'brightness' ? 100 : 200}
+            value={value}
+            onChange={(e) => onChange(parseInt(e.target.value))}
+          />
+          <label>{type.charAt(0).toUpperCase() + type.slice(1)}: {value}</label>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Update brightness handler for immediate feedback
 const handleBrightnessChange = (frameNumber, value) => {
@@ -217,6 +244,21 @@ const handleBrightnessChange = (frameNumber, value) => {
     const straightLine = frameNumber === 1 ? frame1StraightLine : frame2StraightLine;
     const sineLine = frameNumber === 1 ? frame1SineLine : frame2SineLine;
     const frameUnsavedChanges = hasUnsavedChanges[`frame${frameNumber}`];
+    const brightness = frameNumber === 1 ? brightness1 : brightness2;
+  const contrast = frameNumber === 1 ? contrast1 : contrast2;
+  const activeControl = frameNumber === 1 ? activeControl1 : activeControl2;
+  
+  const handleControlChange = (type, value) => {
+    if (type === 'brightness') {
+      handleBrightnessChange(frameNumber, value);
+    } else if (type === 'contrast') {
+      if (frameNumber === 1) {
+        setContrast1(value);
+      } else {
+        setContrast2(value);
+      }
+    }
+  };
 
     const handleCenterChange = frameNumber === 1 ? handleFrame1CenterChange : handleFrame2CenterChange;
     const handleEdgePointChange = frameNumber === 1 ? handleFrame1EdgePointChange : handleFrame2EdgePointChange;
@@ -226,23 +268,46 @@ const handleBrightnessChange = (frameNumber, value) => {
     const handleSineLineChange = frameNumber === 1 ? handleFrame1SineLineChange : handleFrame2SineLineChange;
     
     return (
-      <><div className="brightness-control">
-      <input
-        type="range"
-        min="-100"
-        max="100"
-        value={frameNumber === 1 ? brightness1 : brightness2}
-        onChange={(e) => handleBrightnessChange(frameNumber, parseInt(e.target.value))}
-      />
-      <label>Brightness: {frameNumber === 1 ? brightness1 : brightness2}</label>
-    </div>
+      <div className="frame-container">
+      <div className="controls">
+        <ControlBar
+          type="brightness"
+          value={brightness}
+          onChange={(value) => handleControlChange('brightness', value)}
+          isActive={activeControl === 'brightness'}
+          onIconClick={() => {
+            if (frameNumber === 1) {
+              setActiveControl1(activeControl === 'brightness' ? null : 'brightness');
+              setActiveControl2(null);
+            } else {
+              setActiveControl2(activeControl === 'brightness' ? null : 'brightness');
+              setActiveControl1(null);
+            }
+          }}
+        />
+        <ControlBar
+          type="contrast"
+          value={contrast}
+          onChange={(value) => handleControlChange('contrast', value)}
+          isActive={activeControl === 'contrast'}
+          onIconClick={() => {
+            if (frameNumber === 1) {
+              setActiveControl1(activeControl === 'contrast' ? null : 'contrast');
+              setActiveControl2(null);
+            } else {
+              setActiveControl2(activeControl === 'contrast' ? null : 'contrast');
+              setActiveControl1(null);
+            }
+          }}
+        />
+      </div>
       <div className="square-box">
         {image ? (
           <>
             <img 
               src={image} 
               alt={`Frame ${frameNumber} capture`} 
-              style={getBrightnessStyle(frameNumber === 1 ? brightness1 : brightness2)}
+              style={getImageStyle(brightness, contrast)}
             />
             
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
@@ -288,9 +353,96 @@ const handleBrightnessChange = (frameNumber, value) => {
           <div className="loading">Waiting for image...</div>
         )}
       </div>
-      </>
+      </div>
     );
   };
+
+  const styles = `
+.frame-container {
+  position: relative;
+}
+
+.controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+}
+
+.control-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  padding: 5px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.control-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.control-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.control-icon.active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 150px;
+    opacity: 1;
+  }
+}
+
+.slider-container input {
+  width: 100px;
+}
+
+.slider-container label {
+  font-size: 12px;
+  margin-top: 2px;
+}
+`;
+
+// Add this to your component to handle clicking outside
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (!event.target.closest('.control-bar')) {
+      setActiveControl1(null);
+      setActiveControl2(null);
+    }
+  };
+
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
   
     return (
       <div className={`processing-attempt ${isActive ? 'active' : ''}`}>
