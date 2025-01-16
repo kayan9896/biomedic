@@ -7,7 +7,7 @@ import Ellipse from './Ellipse';
 import Line from './Line';
 
 
-const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive, attemptIndex }) => {
+const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive, attemptIndex,processingAttempt }) => {
   const currentImages = subAttempts[currentSubAttempt] || {};
   
   // State for Frame 1
@@ -26,6 +26,9 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
 
   // Track unsaved changes for each frame
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState({ frame1: false, frame2: false });
+ 
+  const [processingAttempts, setProcessingAttempts] = useState(processingAttempt);
+
 
   useEffect(() => {
     const fetchFrameMetadata = async (frameNum) => {
@@ -160,6 +163,50 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
     }
   };
 
+  const [brightness1, setBrightness1] = useState(0);
+const [brightness2, setBrightness2] = useState(0);
+
+
+const handleBrightnessChange = async (frameNumber, value) => {
+  if (frameNumber === 1) {
+    setBrightness1(value);
+  } else {
+    setBrightness2(value);
+  }
+  
+  try {
+    const response = await fetch(`http://localhost:5000/adjust_brightness/${attemptIndex}/${currentSubAttempt + 1}/${frameNumber}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ brightness: value }),
+    });
+    
+    if (response.ok) {
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      
+      // Update the image in state
+      setProcessingAttempts(prev => {
+        const newAttempts = [...prev];
+        const currentAttempt = { ...newAttempts[attemptIndex] };
+        
+        if (!currentAttempt.subAttempts[currentSubAttempt]) {
+          currentAttempt.subAttempts[currentSubAttempt] = {};
+        }
+        
+        currentAttempt.subAttempts[currentSubAttempt][`image${frameNumber}`] = imageUrl;
+        newAttempts[attemptIndex] = currentAttempt;
+        return newAttempts;
+      });
+    }
+  } catch (err) {
+    console.error('Error adjusting brightness:', err);
+  }
+};
+
+
   const renderFrame = (frameNumber) => {
     const image = currentImages[`image${frameNumber}`];
     const circle = frameNumber === 1 ? frame1Circle : frame2Circle;
@@ -175,12 +222,23 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
     const handleEllipseChange = frameNumber === 1 ? handleFrame1EllipseChange : handleFrame2EllipseChange;
     const handleStraightLineChange = frameNumber === 1 ? handleFrame1StraightLineChange : handleFrame2StraightLineChange;
     const handleSineLineChange = frameNumber === 1 ? handleFrame1SineLineChange : handleFrame2SineLineChange;
-
+    
     return (
+      <><div className="brightness-control">
+      <input
+        type="range"
+        min="-100"
+        max="100"
+        value={frameNumber === 1 ? brightness1 : brightness2}
+        onChange={(e) => handleBrightnessChange(frameNumber, parseInt(e.target.value))}
+      />
+      <label>Brightness: {frameNumber === 1 ? brightness1 : brightness2}</label>
+    </div>
       <div className="square-box">
         {image ? (
           <>
             <img src={image} alt={`Frame ${frameNumber} capture`} />
+            
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: "none" }}>
               
               {circle && (
@@ -224,6 +282,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
           <div className="loading">Waiting for image...</div>
         )}
       </div>
+      </>
     );
   };
   
@@ -263,6 +322,7 @@ const ProcessingAttempt = ({ subAttempts, currentSubAttempt, progress, isActive,
                 Save Frame 2 Changes
               </button>
             )}
+            
     </div>
   );
 };
@@ -562,6 +622,7 @@ function App() {
               progress={processingAttempts[currentAttemptIndex].progress}
               isActive={true}
               attemptIndex = {currentAttemptIndex}
+              processingAttempt={processingAttempts}
             />
           )}
           <div className="control-panel">

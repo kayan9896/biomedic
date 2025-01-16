@@ -8,6 +8,7 @@ from ab import AnalyzeBox
 from fg import FrameGrabber
 from be import ImageProcessingController
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -254,6 +255,42 @@ def next_frame():
         
     controller.process_next_frame = True  # New flag to control frame progression
     return jsonify({"message": "Processing next frame"})
-            
+
+from flask import send_file
+from io import BytesIO
+
+@app.route('/adjust_brightness/<int:index>/<int:stage>/<int:frame>', methods=['POST'])
+def adjust_brightness(index, stage, frame):
+    """Adjust brightness of a specific image from an attempt, stage, and frame"""
+    global controller
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 404
+
+    attempt = controller.viewmodel.get_attempt(index)
+    if not attempt:
+        return jsonify({"error": f"No attempt available at index {index}"}), 404
+
+    data = request.json
+    brightness = data.get('brightness', 0)
+
+    try:
+        stage_idx = stage - 1
+        frame_idx = int(frame) - 1
+        
+        # Get the original image
+        original_image = controller.model.images[stage_idx][frame_idx]
+
+        if original_image is None:
+            return jsonify({"error": f"No image available for stage {stage}, frame {frame}"}), 404
+        
+        # Adjust brightness using the model's function
+        adjusted_image = controller.model.adjust_brightness(original_image, brightness)
+        attempt.stages[stage_idx].frames[frame_idx].image=adjusted_image
+        # Convert the adjusted image to bytes and send it back
+        image_bytes = encode_image_to_jpeg(adjusted_image)
+        return Response(image_bytes, mimetype='image/jpeg')
+    except (IndexError, AttributeError) as e:
+        return jsonify({"error": f"Error accessing or adjusting image: {str(e)}"}), 404
+
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

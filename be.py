@@ -274,20 +274,4 @@ class ImageProcessingController:
         self.frame_grabber.stopVideo()
         self.frame_grabber.closeVideo()
 
-
-# Example usage:
-if __name__ == "__main__":
-    # Initialize components
-    frame_grabber = FrameGrabber()
-    analyze_box = AnalyzeBox()
-    controller = ImageProcessingController(frame_grabber, analyze_box)
-
-    controller.run_simulation()
-    for i in controller.mockdata:
-        while True:
-            cv2.imshow('',i)
-                
-            # Check for 'q' key press to quit
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        
+    

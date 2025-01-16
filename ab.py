@@ -145,3 +145,25 @@ class AnalyzeBox:
         # Stitch the images
         self._result = np.hstack((frame1_resized, frame2_resized))
         return self._result
+
+    def adjust_brightness(self, image, brightness_adjustment):
+        """
+        Adjust the brightness of an image.
+        
+        Parameters:
+        image: numpy array of the input image
+        brightness_adjustment: int between -100 and 100
+        
+        Returns:
+        numpy array of the adjusted image
+        """
+        # Ensure brightness_adjustment is in the valid range
+        brightness_adjustment = max(-100, min(brightness_adjustment, 100))
+        
+        # Map brightness_adjustment from [-100, 100] to [-127, 127]
+        beta = int(brightness_adjustment * 1.27)
+        
+        # Use cv2.convertScaleAbs to adjust brightness
+        adjusted = cv2.convertScaleAbs(image, alpha=1, beta=beta)
+        return adjusted
+        
