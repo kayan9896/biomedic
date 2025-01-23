@@ -98,7 +98,7 @@ class AnalyzeBox:
             with self._lock:
                 self._is_processing = False
 
-    def analyzeframe(self, current_stage, current_frame, frame_or_dict, target_size=700):
+    def analyzeframe(self, current_stage, current_frame, frame_or_dict, calib_data, target_size=700):
         """Analyze and store a single frame."""
         try:
             # Extract frame and metadata based on mode and input type
@@ -107,23 +107,26 @@ class AnalyzeBox:
                 frame_img = frame_or_dict.get('img')
             else:  # Normal mode
                 frame_img = frame_or_dict
-                try:
-                    with open('calcdata.json', 'r') as f:
-                        metadata = json.load(f)
-                except Exception as e:
-                    print(e)
-                    metadata = {}  # Default empty metadata if file not found
+                metadata = {}  # Initialize empty metadata
 
-            # Process the frame image
+            # Process the frame image using calibration data
             height, width = frame_img.shape[:2]
             start_x = max(0, width // 2 - target_size // 2)
             start_y = max(0, height // 2 - target_size // 2)
             cropped = frame_img[start_y:start_y+target_size, start_x:start_x+target_size]
             self.images[current_stage-1][current_frame-1] = cropped
             
-            return True, cropped, metadata
+            # Load shot data
+            try:
+                with open('shot.json', 'r') as f:
+                    shot_data = json.load(f)
+            except Exception as e:
+                print(f"Error loading shot data: {e}")
+                shot_data = {}
+            
+            return True, cropped, metadata, shot_data
         except Exception as e:
-            return False, None, str(e)
+            return False, None, str(e), {}
 
     def stitch(self, frame1, frame2):
         """Stitch two frames together."""

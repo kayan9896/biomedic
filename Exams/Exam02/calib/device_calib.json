@@ -1,11 +1,11 @@
 {
     "Carm":{
-        "C-arm Model": "ATEC>OEC9900 E9-0284",
+        "C-arm Model": "ATEC>OEC9901 E9-0284",
         "C-arm Manufacturer": "OEC 9900 Elite",
         "PixelScale": 0.21093
     },
     "FrameGrabber":{
-        "DeviceName": "QP0203 PCI, Analog 01 Capture",
+        "DeviceName": "OBS Virtual Camera",
         "OutputImageSize": [
             1024,
             1024
@@ -40,5 +40,6 @@
         "ImuCalibMatrix": [[4],[4],[],[]],
         "ResetRotation": 0.0,
         "ResetTilt": 0.0
-    }
+    },
+    "FrameMask":[[1024],[1024],[3]]
 }

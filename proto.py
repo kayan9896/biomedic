@@ -28,12 +28,15 @@ def encode_image_to_jpeg(image):
 
 @app.route('/devices', methods=['GET'])
 def get_devices():
-    """Get available video devices"""
-    global controller
-    if controller is None:
-        controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
-    devices = controller.frame_grabber.get_available_devices()
-    return jsonify({"devices": list(devices.keys())})
+    """Get available calibrated devices"""
+    try:
+        global controller
+        if controller is None:
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+        devices = controller.get_devices()
+        return jsonify({"devices": devices})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/mock', methods=['POST'])
 def mock():
