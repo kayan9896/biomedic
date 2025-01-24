@@ -29,6 +29,14 @@ class ImageProcessingController:
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
+        self.reference_calib={
+            "RefHeader": {                
+                "Labels": ['AP','RO','LO'],
+                "ImuTilts": [3.0, 3.0, 3.0],
+                "ImuRotations": [0.0, 0.0, 0.0]
+            },
+            "Reference": {}
+        }
 
     def decide_next(self, ResBool, current_stage, current_frame):
         if not ResBool:
@@ -149,17 +157,17 @@ class ImageProcessingController:
                 # Save data to exam folder
                 try:
                     shots_folder = os.path.join(self.exam_folder, "shots")
-                    
-                    # Save original frame
                     cv2.imwrite(os.path.join(shots_folder, "rawcaptures", f"stage{self.current_stage}_frame{self.current_frame}.png"), frame)
-                    
-                    # Save processed image
                     cv2.imwrite(os.path.join(shots_folder, "images", f"stage{self.current_stage}_frame{self.current_frame}.png"), image_data)
-                    
-                    # Save metadata
                     with open(os.path.join(shots_folder, "landmarks", f"stage{self.current_stage}_frame{self.current_frame}.json"), 'w') as f:
                         json.dump(metadata, f)
                     
+                    # Add to reference_calib
+                    for i in Shot:
+                        self.reference_calib['Reference'][i] = Shot[i]
+                    with open(os.path.join(self.exam_folder, "reference", "reference_calib.json"), 'w') as f:
+                        json.dump(self.reference_calib, f)
+                    '''
                     # Update AllShots.json
                     all_shots_path = os.path.join(shots_folder, "AllShots.json")
                     all_shots = {}
@@ -172,7 +180,7 @@ class ImageProcessingController:
                     
                     with open(all_shots_path, 'w') as f:
                         json.dump(all_shots, f)
-
+                    '''
                 except Exception as e:
                     print(f"Error saving shot data: {e}")
 
@@ -347,9 +355,11 @@ class ImageProcessingController:
             os.makedirs(os.path.join(shots_folder, "images"), exist_ok=True)
             os.makedirs(os.path.join(shots_folder, "landmarks"), exist_ok=True)
             
+            ref_dir = 'reference'
+            os.makedirs(os.path.join(self.exam_folder, ref_dir), exist_ok=True)
+
             # Load calibration data
-            with open(os.path.join(self.exam_folder, "calib", "device_calib.json"), 'r') as f:
-                self.calib_data = json.load(f)
+            self.calib_data = device_config
         except Exception as e:
             return f"Failed to set up exam folder: {str(e)}"
 

@@ -107,7 +107,8 @@ class AnalyzeBox:
                 frame_img = frame_or_dict.get('img')
             else:  # Normal mode
                 frame_img = frame_or_dict
-                metadata = {}  # Initialize empty metadata
+                with open('calcdata.json', 'r') as f:
+                    metadata = json.load(f)
 
             # Process the frame image using calibration data
             height, width = frame_img.shape[:2]
@@ -116,15 +117,15 @@ class AnalyzeBox:
             cropped = frame_img[start_y:start_y+target_size, start_x:start_x+target_size]
             self.images[current_stage-1][current_frame-1] = cropped
             
-            # Load shot data
+            # Load ref data
             try:
-                with open('shot.json', 'r') as f:
-                    shot_data = json.load(f)
+                with open('reference_ap.json', 'r') as f:
+                    ref_data = json.load(f)
             except Exception as e:
                 print(f"Error loading shot data: {e}")
-                shot_data = {}
+                ref_data = {}
             
-            return True, cropped, metadata, shot_data
+            return True, cropped, metadata, ref_data
         except Exception as e:
             return False, None, str(e), {}
 
