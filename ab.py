@@ -27,7 +27,28 @@ class AnalyzeBox:
         with self._lock:
             return self._stitch_progress
 
-    def rhp(self, i):
+    def analyze_phantom(self, current_stage, current_frame, image):
+        try:
+            distort=[]
+            camcalib=[]
+            result=image
+            return distort, camcalib, result, None
+        except Exception as e:
+            return None, None, None, e
+
+    def analyze_landmark(self, current_stage, current_frame, view):
+        try:
+            with open('calcdata.json', 'r') as f:
+                landmark = json.load(f)
+            return landmark
+        except Exception as e:
+            print(f"Error loading shot data: {e}")
+        return {}
+
+    def can_recon(self):
+        True
+        
+    def reconstruct(self, i):
         """Stitch horizontal pairs of images."""
         with self._lock:
             self._is_processing = True
@@ -42,7 +63,7 @@ class AnalyzeBox:
             with self._lock:
                 self._is_processing = False
 
-    def rwp(self):
+    def analyzeref(self):
         """Stitch two rhp results vertically."""
         with self._lock:
             self._is_processing = True
@@ -101,33 +122,17 @@ class AnalyzeBox:
     def analyzeframe(self, current_stage, current_frame, frame_or_dict, calib_data, target_size=700):
         """Analyze and store a single frame."""
         try:
-            # Extract frame and metadata based on mode and input type
-            if self.mode == 0 and isinstance(frame_or_dict, dict):  # Simulation mode with dict
-                metadata = frame_or_dict.get('metadata', {})
-                frame_img = frame_or_dict.get('img')
-            else:  # Normal mode
-                frame_img = frame_or_dict
-                with open('calcdata.json', 'r') as f:
-                    metadata = json.load(f)
-
+            frame_img = frame_or_dict
             # Process the frame image using calibration data
             height, width = frame_img.shape[:2]
             start_x = max(0, width // 2 - target_size // 2)
             start_y = max(0, height // 2 - target_size // 2)
             cropped = frame_img[start_y:start_y+target_size, start_x:start_x+target_size]
             self.images[current_stage-1][current_frame-1] = cropped
+            return True, cropped, None
             
-            # Load ref data
-            try:
-                with open('reference_ap.json', 'r') as f:
-                    ref_data = json.load(f)
-            except Exception as e:
-                print(f"Error loading shot data: {e}")
-                ref_data = {}
-            
-            return True, cropped, metadata, ref_data
         except Exception as e:
-            return False, None, str(e), {}
+            return False, None, str(e)
 
     def stitch(self, frame1, frame2):
         """Stitch two frames together."""

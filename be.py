@@ -143,7 +143,7 @@ class ImageProcessingController:
 
             if frame is not None:
                 # Get analysis results with calibration data
-                ResBool, image_data, metadata, Shot = self.model.analyzeframe(
+                ResBool, image_data, err = self.model.analyzeframe(
                     self.current_stage, 
                     self.current_frame,
                     frame,
@@ -151,38 +151,9 @@ class ImageProcessingController:
                 )
                 
                 if not ResBool:
-                    print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}")
+                    print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}. Error:{err}")
                     continue
 
-                # Save data to exam folder
-                try:
-                    shots_folder = os.path.join(self.exam_folder, "shots")
-                    cv2.imwrite(os.path.join(shots_folder, "rawcaptures", f"stage{self.current_stage}_frame{self.current_frame}.png"), frame)
-                    cv2.imwrite(os.path.join(shots_folder, "images", f"stage{self.current_stage}_frame{self.current_frame}.png"), image_data)
-                    with open(os.path.join(shots_folder, "landmarks", f"stage{self.current_stage}_frame{self.current_frame}.json"), 'w') as f:
-                        json.dump(metadata, f)
-                    
-                    # Add to reference_calib
-                    for i in Shot:
-                        self.reference_calib['Reference'][i] = Shot[i]
-                    with open(os.path.join(self.exam_folder, "reference", "reference_calib.json"), 'w') as f:
-                        json.dump(self.reference_calib, f)
-                    '''
-                    # Update AllShots.json
-                    all_shots_path = os.path.join(shots_folder, "AllShots.json")
-                    all_shots = {}
-                    if os.path.exists(all_shots_path):
-                        with open(all_shots_path, 'r') as f:
-                            all_shots = json.load(f)
-                    
-                    shot_key = f"stage{self.current_stage}_frame{self.current_frame}"
-                    all_shots[shot_key] = Shot
-                    
-                    with open(all_shots_path, 'w') as f:
-                        json.dump(all_shots, f)
-                    '''
-                except Exception as e:
-                    print(f"Error saving shot data: {e}")
 
                 # Store the frame and metadata in the viewmodel
                 self.viewmodel.set_frame(
@@ -201,25 +172,28 @@ class ImageProcessingController:
                         updatenext = True
                     case 1:
                         try:
-                            result=self.model.rhp(0)
+                            distort, camcalib, image, error = self.model.analyze_phantom()
+                            landmark = self.model.analyze_landmark()
+                            if (self.model.can_recon()):
+                                self.model.reconstruct()
                             self.viewmodel.set_stitched(stage=self.current_stage, image=result)
                             updatenext = True
                         except Exception as error:
                             self.errortext = str(error)
                             self.current_stage = 1
                             self.current_frame = 1
-                            print(f"Error in rhp: {error}")
+                            print(f"Error in analyze_phantom: {error}")
                     case 2:
                         try:
-                            self.model.rhp(1)  
-                            result=self.model.rwp()
+                            distort, camcalib, image, error = self.model.analyze_phantom()
+                            landmark = self.model.analyze_landmark()
                             self.viewmodel.set_stitched(stage=self.current_stage, image=result)
                             updatenext = True
                         except Exception as error:
                             self.errortext = str(error)
                             self.current_stage = 1
                             self.current_frame = 1
-                            print(f"Error in rhp/rwp: {error}")
+                            print(f"Error in analyze_phantom: {error}")
                     case 3:
                         try:
                             cup_bool, data, error = self.model.analyzecup()
