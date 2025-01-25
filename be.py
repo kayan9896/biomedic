@@ -182,7 +182,7 @@ class ImageProcessingController:
                             
                                 # Save distortion data
                                 dist_index = (self.current_stage - 1) * 2 + self.current_frame
-                                dist_path = os.path.join(self.exam_folder, f'reference/distortion/dist{dist_index}.json')
+                                dist_path = os.path.join(self.exam_folder, 'reference', 'distortion', f'dist{dist_index}.json')
                                 self.save_json(distort, dist_path)
                                 
                                 # Update camcalib
@@ -220,6 +220,22 @@ class ImageProcessingController:
                             if not success:
                                 raise Exception(error)
                             distort, camcalib, image = phantom_result
+
+                            dist_index = (self.current_stage - 1) * 2 + self.current_frame
+                            dist_path = os.path.join(self.exam_folder, 'reference', 'distortion', f'dist{dist_index}.json').replace('\\','/')
+                            self.save_json(distort, dist_path)
+                            
+                            # Update camcalib
+                            current_shot_index = next((i for i, shot in enumerate(self.model.shots) 
+                                                    if shot.stage == f'HP{self.current_stage}' and shot.frame == self.current_frame), None)
+                            if current_shot_index is not None:
+                                for view in camcalib:
+                                    camcalib[view]['ShotIndex'] = current_shot_index
+                                    camcalib[view]['DistFile'] = dist_path
+                            
+                            # Save updated camcalib
+                            calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
+                            self.save_json(camcalib, calib_path)
 
                             success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
                             if not success:
