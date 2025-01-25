@@ -4,6 +4,19 @@ import time
 import threading
 import json
 
+class Shot:
+    def __init__(self, stage, frame):
+        self.stage=stage
+        self.frame=frame
+        self.view=None
+
+class Recon:
+    def __init__(self,label,shot1,shot2):
+        self.label=label
+        self.shot1=shot1
+        self.shot2=shot2
+        self.data=None
+
 class AnalyzeBox:
     def __init__(self):
         self._stitch_progress = 0
@@ -14,7 +27,19 @@ class AnalyzeBox:
         self._is_processing = False
         self._stitch_thread = None
         self.mode = 1  # Default to normal mode
-        
+        self.shots=[Shot('HP1',1),Shot('HP1',2),Shot('HP2',1),Shot('HP2',2),Shot('CUP',1),Shot('CUP',2),Shot('TRI',1),Shot('TRI',2)]
+        self.recons=[Recon('HP1',self.shots[0],self.shots[1]),Recon('HP2',self.shots[2],self.shots[3]),Recon('CUP',self.shots[4],self.shots[5]),Recon('TRI',self.shots[6],self.shots[7])]
+        self.reference_calib={
+            "RefHeader": {                
+                "Labels": ['AP','RO','LO'],
+                "ImuTilts": [3.0, 3.0, 3.0],
+                "ImuRotations": [0.0, 0.0, 0.0]
+            },
+            "Reference": {}
+        }
+        self.distortion = [None]*4
+        self.allresults={}
+
     @property
     def is_processing(self):
         """Returns whether the AnalyzeBox is currently processing (storing images or stitching)."""
@@ -29,27 +54,47 @@ class AnalyzeBox:
 
     def analyze_phantom(self, current_stage, current_frame, image):
         try:
-            distort=[]
-            camcalib=[]
-            result=image
-            return distort, camcalib, result, None
+            distort = {'distort':[]}
+            self.distortion[(current_stage//2)*2+current_frame-1] = distort
+            with open('reference_ap.json', 'r') as f:
+                camcalib = json.load(f)
+                '''camlib looks like this
+                {
+                    "AP":{
+                        "ShotIndex": 0,
+                        "DistFile": "",
+                        "CameraCalibs":{
+                        "PixelScale": 0.0,
+                        "Xoffset": 0.0,
+                        "Yoffset": 0.0,
+                        "SourcePosition": [0.0, 0.0, 0.0],
+                        "ImageNormal": [0.0, 0.0, 0.0],
+                        "ImageUp": [0.0, 0.0, 0.0],
+                        "ImageRight": [0.0, 0.0, 0.0],
+                        "CentrePoint": [0.0, 0.0, 0.0],
+                        "PiercingPoint": [0.0, 0.0, 0.0]
+                        }
+                    }
+                }
+                '''
+            for i in camcalib:
+                self.reference_calib['Reference'][i] = camcalib[i]
+            return True, (distort, self.reference_calib, image), None
         except Exception as e:
-            return None, None, None, e
+            return False, None, f"Error in analyze_phantom: {str(e)}"
 
     def analyze_landmark(self, current_stage, current_frame, view):
         try:
             with open('calcdata.json', 'r') as f:
                 landmark = json.load(f)
-            return landmark
+            return True, landmark, None
         except Exception as e:
-            print(f"Error loading shot data: {e}")
-        return {}
+            return False, None, f"Error in analyze_landmark: {str(e)}"
 
     def can_recon(self):
-        True
-        
-    def reconstruct(self, i):
-        """Stitch horizontal pairs of images."""
+        return True
+
+    def reconstruct(self, stage, i):
         with self._lock:
             self._is_processing = True
             self._stitch_progress = 0
@@ -58,76 +103,110 @@ class AnalyzeBox:
         try:
             result = self.stitch(self.images[0][i*2], self.images[0][i*2+1])
             self.stitched_result[i] = result
-            return result
+            idx=i if stage==1 else stage 
+            data = self.recons[idx]
+            return True, (result, data), None
+        except Exception as e:
+            return False, None, f"Error in reconstruct: {str(e)}"
         finally:
             with self._lock:
                 self._is_processing = False
 
     def analyzeref(self):
-        """Stitch two rhp results vertically."""
-        with self._lock:
-            self._is_processing = True
-            self._stitch_progress = 0
-            self._result = None
-        
-        def stitch_worker():
-            try:
-                # Vertical stitch of the two horizontal pairs
-                if self.stitched_result[0] is not None and self.stitched_result[1] is not None:
-                    self._result = np.vstack((self.stitched_result[0], self.stitched_result[1]))
-                    
-            finally:
-                with self._lock:
-                    self._is_processing = False
-        
-        self._stitch_thread = threading.Thread(target=stitch_worker)
-        self._stitch_thread.start()
-        self._stitch_thread.join()
-        return self._result
+        try:
+            self.allresults={
+                "OperativeSide": "R",
+                "Reference":{
+                    "ReconIndex1": 0,
+                    "ReconIndex2": 1,
+                    "Measurements":{
+                        "PelvicTilt": 0.0,
+                        "PelvicRotation": 0.0,
+                        "PelvicAnttilt": 0.0,
+                        "FemurFlex": 0.0,
+                        "FemurAbd": 0.0,
+                        "FemurRot": 0.0
+                    }
+                }
+            }
+            return True, self.allresults, None
+        except Exception as e:
+            return False, None, f"Error in analyzeref: {str(e)}"
+
 
     def analyzecup(self):
-        """Analyze cup images at stage 2."""
-        with self._lock:
-            self._is_processing = True
-            self._stitch_progress = 0
-        
         try:
-            if self.images[1][0] is not None and self.images[1][1] is not None:
-                result = self.stitch(self.images[1][0], self.images[1][1])
-                return True, result, None
-            return False, None, "Missing images for cup analysis"
+            # Check for required data
+            if self.stitched_result[1] is None:
+                return False, None, "Reconstruction result from stage 3 is missing"
+            
+            ref_success, ref_result, ref_error = self.analyzeref()
+            if not ref_success:
+                return False, None, f"Reference analysis failed: {ref_error}"
+            
+            # Perform cup analysis
+            success, result, error = super().analyzecup()  # Call the original analyzecup method
+            if not success:
+                return False, None, error
+            
+            return True, result, None
         except Exception as e:
-            return False, None, str(e)
-        finally:
-            with self._lock:
-                self._is_processing = False
+            return False, None, f"Error in analyzecup: {str(e)}"
 
     def analyzetrial(self):
-        """Analyze trial images at stage 3."""
-        with self._lock:
-            self._is_processing = True
-            self._stitch_progress = 0
-        
         try:
-            if self.images[2][0] is not None and self.images[2][1] is not None:
-                result = self.stitch(self.images[2][0], self.images[2][1])
-                return True, result, None
-            return False, None, "Missing images for trial analysis"
+            # Check for required data
+            if self.stitched_result[1] is None:
+                return False, None, "Reconstruction result from stage 4 is missing"
+            
+            ref_success, ref_result, ref_error = self.analyzeref()
+            if not ref_success:
+                return False, None, f"Reference analysis failed: {ref_error}"
+            
+            # Perform trial analysis
+            success, result, error = super().analyzetrial()  # Call the original analyzetrial method
+            if not success:
+                return False, None, error
+            
+            return True, result, None
         except Exception as e:
-            return False, None, str(e)
-        finally:
-            with self._lock:
-                self._is_processing = False
+            return False, None, f"Error in analyzetrial: {str(e)}"
 
     def analyzeframe(self, current_stage, current_frame, frame_or_dict, calib_data, target_size=700):
-        """Analyze and store a single frame."""
+        """
+        Analyze and store a single frame.
+        
+        Returns:
+        - True, cropped_and_rotated_image, None: If successful (rotation <= 20)
+        - False, cropped_image, "Glyph error: rotation exceeds 20 degrees": If rotation > 20
+        - False, None, error_message: If any other error occurs
+        """
         try:
             frame_img = frame_or_dict
-            # Process the frame image using calibration data
-            height, width = frame_img.shape[:2]
-            start_x = max(0, width // 2 - target_size // 2)
-            start_y = max(0, height // 2 - target_size // 2)
-            cropped = frame_img[start_y:start_y+target_size, start_x:start_x+target_size]
+            
+            # Get cropping information from calibration data
+            crop_top_left = calib_data['FrameGrabber']['CropTopLeft']
+            crop_size = calib_data['FrameGrabber']['CropSize']
+            rotation_angle = calib_data['FrameGrabber']['GlyphRefRotation']
+            
+            # Crop the image
+            start_x, start_y = crop_top_left
+            width, height = crop_size
+            cropped = frame_img[start_y:start_y+height, start_x:start_x+width]
+            
+            # Check rotation angle
+            if abs(rotation_angle) > 20:
+                # Return cropped image with glyph error message if rotation exceeds 20 degrees
+                return False, cropped, "Glyph error: rotation exceeds 20 degrees"
+            
+            # Rotate the image if angle is not zero
+            if rotation_angle != 0:
+                (h, w) = cropped.shape[:2]
+                center = (w // 2, h // 2)
+                M = cv2.getRotationMatrix2D(center, -rotation_angle, 1.0)  # Negative angle for clockwise rotation
+                cropped = cv2.warpAffine(cropped, M, (w, h))
+            
+            # Store the processed image
             self.images[current_stage-1][current_frame-1] = cropped
             return True, cropped, None
             

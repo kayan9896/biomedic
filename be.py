@@ -29,14 +29,6 @@ class ImageProcessingController:
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
-        self.reference_calib={
-            "RefHeader": {                
-                "Labels": ['AP','RO','LO'],
-                "ImuTilts": [3.0, 3.0, 3.0],
-                "ImuRotations": [0.0, 0.0, 0.0]
-            },
-            "Reference": {}
-        }
 
     def decide_next(self, ResBool, current_stage, current_frame):
         if not ResBool:
@@ -151,17 +143,31 @@ class ImageProcessingController:
                 )
                 
                 if not ResBool:
-                    print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}. Error:{err}")
-                    continue
-
+                    if err and "Glyph error" in err:
+                        print(f"Warning at Stage {self.current_stage}, Frame {self.current_frame}: {err}")
+                        self.viewmodel.set_frame(
+                            stage=self.current_stage,
+                            frame=self.current_frame,
+                            image=image_data
+                        )
+                        continue
+                    else:
+                        print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}. Error: {err}")
+                        continue
 
                 # Store the frame and metadata in the viewmodel
                 self.viewmodel.set_frame(
                     stage=self.current_stage,
                     frame=self.current_frame,
-                    image=image_data,
-                    metadata=metadata
+                    image=image_data
                 )
+                raw_capture_path = os.path.join(self.exam_folder, 'shots', 'rawcaptures', f'stage{self.current_stage}_frame{self.current_frame}.png')
+                image_file_path = os.path.join(self.exam_folder, 'shots', 'images', f'stage{self.current_stage}_frame{self.current_frame}.png')
+        
+                cv2.imwrite(raw_capture_path, frame)
+                
+                # Save image_data
+                cv2.imwrite(image_file_path, image_data)
                 
                 case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
                 
@@ -169,35 +175,141 @@ class ImageProcessingController:
                 # Execute functions based on case number
                 match case_number:
                     case 0:
-                        updatenext = True
+                        try:
+                            if self.current_stage == 1:
+                                success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, frame)
+                                if not success:
+                                    raise Exception(error)
+                                distort, camcalib, image = phantom_result
+                            
+                                # Save distortion data
+                                dist_index = (self.current_stage - 1) * 2 + self.current_frame
+                                dist_path = os.path.join(self.exam_folder, f'reference/distortion/dist{dist_index}.json')
+                                self.save_json(distort, dist_path)
+                                
+                                # Update camcalib
+                                current_shot_index = next((i for i, shot in enumerate(self.model.shots) 
+                                                        if shot.stage == f'HP{self.current_stage}' and shot.frame == self.current_frame), None)
+                                if current_shot_index is not None:
+                                    for view in camcalib:
+                                        camcalib[view]['ShotIndex'] = current_shot_index
+                                        camcalib[view]['DistFile'] = dist_path
+                                
+                                # Save updated camcalib
+                                calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
+                                self.save_json(camcalib, calib_path)
+
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'AP')
+                            if not success:
+                                raise Exception(error)
+
+                            updatenext = True
+                        except Exception as error:
+                            self.errortext = str(error)
+                            self.current_frame = 1
+                            if "analyze_phantom" in str(error):
+                                print(f"Phantom analysis failed: {error}")
+                                # Handle phantom analysis error
+                            elif "analyze_landmark" in str(error):
+                                print(f"Landmark analysis failed: {error}")
+                                # Handle landmark analysis error
+                            else:
+                                print(f"Unexpected error: {error}")
+
                     case 1:
                         try:
-                            distort, camcalib, image, error = self.model.analyze_phantom()
-                            landmark = self.model.analyze_landmark()
-                            if (self.model.can_recon()):
-                                self.model.reconstruct()
-                            self.viewmodel.set_stitched(stage=self.current_stage, image=result)
+                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, frame)
+                            if not success:
+                                raise Exception(error)
+                            distort, camcalib, image = phantom_result
+
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            if not success:
+                                raise Exception(error)
+
+                            if self.model.can_recon():
+                                success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
+                                if not success:
+                                    raise Exception(error)
+                                stitchimg, data = recon_result
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                            
                             updatenext = True
                         except Exception as error:
                             self.errortext = str(error)
                             self.current_stage = 1
                             self.current_frame = 1
-                            print(f"Error in analyze_phantom: {error}")
+                            if "analyze_phantom" in str(error):
+                                print(f"Phantom analysis failed: {error}")
+                                # Handle phantom analysis error
+                            elif "analyze_landmark" in str(error):
+                                print(f"Landmark analysis failed: {error}")
+                                # Handle landmark analysis error
+                            elif "reconstruct" in str(error):
+                                print(f"Reconstruction failed: {error}")
+                                # Handle reconstruction error
+                            else:
+                                print(f"Unexpected error: {error}")
+
                     case 2:
                         try:
-                            distort, camcalib, image, error = self.model.analyze_phantom()
-                            landmark = self.model.analyze_landmark()
-                            self.viewmodel.set_stitched(stage=self.current_stage, image=result)
+                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, frame)
+                            if not success:
+                                raise Exception(error)
+                            distort, camcalib, image = phantom_result
+
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            if not success:
+                                raise Exception(error)
+
+                            if self.model.can_recon():
+                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)
+                                if not success:
+                                    raise Exception(error)
+                                stitchimg, data = recon_result
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                                
+                                success, result, error = self.model.analyzeref()
+                                if not success:
+                                    raise Exception(error)
+                            
                             updatenext = True
                         except Exception as error:
                             self.errortext = str(error)
                             self.current_stage = 1
                             self.current_frame = 1
-                            print(f"Error in analyze_phantom: {error}")
+                            if "analyze_phantom" in str(error):
+                                print(f"Phantom analysis failed: {error}")
+                                # Handle phantom analysis error
+                            elif "analyze_landmark" in str(error):
+                                print(f"Landmark analysis failed: {error}")
+                                # Handle landmark analysis error
+                            elif "reconstruct" in str(error):
+                                print(f"Reconstruction failed: {error}")
+                                # Handle reconstruction error
+                            elif "analyzeref" in str(error):
+                                print(f"Reference analysis failed: {error}")
+                                # Handle reference analysis error
+                            else:
+                                print(f"Unexpected error: {error}")
                     case 3:
                         try:
-                            cup_bool, data, error = self.model.analyzecup()
-                            if cup_bool:
+                            # Analyze landmark
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            if not success:
+                                raise Exception(error)
+                            
+                            # Reconstruct
+                            if self.model.can_recon():
+                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)
+                                if not success:
+                                    raise Exception(error)
+                                stitchimg, _ = recon_result
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                            
+                            # Analyze cup
+                            success, data, error = self.model.analyzecup()
+                            if success:
                                 updatenext = True
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=data)
                             else:
@@ -208,11 +320,33 @@ class ImageProcessingController:
                             self.errortext = str(error)
                             self.current_stage = 2
                             self.current_frame = 1
-                            print(f"Error in analyzecup: {error}")
+                            if "analyze_landmark" in str(error):
+                                print(f"Landmark analysis failed: {error}")
+                            elif "reconstruct" in str(error):
+                                print(f"Reconstruction failed: {error}")
+                            elif "analyzecup" in str(error):
+                                print(f"Cup analysis failed: {error}")
+                            else:
+                                print(f"Unexpected error in case 3: {error}")
+
                     case 4:
                         try:
-                            trial_bool, data, error = self.model.analyzetrial()
-                            if trial_bool:
+                            # Analyze landmark
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            if not success:
+                                raise Exception(error)
+                            
+                            # Reconstruct
+                            if self.model.can_recon():
+                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)
+                                if not success:
+                                    raise Exception(error)
+                                stitchimg, _ = recon_result
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                            
+                            # Analyze trial
+                            success, data, error = self.model.analyzetrial()
+                            if success:
                                 updatenext = True
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=data)
                             else:
@@ -223,7 +357,14 @@ class ImageProcessingController:
                             self.errortext = str(error)
                             self.current_stage = 3
                             self.current_frame = 1
-                            print(f"Error in analyzetrial: {error}")
+                            if "analyze_landmark" in str(error):
+                                print(f"Landmark analysis failed: {error}")
+                            elif "reconstruct" in str(error):
+                                print(f"Reconstruction failed: {error}")
+                            elif "analyzetrial" in str(error):
+                                print(f"Trial analysis failed: {error}")
+                            else:
+                                print(f"Unexpected error in case 4: {error}")
                 
                 # Update stage and frame for next iteration
                 if updatenext:
@@ -396,4 +537,8 @@ class ImageProcessingController:
         self.frame_grabber.stopVideo()
         self.frame_grabber.closeVideo()
 
+    def save_json(self, data, filepath):
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=4)
     

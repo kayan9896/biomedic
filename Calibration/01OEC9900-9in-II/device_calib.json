@@ -28,7 +28,9 @@
         "ForceOriginalResolution": false,
         "AutoCheckImageThreshold": 0.1,
         "AutoCheckTimeThreshold": 1.0,
-        "AutoCheckLoopNumber": 5
+        "AutoCheckLoopNumber": 5,
+        "GlyphRefRotation": 0.0,
+        "GlyphRefFlip": false
     },
     "IMU":{
         "DeviceName": "WT901BLECL",
