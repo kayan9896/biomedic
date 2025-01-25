@@ -186,12 +186,10 @@ class ImageProcessingController:
                                 self.save_json(distort, dist_path)
                                 
                                 # Update camcalib
-                                current_shot_index = next((i for i, shot in enumerate(self.model.shots) 
-                                                        if shot.stage == f'HP{self.current_stage}' and shot.frame == self.current_frame), None)
-                                if current_shot_index is not None:
-                                    for view in camcalib:
-                                        camcalib[view]['ShotIndex'] = current_shot_index
-                                        camcalib[view]['DistFile'] = dist_path
+                                current_shot_index = self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame
+                                if current_shot_index is not None: 
+                                    camcalib['Reference']['AP']['ShotIndex'] = current_shot_index
+                                    camcalib['Reference']['AP']['DistFile'] = dist_path
                                 
                                 # Save updated camcalib
                                 calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
@@ -226,12 +224,10 @@ class ImageProcessingController:
                             self.save_json(distort, dist_path)
                             
                             # Update camcalib
-                            current_shot_index = next((i for i, shot in enumerate(self.model.shots) 
-                                                    if shot.stage == f'HP{self.current_stage}' and shot.frame == self.current_frame), None)
-                            if current_shot_index is not None:
-                                for view in camcalib:
-                                    camcalib[view]['ShotIndex'] = current_shot_index
-                                    camcalib[view]['DistFile'] = dist_path
+                            current_shot_index = self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame
+                            if current_shot_index is not None: 
+                                camcalib['Reference']['RO']['ShotIndex'] = current_shot_index
+                                camcalib['Reference']['RO']['DistFile'] = dist_path
                             
                             # Save updated camcalib
                             calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')

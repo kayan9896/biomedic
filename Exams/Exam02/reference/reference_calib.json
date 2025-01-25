@@ -14,14 +14,12 @@
             0.0,
             0.0,
             0.0
-        ],
-        "ShotIndex": 0,
-        "DistFile": "Exams\\Exam02\\reference/distortion/dist1.json"
+        ]
     },
     "Reference": {
         "AP": {
             "ShotIndex": 0,
-            "DistFile": "",
+            "DistFile": "Exams\\Exam02\\reference\\distortion\\dist1.json",
             "CameraCalibs": {
                 "PixelScale": 0.0,
                 "Xoffset": 0.0,
@@ -58,7 +56,44 @@
                 ]
             }
         },
-        "ShotIndex": 0,
-        "DistFile": "Exams\\Exam02\\reference/distortion/dist1.json"
+        "RO": {
+            "ShotIndex": 1,
+            "DistFile": "Exams/Exam02/reference/distortion/dist2.json",
+            "CameraCalibs": {
+                "PixelScale": 0.0,
+                "Xoffset": 0.0,
+                "Yoffset": 0.0,
+                "SourcePosition": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageNormal": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageUp": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageRight": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "CentrePoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "PiercingPoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            }
+        }
     }
 }

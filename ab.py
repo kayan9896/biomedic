@@ -56,27 +56,12 @@ class AnalyzeBox:
         try:
             distort = {'distort':[]}
             self.distortion[(current_stage//2)*2+current_frame-1] = distort
-            with open('reference_ap.json', 'r') as f:
-                camcalib = json.load(f)
-                '''camlib looks like this
-                {
-                    "AP":{
-                        "ShotIndex": 0,
-                        "DistFile": "",
-                        "CameraCalibs":{
-                        "PixelScale": 0.0,
-                        "Xoffset": 0.0,
-                        "Yoffset": 0.0,
-                        "SourcePosition": [0.0, 0.0, 0.0],
-                        "ImageNormal": [0.0, 0.0, 0.0],
-                        "ImageUp": [0.0, 0.0, 0.0],
-                        "ImageRight": [0.0, 0.0, 0.0],
-                        "CentrePoint": [0.0, 0.0, 0.0],
-                        "PiercingPoint": [0.0, 0.0, 0.0]
-                        }
-                    }
-                }
-                '''
+            if current_frame % 2 == 1:
+                with open('reference_ap.json', 'r') as f:
+                    camcalib = json.load(f)
+            else:
+                with open('reference_ro.json', 'r') as f:
+                    camcalib = json.load(f)
             for i in camcalib:
                 self.reference_calib['Reference'][i] = camcalib[i]
             return True, (distort, self.reference_calib, image), None
