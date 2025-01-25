@@ -165,8 +165,6 @@ class ImageProcessingController:
                 image_file_path = os.path.join(self.exam_folder, 'shots', 'images', f'stage{self.current_stage}_frame{self.current_frame}.png')
         
                 cv2.imwrite(raw_capture_path, frame)
-                
-                # Save image_data
                 cv2.imwrite(image_file_path, image_data)
                 
                 case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
