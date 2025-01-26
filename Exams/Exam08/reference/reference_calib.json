@@ -18,8 +18,8 @@
     },
     "Reference": {
         "AP": {
-            "ShotIndex": 3,
-            "DistFile": "Exams/Exam06/reference/distortion/dist4.json",
+            "ShotIndex": 2,
+            "DistFile": "Exams\\Exam08\\reference\\distortion\\dist3.json",
             "CameraCalibs": {
                 "PixelScale": 0.0,
                 "Xoffset": 0.0,
@@ -58,7 +58,7 @@
         },
         "RO": {
             "ShotIndex": 1,
-            "DistFile": "Exams/Exam06/reference/distortion/dist2.json",
+            "DistFile": "Exams/Exam08/reference/distortion/dist2.json",
             "CameraCalibs": {
                 "PixelScale": 0.0,
                 "Xoffset": 0.0,
@@ -96,8 +96,8 @@
             }
         },
         "LO": {
-            "ShotIndex": 0,
-            "DistFile": "",
+            "ShotIndex": 3,
+            "DistFile": "Exams/Exam08/reference/distortion/dist4.json",
             "CameraCalibs": {
                 "PixelScale": 0.0,
                 "Xoffset": 0.0,

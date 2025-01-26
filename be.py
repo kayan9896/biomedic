@@ -135,7 +135,7 @@ class ImageProcessingController:
 
             if frame is not None:
                 # Get analysis results with calibration data
-                ResBool, image_data, err = self.model.analyzeframe(
+                ResBool, crop_image, err = self.model.analyzeframe(
                     self.current_stage, 
                     self.current_frame,
                     frame,
@@ -148,7 +148,7 @@ class ImageProcessingController:
                         self.viewmodel.set_frame(
                             stage=self.current_stage,
                             frame=self.current_frame,
-                            image=image_data
+                            image=crop_image
                         )
                         continue
                     else:
@@ -159,13 +159,13 @@ class ImageProcessingController:
                 self.viewmodel.set_frame(
                     stage=self.current_stage,
                     frame=self.current_frame,
-                    image=image_data
+                    image=crop_image
                 )
                 raw_capture_path = os.path.join(self.exam_folder, 'shots', 'rawcaptures', f'stage{self.current_stage}_frame{self.current_frame}.png')
                 image_file_path = os.path.join(self.exam_folder, 'shots', 'images', f'stage{self.current_stage}_frame{self.current_frame}.png')
         
                 cv2.imwrite(raw_capture_path, frame)
-                cv2.imwrite(image_file_path, image_data)
+                cv2.imwrite(image_file_path, crop_image)
                 
                 case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
                 
@@ -175,10 +175,11 @@ class ImageProcessingController:
                     case 0:
                         try:
                             if self.current_stage == 1:
-                                success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, frame)
+                                success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image)
                                 if not success:
                                     raise Exception(error)
                                 distort, camcalib, image = phantom_result
+                                crop_image = image
                             
                                 # Save distortion data
                                 dist_index = (self.current_stage - 1) * 2 + self.current_frame
@@ -198,6 +199,7 @@ class ImageProcessingController:
                             success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'AP')
                             if not success:
                                 raise Exception(error)
+                            self.save_landmark(self.current_stage, self.current_frame, landmark,crop_image)
 
                             updatenext = True
                         except Exception as error:
@@ -214,7 +216,7 @@ class ImageProcessingController:
 
                     case 1:
                         try:
-                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, frame)
+                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image)
                             if not success:
                                 raise Exception(error)
                             distort, camcalib, image = phantom_result
@@ -236,6 +238,7 @@ class ImageProcessingController:
                             success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'RO')
                             if not success:
                                 raise Exception(error)
+                            self.save_landmark(self.current_stage, self.current_frame, landmark,image)
 
                             if self.model.can_recon():
                                 success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
@@ -263,7 +266,7 @@ class ImageProcessingController:
 
                     case 2:
                         try:
-                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, frame)
+                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image)
                             if not success:
                                 raise Exception(error)
                             distort, camcalib, image = phantom_result
@@ -275,16 +278,17 @@ class ImageProcessingController:
                             # Update camcalib
                             current_shot_index = self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame
                             if current_shot_index is not None: 
-                                camcalib['Reference']['AP']['ShotIndex'] = current_shot_index  # Changed from LO to AP
-                                camcalib['Reference']['AP']['DistFile'] = dist_path
+                                camcalib['Reference']['LO']['ShotIndex'] = current_shot_index  # Changed from LO to AP
+                                camcalib['Reference']['LO']['DistFile'] = dist_path
                             
                             # Save updated camcalib
                             calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
                             self.save_json(camcalib, calib_path)
 
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'AP')  # Changed from LO to AP
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'LO')  # Changed from LO to AP
                             if not success:
                                 raise Exception(error)
+                            self.save_landmark(self.current_stage, self.current_frame, landmark,image)
 
                             if self.model.can_recon():
                                 success, recon_result, error = self.model.reconstruct(self.current_stage, 1)  # Changed from 0 to 1 for the second pair of images
@@ -318,9 +322,10 @@ class ImageProcessingController:
                     case 3:
                         try:
                             # Analyze landmark
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, crop_image)
                             if not success:
                                 raise Exception(error)
+                            self.save_landmark(self.current_stage, self.current_frame, landmark, crop_image)
                             
                             # Reconstruct
                             if self.model.can_recon():
@@ -358,9 +363,10 @@ class ImageProcessingController:
                     case 4:
                         try:
                             # Analyze landmark
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, crop_image)
                             if not success:
                                 raise Exception(error)
+                            self.save_landmark(self.current_stage, self.current_frame, landmark, crop_image)
                             
                             # Reconstruct
                             if self.model.can_recon():
@@ -570,4 +576,22 @@ class ImageProcessingController:
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=4)
+
+    def save_landmark(self, stage, frame, landmark_data,img):
+        """Save landmark data to a unique file for each stage and frame"""
+        landmark_folder = os.path.join(self.exam_folder, 'shots', 'landmarks')
+        os.makedirs(landmark_folder, exist_ok=True)
+        
+        landmark_file = f'landmark_stage{stage}_frame{frame}.json'
+        landmark_path = os.path.join(landmark_folder, landmark_file)
+        
+        self.save_json(landmark_data, landmark_path)
+        
+        # Update viewmodel metadata
+        self.viewmodel.set_frame(
+            stage=stage, 
+            frame=frame, 
+            image=img,  # We're not changing the image, so pass None
+            metadata={'landmark_file': landmark_file, **landmark_data}
+        )
     
