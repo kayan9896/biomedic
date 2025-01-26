@@ -233,7 +233,7 @@ class ImageProcessingController:
                             calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
                             self.save_json(camcalib, calib_path)
 
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'RO')
                             if not success:
                                 raise Exception(error)
 
@@ -268,12 +268,26 @@ class ImageProcessingController:
                                 raise Exception(error)
                             distort, camcalib, image = phantom_result
 
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, frame)
+                            dist_index = (self.current_stage - 1) * 2 + self.current_frame
+                            dist_path = os.path.join(self.exam_folder, 'reference', 'distortion', f'dist{dist_index}.json').replace('\\','/')
+                            self.save_json(distort, dist_path)
+                            
+                            # Update camcalib
+                            current_shot_index = self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame
+                            if current_shot_index is not None: 
+                                camcalib['Reference']['AP']['ShotIndex'] = current_shot_index  # Changed from LO to AP
+                                camcalib['Reference']['AP']['DistFile'] = dist_path
+                            
+                            # Save updated camcalib
+                            calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
+                            self.save_json(camcalib, calib_path)
+
+                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'AP')  # Changed from LO to AP
                             if not success:
                                 raise Exception(error)
 
                             if self.model.can_recon():
-                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)
+                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)  # Changed from 0 to 1 for the second pair of images
                                 if not success:
                                     raise Exception(error)
                                 stitchimg, data = recon_result
@@ -290,16 +304,12 @@ class ImageProcessingController:
                             self.current_frame = 1
                             if "analyze_phantom" in str(error):
                                 print(f"Phantom analysis failed: {error}")
-                                # Handle phantom analysis error
                             elif "analyze_landmark" in str(error):
                                 print(f"Landmark analysis failed: {error}")
-                                # Handle landmark analysis error
                             elif "reconstruct" in str(error):
                                 print(f"Reconstruction failed: {error}")
-                                # Handle reconstruction error
                             elif "analyzeref" in str(error):
                                 print(f"Reference analysis failed: {error}")
-                                # Handle reference analysis error
                             else:
                                 print(f"Unexpected error: {error}")
                     case 3:

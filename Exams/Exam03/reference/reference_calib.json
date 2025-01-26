@@ -1,0 +1,99 @@
+{
+    "RefHeader": {
+        "Labels": [
+            "AP",
+            "RO",
+            "LO"
+        ],
+        "ImuTilts": [
+            3.0,
+            3.0,
+            3.0
+        ],
+        "ImuRotations": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "Reference": {
+        "AP": {
+            "ShotIndex": 2,
+            "DistFile": "Exams\\Exam03\\reference\\distortion\\dist3.json",
+            "CameraCalibs": {
+                "PixelScale": 0.0,
+                "Xoffset": 0.0,
+                "Yoffset": 0.0,
+                "SourcePosition": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageNormal": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageUp": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageRight": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "CentrePoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "PiercingPoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            }
+        },
+        "RO": {
+            "ShotIndex": 1,
+            "DistFile": "Exams/Exam03/reference/distortion/dist2.json",
+            "CameraCalibs": {
+                "PixelScale": 0.0,
+                "Xoffset": 0.0,
+                "Yoffset": 0.0,
+                "SourcePosition": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageNormal": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageUp": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageRight": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "CentrePoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "PiercingPoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            }
+        }
+    }
+}

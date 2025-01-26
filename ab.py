@@ -15,7 +15,7 @@ class Recon:
         self.label=label
         self.shot1=shot1
         self.shot2=shot2
-        self.data=None
+        self.analysisdata=None
 
 class AnalyzeBox:
     def __init__(self):
@@ -60,8 +60,13 @@ class AnalyzeBox:
                 with open('reference_ap.json', 'r') as f:
                     camcalib = json.load(f)
             else:
-                with open('reference_ro.json', 'r') as f:
-                    camcalib = json.load(f)
+                if current_frame == 2:
+                    with open('reference_ro.json', 'r') as f:
+                        camcalib = json.load(f)
+                else:
+                    with open('reference_lo.json', 'r') as f:
+                        camcalib = json.load(f)
+
             for i in camcalib:
                 self.reference_calib['Reference'][i] = camcalib[i]
             return True, (distort, self.reference_calib, image), None
@@ -89,6 +94,7 @@ class AnalyzeBox:
             result = self.stitch(self.images[0][i*2], self.images[0][i*2+1])
             self.stitched_result[i] = result
             idx=i if stage==1 else stage 
+            self.recons[idx].analysisdata = result
             data = self.recons[idx]
             return True, (result, data), None
         except Exception as e:
@@ -120,42 +126,63 @@ class AnalyzeBox:
 
 
     def analyzecup(self):
+        with self._lock:
+            self._is_processing = True
+            self._stitch_progress = 0
         try:
             # Check for required data
-            if self.stitched_result[1] is None:
+            if self.recons[2].analysisdata is None:
                 return False, None, "Reconstruction result from stage 3 is missing"
             
-            ref_success, ref_result, ref_error = self.analyzeref()
-            if not ref_success:
-                return False, None, f"Reference analysis failed: {ref_error}"
+            if "Reference" not in self.allresults:
+                return False, None, f"Reference analysis result is missing"
             
-            # Perform cup analysis
-            success, result, error = super().analyzecup()  # Call the original analyzecup method
-            if not success:
-                return False, None, error
-            
-            return True, result, None
+            self.allresults["CupAnalysis"] = {
+                "ReconIndex": 2,
+                "Measurements": 0,
+                "CupInclination": 0,
+                "CupAntversion": 0
+            }
+        
+            if self.images[1][0] is not None and self.images[1][1] is not None:
+                result = self.stitch(self.images[1][0], self.images[1][1])
+                return True, (result, self.allresults), None
+            return False, None, "Missing images for cup analysis"
         except Exception as e:
-            return False, None, f"Error in analyzecup: {str(e)}"
+            return False, None, str(e)
+        finally:
+            with self._lock:
+                self._is_processing = False
+
 
     def analyzetrial(self):
+        with self._lock:
+            self._is_processing = True
+            self._stitch_progress = 0
         try:
             # Check for required data
-            if self.stitched_result[1] is None:
-                return False, None, "Reconstruction result from stage 4 is missing"
+            if self.recons[3].analysisdata is None:
+                return False, None, "Reconstruction result from stage 3 is missing"
             
-            ref_success, ref_result, ref_error = self.analyzeref()
-            if not ref_success:
-                return False, None, f"Reference analysis failed: {ref_error}"
+            if "Reference" not in self.allresults:
+                return False, None, f"Reference analysis result is missing"
+
+            self.allresults["TrialAnalysis"] = {
+                "ReconIndex": 3,
+                "Measurements": 0,
+                "LLD": 0,
+                "Offset": 0
+            }
             
-            # Perform trial analysis
-            success, result, error = super().analyzetrial()  # Call the original analyzetrial method
-            if not success:
-                return False, None, error
-            
-            return True, result, None
+            if self.images[2][0] is not None and self.images[2][1] is not None:
+                result = self.stitch(self.images[2][0], self.images[2][1])
+                return True, (result, self.allresults), None
+            return False, None, "Missing images for trial analysis"
         except Exception as e:
-            return False, None, f"Error in analyzetrial: {str(e)}"
+            return False, None, str(e)
+        finally:
+            with self._lock:
+                self._is_processing = False
 
     def analyzeframe(self, current_stage, current_frame, frame_or_dict, calib_data, target_size=700):
         """
