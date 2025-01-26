@@ -91,7 +91,7 @@ class AnalyzeBox:
             self._result = None
         
         try:
-            result = self.stitch(self.images[0][i*2], self.images[0][i*2+1])
+            result = self.stitch(self.images[stage-1][i*2], self.images[stage-1][i*2+1])
             self.stitched_result[i] = result
             idx=i if stage==1 else stage 
             self.recons[idx].analysisdata = result
@@ -144,10 +144,8 @@ class AnalyzeBox:
                 "CupAntversion": 0
             }
         
-            if self.images[1][0] is not None and self.images[1][1] is not None:
-                result = self.stitch(self.images[1][0], self.images[1][1])
-                return True, (result, self.allresults), None
-            return False, None, "Missing images for cup analysis"
+            result = self.recons[2].analysisdata
+            return True, (result, self.allresults), None
         except Exception as e:
             return False, None, str(e)
         finally:
@@ -174,10 +172,8 @@ class AnalyzeBox:
                 "Offset": 0
             }
             
-            if self.images[2][0] is not None and self.images[2][1] is not None:
-                result = self.stitch(self.images[2][0], self.images[2][1])
-                return True, (result, self.allresults), None
-            return False, None, "Missing images for trial analysis"
+            result = self.recons[3].analysisdata
+            return True, (result, self.allresults), None
         except Exception as e:
             return False, None, str(e)
         finally:

@@ -294,6 +294,9 @@ class ImageProcessingController:
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
                                 
                                 success, result, error = self.model.analyzeref()
+                                all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
+                                os.makedirs(os.path.dirname(all_results_path), exist_ok=True)
+                                self.save_json(result, all_results_path)
                                 if not success:
                                     raise Exception(error)
                             
@@ -321,7 +324,7 @@ class ImageProcessingController:
                             
                             # Reconstruct
                             if self.model.can_recon():
-                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)
+                                success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
                                 if not success:
                                     raise Exception(error)
                                 stitchimg, _ = recon_result
@@ -331,7 +334,10 @@ class ImageProcessingController:
                             success, data, error = self.model.analyzecup()
                             if success:
                                 updatenext = True
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=data)
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=data[0])
+                                all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
+                                os.makedirs(os.path.dirname(all_results_path), exist_ok=True)
+                                self.save_json(data[1], all_results_path)
                             else:
                                 self.errortext = error
                                 self.current_stage = 2
@@ -358,7 +364,7 @@ class ImageProcessingController:
                             
                             # Reconstruct
                             if self.model.can_recon():
-                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)
+                                success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
                                 if not success:
                                     raise Exception(error)
                                 stitchimg, _ = recon_result
@@ -368,7 +374,10 @@ class ImageProcessingController:
                             success, data, error = self.model.analyzetrial()
                             if success:
                                 updatenext = True
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=data)
+                                self.viewmodel.set_stitched(stage=self.current_stage, image=data[0])
+                                all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
+                                os.makedirs(os.path.dirname(all_results_path), exist_ok=True)
+                                self.save_json(data[1], all_results_path)
                             else:
                                 self.errortext = error
                                 self.current_stage = 3
