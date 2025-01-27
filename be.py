@@ -172,8 +172,7 @@ class ImageProcessingController:
                     0: 'AP',
                     1: 'RO',
                     2: 'LO',
-                    3: None,  # You might want to set appropriate views for cases 3 and 4
-                    4: None
+                    3: None
                 }
                 current_view = view_map.get(case_number)
 
