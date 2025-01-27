@@ -168,7 +168,17 @@ class ImageProcessingController:
                 cv2.imwrite(image_file_path, crop_image)
                 
                 case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
-                
+                view_map = {
+                    0: 'AP',
+                    1: 'RO',
+                    2: 'LO',
+                    3: None,  # You might want to set appropriate views for cases 3 and 4
+                    4: None
+                }
+                current_view = view_map.get(case_number)
+
+                # Save shot information
+                self.save_shot_info(self.current_stage, self.current_frame, current_view)
                 updatenext = False
                 # Execute functions based on case number
                 match case_number:
@@ -646,4 +656,55 @@ class ImageProcessingController:
             image=img,  # We're not changing the image, so pass None
             metadata={'landmark_file': landmark_file, **landmark_data}
         )
-    
+    def save_shot_info(self, stage, frame, view, landmark_file=None):
+        # Calculate shot index based on stage and frame
+        if stage == 1:
+            shot_index = frame - 1
+        else:
+            shot_index = (stage * 2) + (frame - 1)
+
+        # Define file paths
+        raw_capture_path = f'shots/rawcaptures/stage{stage}_frame{frame}.png'
+        image_file_path = f'shots/images/stage{stage}_frame{frame}.png'
+        landmark_file_path = landmark_file if landmark_file else f'landmarks/stage{stage}_frame{frame}.json'
+
+        # Create shot info dictionary
+        shot_info = {
+            'stage': stage,
+            'frame': frame,
+            'shot_index': shot_index,
+            'view': view,
+            'raw_capture_file': raw_capture_path,
+            'image_file': image_file_path,
+            'landmark_file': landmark_file_path
+        }
+
+        # Load existing shots or create new dictionary
+        shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
+        try:
+            if os.path.exists(shots_file):
+                with open(shots_file, 'r') as f:
+                    all_shots = json.load(f)
+            else:
+                all_shots = {'shots': []}
+        except Exception as e:
+            print(f"Error loading AllShots.json: {e}")
+            all_shots = {'shots': []}
+
+        # Add or update shot info
+        shot_key = f'stage{stage}_frame{frame}'
+        
+        # Find and update existing shot or append new one
+        shot_found = False
+        for i, shot in enumerate(all_shots['shots']):
+            if shot.get('stage') == stage and shot.get('frame') == frame:
+                all_shots['shots'][i] = shot_info
+                shot_found = True
+                break
+        
+        if not shot_found:
+            all_shots['shots'].append(shot_info)
+
+        # Save updated shots
+        os.makedirs(os.path.dirname(shots_file), exist_ok=True)
+        self.save_json(all_shots, shots_file)
