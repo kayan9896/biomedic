@@ -10,12 +10,37 @@ class Shot:
         self.frame=frame
         self.view=None
 
+    def to_dict(self):
+        return {
+            'stage': self.stage,
+            'frame': self.frame,
+            'view': self.view
+        }
+
 class Recon:
-    def __init__(self,label,shot1,shot2):
+    def __init__(self,label,shot1,shot2,data):
         self.label=label
         self.shot1=shot1
         self.shot2=shot2
-        self.analysisdata=None
+        self.analysisdata=data
+
+    def to_dict(self):
+        def convert_numpy(obj):
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()  # Convert numpy array to list
+            elif isinstance(obj, dict):
+                return {k: convert_numpy(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_numpy(item) for item in obj]
+            else:
+                return obj
+
+        return {
+            'label': self.label,
+            'shot1': self.shot1.to_dict() if self.shot1 else None,
+            'shot2': self.shot2.to_dict() if self.shot2 else None,
+            'analysisdata': convert_numpy(self.analysisdata)[0][0]
+        }
 
 class AnalyzeBox:
     def __init__(self):
@@ -28,7 +53,8 @@ class AnalyzeBox:
         self._stitch_thread = None
         self.mode = 1  # Default to normal mode
         self.shots=[Shot('HP1',1),Shot('HP1',2),Shot('HP2',1),Shot('HP2',2),Shot('CUP',1),Shot('CUP',2),Shot('TRI',1),Shot('TRI',2)]
-        self.recons=[Recon('HP1',self.shots[0],self.shots[1]),Recon('HP2',self.shots[2],self.shots[3]),Recon('CUP',self.shots[4],self.shots[5]),Recon('TRI',self.shots[6],self.shots[7])]
+        self.recons = [None]*4
+        self.labels = ['HP1', 'HP2', 'CUP', 'TRI']
         self.reference_calib={
             "RefHeader": {                
                 "Labels": ['AP','RO','LO'],
@@ -92,10 +118,10 @@ class AnalyzeBox:
         try:
             result = self.stitch(self.images[stage-1][i*2], self.images[stage-1][i*2+1])
             self.stitched_result[i] = result
-            idx=i if stage==1 else stage 
-            self.recons[idx].analysisdata = result
-            data = self.recons[idx]
-            return True, (result, data), None
+            idx = i if stage == 1 else stage
+            self.recons[idx] = Recon(self.labels[idx], self.shots[idx*2], self.shots[idx*2+1], result)
+
+            return True, (result, self.recons), None
         except Exception as e:
             return False, None, f"Error in reconstruct: {str(e)}"
         finally:

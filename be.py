@@ -244,8 +244,21 @@ class ImageProcessingController:
                                 success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
                                 if not success:
                                     raise Exception(error)
-                                stitchimg, data = recon_result
+                                stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                                
+                                # Convert recons to dictionary and save
+                                recons_dict = {
+                                    'reconstructions': [
+                                        recon.to_dict() for recon in recons if recon is not None
+                                    ]
+                                }
+                                
+                                # Create recons directory if it doesn't exist
+                                recons_dir = os.path.join(self.exam_folder, 'recons')
+                                os.makedirs(recons_dir, exist_ok=True)
+                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
+                                self.save_json(recons_dict, recons_path)
                             
                             updatenext = True
                         except Exception as error:
@@ -294,8 +307,21 @@ class ImageProcessingController:
                                 success, recon_result, error = self.model.reconstruct(self.current_stage, 1)  # Changed from 0 to 1 for the second pair of images
                                 if not success:
                                     raise Exception(error)
-                                stitchimg, data = recon_result
+                                stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                                
+                                # Convert recons to dictionary and save
+                                recons_dict = {
+                                    'reconstructions': [
+                                        recon.to_dict() for recon in recons if recon is not None
+                                    ]
+                                }
+                                
+                                # Create recons directory if it doesn't exist
+                                recons_dir = os.path.join(self.exam_folder, 'recons')
+                                os.makedirs(recons_dir, exist_ok=True)
+                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
+                                self.save_json(recons_dict, recons_path)
                                 
                                 success, result, error = self.model.analyzeref()
                                 all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
@@ -332,8 +358,21 @@ class ImageProcessingController:
                                 success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
                                 if not success:
                                     raise Exception(error)
-                                stitchimg, _ = recon_result
+                                stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                                
+                                # Convert recons to dictionary and save
+                                recons_dict = {
+                                    'reconstructions': [
+                                        recon.to_dict() for recon in recons if recon is not None
+                                    ]
+                                }
+                                
+                                # Create recons directory if it doesn't exist
+                                recons_dir = os.path.join(self.exam_folder, 'recons')
+                                os.makedirs(recons_dir, exist_ok=True)
+                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
+                                self.save_json(recons_dict, recons_path)
                             
                             # Analyze cup
                             success, data, error = self.model.analyzecup()
@@ -373,8 +412,21 @@ class ImageProcessingController:
                                 success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
                                 if not success:
                                     raise Exception(error)
-                                stitchimg, _ = recon_result
+                                stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+                                
+                                # Convert recons to dictionary and save
+                                recons_dict = {
+                                    'reconstructions': [
+                                        recon.to_dict() for recon in recons if recon is not None
+                                    ]
+                                }
+                                
+                                # Create recons directory if it doesn't exist
+                                recons_dir = os.path.join(self.exam_folder, 'recons')
+                                os.makedirs(recons_dir, exist_ok=True)
+                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
+                                self.save_json(recons_dict, recons_path)
                             
                             # Analyze trial
                             success, data, error = self.model.analyzetrial()

@@ -1,0 +1,76 @@
+{
+    "reconstructions": [
+        {
+            "label": "HP1",
+            "shot1": {
+                "stage": "HP1",
+                "frame": 1,
+                "view": null
+            },
+            "shot2": {
+                "stage": "HP1",
+                "frame": 2,
+                "view": null
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "label": "HP2",
+            "shot1": {
+                "stage": "HP2",
+                "frame": 1,
+                "view": null
+            },
+            "shot2": {
+                "stage": "HP2",
+                "frame": 2,
+                "view": null
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "label": "CUP",
+            "shot1": {
+                "stage": "CUP",
+                "frame": 1,
+                "view": null
+            },
+            "shot2": {
+                "stage": "CUP",
+                "frame": 2,
+                "view": null
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "label": "TRI",
+            "shot1": {
+                "stage": "TRI",
+                "frame": 1,
+                "view": null
+            },
+            "shot2": {
+                "stage": "TRI",
+                "frame": 2,
+                "view": null
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ]
+        }
+    ]
+}
