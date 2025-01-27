@@ -8,7 +8,7 @@
             "raw_capture_file": "shots/rawcaptures/stage1_frame1.png",
             "image_file": "shots/images/stage1_frame1.png",
             "landmark_file": "landmarks/stage1_frame1.json",
-            "recon_index": 0
+            "recon_index": null
         },
         {
             "stage": 1,
@@ -28,7 +28,7 @@
             "raw_capture_file": "shots/rawcaptures/stage1_frame3.png",
             "image_file": "shots/images/stage1_frame3.png",
             "landmark_file": "landmarks/stage1_frame3.json",
-            "recon_index": 1
+            "recon_index": null
         },
         {
             "stage": 1,
@@ -38,7 +38,7 @@
             "raw_capture_file": "shots/rawcaptures/stage1_frame4.png",
             "image_file": "shots/images/stage1_frame4.png",
             "landmark_file": "landmarks/stage1_frame4.json",
-            "recon_index": 1
+            "recon_index": 0
         },
         {
             "stage": 2,
@@ -48,7 +48,7 @@
             "raw_capture_file": "shots/rawcaptures/stage2_frame1.png",
             "image_file": "shots/images/stage2_frame1.png",
             "landmark_file": "landmarks/stage2_frame1.json",
-            "recon_index": 2
+            "recon_index": null
         },
         {
             "stage": 2,
@@ -58,7 +58,7 @@
             "raw_capture_file": "shots/rawcaptures/stage2_frame2.png",
             "image_file": "shots/images/stage2_frame2.png",
             "landmark_file": "landmarks/stage2_frame2.json",
-            "recon_index": 2
+            "recon_index": null
         },
         {
             "stage": 3,
@@ -68,7 +68,7 @@
             "raw_capture_file": "shots/rawcaptures/stage3_frame1.png",
             "image_file": "shots/images/stage3_frame1.png",
             "landmark_file": "landmarks/stage3_frame1.json",
-            "recon_index": 3
+            "recon_index": null
         },
         {
             "stage": 3,
@@ -78,7 +78,7 @@
             "raw_capture_file": "shots/rawcaptures/stage3_frame2.png",
             "image_file": "shots/images/stage3_frame2.png",
             "landmark_file": "landmarks/stage3_frame2.json",
-            "recon_index": 3
+            "recon_index": null
         }
     ]
 }

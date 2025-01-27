@@ -259,7 +259,7 @@ class ImageProcessingController:
                                 
                                 # Update for both frames used in reconstruction
                                 frame1 = self.current_frame
-                                frame2 = self.current_frame + 1
+                                frame2 = self.current_frame - 1
                                 
                                 # Load and update AllShots.json
                                 shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
@@ -339,6 +339,29 @@ class ImageProcessingController:
                                     raise Exception(error)
                                 stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+
+                                # Update shot information with reconstruction index
+                                recon_index = 0 if self.current_stage == 1 and self.current_frame < 3 else self.current_stage  # or adjust based on your needs
+                                
+                                # Update for both frames used in reconstruction
+                                frame1 = self.current_frame
+                                frame2 = self.current_frame - 1
+                                
+                                # Load and update AllShots.json
+                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
+                            
+                                if os.path.exists(shots_file):
+                                    with open(shots_file, 'r') as f:
+                                        all_shots = json.load(f)
+                                else:
+                                    all_shots = {'shots': []}
+                               
+                                # Update ReconIndex for both shots used in this reconstruction
+                                for shot in all_shots['shots']:
+                                    if shot['stage'] == self.current_stage:
+                                        if shot['frame'] in [frame1, frame2]:
+                                            shot['recon_index'] = recon_index
+                                self.save_json(all_shots, shots_file)
                                 
                                 # Convert recons to dictionary and save
                                 recons_dict = {
@@ -391,6 +414,29 @@ class ImageProcessingController:
                                 stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
                                 
+                                # Update shot information with reconstruction index
+                                recon_index = 0 if self.current_stage == 1 else self.current_stage  # or adjust based on your needs
+                                
+                                # Update for both frames used in reconstruction
+                                frame1 = self.current_frame
+                                frame2 = self.current_frame - 1
+                                
+                                # Load and update AllShots.json
+                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
+                            
+                                if os.path.exists(shots_file):
+                                    with open(shots_file, 'r') as f:
+                                        all_shots = json.load(f)
+                                else:
+                                    all_shots = {'shots': []}
+                               
+                                # Update ReconIndex for both shots used in this reconstruction
+                                for shot in all_shots['shots']:
+                                    if shot['stage'] == self.current_stage:
+                                        if shot['frame'] in [frame1, frame2]:
+                                            shot['recon_index'] = recon_index
+                                self.save_json(all_shots, shots_file)
+
                                 # Convert recons to dictionary and save
                                 recons_dict = {
                                     'reconstructions': [
@@ -444,6 +490,29 @@ class ImageProcessingController:
                                     raise Exception(error)
                                 stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+
+                                # Update shot information with reconstruction index
+                                recon_index = 0 if self.current_stage == 1 else self.current_stage  # or adjust based on your needs
+                                
+                                # Update for both frames used in reconstruction
+                                frame1 = self.current_frame
+                                frame2 = self.current_frame - 1
+                                
+                                # Load and update AllShots.json
+                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
+                            
+                                if os.path.exists(shots_file):
+                                    with open(shots_file, 'r') as f:
+                                        all_shots = json.load(f)
+                                else:
+                                    all_shots = {'shots': []}
+                               
+                                # Update ReconIndex for both shots used in this reconstruction
+                                for shot in all_shots['shots']:
+                                    if shot['stage'] == self.current_stage:
+                                        if shot['frame'] in [frame1, frame2]:
+                                            shot['recon_index'] = recon_index
+                                self.save_json(all_shots, shots_file)
                                 
                                 # Convert recons to dictionary and save
                                 recons_dict = {
