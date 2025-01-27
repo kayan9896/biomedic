@@ -175,7 +175,7 @@ class ImageProcessingController:
                     case 0:
                         try:
                             if self.current_stage == 1:
-                                success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image)
+                                success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image, "AP")
                                 if not success:
                                     raise Exception(error)
                                 distort, camcalib, image = phantom_result
@@ -216,7 +216,7 @@ class ImageProcessingController:
 
                     case 1:
                         try:
-                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image)
+                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image, "RO")
                             if not success:
                                 raise Exception(error)
                             distort, camcalib, image = phantom_result
@@ -266,7 +266,7 @@ class ImageProcessingController:
 
                     case 2:
                         try:
-                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image)
+                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image, "LO")
                             if not success:
                                 raise Exception(error)
                             distort, camcalib, image = phantom_result

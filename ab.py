@@ -52,20 +52,19 @@ class AnalyzeBox:
         with self._lock:
             return self._stitch_progress
 
-    def analyze_phantom(self, current_stage, current_frame, image):
+    def analyze_phantom(self, current_stage, current_frame, image, view):
         try:
             distort = {'distort':[]}
             self.distortion[(current_stage//2)*2+current_frame-1] = distort
-            if current_frame % 2 == 1:
+            if view == 'AP':
                 with open('reference_ap.json', 'r') as f:
                     camcalib = json.load(f)
+            elif view == 'RO':
+                with open('reference_ro.json', 'r') as f:
+                    camcalib = json.load(f)
             else:
-                if current_frame == 2:
-                    with open('reference_ro.json', 'r') as f:
-                        camcalib = json.load(f)
-                else:
-                    with open('reference_lo.json', 'r') as f:
-                        camcalib = json.load(f)
+                with open('reference_lo.json', 'r') as f:
+                    camcalib = json.load(f)
 
             for i in camcalib:
                 self.reference_calib['Reference'][i] = camcalib[i]
