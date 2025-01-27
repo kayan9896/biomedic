@@ -1,0 +1,21 @@
+{
+    "OperativeSide": "R",
+    "Reference": {
+        "ReconIndex1": 0,
+        "ReconIndex2": 1,
+        "Measurements": {
+            "PelvicTilt": 0.0,
+            "PelvicRotation": 0.0,
+            "PelvicAnttilt": 0.0,
+            "FemurFlex": 0.0,
+            "FemurAbd": 0.0,
+            "FemurRot": 0.0
+        }
+    },
+    "CupAnalysis": {
+        "ReconIndex": 2,
+        "Measurements": 0,
+        "CupInclination": 0,
+        "CupAntversion": 0
+    }
+}

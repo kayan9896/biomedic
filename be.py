@@ -175,8 +175,6 @@ class ImageProcessingController:
                     3: None
                 }
                 current_view = view_map.get(case_number)
-
-                # Save shot information
                 self.save_shot_info(self.current_stage, self.current_frame, current_view)
                 updatenext = False
                 # Execute functions based on case number
@@ -255,7 +253,30 @@ class ImageProcessingController:
                                     raise Exception(error)
                                 stitchimg, recons = recon_result
                                 self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
+
+                                # Update shot information with reconstruction index
+                                recon_index = 0 if self.current_stage == 1 else self.current_stage  # or adjust based on your needs
                                 
+                                # Update for both frames used in reconstruction
+                                frame1 = self.current_frame
+                                frame2 = self.current_frame + 1
+                                
+                                # Load and update AllShots.json
+                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
+                            
+                                if os.path.exists(shots_file):
+                                    with open(shots_file, 'r') as f:
+                                        all_shots = json.load(f)
+                                else:
+                                    all_shots = {'shots': []}
+                               
+                                # Update ReconIndex for both shots used in this reconstruction
+                                for shot in all_shots['shots']:
+                                    if shot['stage'] == self.current_stage:
+                                        if shot['frame'] in [frame1, frame2]:
+                                            shot['recon_index'] = recon_index
+                                self.save_json(all_shots, shots_file)
+
                                 # Convert recons to dictionary and save
                                 recons_dict = {
                                     'reconstructions': [
@@ -655,7 +676,8 @@ class ImageProcessingController:
             image=img,  # We're not changing the image, so pass None
             metadata={'landmark_file': landmark_file, **landmark_data}
         )
-    def save_shot_info(self, stage, frame, view, landmark_file=None):
+        
+    def save_shot_info(self, stage, frame, view, recon_index=None):
         # Calculate shot index based on stage and frame
         if stage == 1:
             shot_index = frame - 1
@@ -665,7 +687,7 @@ class ImageProcessingController:
         # Define file paths
         raw_capture_path = f'shots/rawcaptures/stage{stage}_frame{frame}.png'
         image_file_path = f'shots/images/stage{stage}_frame{frame}.png'
-        landmark_file_path = landmark_file if landmark_file else f'landmarks/stage{stage}_frame{frame}.json'
+        landmark_file_path = f'landmarks/stage{stage}_frame{frame}.json'
 
         # Create shot info dictionary
         shot_info = {
@@ -675,7 +697,8 @@ class ImageProcessingController:
             'view': view,
             'raw_capture_file': raw_capture_path,
             'image_file': image_file_path,
-            'landmark_file': landmark_file_path
+            'landmark_file': landmark_file_path,
+            'recon_index': recon_index
         }
 
         # Load existing shots or create new dictionary

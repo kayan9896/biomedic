@@ -9,12 +9,14 @@ class Shot:
         self.stage=stage
         self.frame=frame
         self.view=None
+        self.index=None
 
     def to_dict(self):
         return {
             'stage': self.stage,
             'frame': self.frame,
-            'view': self.view
+            'view': self.view,
+            'index': self.index
         }
 
 class Recon:
@@ -119,7 +121,14 @@ class AnalyzeBox:
             result = self.stitch(self.images[stage-1][i*2], self.images[stage-1][i*2+1])
             self.stitched_result[i] = result
             idx = i if stage == 1 else stage
-            self.recons[idx] = Recon(self.labels[idx], self.shots[idx*2], self.shots[idx*2+1], result)
+
+            shot1 = self.shots[idx*2]
+            shot2 = self.shots[idx*2+1]
+            
+            # Set the index field for the Shot objects
+            shot1.index = (stage-1)*2 + shot1.frame - 1
+            shot2.index = (stage-1)*2 + shot2.frame - 1
+            self.recons[idx] = Recon(self.labels[idx], shot1, shot2, result)
 
             return True, (result, self.recons), None
         except Exception as e:
