@@ -84,16 +84,18 @@ class AnalyzeBox:
         try:
             distort = {'distort':[]}
             self.distortion[(current_stage//2)*2+current_frame-1] = distort
-            if view == 'AP':
-                with open('reference_ap.json', 'r') as f:
-                    camcalib = json.load(f)
-            elif view == 'RO':
-                with open('reference_ro.json', 'r') as f:
-                    camcalib = json.load(f)
-            else:
-                with open('reference_lo.json', 'r') as f:
-                    camcalib = json.load(f)
-
+            def simulate_compute(view):
+                if view == 'AP':
+                    with open('reference_ap.json', 'r') as f:
+                        camcalib = json.load(f)
+                elif view == 'RO':
+                    with open('reference_ro.json', 'r') as f:
+                        camcalib = json.load(f)
+                else:
+                    with open('reference_lo.json', 'r') as f:
+                        camcalib = json.load(f)
+                return camcalib
+            camcalib = simulate_compute(view)
             for i in camcalib:
                 self.reference_calib['Reference'][i] = camcalib[i]
             return True, (distort, self.reference_calib, image), None

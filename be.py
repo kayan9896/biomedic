@@ -742,7 +742,7 @@ class ImageProcessingController:
         self.viewmodel.set_frame(
             stage=stage, 
             frame=frame, 
-            image=img,  # We're not changing the image, so pass None
+            image=img,  
             metadata={'landmark_file': landmark_file, **landmark_data}
         )
         

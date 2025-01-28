@@ -1,0 +1,60 @@
+{
+    "RefHeader": {
+        "Labels": [
+            "AP",
+            "RO",
+            "LO"
+        ],
+        "ImuTilts": [
+            3.0,
+            3.0,
+            3.0
+        ],
+        "ImuRotations": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "Reference": {
+        "AP": {
+            "ShotIndex": 0,
+            "DistFile": "Exams\\Exam07\\reference\\distortion\\dist1.json",
+            "CameraCalibs": {
+                "PixelScale": 0.0,
+                "Xoffset": 0.0,
+                "Yoffset": 0.0,
+                "SourcePosition": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageNormal": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageUp": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "ImageRight": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "CentrePoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "PiercingPoint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            }
+        }
+    }
+}

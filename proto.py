@@ -10,8 +10,44 @@ from be import ImageProcessingController
 from flask_cors import CORS
 import os
 
+import logging
+from logging.handlers import RotatingFileHandler
+import os
+
+# Configure logging
+def setup_logging():
+    # Create logs directory if it doesn't exist
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    
+    # Set up the logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)  # Set the logging level
+    
+    # Create a file handler
+    file_handler = RotatingFileHandler('logs/app.log', maxBytes=10000000, backupCount=5)
+    file_handler.setLevel(logging.DEBUG)
+    
+    # Create a console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    
+    # Create a formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    # Add the handlers to the logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+# Call this function at the start of your script
+setup_logging()
+
 app = Flask(__name__)
 CORS(app)
+
+#app.logger.setLevel(logging.DEBUG)
 
 # Global variables
 frame_grabber = None
@@ -36,6 +72,7 @@ def get_devices():
         devices = controller.get_devices()
         return jsonify({"devices": devices})
     except Exception as e:
+        #self.logger.error(e)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/mock', methods=['POST'])
@@ -290,4 +327,4 @@ def adjust_brightness(index, stage, frame):
         return jsonify({"error": f"Error accessing or adjusting image: {str(e)}"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=False, use_reloader=False)
