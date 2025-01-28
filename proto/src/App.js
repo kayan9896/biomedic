@@ -753,6 +753,30 @@ function App() {
     }
   };
 
+  const handleRetake = async () => {
+    setCanProgress(false); // Disable button while processing
+    try {
+      const response = await fetch('http://localhost:5000/retake', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to progress to retake');
+      }
+      
+      // Re-enable button after a short delay to ensure frame is processed
+      setTimeout(() => setCanProgress(true), 1000);
+      
+    } catch (err) {
+      console.error('Error progressing to next frame:', err);
+      alert('Error progressing to next frame: ' + err.message);
+      setCanProgress(true);
+    }
+  };
+
   return (
     <div className="App">
       {!isConnected ? (
@@ -784,6 +808,12 @@ function App() {
             />
           )}
           <div className="control-panel">
+          <button 
+            onClick={handleRetake}
+            className="next-frame-button"
+          >
+            Retake
+          </button>
           <button 
             onClick={handleNextFrame}
             disabled={!canProgress}

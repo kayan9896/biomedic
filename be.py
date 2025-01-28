@@ -23,6 +23,7 @@ class ImageProcessingController:
         self.process_next_frame = True  
         self._device_configs = {}
         self._calib_folders = {}
+        self.last = [1, 1]
         
         self.viewmodel = ProcessingModel()
         
@@ -161,13 +162,7 @@ class ImageProcessingController:
                     frame=self.current_frame,
                     image=crop_image
                 )
-                raw_capture_path = os.path.join(self.exam_folder, 'shots', 'rawcaptures', f'stage{self.current_stage}_frame{self.current_frame}.png')
-                image_file_path = os.path.join(self.exam_folder, 'shots', 'images', f'stage{self.current_stage}_frame{self.current_frame}.png')
-        
-                cv2.imwrite(raw_capture_path, frame)
-                cv2.imwrite(image_file_path, crop_image)
-                
-                case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
+
                 view_map = {
                     0: 'AP',
                     1: 'RO',
@@ -175,7 +170,18 @@ class ImageProcessingController:
                     3: None
                 }
                 current_view = view_map.get(case_number)
-                self.save_shot_info(self.current_stage, self.current_frame, current_view)
+
+                raw_capture_path, image_file_path, landmark_file_path = self.save_shot_info(
+                    self.current_stage, 
+                    self.current_frame, 
+                    current_view
+                )
+
+                cv2.imwrite(os.path.join(self.exam_folder, raw_capture_path), frame)
+                cv2.imwrite(os.path.join(self.exam_folder, image_file_path), crop_image)
+                
+                case_number, next_stage, next_frame = self.decide_next(ResBool, self.current_stage, self.current_frame)
+
                 updatenext = False
                 # Execute functions based on case number
                 match case_number:
@@ -554,9 +560,13 @@ class ImageProcessingController:
                 
                 # Update stage and frame for next iteration
                 if updatenext:
+                    self.last = [self.current_stage, self.current_frame]
                     self.current_stage = next_stage
                     self.current_frame = next_frame
+                    
 
+    def retake(self):
+        self.current_stage, self.current_frame = self.last
 
     def get_current_state(self):
         """Get the current state of processing."""
@@ -747,28 +757,13 @@ class ImageProcessingController:
         )
         
     def save_shot_info(self, stage, frame, view, recon_index=None):
+        import datetime
+        
         # Calculate shot index based on stage and frame
         if stage == 1:
             shot_index = frame - 1
         else:
             shot_index = (stage * 2) + (frame - 1)
-
-        # Define file paths
-        raw_capture_path = f'shots/rawcaptures/stage{stage}_frame{frame}.png'
-        image_file_path = f'shots/images/stage{stage}_frame{frame}.png'
-        landmark_file_path = f'landmarks/stage{stage}_frame{frame}.json'
-
-        # Create shot info dictionary
-        shot_info = {
-            'stage': stage,
-            'frame': frame,
-            'shot_index': shot_index,
-            'view': view,
-            'raw_capture_file': raw_capture_path,
-            'image_file': image_file_path,
-            'landmark_file': landmark_file_path,
-            'recon_index': recon_index
-        }
 
         # Load existing shots or create new dictionary
         shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
@@ -782,20 +777,41 @@ class ImageProcessingController:
             print(f"Error loading AllShots.json: {e}")
             all_shots = {'shots': []}
 
-        # Add or update shot info
-        shot_key = f'stage{stage}_frame{frame}'
-        
-        # Find and update existing shot or append new one
-        shot_found = False
-        for i, shot in enumerate(all_shots['shots']):
-            if shot.get('stage') == stage and shot.get('frame') == frame:
-                all_shots['shots'][i] = shot_info
-                shot_found = True
-                break
-        
-        if not shot_found:
-            all_shots['shots'].append(shot_info)
+        # Get the current version number for this stage/frame combination
+        current_version = 1
+        for shot in all_shots['shots']:
+            if shot['stage'] == stage and shot['frame'] == frame:
+                current_version = max(current_version, shot['version'] + 1)
+                # Mark previous versions as not current
+                shot['is_current'] = False
+
+        # Define file paths with version numbers
+        version_suffix = f'_v{current_version}'
+        raw_capture_path = f'shots/rawcaptures/stage{stage}_frame{frame}{version_suffix}.png'
+        image_file_path = f'shots/images/stage{stage}_frame{frame}{version_suffix}.png'
+        landmark_file_path = f'landmarks/stage{stage}_frame{frame}{version_suffix}.json'
+
+        # Create shot info dictionary
+        shot_info = {
+            'stage': stage,
+            'frame': frame,
+            'shot_index': shot_index,
+            'view': view,
+            'version': current_version,
+            'timestamp': datetime.datetime.now().isoformat(),
+            'is_current': True,
+            'raw_capture_file': raw_capture_path,
+            'image_file': image_file_path,
+            'landmark_file': landmark_file_path,
+            'recon_index': recon_index
+        }
+
+        # Append new shot info
+        all_shots['shots'].append(shot_info)
 
         # Save updated shots
         os.makedirs(os.path.dirname(shots_file), exist_ok=True)
         self.save_json(all_shots, shots_file)
+
+        # Update file paths in other parts of the code that save images
+        return raw_capture_path, image_file_path, landmark_file_path

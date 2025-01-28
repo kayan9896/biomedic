@@ -72,7 +72,7 @@ def get_devices():
         devices = controller.get_devices()
         return jsonify({"devices": devices})
     except Exception as e:
-        #self.logger.error(e)
+        app.logger.debug(e)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/mock', methods=['POST'])
@@ -191,6 +191,18 @@ def reset_all_attempts():
         
         controller.viewmodel.clear()
         return jsonify({"message": "All attempts have been reset"})
+
+@app.route('/retake', methods=['POST'])
+def retake():
+    """Reset all processing attempts"""
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 400
+        
+        controller.retake()
+        return jsonify({"message": "Back to last frame to retake"})
 
 
 @app.route('/progress', methods=['GET'])
