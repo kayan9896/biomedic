@@ -279,7 +279,7 @@ class ImageProcessingController:
                                 # Update ReconIndex for both shots used in this reconstruction
                                 for shot in all_shots['shots']:
                                     if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2]:
+                                        if shot['frame'] in [frame1, frame2] and shot['is_current']:
                                             shot['recon_index'] = recon_index
                                 self.save_json(all_shots, shots_file)
 
@@ -365,7 +365,7 @@ class ImageProcessingController:
                                 # Update ReconIndex for both shots used in this reconstruction
                                 for shot in all_shots['shots']:
                                     if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2]:
+                                        if shot['frame'] in [frame1, frame2] and shot['is_current']:
                                             shot['recon_index'] = recon_index
                                 self.save_json(all_shots, shots_file)
                                 
@@ -439,7 +439,7 @@ class ImageProcessingController:
                                 # Update ReconIndex for both shots used in this reconstruction
                                 for shot in all_shots['shots']:
                                     if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2]:
+                                        if shot['frame'] in [frame1, frame2] and shot['is_current']:
                                             shot['recon_index'] = recon_index
                                 self.save_json(all_shots, shots_file)
 
