@@ -10,6 +10,7 @@ from mod import ProcessingModel
 import json
 import shutil
 from glob import glob
+import datetime
 
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
@@ -144,6 +145,47 @@ class ImageProcessingController:
                 )
                 
                 if not ResBool:
+                    # Save the failed frame info regardless of error type
+                    version_suffix = "_failed"
+                    raw_capture_path = f'shots/rawcaptures/stage{self.current_stage}_frame{self.current_frame}{version_suffix}.png'
+                    
+                    # Save the raw frame
+                    os.makedirs(os.path.join(self.exam_folder, 'shots/rawcaptures'), exist_ok=True)
+                    cv2.imwrite(os.path.join(self.exam_folder, raw_capture_path), frame)
+                    
+                    # Create failed shot info
+                    failed_shot_info = {
+                        'stage': self.current_stage,
+                        'frame': self.current_frame,
+                        'shot_index': self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame-1,
+                        'view': None,
+                        'version': 'failed',
+                        'timestamp': datetime.datetime.now().isoformat(),
+                        'is_current': False,
+                        'raw_capture_file': raw_capture_path,
+                        'image_file': None,
+                        'landmark_file': None,
+                        'recon_index': None,
+                        'error_type': 'glyph_error' if err and "Glyph error" in err else 'analysis_error',
+                        'error_message': err
+                    }
+                    
+                    # Load and update AllShots.json
+                    shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
+                    try:
+                        if os.path.exists(shots_file):
+                            with open(shots_file, 'r') as f:
+                                all_shots = json.load(f)
+                        else:
+                            all_shots = {'shots': []}
+                    except Exception as e:
+                        print(f"Error loading AllShots.json: {e}")
+                        all_shots = {'shots': []}
+                    
+                    all_shots['shots'].append(failed_shot_info)
+                    self.save_json(all_shots, shots_file)
+                    
+                    # Continue with existing error handling
                     if err and "Glyph error" in err:
                         print(f"Warning at Stage {self.current_stage}, Frame {self.current_frame}: {err}")
                         self.viewmodel.set_frame(
@@ -155,7 +197,6 @@ class ImageProcessingController:
                     else:
                         print(f"Analyzeframe error at Stage {self.current_stage}, Frame {self.current_frame}. Error: {err}")
                         continue
-
                 # Store the frame and metadata in the viewmodel
                 self.viewmodel.set_frame(
                     stage=self.current_stage,
@@ -757,7 +798,6 @@ class ImageProcessingController:
         )
         
     def save_shot_info(self, stage, frame, view, recon_index=None):
-        import datetime
         
         # Calculate shot index based on stage and frame
         if stage == 1:
