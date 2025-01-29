@@ -22153,3 +22153,532 @@ NameError: name 'logger' is not defined
 2025-01-28 16:27:48,137 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:27:48] "GET /metadata/0/1/1 HTTP/1.1" 200 -
 2025-01-28 16:28:42,679 - comtypes._post_coinit.unknwn - DEBUG - Calling CoUninitialize()
 2025-01-28 16:28:42,684 - comtypes._post_coinit.unknwn - DEBUG - CoUninitialize() done.
+2025-01-28 16:46:22,498 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-28 16:46:22,498 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-01-28 16:46:24,964 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:24] "[31m[1mGET /progress HTTP/1.1[0m" 400 -
+2025-01-28 16:46:24,964 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:24] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:24,965 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:24] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:24,965 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:24] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:46:25,216 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:25] "[31m[1mGET /progress HTTP/1.1[0m" 400 -
+2025-01-28 16:46:25,270 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:25] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:25,270 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:25] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:25,271 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:25] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:46:25,273 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:25] "[33mGET /metadata/0/1/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:25,276 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:25] "[33mGET /metadata/0/1/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:26,146 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:26] "[31m[1mGET /progress HTTP/1.1[0m" 400 -
+2025-01-28 16:46:26,146 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:26] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:26,147 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:26] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:26,147 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:26] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:46:26,393 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:26] "[33mGET /metadata/0/1/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:46:26,881 - proto - DEBUG - 'ImageProcessingController' object has no attribute 'exam_folder'
+2025-01-28 16:46:26,882 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:26] "[35m[1mGET /devices HTTP/1.1[0m" 500 -
+2025-01-28 16:46:27,186 - proto - DEBUG - 'ImageProcessingController' object has no attribute 'exam_folder'
+2025-01-28 16:46:27,187 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:46:27] "[35m[1mGET /devices HTTP/1.1[0m" 500 -
+2025-01-28 16:48:44,324 - comtypes._post_coinit.unknwn - DEBUG - Calling CoUninitialize()
+2025-01-28 16:48:44,324 - comtypes._post_coinit.unknwn - DEBUG - CoUninitialize() done.
+2025-01-28 16:48:46,629 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-28 16:48:46,629 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-01-28 16:48:50,627 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:50] "GET /devices HTTP/1.1" 200 -
+2025-01-28 16:48:50,880 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:50] "GET /devices HTTP/1.1" 200 -
+2025-01-28 16:48:55,739 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:55] "OPTIONS /run HTTP/1.1" 200 -
+2025-01-28 16:48:56,052 - comtypes.client - DEBUG - {E436EBB3-524F-11CE-9F53-0020AF0BA770} -> {E436EBB3-524F-11CE-9F53-0020AF0BA770}
+2025-01-28 16:48:56,053 - comtypes.client - DEBUG - CoCreateInstance({E436EBB3-524F-11CE-9F53-0020AF0BA770}, clsctx=None, interface=<class 'comtypes.gen._78530B68_61F9_11D2_8CAD_00A024580902_0_1_0.IFilterGraph'>)
+2025-01-28 16:48:56,071 - comtypes.client - DEBUG - {BF87B6E1-8C27-11d0-B3F0-00AA003761C5} -> {BF87B6E1-8C27-11D0-B3F0-00AA003761C5}
+2025-01-28 16:48:56,071 - comtypes.client - DEBUG - CoCreateInstance({BF87B6E1-8C27-11D0-B3F0-00AA003761C5}, clsctx=None, interface=<class 'pygrabber.dshow_core.ICaptureGraphBuilder2'>)
+2025-01-28 16:48:56,073 - comtypes.client - DEBUG - {62BE5D10-60EB-11d0-BD3B-00A0C911CE86} -> {62BE5D10-60EB-11D0-BD3B-00A0C911CE86}
+2025-01-28 16:48:56,074 - comtypes.client - DEBUG - CoCreateInstance({62BE5D10-60EB-11D0-BD3B-00A0C911CE86}, clsctx=None, interface=<class 'pygrabber.dshow_core.ICreateDevEnum'>)
+2025-01-28 16:48:56,193 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IUnknown) ptr=0x17b28052558 at 17b57054fd0>
+2025-01-28 16:48:56,194 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IPropertyBag) ptr=0x17b28052558 at 17b57055050>
+2025-01-28 16:48:56,194 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMoniker) ptr=0x17b28052550 at 17b57054e50>
+2025-01-28 16:48:56,195 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IUnknown) ptr=0x17b28052b78 at 17b57054e50>
+2025-01-28 16:48:56,195 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IPropertyBag) ptr=0x17b28052b78 at 17b57054fd0>
+2025-01-28 16:48:56,195 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMoniker) ptr=0x17b28052b70 at 17b57055050>
+2025-01-28 16:48:56,196 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IEnumMoniker) ptr=0x17b28042a70 at 17b57054ed0>
+2025-01-28 16:48:56,196 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IFilterGraph) ptr=0x17b27d33b90 at 17b57037d50>
+2025-01-28 16:48:56,196 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IGraphBuilder) ptr=0x17b27d33b90 at 17b57037c50>
+2025-01-28 16:48:56,196 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMediaControl) ptr=0x17b2803c6e8 at 17b570378d0>
+2025-01-28 16:48:56,197 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMediaEvent) ptr=0x17b2803c720 at 17b57037dd0>
+2025-01-28 16:48:56,197 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(ICreateDevEnum) ptr=0x17b259a5970 at 17b57037f50>
+2025-01-28 16:48:56,197 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(ICaptureGraphBuilder2) ptr=0x17b259edad8 at 17b57037ed0>
+2025-01-28 16:48:56,198 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfileManager2) ptr=0x17b24efba20 at 17b57037e50>
+2025-01-28 16:48:56,200 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9d370 at 17b57054d50>
+2025-01-28 16:48:56,200 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9cad0 at 17b57054cd0>
+2025-01-28 16:48:56,200 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9c680 at 17b57054c50>
+2025-01-28 16:48:56,201 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9c230 at 17b57054bd0>
+2025-01-28 16:48:56,201 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9cf20 at 17b57054b50>
+2025-01-28 16:48:56,201 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c98180 at 17b57054ad0>
+2025-01-28 16:48:56,201 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9bde0 at 17b57054a50>
+2025-01-28 16:48:56,201 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c97d30 at 17b570549d0>
+2025-01-28 16:48:56,202 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c992c0 at 17b57054950>
+2025-01-28 16:48:56,202 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9b990 at 17b570544d0>
+2025-01-28 16:48:56,202 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9aca0 at 17b570548d0>
+2025-01-28 16:48:56,202 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c99b60 at 17b57054850>
+2025-01-28 16:48:56,203 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c985d0 at 17b570547d0>
+2025-01-28 16:48:56,203 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c99fb0 at 17b57054750>
+2025-01-28 16:48:56,203 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9a850 at 17b570546d0>
+2025-01-28 16:48:56,203 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9b0f0 at 17b57054650>
+2025-01-28 16:48:56,204 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c978e0 at 17b570545d0>
+2025-01-28 16:48:56,204 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9a400 at 17b57054550>
+2025-01-28 16:48:56,204 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c98e70 at 17b57054450>
+2025-01-28 16:48:56,204 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c98a20 at 17b570543d0>
+2025-01-28 16:48:56,205 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c9b540 at 17b57054350>
+2025-01-28 16:48:56,205 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c99710 at 17b570542d0>
+2025-01-28 16:48:56,205 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c6f330 at 17b57054250>
+2025-01-28 16:48:56,205 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c70020 at 17b570541d0>
+2025-01-28 16:48:56,206 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c6f780 at 17b57054150>
+2025-01-28 16:48:56,206 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c722a0 at 17b570540d0>
+2025-01-28 16:48:56,206 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x17b58c726f0 at 17b57054050>
+2025-01-28 16:48:56,206 - fg - INFO - Available devices:
+2025-01-28 16:48:56,207 - fg - INFO -   - QP0203 PCI, Analog 01 Capture (index: 0)
+2025-01-28 16:48:56,207 - fg - INFO -   - OBS Virtual Camera (index: 1)
+2025-01-28 16:48:56,563 - fg - INFO - Successfully connected to OBS Virtual Camera
+2025-01-28 16:48:56,564 - fg - INFO - Started video checking at 30.0 Hz
+2025-01-28 16:48:56,565 - fg - INFO - Started image processing
+2025-01-28 16:48:56,565 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:56] "POST /run HTTP/1.1" 200 -
+2025-01-28 16:48:56,585 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:56] "POST /new_processing HTTP/1.1" 200 -
+2025-01-28 16:48:56,595 - fg - DEBUG - Frame updated
+2025-01-28 16:48:57,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:57] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:48:57,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:57] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:48:57,907 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:57] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:48:57,909 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:57] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:48:58,601 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:58] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:48:58,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:58] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:48:58,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:58] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:48:58,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:58] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:48:59,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:59] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:48:59,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:59] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:48:59,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:59] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:48:59,908 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:48:59] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:00,602 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:00] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:00,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:00] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:00,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:00] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:00,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:00] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:02,869 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:02] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:02,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:02] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:02,876 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:02] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:02,877 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:02] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:04,570 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:04] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:04,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:04] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:04,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:04] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:04,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:04] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:06,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:06] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:06,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:06] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:06,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:06] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:06,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:06] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:08,570 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:08] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:08,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:08] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:08,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:08] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:08,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:08] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:10,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:10] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:10,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:10] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:10,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:10] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:10,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:10] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:12,568 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:12] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:12,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:12] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:12,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:12] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:12,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:12] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:14,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:14] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:14,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:14] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:14,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:14] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:14,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:14] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:16,571 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:16] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:16,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:16] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:16,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:16] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:16,874 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:16] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:18,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:18] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:18,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:18] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:18,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:18] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:18,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:18] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:20,567 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:20] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:20,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:20] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:20,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:20] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:20,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:20] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:22,869 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:22] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:22,869 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:22] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:22,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:22] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:22,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:22] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:24,567 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:24] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:24,869 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:24] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:24,869 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:24] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:24,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:24] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:26,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:26] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:26,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:26] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:26,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:26] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:26,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:26] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:28,540 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:28] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:28,844 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:28] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:28,844 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:28] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:28,844 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:28] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:28,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:28] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:29,151 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:29] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:29,152 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:29] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:29,152 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:29] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:29,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:29] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:29,907 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:29] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:29,907 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:29] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:29,908 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:29] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:30,601 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:30] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:30,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:30] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:30,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:30] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:30,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:30] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:31,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:31] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:31,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:31] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:31,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:31] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:31,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:31] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:32,601 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:32] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:32,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:32] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:32,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:32] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:32,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:32] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:33,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:33] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:33,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:33] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:33,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:33] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:33,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:33] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:34,602 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:34] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:34,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:34] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:34,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:34] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:34,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:34] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:35,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:35] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:35,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:35] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:35,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:35] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:35,907 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:35] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:36,603 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:36] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:36,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:36] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:36,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:36] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:36,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:36] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:37,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:37] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:37,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:37] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:37,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:37] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:37,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:37] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:38,601 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:38] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:38,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:38] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:38,903 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:38] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:38,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:38] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:40,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:40] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:40,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:40] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:40,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:40] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:40,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:40] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:42,568 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:42] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:42,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:42] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:42,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:42] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:42,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:42] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:44,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:44] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:44,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:44] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:44,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:44] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:44,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:44] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:46,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:46] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:46,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:46] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:46,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:46] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:46,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:46] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:48,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:48] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:48,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:48] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:48,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:48] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:48,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:48] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:50,568 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:50] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:50,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:50] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:50,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:50] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:50,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:50] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:52,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:52] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:52,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:52] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:52,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:52] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:52,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:52] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:54,568 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:54] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:54,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:54] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:54,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:54] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:54,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:54] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:56,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:56] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:56,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:56] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:56,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:56] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:49:56,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:56] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:58,568 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:58] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:49:58,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:58] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:58,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:58] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:49:58,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:49:58] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:00,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:00] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:00,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:00] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:00,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:00] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:00,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:00] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:02,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:02] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:02,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:02] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:02,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:02] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:02,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:02] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:04,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:04] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:04,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:04] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:04,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:04] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:04,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:04] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:06,568 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:06] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:06,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:06] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:06,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:06] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:06,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:06] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:08,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:08] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:08,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:08] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:08,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:08] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:08,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:08] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:10,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:10] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:10,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:10] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:10,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:10] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:10,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:10] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:12,867 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:12] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:12,868 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:12] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:12,868 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:12] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:12,869 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:12] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:14,568 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:14] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:14,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:14] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:14,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:14] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:14,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:14] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:16,869 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:16] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:16,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:16] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:16,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:16] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:16,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:16] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:18,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:18] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:18,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:18] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:18,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:18] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:18,873 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:18] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:20,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:20] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:20,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:20] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:20,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:20] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:20,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:20] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:22,570 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:22] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:22,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:22] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:22,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:22] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:22,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:22] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:24,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:24] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:24,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:24] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:24,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:24] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:24,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:24] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:26,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:26] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:26,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:26] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:26,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:26] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:26,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:26] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:28,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:28] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:28,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:28] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:28,870 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:28] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:28,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:28] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:29,121 - comtypes._post_coinit.unknwn - DEBUG - Calling CoUninitialize()
+2025-01-28 16:50:29,121 - comtypes._post_coinit.unknwn - DEBUG - CoUninitialize() done.
+2025-01-28 16:50:30,518 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-28 16:50:30,518 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-01-28 16:50:30,871 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:30] "[31m[1mGET /progress HTTP/1.1[0m" 400 -
+2025-01-28 16:50:30,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:30] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:30,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:30] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:30,872 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:30] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:31,708 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:31] "[31m[1mGET /progress HTTP/1.1[0m" 400 -
+2025-01-28 16:50:32,009 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:32] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:32,009 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:32] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:32,009 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:32] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:32,907 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:32] "[31m[1mGET /progress HTTP/1.1[0m" 400 -
+2025-01-28 16:50:32,907 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:32] "[33mGET /attempt/0/stage/1/frame/1 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:32,907 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:32] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:32,908 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:32] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:33,154 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:33] "GET /devices HTTP/1.1" 200 -
+2025-01-28 16:50:33,416 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:33] "GET /devices HTTP/1.1" 200 -
+2025-01-28 16:50:36,658 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:36] "OPTIONS /run HTTP/1.1" 200 -
+2025-01-28 16:50:36,965 - comtypes.client - DEBUG - {E436EBB3-524F-11CE-9F53-0020AF0BA770} -> {E436EBB3-524F-11CE-9F53-0020AF0BA770}
+2025-01-28 16:50:36,965 - comtypes.client - DEBUG - CoCreateInstance({E436EBB3-524F-11CE-9F53-0020AF0BA770}, clsctx=None, interface=<class 'comtypes.gen._78530B68_61F9_11D2_8CAD_00A024580902_0_1_0.IFilterGraph'>)
+2025-01-28 16:50:36,969 - comtypes.client - DEBUG - {BF87B6E1-8C27-11d0-B3F0-00AA003761C5} -> {BF87B6E1-8C27-11D0-B3F0-00AA003761C5}
+2025-01-28 16:50:36,969 - comtypes.client - DEBUG - CoCreateInstance({BF87B6E1-8C27-11D0-B3F0-00AA003761C5}, clsctx=None, interface=<class 'pygrabber.dshow_core.ICaptureGraphBuilder2'>)
+2025-01-28 16:50:36,970 - comtypes.client - DEBUG - {62BE5D10-60EB-11d0-BD3B-00A0C911CE86} -> {62BE5D10-60EB-11D0-BD3B-00A0C911CE86}
+2025-01-28 16:50:36,970 - comtypes.client - DEBUG - CoCreateInstance({62BE5D10-60EB-11D0-BD3B-00A0C911CE86}, clsctx=None, interface=<class 'pygrabber.dshow_core.ICreateDevEnum'>)
+2025-01-28 16:50:37,003 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IUnknown) ptr=0x1dc84b5db18 at 1dcb3b753d0>
+2025-01-28 16:50:37,004 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IPropertyBag) ptr=0x1dc84b5db18 at 1dcb3b75450>
+2025-01-28 16:50:37,004 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMoniker) ptr=0x1dc84b5db10 at 1dcb3b75250>
+2025-01-28 16:50:37,004 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IUnknown) ptr=0x1dc84b5ce68 at 1dcb3b75250>
+2025-01-28 16:50:37,005 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IPropertyBag) ptr=0x1dc84b5ce68 at 1dcb3b753d0>
+2025-01-28 16:50:37,005 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMoniker) ptr=0x1dc84b5ce60 at 1dcb3b75450>
+2025-01-28 16:50:37,005 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IEnumMoniker) ptr=0x1dc84cf38c0 at 1dcb3b752d0>
+2025-01-28 16:50:37,005 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IFilterGraph) ptr=0x1dc8476b330 at 1dcb3b57ad0>
+2025-01-28 16:50:37,005 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IGraphBuilder) ptr=0x1dc8476b330 at 1dcb3b561d0>
+2025-01-28 16:50:37,005 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMediaControl) ptr=0x1dc845d4de8 at 1dcb3b55fd0>
+2025-01-28 16:50:37,006 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IMediaEvent) ptr=0x1dc845d4e20 at 1dcb3b74050>
+2025-01-28 16:50:37,006 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(ICreateDevEnum) ptr=0x1dc84b36d80 at 1dcb3b743d0>
+2025-01-28 16:50:37,006 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(ICaptureGraphBuilder2) ptr=0x1dc84850418 at 1dcb3b74250>
+2025-01-28 16:50:37,007 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfileManager2) ptr=0x1dcb4c342b0 at 1dcb3b74450>
+2025-01-28 16:50:37,007 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ceda40 at 1dcb3b75150>
+2025-01-28 16:50:37,007 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ced5f0 at 1dcb3b750d0>
+2025-01-28 16:50:37,007 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ced1a0 at 1dcb3b75050>
+2025-01-28 16:50:37,007 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cecd50 at 1dcb3b74fd0>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce8400 at 1dcb3b74f50>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cec060 at 1dcb3b74ed0>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce7fb0 at 1dcb3b74e50>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cebc10 at 1dcb3b74dd0>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ceb7c0 at 1dcb3b74d50>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cea230 at 1dcb3b748d0>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce9990 at 1dcb3b74cd0>
+2025-01-28 16:50:37,008 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce9540 at 1dcb3b74c50>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ceb370 at 1dcb3b74bd0>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce8ca0 at 1dcb3b74b50>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce9de0 at 1dcb3b74ad0>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ceaf20 at 1dcb3b74a50>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce7b60 at 1dcb3b749d0>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce8850 at 1dcb3b74950>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ceaad0 at 1dcb3b74850>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cea680 at 1dcb3b747d0>
+2025-01-28 16:50:37,009 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce7710 at 1dcb3b74750>
+2025-01-28 16:50:37,010 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4ce90f0 at 1dcb3b746d0>
+2025-01-28 16:50:37,010 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cc2740 at 1dcb3b74650>
+2025-01-28 16:50:37,010 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cc22f0 at 1dcb3b745d0>
+2025-01-28 16:50:37,010 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cc1ea0 at 1dcb3b74550>
+2025-01-28 16:50:37,010 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cc1a50 at 1dcb3b744d0>
+2025-01-28 16:50:37,010 - comtypes._post_coinit.unknwn - DEBUG - Release <POINTER(IWMProfile) ptr=0x1dcb4cc11b0 at 1dcb3b74150>
+2025-01-28 16:50:37,010 - fg - INFO - Available devices:
+2025-01-28 16:50:37,011 - fg - INFO -   - QP0203 PCI, Analog 01 Capture (index: 0)
+2025-01-28 16:50:37,011 - fg - INFO -   - OBS Virtual Camera (index: 1)
+2025-01-28 16:50:37,230 - fg - INFO - Successfully connected to OBS Virtual Camera
+2025-01-28 16:50:37,231 - fg - INFO - Started video checking at 30.0 Hz
+2025-01-28 16:50:37,232 - fg - INFO - Started image processing
+2025-01-28 16:50:37,232 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:37] "POST /run HTTP/1.1" 200 -
+2025-01-28 16:50:37,245 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:37] "POST /new_processing HTTP/1.1" 200 -
+2025-01-28 16:50:37,256 - fg - DEBUG - Frame updated
+2025-01-28 16:50:38,891 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:38] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:38,908 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:38] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:38,925 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:38] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:38,964 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:38] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:39,144 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:39] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:39,567 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:39] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:39,900 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:39] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:39,906 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:39] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:39,922 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:39] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:40,264 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:40] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:40,571 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:40] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:40,898 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:40] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:40,926 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:40] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:40,943 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:40] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:41,289 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:41] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:41,561 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:41] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:41,594 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:41] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:41,600 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:41] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:41,616 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:41] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:41,662 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:41] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:42,585 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:42] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:42,625 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:42] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:42,630 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:42] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:42,680 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:42] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:42,834 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:42] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:43,264 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:43] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:43,611 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:43] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:43,616 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:43] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:43,633 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:43] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:43,988 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:43] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:44,264 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:44] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:44,611 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:44] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:44,611 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:44] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:44,622 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:44] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:44,977 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:44] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:45,217 - fg - DEBUG - Frame updated
+2025-01-28 16:50:45,593 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:45] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:45,638 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:45] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:45,646 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:45] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:45,678 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:45] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:45,842 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:45] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:46,264 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:46] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:46,589 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:46] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:46,594 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:46] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:46,610 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:46] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:46,946 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:46] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:47,572 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:47] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:47,891 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:47] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:47,918 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:47] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:47,931 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:47] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:48,307 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:48] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:48,570 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:48] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:48,891 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:48] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:48,919 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:48] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:48,946 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:48] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:49,282 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:49] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:49,901 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:49] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:49,918 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:49] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:49,930 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:49] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:49,943 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:49] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:50,142 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:50] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:50,570 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:50] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:50,884 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:50] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:50,900 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:50] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:50,922 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:50] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:51,269 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:51] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:51,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:51] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:51,886 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:51] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:51,892 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:51] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:51,909 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:51] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:52,242 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:52] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:52,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:52] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:52,889 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:52] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:52,917 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:52] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:52,944 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:52] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:53,283 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:53] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:53,572 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:53] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:53,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:53] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:53,905 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:53] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:53,934 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:53] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:54,299 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:54] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:54,888 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:54] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:54,926 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:54] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:54,937 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:54] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:54,958 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:54] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:55,141 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:55] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:55,572 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:55] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:55,890 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:55] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:55,918 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:55] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:55,939 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:55] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:56,282 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:56] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:56,570 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:56] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:56,887 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:56] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:56,915 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:56] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:56,932 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:56] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:57,261 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:57] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:57,892 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:57] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:57,925 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:57] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:57,941 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:57] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:57,966 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:57] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:58,131 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:58] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:58,570 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:58] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:58,904 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:58] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:58,925 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:58] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:58,949 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:58] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:50:59,281 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:59] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:50:59,889 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:59] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:50:59,924 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:59] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:50:59,940 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:59] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:50:59,963 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:50:59] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:51:00,151 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:00] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:51:00,572 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:00] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:51:00,893 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:00] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:51:00,910 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:00] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:51:00,921 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:00] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:51:01,251 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:01] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:51:01,886 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:01] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:51:01,917 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:01] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:51:01,944 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:01] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:51:01,973 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:01] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:51:02,143 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:02] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:51:02,569 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:02] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:51:02,887 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:02] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:51:02,892 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:02] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:51:02,915 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:02] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:51:03,254 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:03] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:51:03,890 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:03] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:51:03,942 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:03] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:51:03,953 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:03] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:51:03,985 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:03] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:51:04,149 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:04] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:51:04,571 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:04] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:51:04,908 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:04] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:51:04,930 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:04] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:51:04,947 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:04] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:51:05,299 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:05] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:51:05,883 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:05] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:51:05,928 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:05] "GET /attempt/0/stage/1/frame/1 HTTP/1.1" 200 -
+2025-01-28 16:51:05,956 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:05] "[33mGET /attempt/0/stage/1/frame/2 HTTP/1.1[0m" 404 -
+2025-01-28 16:51:05,966 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:05] "[33mGET /attempt/0/stage/1/frame/stitch HTTP/1.1[0m" 404 -
+2025-01-28 16:51:06,133 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:06] "GET /metadata/0/1/1 HTTP/1.1" 200 -
+2025-01-28 16:51:06,573 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 16:51:06] "GET /progress HTTP/1.1" 200 -
+2025-01-28 16:51:06,808 - comtypes._post_coinit.unknwn - DEBUG - Calling CoUninitialize()
+2025-01-28 16:51:06,824 - comtypes._post_coinit.unknwn - DEBUG - CoUninitialize() done.
+2025-01-28 17:10:38,662 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-28 17:10:38,662 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-01-28 17:10:41,936 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 17:10:41] "GET /devices HTTP/1.1" 200 -
+2025-01-28 17:10:42,186 - werkzeug - INFO - 127.0.0.1 - - [28/Jan/2025 17:10:42] "GET /devices HTTP/1.1" 200 -
+2025-01-28 17:11:00,254 - comtypes._post_coinit.unknwn - DEBUG - Calling CoUninitialize()
+2025-01-28 17:11:00,254 - comtypes._post_coinit.unknwn - DEBUG - CoUninitialize() done.

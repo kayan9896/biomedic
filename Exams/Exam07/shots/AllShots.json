@@ -1,0 +1,34 @@
+{
+    "shots": [
+        {
+            "stage": 1,
+            "frame": 1,
+            "shot_index": 0,
+            "view": null,
+            "version": "failed",
+            "timestamp": "2025-01-28T16:50:37.258700",
+            "is_current": false,
+            "raw_capture_file": "shots/rawcaptures/stage1_frame1_failed.png",
+            "image_file": null,
+            "landmark_file": null,
+            "recon_index": null,
+            "error_type": "glyph_error",
+            "error_message": "Glyph error: rotation exceeds 20 degrees"
+        },
+        {
+            "stage": 1,
+            "frame": 1,
+            "shot_index": 0,
+            "view": null,
+            "version": "failed",
+            "timestamp": "2025-01-28T16:50:45.221184",
+            "is_current": false,
+            "raw_capture_file": "shots/rawcaptures/stage1_frame1_failed.png",
+            "image_file": null,
+            "landmark_file": null,
+            "recon_index": null,
+            "error_type": "glyph_error",
+            "error_message": "Glyph error: rotation exceeds 20 degrees"
+        }
+    ]
+}

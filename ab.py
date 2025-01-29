@@ -20,16 +20,19 @@ class Shot:
         }
 
 class Recon:
-    def __init__(self,label,shot1,shot2,data):
-        self.label=label
-        self.shot1=shot1
-        self.shot2=shot2
-        self.analysisdata=data
+    def __init__(self, label, shot1, shot2, data):
+        self.label = label
+        self.shot1 = shot1
+        self.shot2 = shot2
+        self.analysisdata = data
+        self.timestamp = datetime.datetime.now().isoformat()
+        self.is_current = True
+        self.version = 1  # Will be updated when saving
 
     def to_dict(self):
         def convert_numpy(obj):
             if isinstance(obj, np.ndarray):
-                return obj.tolist()  # Convert numpy array to list
+                return obj.tolist()
             elif isinstance(obj, dict):
                 return {k: convert_numpy(v) for k, v in obj.items()}
             elif isinstance(obj, list):
@@ -41,7 +44,10 @@ class Recon:
             'label': self.label,
             'shot1': self.shot1.to_dict() if self.shot1 else None,
             'shot2': self.shot2.to_dict() if self.shot2 else None,
-            'analysisdata': convert_numpy(self.analysisdata)[0][0]
+            'analysisdata': convert_numpy(self.analysisdata)[0][0],
+            'timestamp': self.timestamp,
+            'is_current': self.is_current,
+            'version': self.version
         }
 
 class AnalyzeBox:
@@ -67,6 +73,7 @@ class AnalyzeBox:
         }
         self.distortion = [None]*4
         self.allresults={}
+        self.all_recons = {}
 
     @property
     def is_processing(self):
@@ -113,6 +120,7 @@ class AnalyzeBox:
     def can_recon(self):
         return True
 
+
     def reconstruct(self, stage, i):
         with self._lock:
             self._is_processing = True
@@ -127,12 +135,31 @@ class AnalyzeBox:
             shot1 = self.shots[idx*2]
             shot2 = self.shots[idx*2+1]
             
-            # Set the index field for the Shot objects
             shot1.index = (stage-1)*2 + shot1.frame - 1
             shot2.index = (stage-1)*2 + shot2.frame - 1
-            self.recons[idx] = Recon(self.labels[idx], shot1, shot2, result)
+            
+            # Create new reconstruction
+            new_recon = Recon(self.labels[idx], shot1, shot2, result)
+            
+            # Get current version number
+            current_version = 1
+            for recon in self.all_recons['reconstructions']:
+                if recon['label'] == self.labels[idx]:
+                    current_version = max(current_version, recon['version'] + 1)
+                    # Mark old version as not current
+                    if recon['is_current']:
+                        recon['is_current'] = False
 
-            return True, (result, self.recons), None
+            # Set version for new reconstruction
+            new_recon.version = current_version
+            
+            # Update local recons array (for current session)
+            self.recons[idx] = new_recon
+            
+            # Add to history
+            self.all_recons['reconstructions'].append(new_recon.to_dict())
+
+            return True, (result, self.all_recons), None
         except Exception as e:
             return False, None, f"Error in reconstruct: {str(e)}"
         finally:

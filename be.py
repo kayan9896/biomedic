@@ -25,6 +25,7 @@ class ImageProcessingController:
         self._device_configs = {}
         self._calib_folders = {}
         self.last = [1, 1]
+        self.all_shots = {'shots': []}
         
         self.viewmodel = ProcessingModel()
         
@@ -153,7 +154,6 @@ class ImageProcessingController:
                     os.makedirs(os.path.join(self.exam_folder, 'shots/rawcaptures'), exist_ok=True)
                     cv2.imwrite(os.path.join(self.exam_folder, raw_capture_path), frame)
                     
-                    # Create failed shot info
                     failed_shot_info = {
                         'stage': self.current_stage,
                         'frame': self.current_frame,
@@ -169,21 +169,11 @@ class ImageProcessingController:
                         'error_type': 'glyph_error' if err and "Glyph error" in err else 'analysis_error',
                         'error_message': err
                     }
-                    
-                    # Load and update AllShots.json
+
                     shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
-                    try:
-                        if os.path.exists(shots_file):
-                            with open(shots_file, 'r') as f:
-                                all_shots = json.load(f)
-                        else:
-                            all_shots = {'shots': []}
-                    except Exception as e:
-                        print(f"Error loading AllShots.json: {e}")
-                        all_shots = {'shots': []}
-                    
-                    all_shots['shots'].append(failed_shot_info)
-                    self.save_json(all_shots, shots_file)
+                    os.makedirs(os.path.dirname(shots_file), exist_ok=True)
+                    self.all_shots['shots'].append(failed_shot_info)
+                    self.save_json(self.all_shots, shots_file)
                     
                     # Continue with existing error handling
                     if err and "Glyph error" in err:
@@ -324,18 +314,12 @@ class ImageProcessingController:
                                             shot['recon_index'] = recon_index
                                 self.save_json(all_shots, shots_file)
 
-                                # Convert recons to dictionary and save
-                                recons_dict = {
-                                    'reconstructions': [
-                                        recon.to_dict() for recon in recons if recon is not None
-                                    ]
-                                }
                                 
                                 # Create recons directory if it doesn't exist
                                 recons_dir = os.path.join(self.exam_folder, 'recons')
                                 os.makedirs(recons_dir, exist_ok=True)
                                 recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons_dict, recons_path)
+                                self.save_json(recons, recons_path)
                             
                             updatenext = True
                         except Exception as error:
@@ -798,32 +782,20 @@ class ImageProcessingController:
         )
         
     def save_shot_info(self, stage, frame, view, recon_index=None):
-        
         # Calculate shot index based on stage and frame
         if stage == 1:
             shot_index = frame - 1
         else:
             shot_index = (stage * 2) + (frame - 1)
 
-        # Load existing shots or create new dictionary
-        shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
-        try:
-            if os.path.exists(shots_file):
-                with open(shots_file, 'r') as f:
-                    all_shots = json.load(f)
-            else:
-                all_shots = {'shots': []}
-        except Exception as e:
-            print(f"Error loading AllShots.json: {e}")
-            all_shots = {'shots': []}
-
         # Get the current version number for this stage/frame combination
         current_version = 1
-        for shot in all_shots['shots']:
+        for shot in self.all_shots['shots']:
             if shot['stage'] == stage and shot['frame'] == frame:
                 current_version = max(current_version, shot['version'] + 1)
                 # Mark previous versions as not current
-                shot['is_current'] = False
+                if shot['is_current']:
+                    shot['is_current'] = False
 
         # Define file paths with version numbers
         version_suffix = f'_v{current_version}'
@@ -846,12 +818,12 @@ class ImageProcessingController:
             'recon_index': recon_index
         }
 
-        # Append new shot info
-        all_shots['shots'].append(shot_info)
-
-        # Save updated shots
+        # Update local dictionary
+        self.all_shots['shots'].append(shot_info)
+        
+        # Save to file
+        shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
         os.makedirs(os.path.dirname(shots_file), exist_ok=True)
-        self.save_json(all_shots, shots_file)
+        self.save_json(self.all_shots, shots_file)
 
-        # Update file paths in other parts of the code that save images
         return raw_capture_path, image_file_path, landmark_file_path
