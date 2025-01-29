@@ -1,6 +1,6 @@
 {
     "Carm":{
-        "C-arm Model": "ATEC>OEC9901 E9-0284",
+        "C-arm Model": "ATEC>OEC9902 E9-0284",
         "C-arm Manufacturer": "OEC 9900 Elite",
         "PixelScale": 0.21093
     },
@@ -29,7 +29,7 @@
         "AutoCheckImageThreshold": 0.1,
         "AutoCheckTimeThreshold": 1.0,
         "AutoCheckLoopNumber": 5,
-        "GlyphRefRotation": 40.0,
+        "GlyphRefRotation": 10.0,
         "GlyphRefFlip": false
     },
     "IMU":{

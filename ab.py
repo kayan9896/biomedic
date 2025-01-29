@@ -3,6 +3,7 @@ import numpy as np
 import time
 import threading
 import json
+import datetime
 
 class Shot:
     def __init__(self, stage, frame):
@@ -73,7 +74,7 @@ class AnalyzeBox:
         }
         self.distortion = [None]*4
         self.allresults={}
-        self.all_recons = {}
+        self.all_recons = {'reconstructions':[]}
 
     @property
     def is_processing(self):

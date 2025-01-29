@@ -1,0 +1,119 @@
+{
+    "reconstructions": [
+        {
+            "label": "HP1",
+            "shot1": {
+                "stage": "HP1",
+                "frame": 1,
+                "view": null,
+                "index": 0
+            },
+            "shot2": {
+                "stage": "HP1",
+                "frame": 2,
+                "view": null,
+                "index": 1
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T00:01:18.669178",
+            "is_current": true,
+            "version": 1
+        },
+        {
+            "label": "HP2",
+            "shot1": {
+                "stage": "HP2",
+                "frame": 1,
+                "view": null,
+                "index": 0
+            },
+            "shot2": {
+                "stage": "HP2",
+                "frame": 2,
+                "view": null,
+                "index": 1
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T00:01:45.840531",
+            "is_current": true,
+            "version": 1
+        },
+        {
+            "label": "CUP",
+            "shot1": {
+                "stage": "CUP",
+                "frame": 1,
+                "view": null,
+                "index": 2
+            },
+            "shot2": {
+                "stage": "CUP",
+                "frame": 2,
+                "view": null,
+                "index": 3
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T00:02:36.137614",
+            "is_current": true,
+            "version": 1
+        },
+        {
+            "label": "TRI",
+            "shot1": {
+                "stage": "TRI",
+                "frame": 1,
+                "view": null,
+                "index": 4
+            },
+            "shot2": {
+                "stage": "TRI",
+                "frame": 2,
+                "view": null,
+                "index": 5
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T00:03:41.650771",
+            "is_current": false,
+            "version": 1
+        },
+        {
+            "label": "TRI",
+            "shot1": {
+                "stage": "TRI",
+                "frame": 1,
+                "view": null,
+                "index": 4
+            },
+            "shot2": {
+                "stage": "TRI",
+                "frame": 2,
+                "view": null,
+                "index": 5
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T00:04:17.879630",
+            "is_current": true,
+            "version": 2
+        }
+    ]
+}

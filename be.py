@@ -394,18 +394,12 @@ class ImageProcessingController:
                                             shot['recon_index'] = recon_index
                                 self.save_json(all_shots, shots_file)
                                 
-                                # Convert recons to dictionary and save
-                                recons_dict = {
-                                    'reconstructions': [
-                                        recon.to_dict() for recon in recons if recon is not None
-                                    ]
-                                }
                                 
                                 # Create recons directory if it doesn't exist
                                 recons_dir = os.path.join(self.exam_folder, 'recons')
                                 os.makedirs(recons_dir, exist_ok=True)
                                 recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons_dict, recons_path)
+                                self.save_json(recons, recons_path)
                                 
                                 success, result, error = self.model.analyzeref()
                                 all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
@@ -467,19 +461,12 @@ class ImageProcessingController:
                                         if shot['frame'] in [frame1, frame2] and shot['is_current']:
                                             shot['recon_index'] = recon_index
                                 self.save_json(all_shots, shots_file)
-
-                                # Convert recons to dictionary and save
-                                recons_dict = {
-                                    'reconstructions': [
-                                        recon.to_dict() for recon in recons if recon is not None
-                                    ]
-                                }
                                 
                                 # Create recons directory if it doesn't exist
                                 recons_dir = os.path.join(self.exam_folder, 'recons')
                                 os.makedirs(recons_dir, exist_ok=True)
                                 recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons_dict, recons_path)
+                                self.save_json(recons, recons_path)
                             
                             # Analyze cup
                             success, data, error = self.model.analyzecup()
@@ -545,18 +532,11 @@ class ImageProcessingController:
                                             shot['recon_index'] = recon_index
                                 self.save_json(all_shots, shots_file)
                                 
-                                # Convert recons to dictionary and save
-                                recons_dict = {
-                                    'reconstructions': [
-                                        recon.to_dict() for recon in recons if recon is not None
-                                    ]
-                                }
-                                
                                 # Create recons directory if it doesn't exist
                                 recons_dir = os.path.join(self.exam_folder, 'recons')
                                 os.makedirs(recons_dir, exist_ok=True)
                                 recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons_dict, recons_path)
+                                self.save_json(recons, recons_path)
                             
                             # Analyze trial
                             success, data, error = self.model.analyzetrial()
