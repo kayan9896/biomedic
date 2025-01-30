@@ -300,19 +300,13 @@ class ImageProcessingController:
                                 
                                 # Load and update AllShots.json
                                 shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
-                            
-                                if os.path.exists(shots_file):
-                                    with open(shots_file, 'r') as f:
-                                        all_shots = json.load(f)
-                                else:
-                                    all_shots = {'shots': []}
                                
                                 # Update ReconIndex for both shots used in this reconstruction
-                                for shot in all_shots['shots']:
+                                for shot in self.all_shots['shots']:
                                     if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2] and shot['is_current']:
-                                            shot['recon_index'] = recon_index
-                                self.save_json(all_shots, shots_file)
+                                        if shot['frame'] in [frame1, frame2]:
+                                            shot['recon_index'] = recon_index if shot['is_current'] else None
+                                self.save_json(self.all_shots, shots_file)
 
                                 
                                 # Create recons directory if it doesn't exist
@@ -381,18 +375,12 @@ class ImageProcessingController:
                                 # Load and update AllShots.json
                                 shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
                             
-                                if os.path.exists(shots_file):
-                                    with open(shots_file, 'r') as f:
-                                        all_shots = json.load(f)
-                                else:
-                                    all_shots = {'shots': []}
-                               
                                 # Update ReconIndex for both shots used in this reconstruction
-                                for shot in all_shots['shots']:
+                                for shot in self.all_shots['shots']:
                                     if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2] and shot['is_current']:
-                                            shot['recon_index'] = recon_index
-                                self.save_json(all_shots, shots_file)
+                                        if shot['frame'] in [frame1, frame2]:
+                                            shot['recon_index'] = recon_index if shot['is_current'] else None
+                                self.save_json(self.all_shots, shots_file)
                                 
                                 
                                 # Create recons directory if it doesn't exist
@@ -449,18 +437,12 @@ class ImageProcessingController:
                                 # Load and update AllShots.json
                                 shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
                             
-                                if os.path.exists(shots_file):
-                                    with open(shots_file, 'r') as f:
-                                        all_shots = json.load(f)
-                                else:
-                                    all_shots = {'shots': []}
-                               
                                 # Update ReconIndex for both shots used in this reconstruction
-                                for shot in all_shots['shots']:
+                                for shot in self.all_shots['shots']:
                                     if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2] and shot['is_current']:
-                                            shot['recon_index'] = recon_index
-                                self.save_json(all_shots, shots_file)
+                                        if shot['frame'] in [frame1, frame2]:
+                                            shot['recon_index'] = recon_index if shot['is_current'] else None
+                                self.save_json(self.all_shots, shots_file)
                                 
                                 # Create recons directory if it doesn't exist
                                 recons_dir = os.path.join(self.exam_folder, 'recons')
@@ -519,18 +501,13 @@ class ImageProcessingController:
                                 # Load and update AllShots.json
                                 shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
                             
-                                if os.path.exists(shots_file):
-                                    with open(shots_file, 'r') as f:
-                                        all_shots = json.load(f)
-                                else:
-                                    all_shots = {'shots': []}
                                
                                 # Update ReconIndex for both shots used in this reconstruction
-                                for shot in all_shots['shots']:
+                                for shot in self.all_shots['shots']:
                                     if shot['stage'] == self.current_stage:
                                         if shot['frame'] in [frame1, frame2]:
-                                            shot['recon_index'] = recon_index
-                                self.save_json(all_shots, shots_file)
+                                            shot['recon_index'] = recon_index if shot['is_current'] else None
+                                self.save_json(self.all_shots, shots_file)
                                 
                                 # Create recons directory if it doesn't exist
                                 recons_dir = os.path.join(self.exam_folder, 'recons')
