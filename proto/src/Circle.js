@@ -162,10 +162,19 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
           cy={center[1]}
           r={calculateRadius()}
           fill="none"
-          stroke="blue"
-          strokeWidth="2"
+          stroke="transparent"
+          strokeWidth="20"
           pointerEvents="auto"
           style={{ cursor: 'pointer' }}
+        />
+
+        <circle
+          cx={center[0]}
+          cy={center[1]}
+          r={calculateRadius()}
+          fill="none"
+          stroke="blue"
+          strokeWidth="2"
         />
         
         {isEditing && (

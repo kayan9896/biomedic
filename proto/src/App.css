@@ -1,5 +1,6 @@
 .App {
   padding: 20px;
+  overflow: hidden;
 }
 
 .connection-container {
@@ -116,7 +117,7 @@ button {
 .main-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 90vh;
 }
 
 .control-panel {

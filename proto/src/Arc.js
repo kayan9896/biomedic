@@ -171,18 +171,25 @@ const Arc = ({ arc: initialArc, onChange }) => {
         <path
           d={d}
           fill="none"
-          stroke="yellow"
-          strokeWidth="2"
+          stroke="transparent"
+          strokeWidth="20"
           onMouseDown={handleMouseDown}
           onTouchStart={handleMouseDown}
           style={{ cursor: 'pointer' }}
+        />
+        <path
+          d={d}
+          fill="none"
+          stroke="yellow"
+          strokeWidth="2"
         />
         {isSelected && arc.map((point, index) => (
           <circle
             key={index}
             cx={point[0]}
             cy={point[1]}
-            r={index === draggedPointIndex ? 8 : 4}
+            r={index === draggedPointIndex ? 20 : 10}
+            strokeWidth="20"
             fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0.5)' : 'yellow'}
             onMouseDown={(e) => handleMouseDown(e, index)}
             onTouchStart={(e) => handleMouseDown(e, index)}

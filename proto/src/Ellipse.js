@@ -149,9 +149,19 @@ const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
           ry={b}
           transform={`rotate(${angle * 180 / Math.PI} ${center[0]} ${center[1]})`}
           fill="none"
+          stroke="transparent"
+          strokeWidth="20"
+          style={{ cursor: 'pointer' }}
+        />
+        <ellipse
+          cx={center[0]}
+          cy={center[1]}
+          rx={a}
+          ry={b}
+          transform={`rotate(${angle * 180 / Math.PI} ${center[0]} ${center[1]})`}
+          fill="none"
           stroke="purple"
           strokeWidth="2"
-          style={{ cursor: 'pointer' }}
         />
         {isSelected && ellipse.map((point, index) => (
           <circle

@@ -1,0 +1,17 @@
+{
+    "shots": [
+        {
+            "stage": 1,
+            "frame": 1,
+            "shot_index": 0,
+            "view": "AP",
+            "version": 1,
+            "timestamp": "2025-01-30T15:09:18.980273",
+            "is_current": true,
+            "raw_capture_file": "shots/rawcaptures/stage1_frame1_v1.png",
+            "image_file": "shots/images/stage1_frame1_v1.png",
+            "landmark_file": "landmarks/stage1_frame1_v1.json",
+            "recon_index": null
+        }
+    ]
+}

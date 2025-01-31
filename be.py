@@ -35,7 +35,7 @@ class ImageProcessingController:
 
     def decide_next(self, ResBool, current_stage, current_frame):
         if not ResBool:
-            self.errortext=sth
+            self.errortext='sth'
             return 0, current_stage, current_frame
         
         # Stage 1
