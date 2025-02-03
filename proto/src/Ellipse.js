@@ -87,7 +87,7 @@ const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
     const y = event.clientY - rect.top;
 
     const controlPointIndex = ellipse.findIndex(point => 
-      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 5
+      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 30
     );
     
     if (controlPointIndex !== -1) {

@@ -10,13 +10,13 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
 
   // Point styles
   const normalPointStyle = {
-    r: 5,
+    r: 10,
     fill: 'blue',
     strokeWidth: 0
   };
 
   const draggedPointStyle = {
-    r: 10,
+    r: 20,
     fill: 'rgba(0, 0, 255, 0.3)',
     stroke: 'blue',
     strokeWidth: 2
@@ -197,7 +197,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
               cursor="grab"
               pointerEvents="auto"
               onMouseDown={(e) => handleMouseDown(e, false)}
-              onTouchStart={(e) => handleMouseDown(e, true)}
+              onTouchStart={(e) => handleMouseDown(e, false)}
               {...(isDraggingEdge ? draggedPointStyle : normalPointStyle)}
             />
           </>

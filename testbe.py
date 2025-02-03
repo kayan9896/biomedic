@@ -76,7 +76,7 @@ class TestImageProcessingController(unittest.TestCase):
         
         # Stop the processing
         self.controller.is_running = False
-        self.process_thread.join(timeout=3.0)
+        self.process_thread.join(timeout=1.0)
             
         # Verify the basic flow
         self.frame_grabber.fetchFrame.assert_called()
