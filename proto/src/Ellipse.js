@@ -134,8 +134,8 @@ const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
   return (
     <svg 
       ref={ellipseRef}
-      width="400" 
-      height="400"
+      width="700" 
+      height="700"
       onMouseDown={handleMouseDown}
       onTouchStart={handleMouseDown}
       style={{ position: 'absolute', top: 0, left: 0, cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default' }}
@@ -164,13 +164,22 @@ const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
           strokeWidth="2"
         />
         {isSelected && ellipse.map((point, index) => (
+          <>
           <circle
             key={index}
             cx={point[0]}
             cy={point[1]}
-            r={index === draggedPointIndex ? 8 : 4}
+            r={index === draggedPointIndex ? 20 : 10}
             fill={index === draggedPointIndex ? 'rgba(255, 0, 255, 0.5)' : 'purple'}
           />
+          <circle
+            key={index}
+            cx={point[0]}
+            cy={point[1]}
+            r={index === draggedPointIndex ? 40 : 20}
+            fill='transparent'
+          />
+          </>
         ))}
       </g>
     </svg>

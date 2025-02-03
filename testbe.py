@@ -72,11 +72,11 @@ class TestImageProcessingController(unittest.TestCase):
         self.process_thread.start()
         
         # Wait a short time for processing to occur
-        time.sleep(10)
+        #time.sleep(1)
         
         # Stop the processing
         self.controller.is_running = False
-        self.process_thread.join(timeout=1.0)
+        self.process_thread.join(timeout=3.0)
             
         # Verify the basic flow
         self.frame_grabber.fetchFrame.assert_called()

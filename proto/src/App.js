@@ -184,7 +184,7 @@ const handleBrightnessChange = (frameNumber, value) => {
         straight: frameNumber === 1 ? frame1StraightLine : frame2StraightLine,
         sine: frameNumber === 1 ? frame1SineLine : frame2SineLine
       },
-      squareSize: 300
+      squareSize: 700
     };
     console.log(1, frame1Arc)
 
@@ -334,14 +334,14 @@ const handleBrightnessChange = (frameNumber, value) => {
               )}
               {straightLine && (
                 <Line 
-                  squareSize={300}
+                  squareSize={700}
                   points={straightLine}
                   onChange={handleStraightLineChange}
                 />
               )}
               {sineLine && sineLine.length > 0 && (
                 <Line 
-                  squareSize={300}
+                  squareSize={700}
                   points={sineLine}
                   onChange={handleSineLineChange}
                 />

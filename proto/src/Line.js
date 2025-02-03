@@ -197,15 +197,15 @@ const Line = ({ squareSize, points,onChange }) => {
           key={index}
           className="draggable-dot"
           style={{
-            width: activeDotIndex === index ? '20px' : '10px',
-            height: activeDotIndex === index ? '20px' : '10px',
+            width: activeDotIndex === index ? '40px' : '20px',
+            height: activeDotIndex === index ? '40px' : '20px',
             backgroundColor: activeDotIndex === index ? 'transparent' : 'red',
             border: '2px solid red',
             borderRadius: '50%',
             position: 'absolute',
             cursor: 'move',
-            left: `${point[0]-2 - (activeDotIndex === index ? 10 : 5)}px`,
-            top: `${point[1]-2 - (activeDotIndex === index ? 10 : 5)}px`,
+            left: `${point[0]-2 - (activeDotIndex === index ? 20 : 10)}px`,
+            top: `${point[1]-2 - (activeDotIndex === index ? 20 : 10)}px`,
             touchAction: 'none',
             pointerEvents: "auto",
             zIndex: 10

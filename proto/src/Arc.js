@@ -155,10 +155,11 @@ const Arc = ({ arc: initialArc, onChange }) => {
   `;
 
   return (
+    <>
     <svg 
       ref={arcRef}
-      width="400" 
-      height="400"
+      width="700" 
+      height="700"
       style={{ 
         position: 'absolute', 
         top: 0, 
@@ -183,20 +184,34 @@ const Arc = ({ arc: initialArc, onChange }) => {
           stroke="yellow"
           strokeWidth="2"
         />
-        {isSelected && arc.map((point, index) => (
-          <circle
-            key={index}
-            cx={point[0]}
-            cy={point[1]}
-            r={index === draggedPointIndex ? 20 : 10}
-            strokeWidth="20"
-            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0.5)' : 'yellow'}
-            onMouseDown={(e) => handleMouseDown(e, index)}
-            onTouchStart={(e) => handleMouseDown(e, index)}
-          />
-        ))}
+        
       </g>
+      
     </svg>
+    {isSelected && arc.map((point, index) => (
+          
+      <div
+      key={index}
+      className="draggable-dot"
+      style={{
+        width: draggedPointIndex === index ? '40px' : '20px',
+        height: draggedPointIndex === index ? '40px' : '20px',
+        backgroundColor: draggedPointIndex === index ? 'transparent' : 'yellow',
+        border: '2px solid yellow',
+        borderRadius: '50%',
+        position: 'absolute',
+        cursor: 'move',
+        left: `${point[0] - (draggedPointIndex === index ? 20 : 10)}px`,
+        top: `${point[1] - (draggedPointIndex === index ? 20 : 10)}px`,
+        touchAction: 'none',
+        pointerEvents: "auto",
+        zIndex: 10
+      }}
+      onMouseDown={(e) => handleMouseDown(e, index)}
+      onTouchStart={(e) => handleMouseDown(e, index)}
+    />
+    ))}
+    </>
   );
 };
 

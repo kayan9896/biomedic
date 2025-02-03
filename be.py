@@ -107,6 +107,99 @@ class ImageProcessingController:
         self.model.mode = 1
         self.mockdata.clear()
 
+    def perform_reconstruction(self, stage, frame, recon_number=0):
+        """Handle reconstruction and related updates"""
+        success, recon_result, error = self.model.reconstruct(stage, recon_number)
+        if not success:
+            raise Exception(error)
+            
+        stitchimg, recons = recon_result
+        self.viewmodel.set_stitched(stage=stage, image=stitchimg)
+        
+        # Update shot information with reconstruction index
+        recon_index = 0 if stage == 1 and frame < 3 else stage
+        frame1, frame2 = frame, frame - 1
+        
+        # Update shots file
+        shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
+        for shot in self.all_shots['shots']:
+            if shot['stage'] == stage and shot['frame'] in [frame1, frame2]:
+                shot['recon_index'] = recon_index if shot['is_current'] else None
+        self.save_json(self.all_shots, shots_file)
+        
+        # Save recons
+        recons_dir = os.path.join(self.exam_folder, 'recons')
+        os.makedirs(recons_dir, exist_ok=True)
+        recons_path = os.path.join(recons_dir, 'AllRecons.json')
+        self.save_json(recons, recons_path)
+        
+        return stitchimg
+
+    def analyze_phantom_and_save(self, stage, frame, crop_image, view):
+        """Handle phantom analysis and related file saves"""
+        success, phantom_result, error = self.model.analyze_phantom(stage, frame, crop_image, view)
+        if not success:
+            raise Exception(error)
+        
+        distort, camcalib, image = phantom_result
+        
+        # Save distortion data
+        dist_index = (stage - 1) * 2 + frame
+        dist_path = os.path.join(self.exam_folder, 'reference', 'distortion', f'dist{dist_index}.json').replace('\\','/')
+        self.save_json(distort, dist_path)
+        
+        # Update camcalib
+        current_shot_index = frame-1 if stage == 1 else stage * 2 + frame-1
+        if current_shot_index is not None:
+            camcalib['Reference'][view]['ShotIndex'] = current_shot_index
+            camcalib['Reference'][view]['DistFile'] = dist_path
+        
+        # Save updated camcalib
+        calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
+        self.save_json(camcalib, calib_path)
+        
+        return image
+
+    def analyze_landmark_and_save(self, stage, frame, image, view=None):
+        """Handle landmark analysis and saving"""
+        success, landmark, error = self.model.analyze_landmark(stage, frame, view if view else image)
+        if not success:
+            raise Exception(error)
+        self.save_landmark(stage, frame, landmark, image)
+
+    def save_analysis_results(self, data, image=None):
+        """Save analysis results and update stitched image if provided"""
+        if image is not None:
+            self.viewmodel.set_stitched(stage=self.current_stage, image=image)
+        
+        all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
+        os.makedirs(os.path.dirname(all_results_path), exist_ok=True)
+        self.save_json(data, all_results_path)
+
+    def handle_error(self, error, reset_stage=1):
+        """Centralized error handling"""
+        self.errortext = str(error)
+        self.current_stage = reset_stage
+        self.current_frame = 1
+        
+        error_type = None
+        if "analyze_phantom" in str(error):
+            error_type = "Phantom analysis"
+        elif "analyze_landmark" in str(error):
+            error_type = "Landmark analysis"
+        elif "reconstruct" in str(error):
+            error_type = "Reconstruction"
+        elif "analyzeref" in str(error):
+            error_type = "Reference analysis"
+        elif "analyzecup" in str(error):
+            error_type = "Cup analysis"
+        elif "analyzetrial" in str(error):
+            error_type = "Trial analysis"
+        else:
+            error_type = "Unexpected"
+        
+        print(f"{error_type} failed: {error}")
+
     def _process_loop(self):
         case_number = 0
         
@@ -219,333 +312,81 @@ class ImageProcessingController:
                     case 0:
                         try:
                             if self.current_stage == 1:
-                                success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image, "AP")
-                                if not success:
-                                    raise Exception(error)
-                                distort, camcalib, image = phantom_result
-                                crop_image = image
+                                crop_image = self.analyze_phantom_and_save(self.current_stage, self.current_frame, crop_image, "AP")
                             
-                                # Save distortion data
-                                dist_index = (self.current_stage - 1) * 2 + self.current_frame
-                                dist_path = os.path.join(self.exam_folder, 'reference', 'distortion', f'dist{dist_index}.json')
-                                self.save_json(distort, dist_path)
-                                
-                                # Update camcalib
-                                current_shot_index = self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame
-                                if current_shot_index is not None: 
-                                    camcalib['Reference']['AP']['ShotIndex'] = current_shot_index
-                                    camcalib['Reference']['AP']['DistFile'] = dist_path
-                                
-                                # Save updated camcalib
-                                calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
-                                self.save_json(camcalib, calib_path)
-
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'AP')
-                            if not success:
-                                raise Exception(error)
-                            self.save_landmark(self.current_stage, self.current_frame, landmark,crop_image)
-
+                            self.analyze_landmark_and_save(self.current_stage, self.current_frame, crop_image, 'AP')
                             updatenext = True
+                            
                         except Exception as error:
-                            self.errortext = str(error)
-                            self.current_frame = 1
-                            if "analyze_phantom" in str(error):
-                                print(f"Phantom analysis failed: {error}")
-                                # Handle phantom analysis error
-                            elif "analyze_landmark" in str(error):
-                                print(f"Landmark analysis failed: {error}")
-                                # Handle landmark analysis error
-                            else:
-                                print(f"Unexpected error: {error}")
+                            self.handle_error(error, reset_stage=False)
 
                     case 1:
                         try:
-                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image, "RO")
-                            if not success:
-                                raise Exception(error)
-                            distort, camcalib, image = phantom_result
-
-                            dist_index = (self.current_stage - 1) * 2 + self.current_frame
-                            dist_path = os.path.join(self.exam_folder, 'reference', 'distortion', f'dist{dist_index}.json').replace('\\','/')
-                            self.save_json(distort, dist_path)
+                            image = self.analyze_phantom_and_save(self.current_stage, self.current_frame, crop_image, "RO")
+                            self.analyze_landmark_and_save(self.current_stage, self.current_frame, image, 'RO')
                             
-                            # Update camcalib
-                            current_shot_index = self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame
-                            if current_shot_index is not None: 
-                                camcalib['Reference']['RO']['ShotIndex'] = current_shot_index
-                                camcalib['Reference']['RO']['DistFile'] = dist_path
-                            
-                            # Save updated camcalib
-                            calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
-                            self.save_json(camcalib, calib_path)
-
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'RO')
-                            if not success:
-                                raise Exception(error)
-                            self.save_landmark(self.current_stage, self.current_frame, landmark,image)
-
                             if self.model.can_recon():
-                                success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
-                                if not success:
-                                    raise Exception(error)
-                                stitchimg, recons = recon_result
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
-
-                                # Update shot information with reconstruction index
-                                recon_index = 0 if self.current_stage == 1 else self.current_stage  # or adjust based on your needs
-                                
-                                # Update for both frames used in reconstruction
-                                frame1 = self.current_frame
-                                frame2 = self.current_frame - 1
-                                
-                                # Load and update AllShots.json
-                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
-                               
-                                # Update ReconIndex for both shots used in this reconstruction
-                                for shot in self.all_shots['shots']:
-                                    if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2]:
-                                            shot['recon_index'] = recon_index if shot['is_current'] else None
-                                self.save_json(self.all_shots, shots_file)
-
-                                
-                                # Create recons directory if it doesn't exist
-                                recons_dir = os.path.join(self.exam_folder, 'recons')
-                                os.makedirs(recons_dir, exist_ok=True)
-                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons, recons_path)
+                                self.perform_reconstruction(self.current_stage, self.current_frame)
                             
                             updatenext = True
+                            
                         except Exception as error:
-                            self.errortext = str(error)
-                            self.current_stage = 1
-                            self.current_frame = 1
-                            if "analyze_phantom" in str(error):
-                                print(f"Phantom analysis failed: {error}")
-                                # Handle phantom analysis error
-                            elif "analyze_landmark" in str(error):
-                                print(f"Landmark analysis failed: {error}")
-                                # Handle landmark analysis error
-                            elif "reconstruct" in str(error):
-                                print(f"Reconstruction failed: {error}")
-                                # Handle reconstruction error
-                            else:
-                                print(f"Unexpected error: {error}")
+                            self.handle_error(error)
 
                     case 2:
                         try:
-                            success, phantom_result, error = self.model.analyze_phantom(self.current_stage, self.current_frame, crop_image, "LO")
-                            if not success:
-                                raise Exception(error)
-                            distort, camcalib, image = phantom_result
-
-                            dist_index = (self.current_stage - 1) * 2 + self.current_frame
-                            dist_path = os.path.join(self.exam_folder, 'reference', 'distortion', f'dist{dist_index}.json').replace('\\','/')
-                            self.save_json(distort, dist_path)
+                            image = self.analyze_phantom_and_save(self.current_stage, self.current_frame, crop_image, "LO")
+                            self.analyze_landmark_and_save(self.current_stage, self.current_frame, image, 'LO')
                             
-                            # Update camcalib
-                            current_shot_index = self.current_frame-1 if self.current_stage == 1 else self.current_stage * 2 + self.current_frame
-                            if current_shot_index is not None: 
-                                camcalib['Reference']['LO']['ShotIndex'] = current_shot_index  # Changed from LO to AP
-                                camcalib['Reference']['LO']['DistFile'] = dist_path
-                            
-                            # Save updated camcalib
-                            calib_path = os.path.join(self.exam_folder, 'reference/reference_calib.json')
-                            self.save_json(camcalib, calib_path)
-
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, 'LO')  # Changed from LO to AP
-                            if not success:
-                                raise Exception(error)
-                            self.save_landmark(self.current_stage, self.current_frame, landmark,image)
-
                             if self.model.can_recon():
-                                success, recon_result, error = self.model.reconstruct(self.current_stage, 1)  # Changed from 0 to 1 for the second pair of images
-                                if not success:
-                                    raise Exception(error)
-                                stitchimg, recons = recon_result
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
-
-                                # Update shot information with reconstruction index
-                                recon_index = 0 if self.current_stage == 1 and self.current_frame < 3 else self.current_stage  # or adjust based on your needs
-                                
-                                # Update for both frames used in reconstruction
-                                frame1 = self.current_frame
-                                frame2 = self.current_frame - 1
-                                
-                                # Load and update AllShots.json
-                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
-                            
-                                # Update ReconIndex for both shots used in this reconstruction
-                                for shot in self.all_shots['shots']:
-                                    if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2]:
-                                            shot['recon_index'] = recon_index if shot['is_current'] else None
-                                self.save_json(self.all_shots, shots_file)
-                                
-                                
-                                # Create recons directory if it doesn't exist
-                                recons_dir = os.path.join(self.exam_folder, 'recons')
-                                os.makedirs(recons_dir, exist_ok=True)
-                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons, recons_path)
+                                self.perform_reconstruction(self.current_stage, self.current_frame, recon_number=1)
                                 
                                 success, result, error = self.model.analyzeref()
-                                all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
-                                os.makedirs(os.path.dirname(all_results_path), exist_ok=True)
-                                self.save_json(result, all_results_path)
                                 if not success:
                                     raise Exception(error)
+                                self.save_analysis_results(result)
                             
                             updatenext = True
+                            
                         except Exception as error:
-                            self.errortext = str(error)
-                            self.current_stage = 1
-                            self.current_frame = 1
-                            if "analyze_phantom" in str(error):
-                                print(f"Phantom analysis failed: {error}")
-                            elif "analyze_landmark" in str(error):
-                                print(f"Landmark analysis failed: {error}")
-                            elif "reconstruct" in str(error):
-                                print(f"Reconstruction failed: {error}")
-                            elif "analyzeref" in str(error):
-                                print(f"Reference analysis failed: {error}")
-                            else:
-                                print(f"Unexpected error: {error}")
+                            self.handle_error(error)
+
                     case 3:
                         try:
-                            # Analyze landmark
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, crop_image)
-                            if not success:
-                                raise Exception(error)
-                            self.save_landmark(self.current_stage, self.current_frame, landmark, crop_image)
+                            self.analyze_landmark_and_save(self.current_stage, self.current_frame, crop_image)
                             
-                            # Reconstruct
                             if self.model.can_recon():
-                                success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
+                                self.perform_reconstruction(self.current_stage, self.current_frame)
+                                
+                                success, data, error = self.model.analyzecup()
                                 if not success:
                                     raise Exception(error)
-                                stitchimg, recons = recon_result
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
-                                
-                                # Update shot information with reconstruction index
-                                recon_index = 0 if self.current_stage == 1 else self.current_stage  # or adjust based on your needs
-                                
-                                # Update for both frames used in reconstruction
-                                frame1 = self.current_frame
-                                frame2 = self.current_frame - 1
-                                
-                                # Load and update AllShots.json
-                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
-                            
-                                # Update ReconIndex for both shots used in this reconstruction
-                                for shot in self.all_shots['shots']:
-                                    if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2]:
-                                            shot['recon_index'] = recon_index if shot['is_current'] else None
-                                self.save_json(self.all_shots, shots_file)
-                                
-                                # Create recons directory if it doesn't exist
-                                recons_dir = os.path.join(self.exam_folder, 'recons')
-                                os.makedirs(recons_dir, exist_ok=True)
-                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons, recons_path)
-                            
-                            # Analyze cup
-                            success, data, error = self.model.analyzecup()
-                            if success:
+                                self.save_analysis_results(data[1], data[0])
                                 updatenext = True
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=data[0])
-                                all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
-                                os.makedirs(os.path.dirname(all_results_path), exist_ok=True)
-                                self.save_json(data[1], all_results_path)
-                            else:
-                                self.errortext = error
-                                self.current_stage = 2
-                                self.current_frame = 1
+                                
                         except Exception as error:
-                            self.errortext = str(error)
-                            self.current_stage = 2
-                            self.current_frame = 1
-                            if "analyze_landmark" in str(error):
-                                print(f"Landmark analysis failed: {error}")
-                            elif "reconstruct" in str(error):
-                                print(f"Reconstruction failed: {error}")
-                            elif "analyzecup" in str(error):
-                                print(f"Cup analysis failed: {error}")
-                            else:
-                                print(f"Unexpected error in case 3: {error}")
+                            self.handle_error(error, reset_stage=2)
 
                     case 4:
                         try:
-                            # Analyze landmark
-                            success, landmark, error = self.model.analyze_landmark(self.current_stage, self.current_frame, crop_image)
-                            if not success:
-                                raise Exception(error)
-                            self.save_landmark(self.current_stage, self.current_frame, landmark, crop_image)
+                            self.analyze_landmark_and_save(self.current_stage, self.current_frame, crop_image)
                             
-                            # Reconstruct
                             if self.model.can_recon():
-                                success, recon_result, error = self.model.reconstruct(self.current_stage, 0)
+                                self.perform_reconstruction(self.current_stage, self.current_frame)
+                                
+                                success, data, error = self.model.analyzetrial()
                                 if not success:
                                     raise Exception(error)
-                                stitchimg, recons = recon_result
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=stitchimg)
-
-                                # Update shot information with reconstruction index
-                                recon_index = 0 if self.current_stage == 1 else self.current_stage  # or adjust based on your needs
-                                
-                                # Update for both frames used in reconstruction
-                                frame1 = self.current_frame
-                                frame2 = self.current_frame - 1
-                                
-                                # Load and update AllShots.json
-                                shots_file = os.path.join(self.exam_folder, 'shots', 'AllShots.json')
-                            
-                               
-                                # Update ReconIndex for both shots used in this reconstruction
-                                for shot in self.all_shots['shots']:
-                                    if shot['stage'] == self.current_stage:
-                                        if shot['frame'] in [frame1, frame2]:
-                                            shot['recon_index'] = recon_index if shot['is_current'] else None
-                                self.save_json(self.all_shots, shots_file)
-                                
-                                # Create recons directory if it doesn't exist
-                                recons_dir = os.path.join(self.exam_folder, 'recons')
-                                os.makedirs(recons_dir, exist_ok=True)
-                                recons_path = os.path.join(recons_dir, 'AllRecons.json')
-                                self.save_json(recons, recons_path)
-                            
-                            # Analyze trial
-                            success, data, error = self.model.analyzetrial()
-                            if success:
+                                self.save_analysis_results(data[1], data[0])
                                 updatenext = True
-                                self.viewmodel.set_stitched(stage=self.current_stage, image=data[0])
-                                all_results_path = os.path.join(self.exam_folder, 'results', 'AllResults.json')
-                                os.makedirs(os.path.dirname(all_results_path), exist_ok=True)
-                                self.save_json(data[1], all_results_path)
-                            else:
-                                self.errortext = error
-                                self.current_stage = 3
-                                self.current_frame = 1
+                                
                         except Exception as error:
-                            self.errortext = str(error)
-                            self.current_stage = 3
-                            self.current_frame = 1
-                            if "analyze_landmark" in str(error):
-                                print(f"Landmark analysis failed: {error}")
-                            elif "reconstruct" in str(error):
-                                print(f"Reconstruction failed: {error}")
-                            elif "analyzetrial" in str(error):
-                                print(f"Trial analysis failed: {error}")
-                            else:
-                                print(f"Unexpected error in case 4: {error}")
-                
-                # Update stage and frame for next iteration
+                            self.handle_error(error, reset_stage=3)
+                    
                 if updatenext:
                     self.last = [self.current_stage, self.current_frame]
                     self.current_stage = next_stage
                     self.current_frame = next_frame
-                    
 
     def retake(self):
         self.current_stage, self.current_frame = self.last
@@ -587,6 +428,7 @@ class ImageProcessingController:
         self.process_thread = threading.Thread(target=self._process_loop)
         self.process_thread.start()
         self.logger.info("Started image processing")
+
 
     def get_devices(self):
         """Get available calibrated devices and cache their configurations and paths"""
@@ -636,6 +478,38 @@ class ImageProcessingController:
             framegrabber_name = device_config['FrameGrabber']['DeviceName']
         except KeyError:
             return "Invalid configuration: FrameGrabber DeviceName not found"
+        import sys
+        import openzen
+
+        openzen.set_log_level(openzen.ZenLogLevel.Warning)
+
+        error, client = openzen.make_client()
+        if not error == openzen.ZenError.NoError:
+            print ("Error while initializing OpenZen library")
+            sys.exit(1)
+
+        error = client.list_sensors_async()
+
+        # check for events
+        sensor_desc_connect = None
+        while True:
+            zenEvent = client.wait_for_next_event()
+
+            if zenEvent.event_type == openzen.ZenEventType.SensorFound:
+                print ("Found sensor {} on IoType {}".format( zenEvent.data.sensor_found.name,
+                    zenEvent.data.sensor_found.io_type))
+                if sensor_desc_connect is None:
+                    sensor_desc_connect = zenEvent.data.sensor_found
+
+            if zenEvent.event_type == openzen.ZenEventType.SensorListingProgress:
+                lst_data = zenEvent.data.sensor_listing_progress
+                print ("Sensor listing progress: {} %".format(lst_data.progress * 100))
+                if lst_data.complete > 0:
+                    break
+        print ("Sensor Listing complete")
+
+        if sensor_desc_connect is None:
+            print("No sensors found")
 
         # Create new exam folder and copy calibration files
         try:

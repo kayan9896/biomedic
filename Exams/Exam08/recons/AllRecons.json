@@ -1,0 +1,165 @@
+{
+    "reconstructions": [
+        {
+            "label": "HP1",
+            "shot1": {
+                "stage": "HP1",
+                "frame": 1,
+                "view": null,
+                "index": 0
+            },
+            "shot2": {
+                "stage": "HP1",
+                "frame": 2,
+                "view": null,
+                "index": 1
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-02-02T16:26:51.278745",
+            "is_current": true,
+            "version": 1
+        },
+        {
+            "label": "HP2",
+            "shot1": {
+                "stage": "HP2",
+                "frame": 1,
+                "view": null,
+                "index": 0
+            },
+            "shot2": {
+                "stage": "HP2",
+                "frame": 2,
+                "view": null,
+                "index": 1
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-02-02T16:29:39.345080",
+            "is_current": true,
+            "version": 1
+        },
+        {
+            "label": "CUP",
+            "shot1": {
+                "stage": "CUP",
+                "frame": 1,
+                "view": null,
+                "index": 2
+            },
+            "shot2": {
+                "stage": "CUP",
+                "frame": 2,
+                "view": null,
+                "index": 3
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-02-02T16:30:05.900347",
+            "is_current": false,
+            "version": 1
+        },
+        {
+            "label": "CUP",
+            "shot1": {
+                "stage": "CUP",
+                "frame": 1,
+                "view": null,
+                "index": 2
+            },
+            "shot2": {
+                "stage": "CUP",
+                "frame": 2,
+                "view": null,
+                "index": 3
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-02-02T16:30:29.232210",
+            "is_current": false,
+            "version": 2
+        },
+        {
+            "label": "CUP",
+            "shot1": {
+                "stage": "CUP",
+                "frame": 1,
+                "view": null,
+                "index": 2
+            },
+            "shot2": {
+                "stage": "CUP",
+                "frame": 2,
+                "view": null,
+                "index": 3
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-02-02T16:32:11.813727",
+            "is_current": true,
+            "version": 3
+        },
+        {
+            "label": "TRI",
+            "shot1": {
+                "stage": "TRI",
+                "frame": 1,
+                "view": null,
+                "index": 4
+            },
+            "shot2": {
+                "stage": "TRI",
+                "frame": 2,
+                "view": null,
+                "index": 5
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-02-02T16:32:41.293021",
+            "is_current": false,
+            "version": 1
+        },
+        {
+            "label": "TRI",
+            "shot1": {
+                "stage": "TRI",
+                "frame": 1,
+                "view": null,
+                "index": 4
+            },
+            "shot2": {
+                "stage": "TRI",
+                "frame": 2,
+                "view": null,
+                "index": 5
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-02-02T16:33:01.660814",
+            "is_current": true,
+            "version": 2
+        }
+    ]
+}
