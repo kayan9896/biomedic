@@ -18,7 +18,56 @@
                 0,
                 0,
                 0
-            ]
+            ],
+            "timestamp": "2025-01-29T17:12:43.150466",
+            "is_current": false,
+            "version": 1
+        },
+        {
+            "label": "HP1",
+            "shot1": {
+                "stage": "HP1",
+                "frame": 1,
+                "view": null,
+                "index": 0
+            },
+            "shot2": {
+                "stage": "HP1",
+                "frame": 2,
+                "view": null,
+                "index": 1
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T17:13:02.040426",
+            "is_current": false,
+            "version": 2
+        },
+        {
+            "label": "HP1",
+            "shot1": {
+                "stage": "HP1",
+                "frame": 1,
+                "view": null,
+                "index": 0
+            },
+            "shot2": {
+                "stage": "HP1",
+                "frame": 2,
+                "view": null,
+                "index": 1
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T17:13:17.397900",
+            "is_current": true,
+            "version": 3
         },
         {
             "label": "HP2",
@@ -38,7 +87,10 @@
                 0,
                 0,
                 0
-            ]
+            ],
+            "timestamp": "2025-01-29T17:14:11.180520",
+            "is_current": true,
+            "version": 1
         },
         {
             "label": "CUP",
@@ -58,7 +110,10 @@
                 0,
                 0,
                 0
-            ]
+            ],
+            "timestamp": "2025-01-29T17:14:49.273280",
+            "is_current": true,
+            "version": 1
         },
         {
             "label": "TRI",
@@ -78,7 +133,56 @@
                 0,
                 0,
                 0
-            ]
+            ],
+            "timestamp": "2025-01-29T17:15:51.874050",
+            "is_current": false,
+            "version": 1
+        },
+        {
+            "label": "TRI",
+            "shot1": {
+                "stage": "TRI",
+                "frame": 1,
+                "view": null,
+                "index": 4
+            },
+            "shot2": {
+                "stage": "TRI",
+                "frame": 2,
+                "view": null,
+                "index": 5
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T17:16:50.582419",
+            "is_current": false,
+            "version": 2
+        },
+        {
+            "label": "TRI",
+            "shot1": {
+                "stage": "TRI",
+                "frame": 1,
+                "view": null,
+                "index": 4
+            },
+            "shot2": {
+                "stage": "TRI",
+                "frame": 2,
+                "view": null,
+                "index": 5
+            },
+            "analysisdata": [
+                0,
+                0,
+                0
+            ],
+            "timestamp": "2025-01-29T17:17:13.481825",
+            "is_current": true,
+            "version": 3
         }
     ]
 }
