@@ -106,25 +106,44 @@ const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
   }
 
   function calculateEllipseParameters() {
-    const [p1, coVertex, p2] = ellipse;
+    const [p1, p3, p2] = ellipse;
     
+    // Calculate center as midpoint of p1 and p2
     const center = [
       (p1[0] + p2[0]) / 2,
       (p1[1] + p2[1]) / 2
     ];
     
+    // Calculate rotation angle
+    const angle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+    
+    // Transform points to align major axis with x-axis
+    const cosAngle = Math.cos(-angle);
+    const sinAngle = Math.sin(-angle);
+    
+    function rotatePoint(p) {
+      const dx = p[0] - center[0];
+      const dy = p[1] - center[1];
+      return [
+        dx * cosAngle - dy * sinAngle + center[0],
+        dx * sinAngle + dy * cosAngle + center[1]
+      ];
+    }
+    
+    const [rp1, rp3, rp2] = [p1, p3, p2].map(rotatePoint);
+    
+    // Calculate semi-major axis (a)
     const a = Math.sqrt(
       Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2)
     ) / 2;
     
-    const angle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+    // Transform p3 coordinates relative to center and rotated
+    const x = rp3[0] - center[0];
+    const y = rp3[1] - center[1];
     
-    const coVertexDist = Math.sqrt(
-      Math.pow(coVertex[0] - center[0], 2) + 
-      Math.pow(coVertex[1] - center[1], 2)
-    );
-    
-    const b = coVertexDist;
+    // Using the ellipse equation (x²/a² + y²/b² = 1), solve for b
+    // We know this point lies on the ellipse, so:
+    const b = Math.abs(y) * a / Math.sqrt(a * a - x * x);
     
     return { center, a, b, angle };
   }
