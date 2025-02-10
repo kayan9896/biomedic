@@ -34,6 +34,37 @@ class ProcessingModel:
         self.attempts: List[ProcessingAttempt] = []
         self.max_attempts = max_attempts
         self.current_attempt: Optional[ProcessingAttempt] = None
+        self.states = {
+            'angle': 0,
+            'img_count': 0,  # Add img_count to states
+            'is_processing': False,
+            'current_stage': 1,
+            'current_frame': 1
+        }
+        self.imgs = [None, None]
+
+    def store_frame(self, frame, angle):
+        """Store frame based on angle conditions and update img_count"""
+        if -15 <= angle <= 15:
+            self.imgs[0] = frame
+            self.update_img_count()
+        elif -45 <= angle <= 45:
+            self.imgs[1] = frame
+            self.update_img_count()
+        # If angle is outside [-45, 45], frame is discarded and img_count not updated
+
+    def update_img_count(self):
+        """Update img_count cycling from 0 to 4"""
+        current_count = self.states['img_count']
+        self.states['img_count'] = (current_count + 1) % 5
+
+    def update_state(self, key: str, value: any):
+        """Update a specific state value"""
+        self.states[key] = value
+
+    def get_states(self):
+        """Get all states"""
+        return self.states
     
     def new_attempt(self) -> None:
         self.current_attempt = ProcessingAttempt()

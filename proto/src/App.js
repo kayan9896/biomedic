@@ -866,3 +866,15 @@ function App() {
 }
 
 export default App;
+
+/*
+<img src={require('./background.png')}/>
+      <img src={require('./blueBox.png')} style={{position:'absolute', top:'0px', left:'0px', zIndex:'1'}}/>
+      <img src={require('./blueBox.png')} style={{position:'absolute', top:'0px', left:'960px', zIndex:'1'}}/>
+      <img src={require('./scan.png')} style={{position:'absolute', top:'0px', left:'0px'}}/>
+      <img src={require('./scan.png')} style={{position:'absolute', top:'0px', left:'960px'}}/>
+      <img src={require('./checkmarkIcon.png')} style={{position:'absolute', top:'857px', left:'815px'}}/>
+      <img src={require('./checkmarkIcon.png')} style={{position:'absolute', top:'857px', left:'1019px'}}/>
+      <img src={require('./IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px'}}/>
+      <img src={require('./videoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px'}}/>
+*/

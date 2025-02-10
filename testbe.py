@@ -75,7 +75,8 @@ class TestImageProcessingController(unittest.TestCase):
         #time.sleep(1)
         
         # Stop the processing
-        self.controller.is_running = False
+        self.frame_grabber._is_new_frame_available = False
+        
         self.process_thread.join(timeout=1.0)
             
         # Verify the basic flow
@@ -88,6 +89,41 @@ class TestImageProcessingController(unittest.TestCase):
         # Verify stage/frame progression
         self.assertEqual(self.controller.current_frame, 2)
         self.assertEqual(self.controller.current_stage, 1)
+        
+        #Test stage 1 frame 2 failure
+        self.frame_grabber._is_new_frame_available = True
+        self.frame_grabber._is_new_frame_available = False
+        self.process_thread.join(timeout=1.0)
+
+        self.frame_grabber.fetchFrame.assert_called()
+        self.controller.model.analyzeframe.assert_called()
+        self.controller.viewmodel.set_frame.return_value = ()
+        self.controller.model.analyze_phantom.assert_called()
+        self.controller.model.analyze_landmark.assert_called()
+
+        self.assertEqual(self.controller.current_frame, 2)
+        self.assertEqual(self.controller.current_stage, 1)
+
+        #Test stage 1 frame 2 succeed
+        phantom_result = (
+            {"distortion_data": "test"},  # distort
+            {"Reference": {"RO": {"ShotIndex": 0, "DistFile": "test.json"}}},  # camcalib
+            mock_frame  # image
+        )
+        self.controller.model.analyze_phantom.return_value = (True, phantom_result, None)
+        self.frame_grabber._is_new_frame_available = True
+        self.controller.is_running = False
+        self.process_thread.join(timeout=1.0)
+
+        self.frame_grabber.fetchFrame.assert_called()
+        self.controller.model.analyzeframe.assert_called()
+        self.controller.viewmodel.set_frame.return_value = ()
+        self.controller.model.analyze_phantom.assert_called()
+        self.controller.model.analyze_landmark.assert_called()
+
+        self.assertEqual(self.controller.current_frame, 1)
+        self.assertEqual(self.controller.current_stage, 2)
+        
     '''
     def test_simulation_mode_with_mock_data(self):
         """Test processing in simulation mode with mock image data"""

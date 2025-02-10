@@ -11,6 +11,7 @@ import json
 import shutil
 from glob import glob
 import datetime
+from imu import IMU
 
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
@@ -32,6 +33,10 @@ class ImageProcessingController:
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
+        self.imu = IMU(self.viewmodel)  # Pass viewmodel to IMU
+
+    def get_states(self):
+        return self.viewmodel.states
 
     def decide_next(self, ResBool, current_stage, current_frame):
         if not ResBool:
@@ -199,6 +204,7 @@ class ImageProcessingController:
             error_type = "Unexpected"
         
         print(f"{error_type} failed: {error}")
+    
 
     def _process_loop(self):
         case_number = 0
@@ -658,3 +664,37 @@ class ImageProcessingController:
         self.save_json(self.all_shots, shots_file)
 
         return raw_capture_path, image_file_path, landmark_file_path
+
+    def run2(self):
+        result = self.frame_grabber.initiateVideo('OBS Virtual Camera')
+        if isinstance(result, str):
+            return result
+        
+        # Start video capture and processing
+        self.frame_grabber.startVideo()
+        self.start_processing2()
+        return True
+    def start_processing2(self):
+        """Start the frame processing loop in a separate thread."""
+        if self.is_running:
+            self.logger.warning("Processing is already running")
+            return
+        
+        self.is_running = True
+        self.process_thread = threading.Thread(target=self._process_loop2)
+        self.process_thread.start()
+        self.logger.info("Started image processing")
+    def _process_loop2(self):
+        while self.is_running:
+            if not self.frame_grabber._is_new_frame_available or self.model.is_processing:
+                continue
+            
+            # Get the current frame
+            frame = self.frame_grabber.fetchFrame()
+            
+            # Get current angle from viewmodel
+            current_angle = self.viewmodel.states['angle']
+            
+            # Store frame and update img_count based on angle
+            self.viewmodel.store_frame(frame, current_angle)
+            

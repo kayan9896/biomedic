@@ -338,5 +338,57 @@ def adjust_brightness(index, stage, frame):
     except (IndexError, AttributeError) as e:
         return jsonify({"error": f"Error accessing or adjusting image: {str(e)}"}), 404
 
+
+@app.route('/run2', methods=['POST'])
+def start_processing2():
+    """Start video capture and frame processing"""
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+        
+        if controller.is_running:
+            return jsonify({"error": "Processing is already running"}), 400
+        
+        # Connect to the video device and start processing
+        result = controller.run2()
+        if isinstance(result, str):
+            return jsonify({"error": result}), 500
+        
+        return jsonify({"message": f"Started processing on device"})
+
+@app.route('/api/states')
+def get_states():
+    global controller
+    if controller is None:
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+    
+    return jsonify(controller.get_states())
+@app.route('/api/latest-image')
+def get_latest_image():
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    
+    # Get the current angle
+    angle = controller.viewmodel.states['angle']
+    print(controller.viewmodel.imgs)
+    image=[]
+    # Determine which image to send based on angle
+    if -15 <= angle <= 15:
+        image = controller.viewmodel.imgs[0]
+    elif -45 <= angle <= 45:
+        image = controller.viewmodel.imgs[1]
+    else:
+        return jsonify({"error": "Angle out of range"}), 400
+    
+    if image is None:
+        return jsonify({"error": "No image available"}), 404
+        
+    # Convert the image to JPEG format
+    image_bytes = encode_image_to_jpeg(image)
+    return Response(image_bytes, mimetype='image/jpeg')
+
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)

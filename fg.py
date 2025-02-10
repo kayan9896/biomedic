@@ -145,7 +145,10 @@ class FrameGrabber:
                 continue
                 
             with self.frame_lock:
-                if self.last_frame is None or self.compare_frames(current_frame, self.last_frame):
+                if self.last_frame is None:
+                    self.last_frame = current_frame
+                    continue
+                if self.compare_frames(current_frame, self.last_frame):
                     self.last_frame = current_frame.copy()
                     self._last_capture_time = datetime.now()
                     self._is_new_frame_available = True

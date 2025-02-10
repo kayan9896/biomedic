@@ -326,4 +326,72 @@ class AnalyzeBox:
         # Use cv2.convertScaleAbs to adjust brightness
         adjusted = cv2.convertScaleAbs(image, alpha=1, beta=beta)
         return adjusted
-        
+
+'''
+    def act_on(scn, frame):
+        match scn:
+            case 1:
+            case 2:
+            case 3:
+                try:
+                    ResBool, crop_image, err = self.model.analyzeframe(1, 1, frame, self.calib_data)
+                    if not ResBool:
+                        raise Exception(err)
+                    success, phantom_result, error = self.analyze_phantom(1, 1, crop_image, "AP")
+                    distort, camcalib, image = phantom_result
+                    if not success:
+                        raise Exception(error)
+                    success, landmark, error = self.model.analyze_landmark(1, 1, 'AP')
+                    if not success:
+                        raise Exception(error)
+                    return (distort, camcalib, image, landmark), None
+                except Exception as error:
+                    return None, error
+            case 4:
+                pass
+            case 5:
+                try:
+                    ResBool, crop_image, err = self.model.analyzeframe(1, 2, frame, self.calib_data)
+                    if not ResBool:
+                        raise Exception(err)
+                    success, phantom_result, error = self.analyze_phantom(1, 2, crop_image, "AP")
+                    distort, camcalib, image = phantom_result
+                    if not success:
+                        raise Exception(error)
+                    success, landmark, error = self.model.analyze_landmark(1, 2, 'RO')
+                    if not success:
+                        raise Exception(error)
+                    return (distort, camcalib, image, landmark), None
+                except Exception as error:
+                    return None, error
+            case 6:
+                pass
+            case 7:
+                try:
+                    if self.model.can_recon():
+                        success, recon_result, error = self.model.reconstruct(1, 0)
+                        if not ResBool:
+                            raise Exception(err)
+                        return recon_result, None
+                    except Exception as error:
+                        return None, error
+            case 8:
+                pass
+            case 9:
+                try:
+                    ResBool, crop_image, err = self.model.analyzeframe(1, 3, frame, self.calib_data)
+                    if not ResBool:
+                        raise Exception(err)
+                    success, phantom_result, error = self.analyze_phantom(1, 3, crop_image, "AP")
+                    distort, camcalib, image = phantom_result
+                    if not success:
+                        raise Exception(error)
+                    success, landmark, error = self.model.analyze_landmark(1, 3, 'AP')
+                    if not success:
+                        raise Exception(error)
+                    return (distort, camcalib, image, landmark), None
+                except Exception as error:
+                    return None, error
+            case 10:
+                pass
+'''

@@ -40,41 +40,11 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
     }
   };
 
-  const handleMouseMove = (e) => {
-    if (!isDraggingCenter && !isDraggingEdge) return;
-
-    const event = e.touches ? e.touches[0] : e;
-    const svgRect = svgRef.current.getBoundingClientRect();
-    const x = event.clientX - svgRect.left;
-    const y = event.clientY - svgRect.top;
-
-    if (isDraggingCenter) {
-      const dx = x - center[0];
-      const dy = y - center[1];
-      setcCenter([x, y])
-      onCenterChange([x, y]);
-      onEdgePointChange([edgePoint[0] + dx, edgePoint[1] + dy]);
-      setEdgePoint([edgePoint[0] + dx, edgePoint[1] + dy])
-    } else if (isDraggingEdge) {
-      onEdgePointChange([x, y]);
-      setEdgePoint([x, y])
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDraggingCenter(false);
-    setIsDraggingEdge(false);
-  };
-
   const handleCircleClick = (e) => {
     e.stopPropagation();
     if (!isEditing) {
       setIsEditing(true);
     }
-  };
-
-  const handleSvgClick = () => {
-    setIsEditing(false);
   };
 
   useEffect(() => {
@@ -85,20 +55,14 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
     };
     
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
+    //document.addEventListener('touchstart', handleClickOutside);
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
+      //document.removeEventListener('touchstart', handleClickOutside);
     };
   }, []);
 
-  useEffect(() => {
-    document.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, []);
   
   useEffect(() => {
     const handleGlobalMove = (e) => {
@@ -150,12 +114,10 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
       ref={svgRef}
       width="100%" 
       height="100%" 
-      onMouseMove={handleMouseMove}
-      onClick={handleSvgClick}
       pointerEvents="none"
       style={{ position: 'absolute', top: 0, left: 0,cursor: isDraggingCenter || isDraggingEdge ? 'grabbing' : 'default' }}
     >
-      <g onClick={handleCircleClick}>
+      <g >
         {/* Circle */}
         <circle
           cx={center[0]}
@@ -166,6 +128,8 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
           strokeWidth="20"
           pointerEvents="auto"
           style={{ cursor: 'pointer' }}
+          onMouseDown={handleCircleClick}
+          onTouchStart={handleCircleClick}
         />
 
         <circle
