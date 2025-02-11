@@ -36,6 +36,7 @@ class ProcessingModel:
         self.current_attempt: Optional[ProcessingAttempt] = None
         self.states = {
             'angle': 0,
+            'rotation_angle': 0,
             'img_count': 0,  # Add img_count to states
             'is_processing': False,
             'current_stage': 1,

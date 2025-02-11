@@ -389,6 +389,37 @@ def get_latest_image():
     # Convert the image to JPEG format
     image_bytes = encode_image_to_jpeg(image)
     return Response(image_bytes, mimetype='image/jpeg')
-
+@app.route('/angle', methods=['POST'])
+def update_angle():
+    try:
+        global controller
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        data = request.get_json()
+        new_angle = data.get('angle')
+        
+        if new_angle is not None:
+            # Update the angle in the viewmodel
+            controller.viewmodel.update_state('angle', float(new_angle))
+            return jsonify({'success': True}), 200
+        else:
+            return jsonify({'error': 'No angle value provided'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+@app.route('/rotation_angle', methods=['POST'])
+def update_rotation_angle():
+    try:
+        data = request.get_json()
+        new_angle = data.get('angle')
+        
+        if new_angle is not None:
+            controller.viewmodel.update_state('rotation_angle', float(new_angle))
+            return jsonify({'success': True}), 200
+        else:
+            return jsonify({'error': 'No angle value provided'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)

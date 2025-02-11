@@ -3,16 +3,22 @@ import './App.css';
 
 function App() {
   const [angle, setAngle] = useState(0);
-  const [imgCount, setImgCount] = useState(0);
+  const [ang, setAng] = useState(0);
   const [leftImage, setLeftImage] = useState(require('./AP.png'));
   const [rightImage, setRightImage] = useState(require('./OB.png'));
   const [error, setError] = useState(null);
-  const isInGreenSector = angle >= -15 && angle <= 15;
-  const isInYellowSector = angle >= -45 && angle <= 45;
+  const [showCarmBox, setShowCarmBox] = useState(true)
+
+  const [isConnected, setIsConnected] = useState(false);
+  const previousImgCountRef = useRef(0); 
+  const [rotationAngle, setRotationAngle] = useState(0);
+  const [rotAng, setRotAng] = useState(0);
+  const isInGreenSector = rotationAngle >= -15 && rotationAngle <= 15;
+  const isInYellowSector = rotationAngle >= -45 && rotationAngle <= 45;
   const activeLeft = isInGreenSector;
   const activeRight = isInYellowSector && !isInGreenSector;
-  const [isConnected, setIsConnected] = useState(false);
-  const previousImgCountRef = useRef(0);  // Use useRef instead of state
+  const isRotationInRange = isInYellowSector;
+  const imuon = angle >= -45 && angle <= 45;
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -20,19 +26,23 @@ function App() {
         const response = await fetch('http://localhost:5000/api/states');
         const data = await response.json();
         setAngle(data.angle);
+        setRotationAngle(data.rotation_angle);
         
-        // Only update images if img_count has changed
         if (data.img_count !== previousImgCountRef.current) {
-          console.log('Previous count:', previousImgCountRef.current, 'New count:', data.img_count);
-          previousImgCountRef.current = data.img_count;  // Update the ref
-          await updateImages(data.angle);
+          previousImgCountRef.current = data.img_count;
+          await updateImages(data.rotation_angle); // Pass rotation angle instead of angle
+          setShowCarmBox(false); // Hide carmbox when new image is displayed
+          
+          // Show carmbox again after 2 seconds
+          // setTimeout(() => {
+          //   setShowCarmBox(true);
+          // }, 2000);
         }
 
-        // Clear error if angle is in valid range
-        if (isInYellowSector) {
+        if (isRotationInRange) {
           setError(null);
         } else {
-          setError("Angle out of range. Please adjust the position.");
+          setError("Rotation angle out of range. Please adjust the position.");
         }
       } catch (error) {
         console.error('Error fetching states:', error);
@@ -40,22 +50,20 @@ function App() {
       }
     };
 
-    const intervalId = setInterval(fetchStates, 50);
+    const intervalId = setInterval(fetchStates, 100);
     return () => clearInterval(intervalId);
   }, []);
 
-  const updateImages = async (currentAngle) => {
+  const updateImages = async (currentRotationAngle) => {
     try {
-      // Fetch the latest image from the viewmodel
       const response = await fetch('http://localhost:5000/api/latest-image');
       const imageBlob = await response.blob();
       const imageUrl = URL.createObjectURL(imageBlob);
 
-      // Update the appropriate image based on the angle
-      if (currentAngle >= -15 && currentAngle <= 15) {
-        console.log(imageUrl,previousImgCountRef)
+      // Update image based on rotation angle
+      if (currentRotationAngle >= -15 && currentRotationAngle <= 15) {
         setLeftImage(imageUrl);
-      } else if (currentAngle >= -45 && currentAngle <= 45) {
+      } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
         setRightImage(imageUrl);
       }
     } catch (error) {
@@ -79,7 +87,7 @@ function App() {
       setError('Error connecting to device: ' + err.message);
     }
   };
-
+ 
   return (
     <div className="app">
       {!isConnected ? (
@@ -89,41 +97,148 @@ function App() {
       ) : (
         <>
           <div className="image-container">
-            <div className={`image-wrapper ${activeLeft ? 'active' : ''}`}>
+            <div className="image-wrapper">
               <img src={leftImage} alt="Image 1" />
-              <div className="circle-mask"></div>
-              {isInYellowSector && (activeLeft || !isInYellowSector) && (
-                <div className="indicator-circle">
-                  <div className="green-sector"></div>
-                  <div className="yellow-sector"></div>
-                  <div className="hand" style={{ transform: `rotate(${angle}deg)` }}></div>
-                </div>
+              {activeLeft && (
+                <img 
+                  src={require('./blueBox.png')} 
+                  alt="blue box" 
+                  className="blue-box-overlay"
+                />
               )}
+              <div className="circle-mask"></div>
             </div>
-            <div className={`image-wrapper ${activeRight ? 'active' : ''}`}>
+
+            <div className="image-wrapper">
               <img src={rightImage} alt="Image 2" />
-              <div className="circle-mask"></div>
-              {isInYellowSector && activeRight && (
-                <div className="indicator-circle">
-                  <div className="green-sector"></div>
-                  <div className="yellow-sector"></div>
-                  <div className="hand" style={{ transform: `rotate(${angle}deg)` }}></div>
-                </div>
+              {activeRight && (
+                <img 
+                  src={require('./blueBox.png')} 
+                  alt="blue box" 
+                  className="blue-box-overlay"
+                />
               )}
+              <div className="circle-mask"></div>
             </div>
           </div>
-          {!isInYellowSector && (
+          {!isRotationInRange && (
             <div className="error-message-overlay">
               <div className="error-message-box">
-                Angle out of range. Please adjust the position.
+                Rotation angle out of range. Please adjust the position.
               </div>
+            </div>
+          )}
+
+          {/* Show sliding error message for tilt angle */}
+          {!imuon && (
+            <div className="sliding-error" style={{
+              position: 'absolute',
+              right: '-300px',
+              top: '863px',
+              animation: 'slideIn 0.5s forwards',
+              backgroundColor: '#ff4444',
+              padding: '10px',
+              borderRadius: '5px',
+              color: 'white',
+              zIndex: 1000
+            }}>
+              IMU Disconnected
             </div>
           )}
         </>
       )}
+
       <div className="toolbar">
-        <span>Current Angle: {angle.toFixed(1)}°</span>
+        <span>Tilt Angle: {angle.toFixed(1)}°</span>
+        <input
+          type="range"
+          min="-60"
+          max="60"
+          value={ang}
+          onChange={(e) => {
+            const newAngle = parseFloat(e.target.value);
+            setAng(newAngle);
+            fetch('http://localhost:5000/angle', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ angle: newAngle })
+            })
+            .catch(error => console.error('Error:', error));
+          }}
+          style={{
+            width: '200px',
+            marginLeft: '20px'
+          }}
+        />
+
+        <span style={{marginLeft: '20px'}}>Rotation Angle: {rotationAngle.toFixed(1)}°</span>
+        <input
+          type="range"
+          min="-60"
+          max="60"
+          value={rotAng}
+          onChange={(e) => {
+            const newAngle = parseFloat(e.target.value);
+            setRotAng(newAngle);
+            fetch('http://localhost:5000/rotation_angle', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ angle: newAngle })
+            })
+            .catch(error => console.error('Error:', error));
+          }}
+          style={{
+            width: '200px',
+            marginLeft: '20px'
+          }}
+        />
       </div>
+      
+      {showCarmBox && (
+        <div style={{position:'absolute', top:'82px', left:'337px', zIndex:'2'}}>
+          <img src={require('./carmbox.png')} alt="box" />
+          <div className="hand" style={{ 
+            transform: `rotate(${angle}deg)`,
+            position:'absolute', 
+            top:'224px', 
+            left:'298px', 
+            zIndex:'3' 
+          }}>
+            <img src={require('./tiltcarm.png')} alt="indicator" />
+          </div>
+          <div className="hand" style={{ 
+            transform: `rotate(${rotationAngle}deg)`,
+            position:'absolute', 
+            top:'220px', 
+            left:'750px', 
+            zIndex:'3' 
+          }}>
+            <img src={require('./rotcarm.png')} alt="indicator" />
+          </div>
+        </div>
+      )}
+      
+      {/* Only show IMU icon if angle is in range */}
+      {imuon && (
+        <img 
+          src={require('./IMUConnectionIcon.png')} 
+          style={{
+            position:'absolute', 
+            top:'863px', 
+            left:'1825px',
+            width: '84px',
+            height: '84px'
+          }}
+        />
+      )}
+      <img 
+        src={require('./videoConnectionIcon.png')} 
+        style={{position:'absolute', top:'765px', left:'1825px'}}
+      />
     </div>
   );
 }

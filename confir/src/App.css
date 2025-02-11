@@ -27,6 +27,16 @@
   object-fit: contain;
 }
 
+.blue-box-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;  /* Make sure it's above the image but below the circle mask */
+}
+
 .circle-mask {
   position: absolute;
   top: 0;
@@ -72,12 +82,8 @@
 
 .hand {
   position: absolute;
-  top: 0;
-  left: 50%;
-  width: 2px;
-  height: 50%;
-  background-color: red;
-  transform-origin: bottom center;
+  /* Center both horizontally and vertically, then rotate */
+  transform-origin: center center;
 }
 
 .toolbar {
@@ -98,7 +104,7 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 10%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -116,4 +122,16 @@
   max-width: 80%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   font-size: 1.2em;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(300px);
+  }
+  to {
+    transform: translateX(-320px);
+  }
+}
+
+.sliding-error {
+  transition: transform 0.5s ease-in-out;
 }
