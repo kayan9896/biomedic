@@ -1,18 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
+import Keyboard from 'react-simple-keyboard';
+import 'react-simple-keyboard/build/css/index.css';
 
 function App() {
   const [angle, setAngle] = useState(0);
-  const [ang, setAng] = useState(0);
+  const [manualAngle, setManualAngle] = useState('');
   const [leftImage, setLeftImage] = useState(require('./AP.png'));
   const [rightImage, setRightImage] = useState(require('./OB.png'));
   const [error, setError] = useState(null);
-  const [showCarmBox, setShowCarmBox] = useState(true)
+  const [showCarmBox, setShowCarmBox] = useState(true);
+  const [showKeyboard, setShowKeyboard] = useState(false);
+  const keyboardRef = useRef(null);
+  const inputRef = useRef(null);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [keyboardLayout, setKeyboardLayout] = useState('default');
 
   const [isConnected, setIsConnected] = useState(false);
   const previousImgCountRef = useRef(0); 
   const [rotationAngle, setRotationAngle] = useState(0);
-  const [rotAng, setRotAng] = useState(0);
   const isInGreenSector = rotationAngle >= -15 && rotationAngle <= 15;
   const isInYellowSector = rotationAngle >= -45 && rotationAngle <= 45;
   const activeLeft = isInGreenSector;
@@ -30,13 +36,8 @@ function App() {
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
-          await updateImages(data.rotation_angle); // Pass rotation angle instead of angle
-          setShowCarmBox(false); // Hide carmbox when new image is displayed
-          
-          // Show carmbox again after 2 seconds
-          // setTimeout(() => {
-          //   setShowCarmBox(true);
-          // }, 2000);
+          await updateImages(data.rotation_angle);
+          setShowCarmBox(false);
         }
 
         if (isRotationInRange) {
@@ -60,7 +61,6 @@ function App() {
       const imageBlob = await response.blob();
       const imageUrl = URL.createObjectURL(imageBlob);
 
-      // Update image based on rotation angle
       if (currentRotationAngle >= -15 && currentRotationAngle <= 15) {
         setLeftImage(imageUrl);
       } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
@@ -87,11 +87,73 @@ function App() {
       setError('Error connecting to device: ' + err.message);
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showKeyboard &&
+        !inputRef.current.contains(event.target) &&
+        (!keyboardRef.current || !keyboardRef.current.contains(event.target))
+      ) {
+        setShowKeyboard(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showKeyboard]);
+
+  const onInputChange = (e) => {
+    const value = e.target.value;
+    setManualAngle(value);
+    setCursorPosition(e.target.selectionStart);
+  };
+
+  const onKeyboardButtonPress = (button) => {
+    if (button === "{enter}") {
+      setShowKeyboard(false);
+    } else if (button === "{bksp}") {
+      const beforeCursor = manualAngle.substring(0, cursorPosition - 1);
+      const afterCursor = manualAngle.substring(cursorPosition);
+      setManualAngle(beforeCursor + afterCursor);
+      setCursorPosition(cursorPosition - 1);
+    } else if (button === "{space}") {
+      insertAtCursor(' ');
+    } else if (button === "{shift}"||button === "{lock}") {
+      setKeyboardLayout(keyboardLayout === "default" ? "shift" : "default");
+    } else if (!button.includes("{")) {
+      insertAtCursor(button);
+    }
+  
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+  const insertAtCursor = (str) => {
+    const beforeCursor = manualAngle.substring(0, cursorPosition);
+    const afterCursor = manualAngle.substring(cursorPosition);
+    const newValue = beforeCursor + str + afterCursor;
+    setManualAngle(newValue);
+    setCursorPosition(cursorPosition + str.length);
+  };
+
+  // Update cursor position when input is focused or clicked
+  const onSelect = (e) => {
+    setCursorPosition(e.target.selectionStart);
+  };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
+    }
+  }, [cursorPosition, manualAngle]);
+
  
   return (
     <div className="app">
+      <img src={require('./background.png')} style={{'position':'absolute'}}/>
       {!isConnected ? (
-        <div className="connection-container">
+        <div className="connection-container" style={{'position':'absolute'}}>
           <button onClick={handleConnect}>Connect</button>
         </div>
       ) : (
@@ -121,6 +183,68 @@ function App() {
               <div className="circle-mask"></div>
             </div>
           </div>
+          
+          {/* New angle input box */}
+          <input
+          ref={inputRef}
+          type="text"
+          value={manualAngle}
+          onChange={onInputChange}
+          onClick={() => setShowKeyboard(true)}
+          onSelect={onSelect}
+          style={{
+            position: 'absolute',
+            left: '30px',
+            top: '1000px',
+            width: '200px',
+            background: 'black',
+            color: 'white',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            border: '1px solid white',
+            padding: '8px',
+            fontSize: '16px'
+          }}
+          placeholder="Click to enter angle"
+        />
+        
+        {showKeyboard && (
+          <div 
+            ref={keyboardRef}
+            style={{
+              position: 'absolute',
+              left: '30px',
+              top: '740px',
+              width: '750px',
+              zIndex: 1000
+            }}
+          >
+            <Keyboard
+              layoutName={keyboardLayout}
+              layout={{
+                default: [
+                  "` 1 2 3 4 5 6 7 8 9 0 - = {bksp}",
+                  "{tab} q w e r t y u i o p [ ] \\",
+                  "{lock} a s d f g h j k l ; ' {enter}",
+                  "{shift} z x c v b n m , . / {shift}",
+                  "{space}"
+                ],
+                shift: [
+                  "~ ! @ # $ % ^ & * ( ) _ + {bksp}",
+                  "{tab} Q W E R T Y U I O P { } |",
+                  '{lock} A S D F G H J K L : " {enter}',
+                  "{shift} Z X C V B N M < > ? {shift}",
+                  "{space}"
+                ]
+              }}
+               
+              theme={"hg-theme-default hg-layout-default myTheme"}
+              onKeyPress={onKeyboardButtonPress}
+            />
+          </div>
+        )}
+
           {!isRotationInRange && (
             <div className="error-message-overlay">
               <div className="error-message-box">
@@ -129,7 +253,6 @@ function App() {
             </div>
           )}
 
-          {/* Show sliding error message for tilt angle */}
           {!imuon && (
             <div className="sliding-error" style={{
               position: 'absolute',
@@ -147,56 +270,6 @@ function App() {
           )}
         </>
       )}
-
-      <div className="toolbar">
-        <span>Tilt Angle: {angle.toFixed(1)}°</span>
-        <input
-          type="range"
-          min="-60"
-          max="60"
-          value={ang}
-          onChange={(e) => {
-            const newAngle = parseFloat(e.target.value);
-            setAng(newAngle);
-            fetch('http://localhost:5000/angle', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ angle: newAngle })
-            })
-            .catch(error => console.error('Error:', error));
-          }}
-          style={{
-            width: '200px',
-            marginLeft: '20px'
-          }}
-        />
-
-        <span style={{marginLeft: '20px'}}>Rotation Angle: {rotationAngle.toFixed(1)}°</span>
-        <input
-          type="range"
-          min="-60"
-          max="60"
-          value={rotAng}
-          onChange={(e) => {
-            const newAngle = parseFloat(e.target.value);
-            setRotAng(newAngle);
-            fetch('http://localhost:5000/rotation_angle', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ angle: newAngle })
-            })
-            .catch(error => console.error('Error:', error));
-          }}
-          style={{
-            width: '200px',
-            marginLeft: '20px'
-          }}
-        />
-      </div>
       
       {showCarmBox && (
         <div style={{position:'absolute', top:'82px', left:'337px', zIndex:'2'}}>
@@ -222,7 +295,6 @@ function App() {
         </div>
       )}
       
-      {/* Only show IMU icon if angle is in range */}
       {imuon && (
         <img 
           src={require('./IMUConnectionIcon.png')} 

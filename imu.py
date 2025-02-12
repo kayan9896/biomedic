@@ -5,6 +5,7 @@ import keyboard  # You'll need to install this: pip install keyboard
 class IMU:
     def __init__(self, viewmodel):
         self.angle = 0
+        self.rotation_angle = 0
         self.viewmodel = viewmodel
         self._auto_mode = False  # Start in manual mode
         self._running = True
@@ -41,6 +42,8 @@ class IMU:
             keyboard.on_press_key('z', lambda _: self._adjust_angle(-5))
             keyboard.on_press_key('x', lambda _: self._adjust_angle(5))
             keyboard.on_press_key('a', lambda _: self._toggle_auto_mode())
+            keyboard.on_press_key('c', lambda _: self._adjust_angle2(-5))
+            keyboard.on_press_key('v', lambda _: self._adjust_angle2(5))
             print("Keyboard controls enabled:")
             print("  Press 'z' to decrease angle by 5")
             print("  Press 'x' to increase angle by 5")
@@ -54,6 +57,12 @@ class IMU:
             self.angle = new_angle
             self.viewmodel.update_state('angle', self.angle)
             print(f"Current angle: {self.angle}")
+    def _adjust_angle2(self, change):
+        if not self._auto_mode:
+            new_angle = min(max(self.rotation_angle + change, -60), 60)
+            self.rotation_angle = new_angle
+            self.viewmodel.update_state('rotation_angle', self.rotation_angle)
+            print(f"Current rotation_angle: {self.rotation_angle}")
 
     def _toggle_auto_mode(self):
         self._auto_mode = not self._auto_mode
