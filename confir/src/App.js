@@ -194,9 +194,9 @@ function App() {
           onSelect={onSelect}
           style={{
             position: 'absolute',
-            left: '30px',
-            top: '1000px',
-            width: '200px',
+            left: '50px',
+            top: '995px',
+            width: '180px',
             background: 'black',
             color: 'white',
             whiteSpace: 'nowrap',
@@ -206,7 +206,7 @@ function App() {
             padding: '8px',
             fontSize: '16px'
           }}
-          placeholder="Click to enter angle"
+          placeholder="no patient data"
         />
         
         {showKeyboard && (
@@ -239,7 +239,13 @@ function App() {
                 ]
               }}
                
-              theme={"hg-theme-default hg-layout-default myTheme"}
+              theme={"hg-theme-default myTheme"}
+              buttonTheme={[
+                {
+                  class: "hg-black",
+                  buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shift} z x c v b n m , . / {shift} {space}"
+                }
+              ]}
               onKeyPress={onKeyboardButtonPress}
             />
           </div>
@@ -253,7 +259,7 @@ function App() {
             </div>
           )}
 
-          {!imuon && (
+          {/* {!imuon && (
             <div className="sliding-error" style={{
               position: 'absolute',
               right: '-300px',
@@ -267,7 +273,7 @@ function App() {
             }}>
               IMU Disconnected
             </div>
-          )}
+          )} */}
         </>
       )}
       
@@ -295,18 +301,24 @@ function App() {
         </div>
       )}
       
-      {imuon && (
+      {imuon ? (
         <img 
           src={require('./IMUConnectionIcon.png')} 
           style={{
             position:'absolute', 
             top:'863px', 
-            left:'1825px',
-            width: '84px',
-            height: '84px'
+            left:'1825px'
           }}
         />
-      )}
+      ):(<img 
+        src={require('./IMUerr.png')} 
+        style={{
+          position:'absolute', 
+          top:'864px', 
+          left:'1435px',
+          animation: 'slideIn 0.5s ease-in-out',
+        }}
+      />)}
       <img 
         src={require('./videoConnectionIcon.png')} 
         style={{position:'absolute', top:'765px', left:'1825px'}}

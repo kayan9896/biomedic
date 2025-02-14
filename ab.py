@@ -327,12 +327,10 @@ class AnalyzeBox:
         adjusted = cv2.convertScaleAbs(image, alpha=1, beta=beta)
         return adjusted
 
-'''
-    def act_on(scn, frame):
+
+    def exec(scn, frame):
         match scn:
-            case 1:
-            case 2:
-            case 3:
+            case 'frm:hp1-ap:bgn':
                 try:
                     ResBool, crop_image, err = self.model.analyzeframe(1, 1, frame, self.calib_data)
                     if not ResBool:
@@ -344,39 +342,43 @@ class AnalyzeBox:
                     success, landmark, error = self.model.analyze_landmark(1, 1, 'AP')
                     if not success:
                         raise Exception(error)
-                    return (distort, camcalib, image, landmark), None
+                    self.data.hp1-ap.success = True
+                    return (distort, camcalib), (image, landmark, None)
                 except Exception as error:
+                    self.data.hp1-ap.success = False
                     return None, error
-            case 4:
-                pass
-            case 5:
+            case 'frm:hp1-ob:bgn':
                 try:
                     ResBool, crop_image, err = self.model.analyzeframe(1, 2, frame, self.calib_data)
                     if not ResBool:
                         raise Exception(err)
-                    success, phantom_result, error = self.analyze_phantom(1, 2, crop_image, "AP")
+                    success, phantom_result, error = self.analyze_phantom(1, 2, crop_image, "RO")
                     distort, camcalib, image = phantom_result
                     if not success:
                         raise Exception(error)
                     success, landmark, error = self.model.analyze_landmark(1, 2, 'RO')
                     if not success:
                         raise Exception(error)
-                    return (distort, camcalib, image, landmark), None
+                    self.data.hp2-ap.success = True
+                    return (distort, camcalib), (image, landmark, None)
                 except Exception as error:
-                    return None, error
-            case 6:
-                pass
-            case 7:
+                    self.data.hp2-ap.success = False
+                    return None, (None, None, error)
+
+            case 'rcn:hmplv1:bgn':
                 try:
                     if self.model.can_recon():
                         success, recon_result, error = self.model.reconstruct(1, 0)
                         if not ResBool:
                             raise Exception(err)
+                        self.data.hmplv1.success = True
                         return recon_result, None
                     except Exception as error:
+                        self.data.hmplv1.success = False
                         return None, error
-            case 8:
-                pass
+            
+            case 'reg:pelvis:end':
+                
             case 9:
                 try:
                     ResBool, crop_image, err = self.model.analyzeframe(1, 3, frame, self.calib_data)
@@ -394,4 +396,3 @@ class AnalyzeBox:
                     return None, error
             case 10:
                 pass
-'''

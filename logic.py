@@ -76,3 +76,158 @@ def updatestates(res, scn, session):
         if res:
             session.pelvis.hp1.frame1.validated = True
 
+
+
+self.model.success=null
+
+def _process_loop(self):
+    self.scn = 'init'
+    while self.is_running:
+        frame = update_backendstates()
+        newscn = self.eval_modelscnario()
+        if newscn == self.scn continue
+        dataforsave, dataforvm = self.model.exec(self.scn, frame)
+        self.scn = newscn[:-3] + 'end'
+        self.viewmodel.update(dataforsave)
+        self.exam.save(dataforsave)
+
+def eval_modelscnario(self):
+    match self.scn:
+        case 'init':
+            if self.frame_grabber._is_new_frame_available:
+                if self.imuonap:
+                    return 'frm:hp1-ap:bgn'
+                if self.imuonob:
+                    return 'frm:hp1-ob:bgn' 
+            return self.scn
+
+        case 'frm:hp1-ap:end', 'frm:hp1-ob:end':
+            if self.model.data.hp1-ap.success and self.model.data.hp1-ob.success:
+                return 'rcn:hmplv1:bgn'
+            else:
+                if self.frame_grabber._is_new_frame_available:
+                    if self.imuonap:
+                        return 'frm:hp1-ap:bgn'
+                    if self.imuonob:
+                        return 'frm:hp1-ob:bgn'
+                return self.scn
+
+        case 'frm:hp2-ap:end', 'frm:hp2-ob:end':
+            if self.model.data.hp2-ap.success and self.model.data.hp2-ob.success:
+                return 'rcn:hmplv2:bgn'
+            else:
+                if self.frame_grabber._is_new_frame_available:
+                    if self.imuonap:
+                        return 'frm:hp2-ap:bgn'
+                    if self.imuonob:
+                        return 'frm:hp2-ob:bgn'
+                return self.scn
+
+        case 'rcn:hmplv1:end':
+            if self.model.data.hmplv1.success:
+                #user goes next
+                if self.uistates == 'next':
+                    self.uistates = None
+                    if self.frame_grabber._is_new_frame_available:
+                        if self.imuonap:
+                            return 'frm:hp2-ap:bgn'
+                        if self.imuonob:
+                            return 'frm:hp2-ob:bgn'
+                
+                #user submits landmarks changes, redo recon
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:hmplv1:bgn'
+
+                #user does nothing/ editing
+                #they can retake
+                if self.frame_grabber._is_new_frame_available:
+                    if self.imuonap:
+                        return 'frm:hp1-ap:bgn'
+                    if self.imuonob:
+                        return 'frm:hp1-ob:bgn'
+
+                #otherwise, stay at the end stage
+                return self.scn
+            
+            else:
+                #fail, redo or retake, similar to success redo/retake
+        
+        case 'rcn:hmplv2:end':
+            #if success, start reg immediately
+            if self.model.data.hmplv2.success:
+                return 'reg:pelvis:bgn'
+                
+            else:
+                #fail, redo recon or retake, similar to hmplv1
+        
+        case 'reg:pelvis:end':
+            if self.model.data.pelvis.success:
+                #user goes next to cup
+                if self.uistates == 'next':
+                    if self.frame_grabber._is_new_frame_available:
+                        if self.imuonap:
+                            return 'frm:cup-ap:bgn'
+                        if self.imuonob:
+                            return 'frm:cup-ob:bgn' 
+                    return self.scn
+            
+            else:
+                #fail, redo reg/recon or retake hp1/hp2, similar to hmplv2        
+
+        case 'frm:cup-ap:end':
+            #take ob or retake ap, no recon
+            if self.frame_grabber._is_new_frame_available:
+                if self.imuonap:
+                    return 'frm:cup-ap:bgn'
+                if self.imuonob:
+                    return 'frm:cup-ob:bgn'
+            return self.scn
+        
+        case 'frm:cup-ob:end':
+            if self.model.data.cup-ap.success and self.model.data.cup-ob.success:
+                return 'rcn:acecup:bgn'
+            else:
+                if self.frame_grabber._is_new_frame_available:
+                    if self.imuonap:
+                        return 'frm:hp1-ap:bgn'
+                    if self.imuonob:
+                        return 'frm:hp1-ob:bgn'
+                return self.scn
+
+        case 'rcn:acecup:end':
+            if self.model.data.reccup.success:
+                #start analyzecup
+                return 'reg:acecup:bgn'
+                
+            else:
+                #redo recon or retake
+        
+        case 'reg:acecup:end':
+            if self.model.data.regcup.success:
+                #user goes next to tri
+                if self.uistates == 'next':
+                    if self.frame_grabber._is_new_frame_available:
+                        if self.imuonap:
+                            return 'frm:tri-ap:bgn'
+                        if self.imuonob:
+                            return 'frm:tri-ob:bgn' 
+                    
+                #user submits landmarks changes, redo recon
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:acecup:bgn'
+
+                #user does nothing/ editing
+                #they can retake
+                if self.frame_grabber._is_new_frame_available:
+                    if self.imuonap:
+                        return 'frm:cup-oa:bgn'
+                    if self.imuonob:
+                        return 'frm:cup-ob:bgn'
+
+                #otherwise, stay at the end stage
+                return self.scn
+            else:
+                #fail
+                
