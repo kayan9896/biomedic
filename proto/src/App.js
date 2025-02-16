@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import CircularProgress from './CircularProgress';
 import './App.css';
 import Circle from './Circle';
@@ -34,6 +35,46 @@ const [contrast1, setContrast1] = useState(100);
 const [contrast2, setContrast2] = useState(100);
 const [activeControl1, setActiveControl1] = useState(null);
 const [activeControl2, setActiveControl2] = useState(null);
+
+const frame1Ref = useRef(null);
+  const frame2Ref = useRef(null);
+  
+  const captureAndSaveFrame = async (frameNumber) => {
+    const frameRef = frameNumber === 1 ? frame1Ref : frame2Ref;
+    
+    if (!frameRef.current) return;
+    
+    try {
+      // Use html2canvas to capture the frame with all overlays
+      const canvas = await html2canvas(frameRef.current, {
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+      });
+      
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        // Create form data and append the image
+        const formData = new FormData();
+        formData.append('image', blob, `frame${frameNumber}_with_overlays.png`);
+        
+        // Send to backend
+        const response = await fetch(`http://localhost:5000/save_overlay_image/${attemptIndex}/${currentSubAttempt + 1}/${frameNumber}`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          alert(`Frame ${frameNumber} with overlays saved successfully!`);
+        } else {
+          throw new Error('Failed to save image with overlays');
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Error capturing and saving frame:', err);
+      alert('Error saving image with overlays: ' + err.message);
+    }
+  };
 
 // Add these style utilities
 const getImageStyle = (brightness, contrast) => ({
@@ -301,7 +342,7 @@ const handleBrightnessChange = (frameNumber, value) => {
           }}
         />
       </div>
-      <div className="square-box">
+      <div className="square-box" ref={frameNumber === 1 ? frame1Ref : frame2Ref}>
         {image ? (
           <>
             <img 
@@ -464,22 +505,31 @@ useEffect(() => {
           )}
         </div>
       </div>
-      { (
-              <button 
-                className="save-changes-button"
-                onClick={() => handleSaveChanges(1)}
-              >
-                Save Frame 1 Changes
-              </button>
-            )}
-            {(
-              <button 
-                className="save-changes-button"
-                onClick={() => handleSaveChanges(2)}
-              >
-                Save Frame 2 Changes
-              </button>
-            )}
+      <button 
+        className="save-changes-button"
+        onClick={() => handleSaveChanges(1)}
+      >
+        Save Frame 1 Changes
+      </button>
+      <button 
+        className="save-overlay-button"
+        onClick={() => captureAndSaveFrame(1)}
+      >
+        Save Frame 1 with Overlays
+      </button>
+      
+      <button 
+        className="save-changes-button"
+        onClick={() => handleSaveChanges(2)}
+      >
+        Save Frame 2 Changes
+      </button>
+      <button 
+        className="save-overlay-button"
+        onClick={() => captureAndSaveFrame(2)}
+      >
+        Save Frame 2 with Overlays
+      </button>
             
     </div>
   );
@@ -866,15 +916,3 @@ function App() {
 }
 
 export default App;
-
-/*
-<img src={require('./background.png')}/>
-      <img src={require('./blueBox.png')} style={{position:'absolute', top:'0px', left:'0px', zIndex:'1'}}/>
-      <img src={require('./blueBox.png')} style={{position:'absolute', top:'0px', left:'960px', zIndex:'1'}}/>
-      <img src={require('./scan.png')} style={{position:'absolute', top:'0px', left:'0px'}}/>
-      <img src={require('./scan.png')} style={{position:'absolute', top:'0px', left:'960px'}}/>
-      <img src={require('./checkmarkIcon.png')} style={{position:'absolute', top:'857px', left:'815px'}}/>
-      <img src={require('./checkmarkIcon.png')} style={{position:'absolute', top:'857px', left:'1019px'}}/>
-      <img src={require('./IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px'}}/>
-      <img src={require('./videoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px'}}/>
-*/

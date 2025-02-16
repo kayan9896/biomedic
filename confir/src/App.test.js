@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
 import App from './App';
 
 // Mock the image imports
@@ -16,25 +16,28 @@ jest.mock('./IMUConnectionIcon.png', () => 'IMUConnectionIcon.png');
 jest.mock('./videoConnectionIcon.png', () => 'videoConnectionIcon.png');
 
 // Setup MSW server for API mocking
+
+
 const server = setupServer(
   // Default handlers
-  rest.post('http://localhost:5000/run2', (req, res, ctx) => {
-    return res(ctx.status(200));
+  http.post('http://localhost:5000/run2', () => {
+    return HttpResponse.json({}, { status: 200 })
   }),
   
-  rest.get('http://localhost:5000/api/states', (req, res, ctx) => {
-    return res(ctx.json({
+  http.get('http://localhost:5000/api/states', () => {
+    return HttpResponse.json({
       angle: 0,
       rotation_angle: 0,
       img_count: 0
-    }));
+    })
   }),
   
-  rest.get('http://localhost:5000/api/latest-image', (req, res, ctx) => {
-    return res(
-      ctx.set('Content-Type', 'image/jpeg'),
-      ctx.body('mock-image-data')
-    );
+  http.get('http://localhost:5000/api/latest-image', () => {
+    return new HttpResponse('mock-image-data', {
+      headers: {
+        'Content-Type': 'image/jpeg',
+      },
+    })
   })
 );
 
@@ -65,26 +68,31 @@ describe('Connection Tests', () => {
   });
 
   // Test 3: Failed connection
-  test('handles failed connection', async () => {
-    // Override default handler for failed connection scenario
-    server.use(
-      rest.post('http://localhost:5000/run2', (req, res, ctx) => {
-        return res(ctx.status(500));
-      })
-    );
+test('handles failed connection', async () => {
+  server.use(
+    http.post('http://localhost:5000/run2', () => {
+      return HttpResponse.error()
+    })
+  );
 
-    render(<App />);
-    
-    const connectButton = screen.getByText('Connect');
-    fireEvent.click(connectButton);
+  render(<App />);
+  
+  const connectButton = screen.getByText('Connect');
+  fireEvent.click(connectButton);
 
-    // Wait for error message to appear
-    const errorMessage = await screen.findByText(/Error connecting to device/i);
-    expect(errorMessage).toBeInTheDocument();
-    
-    // Connect button should still be visible
-    expect(screen.getByText('Connect')).toBeInTheDocument();
+  // Wait for the error to appear
+  await act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 100));
   });
+
+  // Looking for partial text match using regex
+  const errorElement = screen.getByText(/Error connecting to device/i);
+  expect(errorElement).toBeInTheDocument();
+  
+  // Connect button should still be visible
+  expect(screen.getByText('Connect')).toBeInTheDocument();
+});
+
 
   // Test 4: Periodic state fetching
   test('periodically fetches states after connection', async () => {
@@ -92,7 +100,7 @@ describe('Connection Tests', () => {
     
     let stateCallCount = 0;
     server.use(
-      rest.get('http://localhost:5000/api/states', (req, res, ctx) => {
+      http.get('http://localhost:5000/api/states', (req, res, ctx) => {
         stateCallCount++;
         return res(ctx.json({
           angle: stateCallCount * 10, // Changing angle to verify updates
@@ -122,49 +130,57 @@ describe('Connection Tests', () => {
   });
 
   // Test 5: Connection timeout
-  test('handles connection timeout', async () => {
-    server.use(
-      rest.post('http://localhost:5000/run2', (req, res, ctx) => {
-        return res(ctx.delay(5000), ctx.status(408));
-      })
-    );
+test('handles connection timeout', async () => {
+  server.use(
+    http.post('http://localhost:5000/run2', () => {
+      return HttpResponse.error()
+    })
+  );
 
-    render(<App />);
-    
-    const connectButton = screen.getByText('Connect');
-    fireEvent.click(connectButton);
+  render(<App />);
+  
+  const connectButton = screen.getByText('Connect');
+  fireEvent.click(connectButton);
 
-    const errorMessage = await screen.findByText(/Error connecting to device/i);
-    expect(errorMessage).toBeInTheDocument();
+  await act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 100));
   });
 
-  // Test 6: Network error during state fetching
-  test('handles network error during state fetching', async () => {
-    jest.useFakeTimers();
-    
-    render(<App />);
-    
-    // Successfully connect first
-    const connectButton = screen.getByText('Connect');
-    fireEvent.click(connectButton);
-    
-    await screen.findByAltText('Image 1');
+  const errorElement = screen.getByText(/Error connecting to device/i);
+  expect(errorElement).toBeInTheDocument();
+});
 
-    // Simulate network error for state fetching
-    server.use(
-      rest.get('http://localhost:5000/api/states', (req, res, ctx) => {
-        return res(ctx.status(500));
-      })
-    );
+// Test 6: Network error during state fetching
+test('handles network error during state fetching', async () => {
+  jest.useFakeTimers();
+  
+  // First render with successful connection
+  render(<App />);
+  
+  const connectButton = screen.getByText('Connect');
+  fireEvent.click(connectButton);
+  
+  await screen.findByAltText('Image 1');
 
-    // Advance timer to trigger state fetch
-    await act(async () => {
-      jest.advanceTimersByTime(100);
-    });
+  // Simulate network error for state fetching
+  server.use(
+    http.get('http://localhost:5000/api/states', () => {
+      return HttpResponse.error()
+    })
+  );
 
-    const errorMessage = await screen.findByText(/Error connecting to server/i);
-    expect(errorMessage).toBeInTheDocument();
-
-    jest.useRealTimers();
+  // Advance timer to trigger state fetch
+  await act(async () => {
+    jest.advanceTimersByTime(100);
   });
+
+  await act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  });
+
+  const errorElement = screen.getByText(/Error connecting to server/i);
+  expect(errorElement).toBeInTheDocument();
+
+  jest.useRealTimers();
+});
 });

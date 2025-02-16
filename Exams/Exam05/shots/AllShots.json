@@ -1,0 +1,69 @@
+{
+    "shots": [
+        {
+            "stage": 1,
+            "frame": 1,
+            "shot_index": 0,
+            "view": "AP",
+            "version": 1,
+            "timestamp": "2025-02-15T00:03:53.319051",
+            "is_current": true,
+            "raw_capture_file": "shots/rawcaptures/stage1_frame1_v1.png",
+            "image_file": "shots/images/stage1_frame1_v1.png",
+            "landmark_file": "landmarks/stage1_frame1_v1.json",
+            "recon_index": 0
+        },
+        {
+            "stage": 1,
+            "frame": 2,
+            "shot_index": 1,
+            "view": "AP",
+            "version": 1,
+            "timestamp": "2025-02-16T08:43:18.885683",
+            "is_current": true,
+            "raw_capture_file": "shots/rawcaptures/stage1_frame2_v1.png",
+            "image_file": "shots/images/stage1_frame2_v1.png",
+            "landmark_file": "landmarks/stage1_frame2_v1.json",
+            "recon_index": 0
+        },
+        {
+            "stage": 1,
+            "frame": 3,
+            "shot_index": 2,
+            "view": "RO",
+            "version": 1,
+            "timestamp": "2025-02-16T08:43:23.007523",
+            "is_current": true,
+            "raw_capture_file": "shots/rawcaptures/stage1_frame3_v1.png",
+            "image_file": "shots/images/stage1_frame3_v1.png",
+            "landmark_file": "landmarks/stage1_frame3_v1.json",
+            "recon_index": 1
+        },
+        {
+            "stage": 1,
+            "frame": 4,
+            "shot_index": 3,
+            "view": "AP",
+            "version": 1,
+            "timestamp": "2025-02-16T08:43:23.115282",
+            "is_current": true,
+            "raw_capture_file": "shots/rawcaptures/stage1_frame4_v1.png",
+            "image_file": "shots/images/stage1_frame4_v1.png",
+            "landmark_file": "landmarks/stage1_frame4_v1.json",
+            "recon_index": 1
+        },
+        {
+            "stage": 2,
+            "frame": 1,
+            "shot_index": 4,
+            "view": "LO",
+            "version": 1,
+            "timestamp": "2025-02-16T08:43:26.961399",
+            "is_current": true,
+            "raw_capture_file": "shots/rawcaptures/stage2_frame1_v1.png",
+            "image_file": "shots/images/stage2_frame1_v1.png",
+            "landmark_file": "landmarks/stage2_frame1_v1.json",
+            "recon_index": null
+        }
+    ]
+}

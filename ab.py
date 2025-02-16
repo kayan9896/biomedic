@@ -327,7 +327,7 @@ class AnalyzeBox:
         adjusted = cv2.convertScaleAbs(image, alpha=1, beta=beta)
         return adjusted
 
-
+'''
     def exec(scn, frame):
         match scn:
             case 'frm:hp1-ap:bgn':
@@ -396,3 +396,4 @@ class AnalyzeBox:
                     return None, error
             case 10:
                 pass
+'''

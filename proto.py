@@ -338,6 +338,31 @@ def adjust_brightness(index, stage, frame):
     except (IndexError, AttributeError) as e:
         return jsonify({"error": f"Error accessing or adjusting image: {str(e)}"}), 404
 
+@app.route('/save_overlay_image/<int:attempt_index>/<int:sub_attempt>/<int:frame_number>', methods=['POST'])
+def save_image(attempt_index, sub_attempt, frame_number):
+    global controller
+    if not controller:
+        return jsonify({"error": "Controller not initialized"}), 404
+
+    controller.viewmodel.attempts[attempt_index].stages[sub_attempt-1].frames[frame_number-1].generate_image_with_overlays()
+    '''if 'image' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    # Create directory if it doesn't exist
+    save_dir = f'data/attempts/{attempt_index}/sub_attempts/{sub_attempt}'
+    os.makedirs(save_dir, exist_ok=True)
+    
+    # Save the file
+    filename = f'composite_frame_{frame_number}.png'
+    file_path = os.path.join(save_dir, filename)
+    file.save(file_path)'''
+    
+    return jsonify({"message": f"Composite image for frame {frame_number} saved successfully"})
+
 
 @app.route('/run2', methods=['POST'])
 def start_processing2():
