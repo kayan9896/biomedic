@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
+import CircularProgress from './CircularProgress';
+import PatternDisplay from './PatternDisplay';
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -25,6 +27,10 @@ function App() {
   const activeRight = isInYellowSector && !isInGreenSector;
   const isRotationInRange = isInYellowSector;
   const imuon = angle >= -45 && angle <= 45;
+  const [leftImageMetadata, setLeftImageMetadata] = useState(null);
+  const [rightImageMetadata, setRightImageMetadata] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -33,6 +39,8 @@ function App() {
         const data = await response.json();
         setAngle(data.angle);
         setRotationAngle(data.rotation_angle);
+        setIsProcessing(data.is_processing);
+        setProgress(data.progress);
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
@@ -57,20 +65,22 @@ function App() {
 
   const updateImages = async (currentRotationAngle) => {
     try {
-      const response = await fetch('http://localhost:5000/api/latest-image');
-      const imageBlob = await response.blob();
-      const imageUrl = URL.createObjectURL(imageBlob);
-
-      if (currentRotationAngle >= -15 && currentRotationAngle <= 15) {
-        setLeftImage(imageUrl);
-      } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
-        setRightImage(imageUrl);
-      }
+        const response = await fetch('http://localhost:5000/api/image-with-metadata');
+        const data = await response.json();
+        
+        if (currentRotationAngle >= -15 && currentRotationAngle <= 15) {
+            setLeftImage(data.image);  // This is now a data URL
+            setLeftImageMetadata(data.metadata.metadata);
+            console.log(data.metadata)
+        } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
+            setRightImage(data.image);  // This is now a data URL
+            setRightImageMetadata(data.metadata.metadata);
+        }
     } catch (error) {
-      console.error('Error fetching image:', error);
-      setError("Error updating images");
+        console.error('Error fetching image:', error);
+        setError("Error updating images");
     }
-  };
+};
 
   const handleConnect = async () => {
     try {
@@ -168,7 +178,9 @@ function App() {
                   className="blue-box-overlay"
                 />
               )}
-              <div className="circle-mask"></div>
+              {leftImageMetadata && (
+            <PatternDisplay metadata={leftImageMetadata} />
+          )}
             </div>
 
             <div className="image-wrapper">
@@ -180,10 +192,12 @@ function App() {
                   className="blue-box-overlay"
                 />
               )}
-              <div className="circle-mask"></div>
+              {rightImageMetadata && (
+            <PatternDisplay metadata={rightImageMetadata} />
+          )}
             </div>
           </div>
-          
+          {isProcessing && <CircularProgress percentage={progress} />}
           {/* New angle input box */}
           <input
           ref={inputRef}
@@ -259,21 +273,6 @@ function App() {
             </div>
           )}
 
-          {/* {!imuon && (
-            <div className="sliding-error" style={{
-              position: 'absolute',
-              right: '-300px',
-              top: '863px',
-              animation: 'slideIn 0.5s forwards',
-              backgroundColor: '#ff4444',
-              padding: '10px',
-              borderRadius: '5px',
-              color: 'white',
-              zIndex: 1000
-            }}>
-              IMU Disconnected
-            </div>
-          )} */}
         </>
       )}
       

@@ -4,9 +4,9 @@ import threading
 import io
 from PIL import Image
 import time
-from ab import AnalyzeBox
+from ab2 import AnalyzeBox
 from fg import FrameGrabber
-from be import ImageProcessingController
+from be2 import ImageProcessingController
 from flask_cors import CORS
 import os
 
@@ -340,12 +340,7 @@ def adjust_brightness(index, stage, frame):
 
 @app.route('/save_overlay_image/<int:attempt_index>/<int:sub_attempt>/<int:frame_number>', methods=['POST'])
 def save_image(attempt_index, sub_attempt, frame_number):
-    global controller
-    if not controller:
-        return jsonify({"error": "Controller not initialized"}), 404
-
-    controller.viewmodel.attempts[attempt_index].stages[sub_attempt-1].frames[frame_number-1].generate_image_with_overlays()
-    '''if 'image' not in request.files:
+    if 'image' not in request.files:
         return jsonify({"error": "No file part"}), 400
     
     file = request.files['image']
@@ -359,7 +354,7 @@ def save_image(attempt_index, sub_attempt, frame_number):
     # Save the file
     filename = f'composite_frame_{frame_number}.png'
     file_path = os.path.join(save_dir, filename)
-    file.save(file_path)'''
+    file.save(file_path)
     
     return jsonify({"message": f"Composite image for frame {frame_number} saved successfully"})
 
@@ -390,61 +385,36 @@ def get_states():
             controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
     
     return jsonify(controller.get_states())
-@app.route('/api/latest-image')
-def get_latest_image():
+    
+import base64
+@app.route('/api/image-with-metadata')
+def get_image_with_metadata():
     global controller
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     
-    # Get the current angle
     angle = controller.viewmodel.states['angle']
-    print(controller.viewmodel.imgs)
-    image=[]
-    # Determine which image to send based on angle
+    
+    # Determine which image data to send
     if -15 <= angle <= 15:
-        image = controller.viewmodel.imgs[0]
+        image_data = controller.viewmodel.imgs[0]
     elif -45 <= angle <= 45:
-        image = controller.viewmodel.imgs[1]
+        image_data = controller.viewmodel.imgs[1]
     else:
         return jsonify({"error": "Angle out of range"}), 400
     
-    if image is None:
+    if image_data['image'] is None:
         return jsonify({"error": "No image available"}), 404
-        
-    # Convert the image to JPEG format
-    image_bytes = encode_image_to_jpeg(image)
-    return Response(image_bytes, mimetype='image/jpeg')
-@app.route('/angle', methods=['POST'])
-def update_angle():
-    try:
-        global controller
-        if controller is None:
-            return jsonify({"error": "Controller not initialized"}), 404
-        data = request.get_json()
-        new_angle = data.get('angle')
-        
-        if new_angle is not None:
-            # Update the angle in the viewmodel
-            controller.viewmodel.update_state('angle', float(new_angle))
-            return jsonify({'success': True}), 200
-        else:
-            return jsonify({'error': 'No angle value provided'}), 400
-            
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-@app.route('/rotation_angle', methods=['POST'])
-def update_rotation_angle():
-    try:
-        data = request.get_json()
-        new_angle = data.get('angle')
-        
-        if new_angle is not None:
-            controller.viewmodel.update_state('rotation_angle', float(new_angle))
-            return jsonify({'success': True}), 200
-        else:
-            return jsonify({'error': 'No angle value provided'}), 400
-            
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    
+    # Convert the image to base64 encoding
+    _, buffer = cv2.imencode('.jpg', image_data['image'])
+    image_base64 = base64.b64encode(buffer).decode('utf-8')
+    
+    # Return both image and metadata in JSON
+    return jsonify({
+        'image': f'data:image/jpeg;base64,{image_base64}',
+        'metadata': image_data['metadata']
+    })
+
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)

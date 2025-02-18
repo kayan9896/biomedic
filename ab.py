@@ -359,10 +359,10 @@ class AnalyzeBox:
                     success, landmark, error = self.model.analyze_landmark(1, 2, 'RO')
                     if not success:
                         raise Exception(error)
-                    self.data.hp2-ap.success = True
+                    self.data.hp1-ob.success = True
                     return (distort, camcalib), (image, landmark, None)
                 except Exception as error:
-                    self.data.hp2-ap.success = False
+                    self.data.hp1-ob.success = False
                     return None, (None, None, error)
 
             case 'rcn:hmplv1:bgn':

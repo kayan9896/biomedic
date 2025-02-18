@@ -1,0 +1,107 @@
+import cv2
+import numpy as np
+import time
+import threading
+import json
+import datetime
+
+class AnalyzeBox:
+    def __init__(self):
+        self.progress = 0
+        self._lock = threading.Lock()
+        self._result = None
+        self.images = [[None]*4, [None]*2, [None]*2]
+        self.stitched_result = [None]*2
+        self.is_processing = False
+        self._stitch_thread = None
+        self.mode = 1  
+        self.data={
+            'hp1_ap': False,
+            'hp1_ob': False
+        }
+       
+
+    def stitch(self, frame1, frame2):
+        """Stitch two frames together."""
+        if frame1.shape[0] != frame2.shape[0]:
+            max_height = max(frame1.shape[0], frame2.shape[0])
+            frame1_resized = cv2.resize(frame1, (int(frame1.shape[1] * max_height / frame1.shape[0]), max_height))
+            frame2_resized = cv2.resize(frame2, (int(frame2.shape[1] * max_height / frame2.shape[0]), max_height))
+        else:
+            frame1_resized, frame2_resized = frame1, frame2
+
+        # Simulate processing with progress updates
+        k=0
+        for i in range(10000):
+            for j in range(3000):
+                with self._lock:
+                    self.progress = (k + 1) /300000
+                    k+=1
+
+        # Stitch the images
+        self._result = np.hstack((frame1_resized, frame2_resized))
+        return self._result
+
+    def analyzeframe(self, frame):
+        try:
+            self.is_processing = True
+            # Load metadata
+            with open('metadata.json', 'r') as f:
+                metadata = json.load(f)
+            
+            # Process frame and generate results
+            result = {
+                'frame_data': {
+                    'width': frame.shape[1],
+                    'height': frame.shape[0],
+                    'channels': frame.shape[2] if len(frame.shape) > 2 else 1
+                },
+                'success': True,
+                'metadata': metadata
+            }
+            
+            k=0
+            for i in range(10000):
+                for j in range(3000):
+                    with self._lock:
+                        self.progress = (k + 1) /300000
+                        k+=1
+            self.is_processing = False
+
+            return result, frame
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }, None
+    
+    def exec(self, scn, frame=None):
+        match scn:
+            case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn':
+                
+                try:
+                    data, processed_frame = self.analyzeframe(frame)
+                    
+                    # Prepare data for different components
+                    dataforsave = {
+                        'scenario': scn,
+                        'success': data['success'],
+                        'metadata': data['metadata']
+                    }
+                    
+                    dataforvm = {
+                        'frame_data': data['frame_data'],
+                        'metadata': data['metadata'],
+                        'success': data['success']
+                    }
+                    
+                    return dataforsave, dataforvm, processed_frame
+                
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+            case _:
+                return None, None, None
