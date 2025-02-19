@@ -216,6 +216,9 @@ class ImageProcessingController:
         os.makedirs(calib_folder)
         
         return new_exam_folder
+    
+    def get_current_state(self):
+        pass
 
     def _copy_calib_files(self, source_folder, exam_folder):
         """Copy calibration files to the new exam folder"""
@@ -296,7 +299,7 @@ class ImageProcessingController:
                 return self.scn
 
             case 'frm:hp1-ap:end'| 'frm:hp1-ob:end':
-                if self.model.data['hp1_ap'] and self.model.data['hp1_ob']:
+                if self.model.data['hp1-ap']['success'] and self.model.data['hp1-ob']['success']:
                     return 'rcn:hmplv1:bgn'
                 else:
                     if frame is not None:
@@ -305,4 +308,49 @@ class ImageProcessingController:
                         if self.imuonob:
                             return 'frm:hp1-ob:bgn'
                     return self.scn
+            
+            case 'rcn:hmplv1:end':
+                if self.model.data['hmplv1']['success']:
+                    #user goes next
+                    if self.uistates == 'next':
+                        self.uistates = None
+                        if self.frame:
+                            if self.imuonap:
+                                return 'frm:hp2-ap:bgn'
+                            if self.imuonob:
+                                return 'frm:hp2-ob:bgn'
+                    
+                    #user submits landmarks changes, redo recon
+                    if self.uistates == 'landmarks':
+                        self.uistates = None
+                        return 'rcn:hmplv1:bgn'
+
+                    #user does nothing/ editing
+                    #they can retake
+                    if self.frame_grabber._is_new_frame_available:
+                        if self.imuonap:
+                            return 'frm:hp1-ap:bgn'
+                        if self.imuonob:
+                            return 'frm:hp1-ob:bgn'
+
+                    #otherwise, stay at the end stage
+                    return self.scn
                 
+                else:
+                    #fail, redo or retake, similar to success redo/retake
+                    #user submits landmarks changes, redo recon
+                    if self.uistates == 'landmarks':
+                        self.uistates = None
+                        return 'rcn:hmplv1:bgn'
+
+                    #user does nothing/ editing
+                    #they can retake
+                    if self.frame_grabber._is_new_frame_available:
+                        if self.imuonap:
+                            return 'frm:hp1-ap:bgn'
+                        if self.imuonob:
+                            return 'frm:hp1-ob:bgn'
+
+                    #otherwise, stay at the end stage
+                    return self.scn
+                    

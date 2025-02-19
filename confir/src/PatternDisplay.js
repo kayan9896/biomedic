@@ -65,15 +65,6 @@ console.log(currentMetadata)
     zIndex: 10
   };
 
-  const boxStyle = {
-    width: '300px',
-    height: '300px',
-    border: '2px solid yellow',
-    position: 'relative',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    overflow: 'hidden'
-  };
-
   return (
     <div style={containerStyle}>
       {/* Circle Box */}
@@ -96,12 +87,12 @@ console.log(currentMetadata)
         />
 
         <Line 
-          squareSize={300}
+          squareSize={960}
           points={currentMetadata.lines.straight}
           onChange={handleStraightLineUpdate}
         />
         <Line 
-          squareSize={300}
+          squareSize={960}
           points={currentMetadata.lines.sine}
           onChange={handleSineLineUpdate}
         />

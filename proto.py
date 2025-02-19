@@ -385,7 +385,7 @@ def get_states():
             controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
     
     return jsonify(controller.get_states())
-    
+
 import base64
 @app.route('/api/image-with-metadata')
 def get_image_with_metadata():
@@ -393,7 +393,7 @@ def get_image_with_metadata():
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     
-    angle = controller.viewmodel.states['angle']
+    angle = controller.viewmodel.states['rotation_angle']
     
     # Determine which image data to send
     if -15 <= angle <= 15:

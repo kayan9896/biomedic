@@ -153,8 +153,8 @@ const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
   return (
     <svg 
       ref={ellipseRef}
-      width="700" 
-      height="700"
+      width="960" 
+      height="960"
       onMouseDown={handleMouseDown}
       onTouchStart={handleMouseDown}
       style={{ position: 'absolute', top: 0, left: 0, cursor: isDragging ? 'grabbing' : isSelected ? 'grab' : 'default' }}

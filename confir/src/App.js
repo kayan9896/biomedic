@@ -11,16 +11,18 @@ function App() {
   const [leftImage, setLeftImage] = useState(require('./AP.png'));
   const [rightImage, setRightImage] = useState(require('./OB.png'));
   const [error, setError] = useState(null);
-  const [showCarmBox, setShowCarmBox] = useState(true);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const keyboardRef = useRef(null);
   const inputRef = useRef(null);
   const [cursorPosition, setCursorPosition] = useState(0);
   const [keyboardLayout, setKeyboardLayout] = useState('default');
 
+  const [showCarmBox, setShowCarmBox] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const previousImgCountRef = useRef(0); 
+  const carmBoxTimerRef = useRef(null);
   const [rotationAngle, setRotationAngle] = useState(0);
+  const previousRotationAngleRef = useRef(rotationAngle);
   const isInGreenSector = rotationAngle >= -15 && rotationAngle <= 15;
   const isInYellowSector = rotationAngle >= -45 && rotationAngle <= 45;
   const activeLeft = isInGreenSector;
@@ -38,14 +40,40 @@ function App() {
         const response = await fetch('http://localhost:5000/api/states');
         const data = await response.json();
         setAngle(data.angle);
-        setRotationAngle(data.rotation_angle);
+        
+        // Check if rotation angle has changed
+        if (data.rotation_angle !== previousRotationAngleRef.current) {
+          setRotationAngle(data.rotation_angle);
+          previousRotationAngleRef.current = data.rotation_angle;
+          
+          // Show carmbox when rotation angle changes
+          setShowCarmBox(true);
+          
+          // Clear any existing timer
+          if (carmBoxTimerRef.current) {
+            clearTimeout(carmBoxTimerRef.current);
+          }
+          
+          // Set a new timer to hide carmbox after 5 seconds if no further changes
+          carmBoxTimerRef.current = setTimeout(() => {
+            setShowCarmBox(false);
+          }, 5000);
+        }
+        
         setIsProcessing(data.is_processing);
         setProgress(data.progress);
+        
+        // Hide carmbox when processing is happening
+        if (data.is_processing) {
+          setShowCarmBox(false);
+          if (carmBoxTimerRef.current) {
+            clearTimeout(carmBoxTimerRef.current);
+          }
+        }
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
           await updateImages(data.rotation_angle);
-          setShowCarmBox(false);
         }
 
         if (isRotationInRange) {
@@ -60,8 +88,13 @@ function App() {
     };
 
     const intervalId = setInterval(fetchStates, 100);
-    return () => clearInterval(intervalId);
-  }, []);
+    return () => {
+      clearInterval(intervalId);
+      if (carmBoxTimerRef.current) {
+        clearTimeout(carmBoxTimerRef.current);
+      }
+    };
+  }, [isRotationInRange]);
 
   const updateImages = async (currentRotationAngle) => {
     try {
@@ -161,16 +194,47 @@ function App() {
  
   return (
     <div className="app">
+      {/*L1 Background*/}
       <img src={require('./background.png')} style={{'position':'absolute'}}/>
+
+      {/*L2 Status bar*/}
+      {/* Status bar and measurements */
+      <input
+        ref={inputRef}
+        type="text"
+        value={manualAngle}
+        onChange={onInputChange}
+        onClick={() => setShowKeyboard(true)}
+        onSelect={onSelect}
+        style={{
+          position: 'absolute',
+          left: '50px',
+          top: '995px',
+          width: '180px',
+          background: 'black',
+          color: 'white',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          border: '1px solid white',
+          padding: '8px',
+          fontSize: '16px'
+        }}
+        placeholder="no patient data"
+      />
+      }
+
+
       {!isConnected ? (
         <div className="connection-container" style={{'position':'absolute'}}>
           <button onClick={handleConnect}>Connect</button>
         </div>
       ) : (
-        <>
+        <>{/*L3 Images*/}
           <div className="image-container">
             <div className="image-wrapper">
               <img src={leftImage} alt="Image 1" />
+              {/*L5 Viewport select */}
               {activeLeft && (
                 <img 
                   src={require('./blueBox.png')} 
@@ -178,6 +242,7 @@ function App() {
                   className="blue-box-overlay"
                 />
               )}
+              {/*L4 Landmarks, rendered when ther is data */}
               {leftImageMetadata && (
             <PatternDisplay metadata={leftImageMetadata} />
           )}
@@ -197,33 +262,80 @@ function App() {
           )}
             </div>
           </div>
-          {isProcessing && <CircularProgress percentage={progress} />}
-          {/* New angle input box */}
-          <input
-          ref={inputRef}
-          type="text"
-          value={manualAngle}
-          onChange={onInputChange}
-          onClick={() => setShowKeyboard(true)}
-          onSelect={onSelect}
-          style={{
-            position: 'absolute',
-            left: '50px',
-            top: '995px',
-            width: '180px',
-            background: 'black',
-            color: 'white',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            border: '1px solid white',
-            padding: '8px',
-            fontSize: '16px'
-          }}
-          placeholder="no patient data"
-        />
+
+      {isProcessing && <CircularProgress percentage={progress} />}
+      
+      {/*L6 Edit blur, render when editside true*/}
+
+
+
+      {/*L8 Edit bar, render when editing true*/}
+
+          
         
-        {showKeyboard && (
+          {/*L9 Message box, render based on backend measurements or error*/}
+          {!isRotationInRange && (
+            <div className="error-message-overlay">
+              <div className="error-message-box">
+                Rotation angle out of range. Please adjust the position.
+              </div>
+            </div>
+          )}
+
+        </>
+      )}
+      
+      {/*L10 Carmbox, render if backend angle changes*/}
+      {showCarmBox && !isProcessing && (
+        <div style={{position:'absolute', top:'82px', left:'337px', zIndex:'2'}}>
+          <img src={require('./carmbox.png')} alt="box" />
+          <div className="hand" style={{ 
+            transform: `rotate(${angle}deg)`,
+            position:'absolute', 
+            top:'224px', 
+            left:'298px', 
+            zIndex:'3' 
+          }}>
+            <img src={require('./tiltcarm.png')} alt="indicator" />
+          </div>
+          <div className="hand" style={{ 
+            transform: `rotate(${rotationAngle}deg)`,
+            position:'absolute', 
+            top:'220px', 
+            left:'750px', 
+            zIndex:'3' 
+          }}>
+            <img src={require('./rotcarm.png')} alt="indicator" />
+          </div>
+        </div>
+      )}
+      
+      {/*L1x IMU and video icons, render based on backend params */}
+      {imuon ? (
+        <img 
+          src={require('./IMUConnectionIcon.png')} 
+          style={{
+            position:'absolute', 
+            top:'863px', 
+            left:'1825px'
+          }}
+        />
+      ):(<img 
+        src={require('./IMUerr.png')} 
+        style={{
+          position:'absolute', 
+          top:'864px', 
+          left:'1435px',
+          animation: 'slideIn 0.5s ease-in-out',
+        }}
+      />)}
+      <img 
+        src={require('./videoConnectionIcon.png')} 
+        style={{position:'absolute', top:'765px', left:'1825px'}}
+      />
+
+      {/*L1x Keyboard, render when showKeyboard true*/}
+      {showKeyboard && (
           <div 
             ref={keyboardRef}
             style={{
@@ -262,66 +374,14 @@ function App() {
               ]}
               onKeyPress={onKeyboardButtonPress}
             />
+            {/*L11 Report, render when report button clicked*/}
+
+            {/*L12 Pause, render when next button clicked */}
+
+            {/*L13 Setup, render when iscoonected false*/}
           </div>
         )}
 
-          {!isRotationInRange && (
-            <div className="error-message-overlay">
-              <div className="error-message-box">
-                Rotation angle out of range. Please adjust the position.
-              </div>
-            </div>
-          )}
-
-        </>
-      )}
-      
-      {showCarmBox && (
-        <div style={{position:'absolute', top:'82px', left:'337px', zIndex:'2'}}>
-          <img src={require('./carmbox.png')} alt="box" />
-          <div className="hand" style={{ 
-            transform: `rotate(${angle}deg)`,
-            position:'absolute', 
-            top:'224px', 
-            left:'298px', 
-            zIndex:'3' 
-          }}>
-            <img src={require('./tiltcarm.png')} alt="indicator" />
-          </div>
-          <div className="hand" style={{ 
-            transform: `rotate(${rotationAngle}deg)`,
-            position:'absolute', 
-            top:'220px', 
-            left:'750px', 
-            zIndex:'3' 
-          }}>
-            <img src={require('./rotcarm.png')} alt="indicator" />
-          </div>
-        </div>
-      )}
-      
-      {imuon ? (
-        <img 
-          src={require('./IMUConnectionIcon.png')} 
-          style={{
-            position:'absolute', 
-            top:'863px', 
-            left:'1825px'
-          }}
-        />
-      ):(<img 
-        src={require('./IMUerr.png')} 
-        style={{
-          position:'absolute', 
-          top:'864px', 
-          left:'1435px',
-          animation: 'slideIn 0.5s ease-in-out',
-        }}
-      />)}
-      <img 
-        src={require('./videoConnectionIcon.png')} 
-        style={{position:'absolute', top:'765px', left:'1825px'}}
-      />
     </div>
   );
 }

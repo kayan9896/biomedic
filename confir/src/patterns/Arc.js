@@ -157,8 +157,8 @@ const Arc = ({ arc: initialArc, onChange }) => {
   return (
     <svg 
       ref={arcRef}
-      width="700" 
-      height="700"
+      width="960" 
+      height="960"
       style={{ 
         position: 'absolute', 
         top: 0, 
