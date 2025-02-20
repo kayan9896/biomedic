@@ -192,7 +192,7 @@ class ProcessingModel:
             'video_on':True,
             'error':None,
             'measurements':[],
-            'carm_moving':False,
+            'carm_moving':False,#optional
             'current_stage': 1,#optional
             'current_frame': 1#optional
         }

@@ -168,7 +168,6 @@ class FrameGrabber:
         with self.frame_lock:
             self._is_new_frame_available = False  # Reset flag when frame is fetched
             self._last_fetch_time = datetime.now()
-            cv2.imwrite('jjiijji.png', self.last_frame)
             return self.last_frame.copy() if self.last_frame is not None else None
 
     def startVideo(self, frequency: float = 30.0) -> Union[bool, str]:

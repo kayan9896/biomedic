@@ -4,10 +4,12 @@ import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import CircularProgress from './CircularProgress';
 import PatternDisplay from './PatternDisplay';
+import L1 from './L1/L1';
+import L2 from './L2/L2';
 
 function App() {
   const [angle, setAngle] = useState(0);
-  const [manualAngle, setManualAngle] = useState('');
+  const [patient, setPatient] = useState('');
   const [leftImage, setLeftImage] = useState(require('./AP.png'));
   const [rightImage, setRightImage] = useState(require('./OB.png'));
   const [error, setError] = useState(null);
@@ -33,6 +35,7 @@ function App() {
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [editing,setEditing] = useState(false)
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -148,7 +151,7 @@ function App() {
 
   const onInputChange = (e) => {
     const value = e.target.value;
-    setManualAngle(value);
+    setPatient(value);
     setCursorPosition(e.target.selectionStart);
   };
 
@@ -156,9 +159,9 @@ function App() {
     if (button === "{enter}") {
       setShowKeyboard(false);
     } else if (button === "{bksp}") {
-      const beforeCursor = manualAngle.substring(0, cursorPosition - 1);
-      const afterCursor = manualAngle.substring(cursorPosition);
-      setManualAngle(beforeCursor + afterCursor);
+      const beforeCursor = patient.substring(0, cursorPosition - 1);
+      const afterCursor = patient.substring(cursorPosition);
+      setPatient(beforeCursor + afterCursor);
       setCursorPosition(cursorPosition - 1);
     } else if (button === "{space}") {
       insertAtCursor(' ');
@@ -173,10 +176,10 @@ function App() {
     }
   };
   const insertAtCursor = (str) => {
-    const beforeCursor = manualAngle.substring(0, cursorPosition);
-    const afterCursor = manualAngle.substring(cursorPosition);
+    const beforeCursor = patient.substring(0, cursorPosition);
+    const afterCursor = patient.substring(cursorPosition);
     const newValue = beforeCursor + str + afterCursor;
-    setManualAngle(newValue);
+    setPatient(newValue);
     setCursorPosition(cursorPosition + str.length);
   };
 
@@ -189,44 +192,23 @@ function App() {
     if (inputRef.current) {
       inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
     }
-  }, [cursorPosition, manualAngle]);
+  }, [cursorPosition, patient]);
 
  
   return (
     <div className="app">
       {/*L1 Background*/}
-      <img src={require('./background.png')} style={{'position':'absolute'}}/>
-
+      <L1/>
+      
       {/*L2 Status bar*/}
-      {/* Status bar and measurements */
-      <input
-        ref={inputRef}
-        type="text"
-        value={manualAngle}
-        onChange={onInputChange}
-        onClick={() => setShowKeyboard(true)}
-        onSelect={onSelect}
-        style={{
-          position: 'absolute',
-          left: '50px',
-          top: '995px',
-          width: '180px',
-          background: 'black',
-          color: 'white',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          border: '1px solid white',
-          padding: '8px',
-          fontSize: '16px'
-        }}
-        placeholder="no patient data"
-      />
-      }
+      <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient}/>
 
 
       {!isConnected ? (
         <div className="connection-container" style={{'position':'absolute'}}>
+          {/*L13 Setup, render when iscoonected false*/}
+          <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'21px', left:'255px', zIndex:13}}/>
+        
           <button onClick={handleConnect}>Connect</button>
         </div>
       ) : (
@@ -263,14 +245,31 @@ function App() {
             </div>
           </div>
 
-      {isProcessing && <CircularProgress percentage={progress} />}
       
-      {/*L6 Edit blur, render when editside true*/}
+      
+      {/*L6 Edit blur, render when editing true*/}
+      {editing&&<img src={require('./EditModeBGBlur.png')} alt="EditModeBGBlur" style={{position:'absolute', top:'0px', left:'960px', zIndex:6}}/>}
 
+      {/*L7 Imaging, render when backend progress=100*/}
+      {(!editing&&progress==100)&&<div>
+        <img src={require('./Imaging Mode Toolbar.png')} alt="Imaging Mode Toolbar" style={{position:'absolute', top:'458px', left:'921px', zIndex:7}}/>
+        <img src={require('./Acquire Image Icon.png')} alt="acquire icon" style={{position:'absolute', top:'660px', left:'899px', zIndex:7}}/>
+        <img src={require('./Edit Icon.png')} alt="edit icon" style={{position:'absolute', top:'466px', left:'928px', zIndex:7}} onClick={()=>{setEditing(!editing)}}/>
+        <img src={require('./Report Icon.png')} alt="Report Icon" style={{position:'absolute', top:'547px', left:'928px', zIndex:7}}/>
+        {/*Show icon based on backend param*/}
+        <img src={require('./OB Status Icon.png')} alt="OB Status Icon" style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/>
+      </div>}
 
 
       {/*L8 Edit bar, render when editing true*/}
-
+      {editing&&<div>
+        <img src={require('./L8/EditModeBlueBorder.png')} alt="EditModeBlueBorder" style={{position:'absolute', top:'0px', left:'0px', zIndex:7}}/>
+        <img src={require('./L8/EditToolbarBg.png')} alt="EditToolbarBg" style={{position:'absolute', top:'239px', left:'920px', zIndex:7}}/>
+        <img src={require('./L8/BrightnessIcon.png')} alt="BrightnessIcon" style={{position:'absolute', top:'251px', left:'927px', zIndex:7}} onClick={()=>{setEditing(true)}}/>
+        <img src={require('./L8/SaveIcon.png')} alt="SaveIcon" style={{position:'absolute', top:'685px', left:'927px', zIndex:7}}/>
+        {/*Show icon based on backend param*/}
+        <img src={require('./L8/ExitIcon.png')} alt="ExitIcon" style={{position:'absolute', top:'766px', left:'927px', zIndex:7}} onClick={()=>{setEditing(false)}}/>
+      </div>}
           
         
           {/*L9 Message box, render based on backend measurements or error*/}
@@ -282,19 +281,18 @@ function App() {
             </div>
           )}
 
-        </>
-      )}
+        
       
       {/*L10 Carmbox, render if backend angle changes*/}
       {showCarmBox && !isProcessing && (
-        <div style={{position:'absolute', top:'82px', left:'337px', zIndex:'2'}}>
+        <div style={{position:'absolute', top:'82px', left:'337px', zIndex:'10'}}>
           <img src={require('./carmbox.png')} alt="box" />
           <div className="hand" style={{ 
             transform: `rotate(${angle}deg)`,
             position:'absolute', 
             top:'224px', 
             left:'298px', 
-            zIndex:'3' 
+            zIndex:'11' 
           }}>
             <img src={require('./tiltcarm.png')} alt="indicator" />
           </div>
@@ -303,13 +301,16 @@ function App() {
             position:'absolute', 
             top:'220px', 
             left:'750px', 
-            zIndex:'3' 
+            zIndex:'11' 
           }}>
             <img src={require('./rotcarm.png')} alt="indicator" />
           </div>
         </div>
       )}
       
+      {/*L1x Progree bar, render based on backend params*/}
+      {isProcessing && <CircularProgress percentage={progress} />}
+
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (
         <img 
@@ -317,7 +318,8 @@ function App() {
           style={{
             position:'absolute', 
             top:'863px', 
-            left:'1825px'
+            left:'1825px',
+            zIndex:12
           }}
         />
       ):(<img 
@@ -327,13 +329,16 @@ function App() {
           top:'864px', 
           left:'1435px',
           animation: 'slideIn 0.5s ease-in-out',
+          zIndex:12
         }}
       />)}
       <img 
         src={require('./videoConnectionIcon.png')} 
-        style={{position:'absolute', top:'765px', left:'1825px'}}
+        style={{position:'absolute', top:'765px', left:'1825px',zIndex:12}}
       />
-
+      </>
+      )}
+      
       {/*L1x Keyboard, render when showKeyboard true*/}
       {showKeyboard && (
           <div 
