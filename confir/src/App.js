@@ -6,6 +6,13 @@ import CircularProgress from './CircularProgress';
 import PatternDisplay from './PatternDisplay';
 import L1 from './L1/L1';
 import L2 from './L2/L2';
+import L6 from './L6/L6';
+import L7 from './L7/L7';
+import L8 from './L8/L8';
+import L10 from './L10/L10';
+import L11 from './L11/L11';
+import L13 from './L13/L13';
+import L12 from './L12/L12';
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -35,7 +42,9 @@ function App() {
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [editing,setEditing] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [report, setReport] = useState(false)
+  const [pause, setPause] = useState(true)
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -134,6 +143,10 @@ function App() {
     }
   };
 
+  const handlenext = async () => {
+    setPause(false)
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -205,11 +218,9 @@ function App() {
 
 
       {!isConnected ? (
-        <div className="connection-container" style={{'position':'absolute'}}>
+        <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'21px', left:'255px', zIndex:13}}/>
-        
-          <button onClick={handleConnect}>Connect</button>
+          <L13 handleConnect={handleConnect}/>  
         </div>
       ) : (
         <>{/*L3 Images*/}
@@ -248,68 +259,27 @@ function App() {
       
       
       {/*L6 Edit blur, render when editing true*/}
-      {editing&&<img src={require('./EditModeBGBlur.png')} alt="EditModeBGBlur" style={{position:'absolute', top:'0px', left:'960px', zIndex:6}}/>}
+      {editing&&<L6/>}
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&progress==100)&&<div>
-        <img src={require('./Imaging Mode Toolbar.png')} alt="Imaging Mode Toolbar" style={{position:'absolute', top:'458px', left:'921px', zIndex:7}}/>
-        <img src={require('./Acquire Image Icon.png')} alt="acquire icon" style={{position:'absolute', top:'660px', left:'899px', zIndex:7}}/>
-        <img src={require('./Edit Icon.png')} alt="edit icon" style={{position:'absolute', top:'466px', left:'928px', zIndex:7}} onClick={()=>{setEditing(!editing)}}/>
-        <img src={require('./Report Icon.png')} alt="Report Icon" style={{position:'absolute', top:'547px', left:'928px', zIndex:7}}/>
-        {/*Show icon based on backend param*/}
-        <img src={require('./OB Status Icon.png')} alt="OB Status Icon" style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/>
-      </div>}
+      {(!editing&&progress==100)&&<L7 setEditing={setEditing} setReport={setReport}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}
-      {editing&&<div>
-        <img src={require('./L8/EditModeBlueBorder.png')} alt="EditModeBlueBorder" style={{position:'absolute', top:'0px', left:'0px', zIndex:7}}/>
-        <img src={require('./L8/EditToolbarBg.png')} alt="EditToolbarBg" style={{position:'absolute', top:'239px', left:'920px', zIndex:7}}/>
-        <img src={require('./L8/BrightnessIcon.png')} alt="BrightnessIcon" style={{position:'absolute', top:'251px', left:'927px', zIndex:7}} onClick={()=>{setEditing(true)}}/>
-        <img src={require('./L8/SaveIcon.png')} alt="SaveIcon" style={{position:'absolute', top:'685px', left:'927px', zIndex:7}}/>
-        {/*Show icon based on backend param*/}
-        <img src={require('./L8/ExitIcon.png')} alt="ExitIcon" style={{position:'absolute', top:'766px', left:'927px', zIndex:7}} onClick={()=>{setEditing(false)}}/>
-      </div>}
+      {editing&&<L8 setEditing={setEditing}/>}
           
         
-          {/*L9 Message box, render based on backend measurements or error*/}
-          {!isRotationInRange && (
-            <div className="error-message-overlay">
-              <div className="error-message-box">
-                Rotation angle out of range. Please adjust the position.
-              </div>
-            </div>
-          )}
-
-        
-      
-      {/*L10 Carmbox, render if backend angle changes*/}
-      {showCarmBox && !isProcessing && (
-        <div style={{position:'absolute', top:'82px', left:'337px', zIndex:'10'}}>
-          <img src={require('./carmbox.png')} alt="box" />
-          <div className="hand" style={{ 
-            transform: `rotate(${angle}deg)`,
-            position:'absolute', 
-            top:'224px', 
-            left:'298px', 
-            zIndex:'11' 
-          }}>
-            <img src={require('./tiltcarm.png')} alt="indicator" />
-          </div>
-          <div className="hand" style={{ 
-            transform: `rotate(${rotationAngle}deg)`,
-            position:'absolute', 
-            top:'220px', 
-            left:'750px', 
-            zIndex:'11' 
-          }}>
-            <img src={require('./rotcarm.png')} alt="indicator" />
+      {/*L9 Message box, render based on backend measurements or error*/}
+      {!isRotationInRange && (
+        <div className="error-message-overlay">
+          <div className="error-message-box">
+            Rotation angle out of range. Please adjust the position.
           </div>
         </div>
       )}
-      
-      {/*L1x Progree bar, render based on backend params*/}
-      {isProcessing && <CircularProgress percentage={progress} />}
+   
+      {/*L10 Carmbox, render if backend angle changes*/}
+      {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
 
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (
@@ -319,7 +289,7 @@ function App() {
             position:'absolute', 
             top:'863px', 
             left:'1825px',
-            zIndex:12
+            zIndex:10
           }}
         />
       ):(<img 
@@ -329,15 +299,25 @@ function App() {
           top:'864px', 
           left:'1435px',
           animation: 'slideIn 0.5s ease-in-out',
-          zIndex:12
+          zIndex:10
         }}
       />)}
       <img 
         src={require('./videoConnectionIcon.png')} 
-        style={{position:'absolute', top:'765px', left:'1825px',zIndex:12}}
+        style={{position:'absolute', top:'765px', left:'1825px',zIndex:10}}
       />
       </>
       )}
+
+      {/*L11 Report, render when report button clicked*/}
+      {report&&<L11 setReport={setReport}/>}
+            
+      {/*L12 Pause, render when next button clicked */}
+      {pause&&<L12 setPause={setPause} setReport={setReport} handlenext={handlenext}/>}
+      {/*L13 Setup, render when iscoonected false*/}
+
+      {/*L1x Progree bar, render based on backend params*/}
+      {isProcessing && <CircularProgress percentage={progress} />}
       
       {/*L1x Keyboard, render when showKeyboard true*/}
       {showKeyboard && (
@@ -379,13 +359,9 @@ function App() {
               ]}
               onKeyPress={onKeyboardButtonPress}
             />
-            {/*L11 Report, render when report button clicked*/}
-
-            {/*L12 Pause, render when next button clicked */}
-
-            {/*L13 Setup, render when iscoonected false*/}
           </div>
         )}
+  
 
     </div>
   );
