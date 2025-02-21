@@ -3,7 +3,6 @@ import './App.css';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import CircularProgress from './CircularProgress';
-import PatternDisplay from './PatternDisplay';
 import L1 from './L1/L1';
 import L2 from './L2/L2';
 import L6 from './L6/L6';
@@ -13,6 +12,9 @@ import L10 from './L10/L10';
 import L11 from './L11/L11';
 import L13 from './L13/L13';
 import L12 from './L12/L12';
+import L14 from './L14/L14';
+import L9 from './L9/L9';
+import L3 from './L3';
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -37,14 +39,16 @@ function App() {
   const activeLeft = isInGreenSector;
   const activeRight = isInYellowSector && !isInGreenSector;
   const isRotationInRange = isInYellowSector;
-  const imuon = angle >= -45 && angle <= 45;
+  const imuon = angle >= -45 && angle <= 45 ;
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [editing, setEditing] = useState(false)
   const [report, setReport] = useState(false)
-  const [pause, setPause] = useState(true)
+  const [pause, setPause] = useState(false)
+  const [setting, setSetting] = useState(false)
+  const [measurements, setMeasurements] = useState(null)
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -92,6 +96,10 @@ function App() {
           setError(null);
         } else {
           setError("Rotation angle out of range. Please adjust the position.");
+        }
+
+        if (data.measurements) {
+          setMeasurements(data.measurements);
         }
       } catch (error) {
         console.error('Error fetching states:', error);
@@ -214,7 +222,7 @@ function App() {
       <L1/>
       
       {/*L2 Status bar*/}
-      <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient}/>
+      <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting}/>
 
 
       {!isConnected ? (
@@ -223,39 +231,16 @@ function App() {
           <L13 handleConnect={handleConnect}/>  
         </div>
       ) : (
-        <>{/*L3 Images*/}
-          <div className="image-container">
-            <div className="image-wrapper">
-              <img src={leftImage} alt="Image 1" />
-              {/*L5 Viewport select */}
-              {activeLeft && (
-                <img 
-                  src={require('./blueBox.png')} 
-                  alt="blue box" 
-                  className="blue-box-overlay"
-                />
-              )}
-              {/*L4 Landmarks, rendered when ther is data */}
-              {leftImageMetadata && (
-            <PatternDisplay metadata={leftImageMetadata} />
-          )}
-            </div>
-
-            <div className="image-wrapper">
-              <img src={rightImage} alt="Image 2" />
-              {activeRight && (
-                <img 
-                  src={require('./blueBox.png')} 
-                  alt="blue box" 
-                  className="blue-box-overlay"
-                />
-              )}
-              {rightImageMetadata && (
-            <PatternDisplay metadata={rightImageMetadata} />
-          )}
-            </div>
-          </div>
-
+        <>
+        {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
+        <L3 
+          leftImage={leftImage} 
+          activeLeft={activeLeft} 
+          eftImageMetadata={leftImageMetadata} 
+          rightImage={rightImage}
+          activeRight={activeRight}
+          rightImageMetadata={rightImageMetadata}
+        />
       
       
       {/*L6 Edit blur, render when editing true*/}
@@ -270,13 +255,7 @@ function App() {
           
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {!isRotationInRange && (
-        <div className="error-message-overlay">
-          <div className="error-message-box">
-            Rotation angle out of range. Please adjust the position.
-          </div>
-        </div>
-      )}
+      {(!pause && (error || measurements)) && <L9 error={error} measurements={measurements} setPause={setPause}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
@@ -314,7 +293,11 @@ function App() {
             
       {/*L12 Pause, render when next button clicked */}
       {pause&&<L12 setPause={setPause} setReport={setReport} handlenext={handlenext}/>}
+      
       {/*L13 Setup, render when iscoonected false*/}
+
+      {/*L14 Setting, render when setting true*/}
+      {setting&&<L14/>}
 
       {/*L1x Progree bar, render based on backend params*/}
       {isProcessing && <CircularProgress percentage={progress} />}

@@ -191,7 +191,7 @@ class ProcessingModel:
             'imu_on': True,
             'video_on':True,
             'error':None,
-            'measurements':[],
+            'measurements':None,
             'carm_moving':False,#optional
             'current_stage': 1,#optional
             'current_frame': 1#optional
@@ -206,6 +206,7 @@ class ProcessingModel:
                 self.imgs[0]['metadata'] = dataforvm
             elif -45 <= angle <= 45:
                 self.imgs[1]['metadata'] = dataforvm
+            self.states['measurements'] = 123
         else:
             angle = self.states['rotation_angle']
             if -15 <= angle <= 15:
