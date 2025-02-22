@@ -236,7 +236,7 @@ function App() {
         <L3 
           leftImage={leftImage} 
           activeLeft={activeLeft} 
-          eftImageMetadata={leftImageMetadata} 
+          leftImageMetadata={leftImageMetadata} 
           rightImage={rightImage}
           activeRight={activeRight}
           rightImageMetadata={rightImageMetadata}

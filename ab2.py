@@ -124,7 +124,7 @@ class AnalyzeBox:
                         {'success': False, 'error': str(error)},
                         None
                     )
-            case 'rcn:hmplv1:end':
+            case 'rcn:hmplv1:bgn':
                 try:
                     data, processed_frame = self.reconstruct()
                     

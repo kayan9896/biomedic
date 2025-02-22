@@ -29,7 +29,7 @@ class ImageProcessingController:
         self.all_shots = {'shots': []}
         
         self.viewmodel = ProcessingModel()
-        
+        self.uistates = None
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
@@ -274,7 +274,7 @@ class ImageProcessingController:
         while self.is_running:
             frame = self.update_backendstates()
             newscn = self.eval_modelscnario(frame)
-            #print(newscn)
+            print(newscn)
             if newscn == self.scn:
                 continue
             
@@ -294,7 +294,7 @@ class ImageProcessingController:
                 if frame is not None:
                     if self.imuonap():
                         return 'frm:hp1-ap:bgn'
-                    if self.imuonob:
+                    if self.imuonob():
                         return 'frm:hp1-ob:bgn' 
                 return self.scn
 
@@ -305,7 +305,7 @@ class ImageProcessingController:
                     if frame is not None:
                         if self.imuonap():
                             return 'frm:hp1-ap:bgn'
-                        if self.imuonob:
+                        if self.imuonob():
                             return 'frm:hp1-ob:bgn'
                     return self.scn
             
@@ -315,9 +315,11 @@ class ImageProcessingController:
                     if self.uistates == 'next':
                         self.uistates = None
                         if self.frame:
-                            if self.imuonap:
+                            if self.imuonap():
+                                self.model.data['hp1-ap']['success'] = None
                                 return 'frm:hp2-ap:bgn'
-                            if self.imuonob:
+                            if self.imuonob():
+                                self.model.data['hp1-ob']['success'] = None
                                 return 'frm:hp2-ob:bgn'
                     
                     #user submits landmarks changes, redo recon
@@ -327,11 +329,12 @@ class ImageProcessingController:
 
                     #user does nothing/ editing
                     #they can retake
-                    if self.frame_grabber._is_new_frame_available:
-                        if self.imuonap:
-                            return 'frm:hp1-ap:bgn'
-                        if self.imuonob:
-                            return 'frm:hp1-ob:bgn'
+                    if self.imuonap():
+                        self.model.data['hp1-ap']['success'] = None
+                        return 'frm:hp2-ap:bgn'
+                    if self.imuonob():
+                        self.model.data['hp1-ob']['success'] = None
+                        return 'frm:hp2-ob:bgn'
 
                     #otherwise, stay at the end stage
                     return self.scn

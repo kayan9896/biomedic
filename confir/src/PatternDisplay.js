@@ -62,7 +62,7 @@ console.log(currentMetadata)
     position: 'absolute',
     top: '20px',
     left: '20px',
-    zIndex: 10
+    zIndex: 5
   };
 
   return (
