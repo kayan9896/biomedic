@@ -139,3 +139,14 @@ body{
   background-color: black;
   width: calc(100% - 20px);
 }
+
+.image-button {
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.1s;
+}
+
+.image-button:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
