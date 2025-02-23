@@ -244,7 +244,7 @@ function App() {
       
       
       {/*L6 Edit blur, render when editing true*/}
-      {editing&&<L6/>}
+      <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
       {(!editing&&progress==100)&&<L7 setEditing={setEditing} setReport={setReport}/>}

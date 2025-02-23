@@ -3,8 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 function L8({setEditing}) {
     return(
       <div>
-        <img className="image-button" src={require('./EditModeBlueBorder.png')} alt="EditModeBlueBorder" style={{position:'absolute', top:'0px', left:'0px', zIndex:7}}/>
-        <img className="image-button" src={require('./EditToolbarBg.png')} alt="EditToolbarBg" style={{position:'absolute', top:'239px', left:'920px', zIndex:7}}/>
+        <img src={require('./EditModeBlueBorder.png')} alt="EditModeBlueBorder" style={{position:'absolute', top:'0px', left:'0px', zIndex:7, pointerEvents:'none'}}/>
+        <img src={require('./EditToolbarBg.png')} alt="EditToolbarBg" style={{position:'absolute', top:'239px', left:'920px', zIndex:7}}/>
         <img className="image-button" src={require('./BrightnessIcon.png')} alt="BrightnessIcon" style={{position:'absolute', top:'251px', left:'927px', zIndex:7}}/>
         <img className="image-button" src={require('./ContrastIcon.png')} alt="ContrastIcon" style={{position:'absolute', top:'332px', left:'927px', zIndex:7}}/>
         <img className="image-button" src={require('./ZoomIcon.png')} alt="ZoomIcon" style={{position:'absolute', top:'412px', left:'927px', zIndex:7}}/>
