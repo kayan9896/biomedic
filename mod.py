@@ -213,7 +213,7 @@ class ProcessingModel:
                 self.imgs[0] = {'image': image, 'metadata': dataforvm}
             elif -45 <= angle <= 45:
                 self.imgs[1] = {'image': image, 'metadata': dataforvm}
-            self.update_img_count()
+        self.update_img_count()
 
     def store_frame(self, frame, angle):
         """Store frame based on angle conditions and update img_count"""

@@ -73,7 +73,7 @@ class AnalyzeBox:
                 'error': str(e)
             }, None
 
-    def reconstruct(self):
+    def reconstruct(self, scn):
         try:
             self.is_processing = True
             # Load metadata
@@ -126,7 +126,7 @@ class AnalyzeBox:
                     )
             case 'rcn:hmplv1:bgn':
                 try:
-                    data, processed_frame = self.reconstruct()
+                    data, processed_frame = self.reconstruct(scn)
                     
                     # Prepare data for different components
                     dataforsave = {

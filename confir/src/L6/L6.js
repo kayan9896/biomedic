@@ -11,9 +11,7 @@ function L6({editableSide, setEditing}) {
           top: '0px',
           left: '0px',
           width: '960px',
-          height: '100%',
-          backgroundColor: editableSide === 'right' ? 'rgba(255, 255, 255, 0.5)' : 'transparent',
-          backdropFilter: editableSide === 'right' ? 'blur(5px)' : 'none',
+          height: '960px',
           zIndex: 6,
           pointerEvents: editableSide === 'left' ? 'none' : 'auto'
         }}
@@ -28,9 +26,7 @@ function L6({editableSide, setEditing}) {
           top: '0px',
           left: '960px',
           width: '960px',
-          height: '100%',
-          backgroundColor: editableSide === 'left' ? 'rgba(255, 255, 255, 0.5)' : 'transparent',
-          backdropFilter: editableSide === 'left' ? 'blur(5px)' : 'none',
+          height: '960px',
           zIndex: 6,
           pointerEvents: editableSide === 'right' ? 'none' : 'auto'
         }}
