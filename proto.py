@@ -415,6 +415,12 @@ def get_image_with_metadata():
         'image': f'data:image/jpeg;base64,{image_base64}',
         'metadata': image_data['metadata']
     })
+@app.route('/landmarks', methods=['POST'])
+def landmarks():
+    l = request.json.get('leftMetadata')
+    r = request.json.get('rightMetadata')
+    print(l,r)
+    return jsonify({"done"})
 
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)

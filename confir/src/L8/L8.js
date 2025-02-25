@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L8({setEditing}) {
+function L8({setEditing, onSave, onExit}) {
     return(
       <div>
         <img src={require('./EditModeBlueBorder.png')} alt="EditModeBlueBorder" style={{position:'absolute', top:'0px', left:'0px', zIndex:7, pointerEvents:'none'}}/>
@@ -15,13 +15,14 @@ function L8({setEditing}) {
           alt="SaveIcon" 
           className="image-button"
           style={{position:'absolute', top:'685px', left:'927px', zIndex:7}}
+          onClick={onSave}
         />
         <img 
           src={require('./ExitIcon.png')} 
           alt="ExitIcon" 
           className="image-button"
           style={{position:'absolute', top:'766px', left:'927px', zIndex:7}}
-          onClick={() => setEditing(false)}
+          onClick={onExit}
         />
       </div>
     )

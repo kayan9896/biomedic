@@ -4,10 +4,25 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ metadata }) => {
+const PatternDisplay = ({ metadata, onSave }) => {
   // Create state to track changes to metadata
+  const [originalMetadata] = useState(metadata);
   const [currentMetadata, setCurrentMetadata] = useState(metadata);
 console.log(currentMetadata)
+
+  const getCurrentMetadata = () => currentMetadata;
+  const resetToOriginal = () => {
+    setCurrentMetadata({...originalMetadata});
+  };
+
+  // Make methods available to parent component via onSave
+  if (onSave) {
+    onSave.current = {
+      getCurrentMetadata,
+      resetToOriginal
+    };
+  }
+
   // Update handlers for each pattern type
   const handleCircleUpdate = (newCenter, newEdgePoint) => {
     setCurrentMetadata(prev => ({
@@ -55,13 +70,8 @@ console.log(currentMetadata)
 
   // Container styles
   const containerStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 300px)',
-    gridTemplateRows: 'repeat(2, 300px)',
-    gap: '10px',
     position: 'absolute',
-    top: '20px',
-    left: '20px',
+    top: '0px',
     zIndex: 5
   };
 

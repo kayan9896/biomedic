@@ -215,7 +215,53 @@ function App() {
     }
   }, [cursorPosition, patient]);
 
- 
+  const leftSaveRef = useRef({});
+  const rightSaveRef = useRef({});
+
+  // Save handler - sends updated data to backend
+  const handleSave = async () => {
+    try {
+      // Get current metadata from both pattern displays
+      const leftData = leftSaveRef.current && typeof leftSaveRef.current.getCurrentMetadata === 'function' 
+        ? leftSaveRef.current.getCurrentMetadata() 
+        : leftImageMetadata;
+      
+      const rightData = rightSaveRef.current && typeof rightSaveRef.current.getCurrentMetadata === 'function' 
+        ? rightSaveRef.current.getCurrentMetadata() 
+        : rightImageMetadata;
+      
+      // Send to backend
+      await fetch('http://localhost:5000/landmarks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          leftMetadata: leftData,
+          rightMetadata: rightData
+        }),
+      });
+      
+      // Exit edit mode after successful save
+      setEditing(false);
+    } catch (error) {
+      console.error('Error saving landmarks:', error);
+      setError("Failed to save landmarks");
+    }
+  };
+
+  // Exit handler - reverts to original positions without saving
+  const handleExit = () => {
+    // Reset both pattern displays to original state
+    if (leftSaveRef.current.resetToOriginal) {
+      leftSaveRef.current.resetToOriginal();
+    }
+    if (rightSaveRef.current.resetToOriginal) {
+      rightSaveRef.current.resetToOriginal();
+    }
+    setEditing(false);
+  };
+
   return (
     <div className="app">
       {/*L1 Background*/}
@@ -234,24 +280,26 @@ function App() {
         <>
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
         <L3 
-          leftImage={leftImage} 
-          activeLeft={activeLeft} 
-          leftImageMetadata={leftImageMetadata} 
-          rightImage={rightImage}
-          activeRight={activeRight}
-          rightImageMetadata={rightImageMetadata}
-        />
+        leftImage={leftImage} 
+        activeLeft={activeLeft} 
+        leftImageMetadata={leftImageMetadata} 
+        rightImage={rightImage}
+        activeRight={activeRight}
+        rightImageMetadata={rightImageMetadata}
+        onSaveLeft={leftSaveRef}
+        onSaveRight={rightSaveRef}
+      />
       
       
       {/*L6 Edit blur, render when editing true*/}
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&progress==100)&&<L7 setEditing={setEditing} setReport={setReport}/>}
+      {(!editing&&progress===100)&&<L7 setEditing={setEditing} setReport={setReport}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}
-      {editing&&<L8 setEditing={setEditing}/>}
+      {editing && <L8 setEditing={setEditing} onSave={handleSave} onExit={handleExit} />}
           
         
       {/*L9 Message box, render based on backend measurements or error*/}

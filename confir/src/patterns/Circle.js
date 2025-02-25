@@ -112,8 +112,8 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
   return (
     <svg 
       ref={svgRef}
-      width="100%" 
-      height="100%" 
+      width="960px" 
+      height="960px" 
       pointerEvents="none"
       style={{ position: 'absolute', top: 0, left: 0,cursor: isDraggingCenter || isDraggingEdge ? 'grabbing' : 'default' }}
     >
