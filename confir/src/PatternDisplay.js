@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Circle from './patterns/Circle';
 import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
@@ -9,19 +9,23 @@ const PatternDisplay = ({ metadata, onSave }) => {
   const [originalMetadata] = useState(metadata);
   const [currentMetadata, setCurrentMetadata] = useState(metadata);
 console.log(currentMetadata)
-
-  const getCurrentMetadata = () => currentMetadata;
-  const resetToOriginal = () => {
-    setCurrentMetadata({...originalMetadata});
-  };
-
   // Make methods available to parent component via onSave
-  if (onSave) {
-    onSave.current = {
-      getCurrentMetadata,
-      resetToOriginal
-    };
-  }
+  const [resetKey, setResetKey] = useState(0);
+
+  // Set up ref methods
+
+    if (onSave) {
+      onSave.current = {
+        getCurrentMetadata: () => currentMetadata,
+        resetToOriginal: () => {
+          console.log("Resetting to original:", originalMetadata);
+          setCurrentMetadata({...originalMetadata});
+          // Force remount of child components by changing the key
+          setResetKey(prev => prev + 1);
+        }
+      };
+    }
+
 
   // Update handlers for each pattern type
   const handleCircleUpdate = (newCenter, newEdgePoint) => {
@@ -76,36 +80,40 @@ console.log(currentMetadata)
   };
 
   return (
-    <div style={containerStyle}>
-      {/* Circle Box */}
-    
-        <Circle 
-          center={currentMetadata.circle.center}
-          edgePoint={currentMetadata.circle.edgePoint}
-          onCenterChange={(newCenter) => handleCircleUpdate(newCenter, currentMetadata.circle.edgePoint)}
-          onEdgePointChange={(newEdge) => handleCircleUpdate(currentMetadata.circle.center, newEdge)}
-        />
+    <div style={containerStyle} key={resetKey}>
+      {/* Add key={resetKey} to force remount on reset */}
+      <Circle 
+        key={`circle-${resetKey}`}
+        center={currentMetadata.circle.center}
+        edgePoint={currentMetadata.circle.edgePoint}
+        onCenterChange={(newCenter) => handleCircleUpdate(newCenter, currentMetadata.circle.edgePoint)}
+        onEdgePointChange={(newEdge) => handleCircleUpdate(currentMetadata.circle.center, newEdge)}
+      />
       
-        <Arc 
-          arc={currentMetadata.arc}
-          onChange={handleArcUpdate}
-        />
+      <Arc 
+        key={`arc-${resetKey}`}
+        arc={currentMetadata.arc}
+        onChange={handleArcUpdate}
+      />
       
-        <Ellipse 
-          ellipse={currentMetadata.ellipse}
-          onChange={handleEllipseUpdate}
-        />
+      <Ellipse 
+        key={`ellipse-${resetKey}`}
+        ellipse={currentMetadata.ellipse}
+        onChange={handleEllipseUpdate}
+      />
 
-        <Line 
-          squareSize={960}
-          points={currentMetadata.lines.straight}
-          onChange={handleStraightLineUpdate}
-        />
-        <Line 
-          squareSize={960}
-          points={currentMetadata.lines.sine}
-          onChange={handleSineLineUpdate}
-        />
+      <Line 
+        key={`line1-${resetKey}`}
+        squareSize={960}
+        points={currentMetadata.lines.straight}
+        onChange={handleStraightLineUpdate}
+      />
+      <Line 
+        key={`line2-${resetKey}`}
+        squareSize={960}
+        points={currentMetadata.lines.sine}
+        onChange={handleSineLineUpdate}
+      />
     </div>
   );
 };
