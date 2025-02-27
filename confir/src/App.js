@@ -15,6 +15,8 @@ import L12 from './L12/L12';
 import L14 from './L14/L14';
 import L9 from './L9/L9';
 import L3 from './L3';
+import "@fontsource/abel"; // Defaults to weight 400
+import "@fontsource/abel/400.css"; // Specify weight
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -48,7 +50,9 @@ function App() {
   const [report, setReport] = useState(false)
   const [pause, setPause] = useState(false)
   const [setting, setSetting] = useState(false)
-  const [measurements, setMeasurements] = useState(null)
+  const [measurements, setMeasurements] = useState([])
+  const [stage, setStage] = useState(0)
+  const [isZoomed, setIsZoomed] =useState(0)
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -153,6 +157,11 @@ function App() {
 
   const handlenext = async () => {
     setPause(false)
+    setLeftImage(require('./AP.png'));
+    setRightImage(require('./OB.png'));
+    setLeftImageMetadata(null)
+    setRightImageMetadata(null)
+    setStage(p=>p+1);
   };
 
   useEffect(() => {
@@ -241,7 +250,8 @@ function App() {
           rightMetadata: rightData
         }),
       });
-      
+      leftSaveRef.current?.updateSavedMetadata?.();
+      rightSaveRef.current?.updateSavedMetadata?.();
       // Exit edit mode after successful save
       setEditing(false);
     } catch (error) {
@@ -252,25 +262,26 @@ function App() {
 
   // Exit handler - reverts to original positions without saving
   const handleExit = () => {
-    // Reset both pattern displays to original state
-    if (leftSaveRef.current.resetToOriginal) {
-      leftSaveRef.current.resetToOriginal();
-    }
-    if (rightSaveRef.current.resetToOriginal) {
-      rightSaveRef.current.resetToOriginal();
-    }
+    leftSaveRef.current?.resetToLastSaved?.();
+    rightSaveRef.current?.resetToLastSaved?.();
     setEditing(false);
+  };
+
+  // Reset - return to original backend state
+  const handleReset = () => {
+    leftSaveRef.current?.resetToOriginal?.();
+    rightSaveRef.current?.resetToOriginal?.();
+  };
+
+  // Delete - clear all patterns
+  const handleDelete = () => {
+    leftSaveRef.current?.clearAllPatterns?.();
+    rightSaveRef.current?.clearAllPatterns?.();
   };
 
   return (
     <div className="app">
-      {/*L1 Background*/}
-      <L1/>
       
-      {/*L2 Status bar*/}
-      <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting}/>
-
-
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
@@ -278,6 +289,12 @@ function App() {
         </div>
       ) : (
         <>
+        {/*L1 Background*/}
+        <L1/>
+        
+        {/*L2 Status bar*/}
+        <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting} stage={stage}/>
+
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
         <L3 
         leftImage={leftImage} 
@@ -295,15 +312,21 @@ function App() {
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&progress===100)&&<L7 setEditing={setEditing} setReport={setReport}/>}
+      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 setEditing={setEditing} setReport={setReport}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}
-      {editing && <L8 setEditing={setEditing} onSave={handleSave} onExit={handleExit} />}
+      {editing && <L8 
+        setEditing={setEditing} 
+        onSave={handleSave} 
+        onExit={handleExit}
+        onReset={handleReset}
+        onDelete={handleDelete}
+      />}
           
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && (error || measurements)) && <L9 error={error} measurements={measurements} setPause={setPause}/>}
+      {(!pause && (error || measurements.length===stage+1)) && <L9 error={error} measurements={measurements} setPause={setPause}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}

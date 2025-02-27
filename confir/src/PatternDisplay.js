@@ -6,26 +6,53 @@ import Line from './patterns/Line';
 
 const PatternDisplay = ({ metadata, onSave }) => {
   // Create state to track changes to metadata
-  const [originalMetadata] = useState(metadata);
-  const [currentMetadata, setCurrentMetadata] = useState(metadata);
-console.log(currentMetadata)
-  // Make methods available to parent component via onSave
+  const [originalMetadata] = useState({...metadata}); // Initial backend data - never changes
+  const [lastSavedMetadata, setLastSavedMetadata] = useState({...metadata}); // Last saved state
+  const [currentMetadata, setCurrentMetadata] = useState({...metadata}); // Current editing state
   const [resetKey, setResetKey] = useState(0);
 
-  // Set up ref methods
-
+  // Update methods exposed via ref
+  useEffect(() => {
     if (onSave) {
       onSave.current = {
+        // Get current state for saving
         getCurrentMetadata: () => currentMetadata,
+        
+        // Update last saved metadata when save occurs
+        updateSavedMetadata: () => {
+          if(currentMetadata){
+          setLastSavedMetadata({...currentMetadata});}
+          else{setLastSavedMetadata(null)}
+        },
+        
+        // Exit - return to last saved state
+        resetToLastSaved: () => {
+          console.log("Resetting to last saved state:", lastSavedMetadata);
+          if(lastSavedMetadata){setCurrentMetadata({...lastSavedMetadata});}
+          else{setCurrentMetadata(null)}
+          setResetKey(prev => prev + 1);
+        },
+        
+        // Reset - return to original backend data
         resetToOriginal: () => {
-          console.log("Resetting to original:", originalMetadata);
+          console.log("Resetting to original state:", originalMetadata);
           setCurrentMetadata({...originalMetadata});
-          // Force remount of child components by changing the key
+          setResetKey(prev => prev + 1);
+        },
+        
+        // Delete - clear all pattern data
+        clearAllPatterns: () => {
+          console.log("Clearing all patterns");
+          // Define empty/default state for each pattern type
+          
+          setCurrentMetadata(null);
           setResetKey(prev => prev + 1);
         }
       };
     }
+  }, [onSave, currentMetadata, lastSavedMetadata, originalMetadata]);
 
+  
 
   // Update handlers for each pattern type
   const handleCircleUpdate = (newCenter, newEdgePoint) => {
@@ -79,8 +106,8 @@ console.log(currentMetadata)
     zIndex: 5
   };
 
-  return (
-    <div style={containerStyle} key={resetKey}>
+  return (<>
+    {currentMetadata&&<div style={containerStyle} key={resetKey}>
       {/* Add key={resetKey} to force remount on reset */}
       <Circle 
         key={`circle-${resetKey}`}
@@ -114,7 +141,7 @@ console.log(currentMetadata)
         points={currentMetadata.lines.sine}
         onChange={handleSineLineUpdate}
       />
-    </div>
+    </div>}</>
   );
 };
 
