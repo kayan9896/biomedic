@@ -274,7 +274,7 @@ class ImageProcessingController:
         while self.is_running:
             frame = self.update_backendstates()
             newscn = self.eval_modelscnario(frame)
-            print(newscn)
+            #print(newscn)
             if newscn == self.scn:
                 continue
             

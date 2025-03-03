@@ -413,7 +413,9 @@ def get_image_with_metadata():
     # Return both image and metadata in JSON
     return jsonify({
         'image': f'data:image/jpeg;base64,{image_base64}',
-        'metadata': image_data['metadata']
+        'metadata': image_data['metadata'],
+        'checkmark': image_data['checkmark'],
+        'error': image_data['error']
     })
 @app.route('/landmarks', methods=['POST'])
 def landmarks():

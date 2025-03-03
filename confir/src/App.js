@@ -17,6 +17,7 @@ import L9 from './L9/L9';
 import L3 from './L3';
 import "@fontsource/abel"; // Defaults to weight 400
 import "@fontsource/abel/400.css"; // Specify weight
+import L20 from './L20/L20';
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -40,21 +41,23 @@ function App() {
   const isInYellowSector = rotationAngle >= -45 && rotationAngle <= 45;
   const activeLeft = isInGreenSector;
   const activeRight = isInYellowSector && !isInGreenSector;
-  const isRotationInRange = isInYellowSector;
   const imuon = angle >= -45 && angle <= 45 ;
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
+  const [leftCheckMark, setLeftCheckMark] = useState(null);
+  const [rightCheckMark, setRightCheckMark] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [editing, setEditing] = useState(false)
   const [report, setReport] = useState(false)
   const [pause, setPause] = useState(false)
   const [setting, setSetting] = useState(false)
-  const [measurements, setMeasurements] = useState([])
+  const [measurements, setMeasurements] = useState(null)
   const [stage, setStage] = useState(0)
-  const [isZoomed, setIsZoomed] =useState(0)
+  const [showglyph, setShowglyph] =useState(false)
 
   useEffect(() => {
+    if(!isConnected) return
     const fetchStates = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/states');
@@ -96,12 +99,6 @@ function App() {
           await updateImages(data.rotation_angle);
         }
 
-        if (isRotationInRange) {
-          setError(null);
-        } else {
-          setError("Rotation angle out of range. Please adjust the position.");
-        }
-
         if (data.measurements) {
           setMeasurements(data.measurements);
         }
@@ -118,7 +115,7 @@ function App() {
         clearTimeout(carmBoxTimerRef.current);
       }
     };
-  }, [isRotationInRange]);
+  }, [isConnected]);
 
   const updateImages = async (currentRotationAngle) => {
     try {
@@ -127,12 +124,16 @@ function App() {
         
         if (currentRotationAngle >= -15 && currentRotationAngle <= 15) {
             setLeftImage(data.image);  // This is now a data URL
-            setLeftImageMetadata(data.metadata.metadata);
+            setLeftImageMetadata(data.metadata);
+            setLeftCheckMark(data.checkmark)
             console.log(data.metadata)
         } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
             setRightImage(data.image);  // This is now a data URL
-            setRightImageMetadata(data.metadata.metadata);
+            setRightImageMetadata(data.metadata);
+            setRightCheckMark(data.checkmark)
         }
+        setError(data.error)
+        if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
     } catch (error) {
         console.error('Error fetching image:', error);
         setError("Error updating images");
@@ -312,7 +313,7 @@ function App() {
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 setEditing={setEditing} setReport={setReport}/>}
+      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 setEditing={setEditing} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}
@@ -323,13 +324,16 @@ function App() {
         onReset={handleReset}
         onDelete={handleDelete}
       />}
-          
+      
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && (error || measurements.length===stage+1)) && <L9 error={error} measurements={measurements} setPause={setPause}/>}
+      {(!pause && !isProcessing) && <L9 error={error} measurements={measurements} setPause={setPause}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
+
+      {/*L20 Glyph error*/}
+      {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} setShowglyph={setShowglyph}/>}
 
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (

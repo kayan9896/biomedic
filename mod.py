@@ -185,34 +185,28 @@ class ProcessingModel:
             'is_processing': False,
             'progress': 0,
             'ap_carm': False,
-            'ap_status': False,
             'ob_carm': False,
-            'ob_status': False,
             'imu_on': True,
             'video_on':True,
-            'error':None,
-            'measurements':[],
             'carm_moving':False,#optional
             'current_stage': 1,#optional
             'current_frame': 1#optional
         }
-        self.imgs = [{'image': None, 'metadata': None}, {'image': None, 'metadata': None}]
+        self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'error': None} for i in range(2)]
 
     def update(self, dataforvm, image):
         # Assuming dataforvm contains metadata
-        if image is None:
-            angle = self.states['rotation_angle']
-            if -15 <= angle <= 15:
-                self.imgs[0]['metadata'] = dataforvm
-            elif -45 <= angle <= 45:
-                self.imgs[1]['metadata'] = dataforvm
-            self.states['measurements'].append(123)
-        else:
-            angle = self.states['rotation_angle']
-            if -15 <= angle <= 15:
-                self.imgs[0] = {'image': image, 'metadata': dataforvm}
-            elif -45 <= angle <= 45:
-                self.imgs[1] = {'image': image, 'metadata': dataforvm}
+        
+        angle = self.states['rotation_angle']
+        if -15 <= angle <= 15:
+            if image is not None: self.imgs[0]['image'] = image
+            for i in dataforvm:
+                self.imgs[0][i] = dataforvm[i]
+        elif -45 <= angle <= 45:
+            if image is not None: self.imgs[1]['image'] = image
+            for i in dataforvm:
+                self.imgs[1][i] = dataforvm[i]
+        
         self.update_img_count()
 
     def store_frame(self, frame, angle):

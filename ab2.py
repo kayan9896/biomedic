@@ -45,14 +45,30 @@ class AnalyzeBox:
 
     def analyzeframe(self, scn, frame):
         try:
+            image = cv2.imread('./glyph.png')
+            print(image.shape,frame.shape)
+            difference = cv2.absdiff(image, frame)
+            
+            if np.mean(difference)<10:
+                print(difference,1)
+                return {'metadata': None, 'checkmark': None, 'error': 'glyph'}, frame
+
+            image2 = cv2.imread('./nomark.png')
+            difference2 = cv2.absdiff(image2, frame)
+            if np.mean(difference2)<10:
+                return {'metadata': None, 'checkmark': False, 'error': 'landmarks fail'}, frame
+
             self.is_processing = True
+
             # Load metadata
             with open('metadata.json', 'r') as f:
                 metadata = json.load(f)
             
             # Process frame and generate results
             result = {
-                'metadata': metadata
+                'metadata': metadata,
+                'checkmark': True,
+                'error': None
             }
             
             k=0
@@ -68,6 +84,7 @@ class AnalyzeBox:
             self.data[i]['success'] = True
             return result, frame
         except Exception as e:
+            print(e)
             return {
                 'success': False,
                 'error': str(e)
@@ -112,9 +129,7 @@ class AnalyzeBox:
                         'metadata': data['metadata']
                     }
                     
-                    dataforvm = {
-                        'metadata': data['metadata']
-                    }
+                    dataforvm = data
                     
                     return dataforsave, dataforvm, processed_frame
                 
