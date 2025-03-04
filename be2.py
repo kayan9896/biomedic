@@ -312,14 +312,12 @@ class ImageProcessingController:
             case 'rcn:hmplv1:end':
                 if self.model.data['hmplv1']['success']:
                     #user goes next
-                    if self.uistates == 'next':
-                        self.uistates = None
+                    if self.uistates == 'next':                        
                         if frame is not None:
+                            self.uistates = None
                             if self.imuonap():
-                                self.model.data['hp1-ap']['success'] = None
                                 return 'frm:hp2-ap:bgn'
                             if self.imuonob():
-                                self.model.data['hp1-ob']['success'] = None
                                 return 'frm:hp2-ob:bgn'
                     
                 #sucess or not, user can either edit landmarks changes, redo recon
@@ -339,6 +337,38 @@ class ImageProcessingController:
 
                 #otherwise, stay at the end stage
                 return self.scn
+            
+            case 'frm:hp2-ap:end'| 'frm:hp2-ob:end':
+                if self.model.data['hp2-ap']['success'] and self.model.data['hp2-ob']['success']:
+                    return 'rcn:hmplv2:bgn'
+                else:
+                    if frame is not None:
+                        if self.imuonap():
+                            return 'frm:hp2-ap:bgn'
+                        if self.imuonob():
+                            return 'frm:hp2-ob:bgn'
+                    return self.scn
                 
+            case 'rcn:hmplv2:end':
+                if self.model.data['hmplv2']['success']:
+                    return 'reg:pelvis:bgn'
+                    
+                #fail, user can either edit landmarks changes, redo recon
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:hmplv2:bgn'
+
+                #user does nothing/ editing
+                #they can retake
+                if frame is not None:
+                    if self.imuonap():
+                        self.model.data['hp2-ap']['success'] = None
+                        return 'frm:hp2-ap:bgn'
+                    if self.imuonob():
+                        self.model.data['hp2-ob']['success'] = None
+                        return 'frm:hp2-ob:bgn'
+
+                #otherwise, stay at the end stage
+                return self.scn
                 
                     

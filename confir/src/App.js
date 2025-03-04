@@ -55,6 +55,7 @@ function App() {
   const [measurements, setMeasurements] = useState(null)
   const [stage, setStage] = useState(0)
   const [showglyph, setShowglyph] =useState(false)
+  const [moveNext, setMoveNext] = useState(false)
 
   useEffect(() => {
     if(!isConnected) return
@@ -126,14 +127,17 @@ function App() {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata);
             setLeftCheckMark(data.checkmark)
+            if (data.checkmark ==2 || data.checkmark==3)setRightCheckMark(data.checkmark)
             console.log(data.metadata)
         } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
             setRightImage(data.image);  // This is now a data URL
             setRightImageMetadata(data.metadata);
             setRightCheckMark(data.checkmark)
+            if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
         }
         setError(data.error)
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
+        if(data.next) setMoveNext(true)
     } catch (error) {
         console.error('Error fetching image:', error);
         setError("Error updating images");
@@ -162,7 +166,21 @@ function App() {
     setRightImage(require('./OB.png'));
     setLeftImageMetadata(null)
     setRightImageMetadata(null)
+    setLeftCheckMark(null)
+    setRightCheckMark(null)
     setStage(p=>p+1);
+    setMoveNext(false);
+    try {
+      await fetch('http://localhost:5000/next', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+    } catch (error) {
+      console.error('Error going next:', error);
+      setError("Failed to change backend uistate");
+    }
   };
 
   useEffect(() => {
@@ -327,7 +345,7 @@ function App() {
       
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && !isProcessing) && <L9 error={error} measurements={measurements} setPause={setPause}/>}
+      {(!pause && !isProcessing) && <L9 error={error} measurements={measurements} setPause={setPause} moveNext={moveNext}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}

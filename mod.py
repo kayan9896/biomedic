@@ -192,7 +192,7 @@ class ProcessingModel:
             'current_stage': 1,#optional
             'current_frame': 1#optional
         }
-        self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'error': None} for i in range(2)]
+        self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'error': None, 'next': False} for i in range(2)]
 
     def update(self, dataforvm, image):
         # Assuming dataforvm contains metadata

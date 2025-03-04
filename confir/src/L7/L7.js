@@ -8,11 +8,15 @@ function L7({setEditing, setReport, leftCheckMark, rightCheckMark}) {
         <img src={require('./EditIcon.png')} alt="edit icon" style={{position:'absolute', top:'466px', left:'928px', zIndex:7}} onClick={()=>{setEditing('left')}}/>
         <img src={require('./ReportIcon.png')} alt="Report Icon" style={{position:'absolute', top:'547px', left:'928px', zIndex:7}} onClick={()=>{setReport(true)}}/>
         {/*Show icon based on backend param*/}
-        {rightCheckMark!==null && (rightCheckMark? <img src={require('./APStatusIcon.png')} alt="OB Status Icon" style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/> : 
-      <img src={require('./OBStatusIcon.png')} alt="OB Status Icon" style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/>
+        {rightCheckMark!==null && (rightCheckMark == 1? <img src={require('./APStatusIcon.png')} style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/>:
+        (rightCheckMark ==2? <img src={require('./RcnCheckmark.png')} style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/>:
+        (rightCheckMark==3? <img src={require('./RecFailedIcon.png')} style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/> : 
+      <img src={require('./OBStatusIcon.png')} style={{position:'absolute', top:'857px', left:'1019px', zIndex:7}}/>))
       )}
-        {leftCheckMark!==null && (leftCheckMark? <img src={require('./APStatusIcon.png')} alt="AP Status Icon" style={{position:'absolute', top:'860px', left:'816px', zIndex:7}}/> :
-        <img src={require('./OBStatusIcon.png')} alt="AP Status Icon" style={{position:'absolute', top:'860px', left:'816px', zIndex:7}}/>
+        {leftCheckMark!==null && (leftCheckMark == 1 ? <img src={require('./APStatusIcon.png')} alt="AP Status Icon" style={{position:'absolute', top:'860px', left:'816px', zIndex:7}}/> :
+        (leftCheckMark ==2? <img src={require('./RcnCheckmark.png')} style={{position:'absolute', top:'860px', left:'816px', zIndex:7}}/>:
+        (leftCheckMark==3? <img src={require('./RecFailedIcon.png')} style={{position:'absolute', top:'860px', left:'816px', zIndex:7}}/> : 
+      <img src={require('./OBStatusIcon.png')} style={{position:'absolute', top:'860px', left:'816px', zIndex:7}}/>))
       )}
       </div>
     )

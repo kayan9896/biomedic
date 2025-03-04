@@ -415,14 +415,25 @@ def get_image_with_metadata():
         'image': f'data:image/jpeg;base64,{image_base64}',
         'metadata': image_data['metadata'],
         'checkmark': image_data['checkmark'],
-        'error': image_data['error']
+        'error': image_data['error'],
+        'next': image_data['next']
     })
+
 @app.route('/landmarks', methods=['POST'])
 def landmarks():
     l = request.json.get('leftMetadata')
     r = request.json.get('rightMetadata')
+    controller.uistates = 'landmarks'
     print(l,r)
-    return jsonify({"done"})
+    return jsonify({"message": "update landmarks"})
+
+@app.route('/next', methods=['POST'])
+def next():
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    controller.uistates = 'next'
+    return jsonify({"message": "uistate next"})
 
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)
