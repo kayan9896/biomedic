@@ -137,6 +137,7 @@ function App() {
             if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
         }
         setError(data.error)
+        setMeasurements(data.measurements)
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
         if(data.next) setMoveNext(true)
     } catch (error) {
@@ -374,7 +375,7 @@ function App() {
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
 
       {/*L19 Reg error*/}
-      {error==='reg fails' && <L19 handlerestart={handlerestart}/>}
+      {(error==='reg fails' && stage===1) && <L19 handlerestart={handlerestart}/>}
 
       {/*L20 Glyph error*/}
       {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} setShowglyph={setShowglyph}/>}

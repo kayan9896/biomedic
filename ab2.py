@@ -20,11 +20,28 @@ class AnalyzeBox:
             'hp1-ap': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hp1-ob': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hmplv1': {'success': False},
+
             'hp2-ap': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hp2-ob': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hmplv2': {'success': False},
-            'pelvis': {'stich': None, 'success': False}
+            'pelvis': {'stitch': None, 'success': False},
+
+            'cup-ap': {'image': None, 'metadata': None, 'success': False, 'side': None},
+            'cup-ob': {'image': None, 'metadata': None, 'success': False, 'side': None},
+            'acecup': {'success': False},
+            'regcup': {'stitch': None, 'success': False},
+
+            'tri-ap': {'image': None, 'metadata': None, 'success': False, 'side': None},
+            'tri-ob': {'image': None, 'metadata': None, 'success': False, 'side': None},
+            'tothip': {'success': False},
+            'regtri': {'stitch': None, 'success': False}
         }
+    def getfrmcase(self, c):
+        match c:
+            case 'hmplv1': return ['hp1-ap', 'hp1-ob']
+            case 'hmplv2'| 'pelvis': return ['hp2-ap', 'hp2-ob']
+            case 'acecup'| 'regcup': return ['cup-ap', 'cup-ob']
+            case 'tothip'| 'regtri': return ['tri-ap', 'tri-ob']
 
     def stitch(self, frame1, frame2):
         """Stitch two frames together."""
@@ -64,8 +81,9 @@ class AnalyzeBox:
             difference = cv2.absdiff(image, frame)
             
             side = 'l' if np.mean(difference)<10 else 'r'
-            if section[:3] == 'hp2' and side != self.data[section]['side']:
-                return {'metadata': None, 'checkmark': None, 'error': 'wrong side'}, frame
+            if section[:3] == 'hp2' or  section[:3] == 'tri':
+                if side != self.data[section]['side']:
+                    return {'metadata': None, 'checkmark': None, 'error': 'wrong side'}, frame
             self.is_processing = True
 
             # Load metadata
@@ -100,9 +118,10 @@ class AnalyzeBox:
 
     def reconstruct(self, section):
         try:
-            if section == 'hmplv1':
-                if self.data['hp1-ap']['side'] != self.data['hp1-ob']['side']: 
-                    return {'checkmark': 3, 'error': 'recon fails, unmatched side'}, None
+            curap = self.getfrmcase(section)[0]
+            curob = self.getfrmcase(section)[1]
+            if self.data[curap]['side'] != self.data[curob]['side']: 
+                return {'checkmark': 3, 'error': 'recon fails, unmatched side'}, None
             self.is_processing = True
             # Load metadata
             with open('metadata.json', 'r') as f:
@@ -125,6 +144,9 @@ class AnalyzeBox:
             if section == 'hmplv1':
                 self.data['hp2-ap']['side'] = 'l' if self.data['hp1-ap']['side'] == 'r' else 'r'
                 self.data['hp2-ob']['side'] = self.data['hp2-ap']['side']
+            if section == 'acecup':
+                self.data['tri-ap']['side'] = self.data['cup-ap']['side']
+                self.data['tri-ob']['side'] = self.data['tri-ap']['side']
             self.data[section]['success'] = True
             return result, None
         except Exception as e:
@@ -132,21 +154,26 @@ class AnalyzeBox:
                 'success': False,
                 'error': str(e)
             }, None
+        
 
     def reg(self, section):
         try:
             image = cv2.imread('./AP.png')
-            difference = cv2.absdiff(image, self.data['hp2-ap']['image'])
-            difference2 = cv2.absdiff(image, self.data['hp2-ob']['image'])
+            curap = self.getfrmcase(section)[0]
+            curob = self.getfrmcase(section)[1]
+            difference = cv2.absdiff(image, self.data[curap]['image'])
+            difference2 = cv2.absdiff(image, self.data[curob]['image'])
             if np.mean(difference) < 10 or np.mean(difference2) < 10:
                 return {'error': 'reg fails'}, None
             self.is_processing = True
-            res = self.stitch(self.data['hp1-ap']['image'],self.data['hp2-ap']['image'])
+            res = self.stitch(self.data['hp1-ap']['image'],self.data[curap]['image'])
+            result = {}
+            if section != 'pelvis': result['measurements'] = 123
             self.is_processing = False
 
             self.data[section]['success'] = True
             self.data[section]['stitch'] = res
-            return {}, res
+            return result, res
         except Exception as e:
             return {
                 'success': False,
@@ -196,6 +223,8 @@ class AnalyzeBox:
                         {'success': False, 'error': str(error)},
                         None
                     )
+
+
             case 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn':   
                 try:
                     data, processed_frame = self.analyzeframe(scn[4:-4], frame)
@@ -253,6 +282,8 @@ class AnalyzeBox:
                         {'success': False, 'error': str(error)},
                         None
                     )
+
+
             case 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn':   
                 try:
                     data, processed_frame = self.analyzeframe(scn[4:-4], frame)
@@ -282,11 +313,85 @@ class AnalyzeBox:
                     }
                     
                     dataforvm = data
-                    if data['checkmark'] == 2:
-                        dataforvm['next'] = True
+                    dataforvm['next'] = False
 
                     return dataforsave, dataforvm, processed_frame
 
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+            case 'reg:regcup:bgn':
+                try:
+                    data, processed_frame = self.reg(scn[4:-4])
+                    
+                    # Prepare data for different components
+                    dataforsave = {}
+                    
+                    dataforvm = data 
+                    if 'error' not in data: dataforvm['next'] = True
+
+                    return dataforsave, dataforvm, processed_frame
+                
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+
+            case 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
+                try:
+                    data, processed_frame = self.analyzeframe(scn[4:-4], frame)
+                    
+                    # Prepare data for different components
+                    dataforsave = {
+                        'metadata': data['metadata']
+                    }
+                    
+                    dataforvm = data
+                    dataforvm['next'] = False
+                    return dataforsave, dataforvm, processed_frame
+                
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+            case 'rcn:tothip:bgn':
+                try:
+                    data, processed_frame = self.reconstruct(scn[4:-4])
+                    
+                    # Prepare data for different components
+                    dataforsave = {
+                        'type': 'tri'
+                    }
+                    
+                    dataforvm = data
+                    dataforvm['next'] = False
+
+                    return dataforsave, dataforvm, processed_frame
+
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+            case 'reg:regtri:bgn':
+                try:
+                    data, processed_frame = self.reg(scn[4:-4])
+                    
+                    # Prepare data for different components
+                    dataforsave = {}
+                    
+                    dataforvm = data 
+
+                    return dataforsave, dataforvm, processed_frame
+                
                 except Exception as error:
                     return (
                         {'success': False, 'error': str(error)},

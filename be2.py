@@ -405,6 +405,7 @@ class ImageProcessingController:
                             return 'frm:hp2-ob:bgn'
                             
                 else:
+                    #reference fails to reg, force to restart
                     if self.uistates == 'restart':                        
                         if frame is not None:
                             self.uistates = None
@@ -425,5 +426,105 @@ class ImageProcessingController:
                             return 'frm:cup-ob:bgn'
                     return self.scn
 
-                
+            case 'rcn:acecup:end':
+                if self.model.data['acecup']['success']:
+                    return 'reg:regcup:bgn'
+                    
+                #fail, user can either edit landmarks changes, redo recon
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:acecup:bgn'
+
+                #user does nothing/ editing
+                #they can retake
+                if frame is not None:
+                    if self.imuonap():
+                        self.model.data['cup-ap']['success'] = None
+                        return 'frm:cup-ap:bgn'
+                    if self.imuonob():
+                        self.model.data['cup-ob']['success'] = None
+                        return 'frm:cup-ob:bgn'
+
+                #otherwise, stay at the end stage
+                return self.scn
+
+            case 'reg:regcup:end':
+                if self.model.data['regcup']['success']:
+                    #user goes next
+                    if self.uistates == 'next':                        
+                        if frame is not None:
+                            self.uistates = None
+                            if self.imuonap():
+                                return 'frm:tri-ap:bgn'
+                            if self.imuonob():
+                                return 'frm:tri-ob:bgn'
+
+                #reg succeeds or not, user can still edit landmarks changes, redo recon
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:acecup:bgn'
+
+                #user does nothing/ editing
+                #they can retake
+                if frame is not None:
+                    if self.imuonap():
+                        self.model.data['cup-ap']['success'] = None
+                        return 'frm:cup-ap:bgn'
+                    if self.imuonob():
+                        self.model.data['cup-ob']['success'] = None
+                        return 'frm:cup-ob:bgn'
+                            
+                return self.scn
+
+            case 'frm:tri-ap:end'| 'frm:tri-ob:end':
+                if self.model.data['tri-ap']['success'] and self.model.data['tri-ob']['success']:
+                    return 'rcn:tothip:bgn'
+                else:
+                    if frame is not None:
+                        if self.imuonap():
+                            return 'frm:tri-ap:bgn'
+                        if self.imuonob():
+                            return 'frm:tri-ob:bgn'
+                    return self.scn
+
+            case 'rcn:tothip:end':
+                if self.model.data['tothip']['success']:
+                    return 'reg:regtri:bgn'
+                    
+                #fail, user can either edit landmarks changes, redo recon
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:tothip:bgn'
+
+                #user does nothing/ editing
+                #they can retake
+                if frame is not None:
+                    if self.imuonap():
+                        self.model.data['tri-ap']['success'] = None
+                        return 'frm:tri-ap:bgn'
+                    if self.imuonob():
+                        self.model.data['tri-ob']['success'] = None
+                        return 'frm:tri-ob:bgn'
+
+                #otherwise, stay at the end stage
+                return self.scn
+
+            case 'reg:regtri:end':
+                #reg succeeds or not, user can still edit landmarks changes, redo recon
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:tothip:bgn'
+
+                #user does nothing/ editing
+                #they can retake
+                if frame is not None:
+                    if self.imuonap():
+                        self.model.data['tri-ap']['success'] = None
+                        return 'frm:tri-ap:bgn'
+                    if self.imuonob():
+                        self.model.data['tri-ob']['success'] = None
+                        return 'frm:tri-ob:bgn'
+                            
+                return self.scn
+
                     

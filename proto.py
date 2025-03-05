@@ -416,7 +416,8 @@ def get_image_with_metadata():
         'metadata': image_data['metadata'],
         'checkmark': image_data['checkmark'],
         'error': image_data['error'],
-        'next': image_data['next']
+        'next': image_data['next'],
+        'measurements': image_data['measurements']
     })
 
 @app.route('/landmarks', methods=['POST'])
