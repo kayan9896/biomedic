@@ -279,7 +279,7 @@ class ImageProcessingController:
                 continue
             
             dataforsave, dataforvm, image = self.model.exec(newscn, frame)
-            print(frame,image,dataforvm)
+            print(frame,image,dataforvm,newscn)
             self.scn = newscn[:-3] + 'end'
             self.viewmodel.update(dataforvm, image)
 
@@ -370,5 +370,60 @@ class ImageProcessingController:
 
                 #otherwise, stay at the end stage
                 return self.scn
+
+            case 'reg:pelvis:end':
+                if self.model.data['pelvis']['success']:
+                    #user goes next
+                    if self.uistates == 'next':                        
+                        if frame is not None:
+                            self.uistates = None
+                            if self.imuonap():
+                                return 'frm:cup-ap:bgn'
+                            if self.imuonob():
+                                return 'frm:cup-ob:bgn'
+                    if self.uistates == 'skip':                        
+                        if frame is not None:
+                            self.uistates = None
+                            if self.imuonap():
+                                return 'frm:tri-ap:bgn'
+                            if self.imuonob():
+                                return 'frm:tri-ob:bgn'
+
+                    #reg succeeds, user can still edit landmarks changes, redo recon
+                    if self.uistates == 'landmarks':
+                        self.uistates = None
+                        return 'rcn:hmplv2:bgn'
+
+                    #user does nothing/ editing
+                    #they can retake
+                    if frame is not None:
+                        if self.imuonap():
+                            self.model.data['hp2-ap']['success'] = None
+                            return 'frm:hp2-ap:bgn'
+                        if self.imuonob():
+                            self.model.data['hp2-ob']['success'] = None
+                            return 'frm:hp2-ob:bgn'
+                            
+                else:
+                    if self.uistates == 'restart':                        
+                        if frame is not None:
+                            self.uistates = None
+                            if self.imuonap():
+                                return 'frm:hp1-ap:bgn'
+                            if self.imuonob():
+                                return 'frm:hp1-ob:bgn'
+                return self.scn
+            
+            case 'frm:cup-ap:end'| 'frm:cup-ob:end':
+                if self.model.data['cup-ap']['success'] and self.model.data['cup-ob']['success']:
+                    return 'rcn:acecup:bgn'
+                else:
+                    if frame is not None:
+                        if self.imuonap():
+                            return 'frm:cup-ap:bgn'
+                        if self.imuonob():
+                            return 'frm:cup-ob:bgn'
+                    return self.scn
+
                 
                     

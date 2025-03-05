@@ -9,21 +9,22 @@ class AnalyzeBox:
     def __init__(self):
         self.progress = 0
         self._lock = threading.Lock()
-        self._result = None
         self.images = [[None]*4, [None]*2, [None]*2]
-        self.stitched_result = [None]*2
         self.is_processing = False
         self._stitch_thread = None
         self.mode = 1  
-        self.data={
+        self.resetdata()
+
+    def resetdata(self):
+        self.data = {
             'hp1-ap': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hp1-ob': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hmplv1': {'success': False},
             'hp2-ap': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hp2-ob': {'image': None, 'metadata': None, 'success': False, 'side': None},
             'hmplv2': {'success': False},
+            'pelvis': {'stich': None, 'success': False}
         }
-       
 
     def stitch(self, frame1, frame2):
         """Stitch two frames together."""
@@ -43,8 +44,8 @@ class AnalyzeBox:
                     k+=1
 
         # Stitch the images
-        self._result = np.hstack((frame1_resized, frame2_resized))
-        return self._result
+        result = np.hstack((frame1_resized, frame2_resized))
+        return result
 
     def analyzeframe(self, section, frame):
         try:
@@ -86,6 +87,7 @@ class AnalyzeBox:
                         k+=1
             self.is_processing = False
 
+            self.data[section]['image'] = frame
             self.data[section]['meatdata'] = metadata
             self.data[section]['success'] = True
             self.data[section]['side'] = side
@@ -133,28 +135,18 @@ class AnalyzeBox:
 
     def reg(self, section):
         try:
+            image = cv2.imread('./AP.png')
+            difference = cv2.absdiff(image, self.data['hp2-ap']['image'])
+            difference2 = cv2.absdiff(image, self.data['hp2-ob']['image'])
+            if np.mean(difference) < 10 or np.mean(difference2) < 10:
+                return {'error': 'reg fails'}, None
             self.is_processing = True
-            # Load metadata
-            with open('metadata.json', 'r') as f:
-                metadata = json.load(f)
-            
-            # Process frame and generate results
-            result = {
-                'metadata': metadata,
-                'checkmark': 2,
-                'error': None
-            }
-            
-            k=0
-            for i in range(10000):
-                for j in range(3000):
-                    with self._lock:
-                        self.progress = (k + 1) /300000
-                        k+=1
+            res = self.stitch(self.data['hp1-ap']['image'],self.data['hp2-ap']['image'])
             self.is_processing = False
 
             self.data[section]['success'] = True
-            return result, None
+            self.data[section]['stitch'] = res
+            return {}, res
         except Exception as e:
             return {
                 'success': False,
@@ -237,6 +229,64 @@ class AnalyzeBox:
 
                     return dataforsave, dataforvm, processed_frame
                 
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+            case 'reg:pelvis:bgn':
+                try:
+                    data, processed_frame = self.reg(scn[4:-4])
+                    
+                    # Prepare data for different components
+                    dataforsave = {}
+                    
+                    dataforvm = data 
+                    if 'error' not in data: dataforvm['next'] = True
+
+                    return dataforsave, dataforvm, processed_frame
+                
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+            case 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn':   
+                try:
+                    data, processed_frame = self.analyzeframe(scn[4:-4], frame)
+                    
+                    # Prepare data for different components
+                    dataforsave = {
+                        'metadata': data['metadata']
+                    }
+                    
+                    dataforvm = data
+                    dataforvm['next'] = False
+                    return dataforsave, dataforvm, processed_frame
+                
+                except Exception as error:
+                    return (
+                        {'success': False, 'error': str(error)},
+                        {'success': False, 'error': str(error)},
+                        None
+                    )
+            case 'rcn:acecup:bgn':
+                try:
+                    data, processed_frame = self.reconstruct(scn[4:-4])
+                    
+                    # Prepare data for different components
+                    dataforsave = {
+                        'type': 'cup'
+                    }
+                    
+                    dataforvm = data
+                    if data['checkmark'] == 2:
+                        dataforvm['next'] = True
+
+                    return dataforsave, dataforvm, processed_frame
+
                 except Exception as error:
                     return (
                         {'success': False, 'error': str(error)},

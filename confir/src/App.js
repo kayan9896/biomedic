@@ -18,6 +18,7 @@ import L3 from './L3';
 import "@fontsource/abel"; // Defaults to weight 400
 import "@fontsource/abel/400.css"; // Specify weight
 import L20 from './L20/L20';
+import L19 from './L19/L19';
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -180,6 +181,28 @@ function App() {
     } catch (error) {
       console.error('Error going next:', error);
       setError("Failed to change backend uistate");
+    }
+  };
+
+  const handlerestart = async () => {
+    setError(null)
+    setLeftImage(require('./AP.png'));
+    setRightImage(require('./OB.png'));
+    setLeftImageMetadata(null)
+    setRightImageMetadata(null)
+    setLeftCheckMark(null)
+    setRightCheckMark(null)
+    setStage(0);
+    try {
+      await fetch('http://localhost:5000/restart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+    } catch (error) {
+      console.error('Error restart:', error);
+      setError("Failed to change backend uistate restart");
     }
   };
 
@@ -349,6 +372,9 @@ function App() {
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
+
+      {/*L19 Reg error*/}
+      {error==='reg fails' && <L19 handlerestart={handlerestart}/>}
 
       {/*L20 Glyph error*/}
       {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} setShowglyph={setShowglyph}/>}

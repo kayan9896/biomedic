@@ -435,5 +435,14 @@ def next():
     controller.uistates = 'next'
     return jsonify({"message": "uistate next"})
 
+@app.route('/restart', methods=['POST'])
+def restart():
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    controller.uistates = 'restart'
+    controller.model.resetdata()
+    return jsonify({"message": "uistate next"})
+
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)
