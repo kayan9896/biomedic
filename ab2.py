@@ -9,7 +9,7 @@ class AnalyzeBox:
     def __init__(self):
         self.progress = 0
         self._lock = threading.Lock()
-        self.images = [[None]*4, [None]*2, [None]*2]
+        self.viewpairs = [None]*4
         self.is_processing = False
         self._stitch_thread = None
         self.mode = 1  

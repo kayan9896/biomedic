@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Magnifier from './Magnifier'; // Import the Magnifier component
 
-const Line = ({ squareSize, points,onChange }) => {
+const Line = ({ squareSize, points, onChange, imageUrl }) => {
   const [curvePoints, setCurvePoints] = useState(points);
   const [showDots, setShowDots] = useState(false);
   const [activeDotIndex, setActiveDotIndex] = useState(null);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [dragLine, setDragLine] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const lineRef = useRef(null);
-
+  console.log(0,imageUrl)
   const HIT_TOLERANCE = 15;
 
   useEffect(() => {
@@ -30,6 +32,9 @@ const Line = ({ squareSize, points,onChange }) => {
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       const x = Math.min(Math.max(0, clientX - rect.left), squareSize);
       const y = Math.min(Math.max(0, clientY - rect.top), squareSize);
+      
+      // Update cursor position for magnifier
+      setCursorPosition({ x, y });
   
       if (activeDotIndex !== null) {
         const newPoints = [...curvePoints];
@@ -75,6 +80,12 @@ const Line = ({ squareSize, points,onChange }) => {
   const handleDotMouseDown = (e, index) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    const rect = lineRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setCursorPosition({ x, y });
+    
     setActiveDotIndex(index);
     setIsMouseDown(true);
     setShowDots(true);
@@ -86,6 +97,8 @@ const Line = ({ squareSize, points,onChange }) => {
     const rect = lineRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
+    
+    setCursorPosition({ x: mouseX, y: mouseY });
     
     setDragLine({
       startX: mouseX,
@@ -103,6 +116,8 @@ const Line = ({ squareSize, points,onChange }) => {
     const touchX = touch.clientX - rect.left;
     const touchY = touch.clientY - rect.top;
 
+    setCursorPosition({ x: touchX, y: touchY });
+    
     setDragLine({
       startX: touchX,
       startY: touchY,
@@ -115,6 +130,13 @@ const Line = ({ squareSize, points,onChange }) => {
   const handleDotTouchStart = (e, index) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    const rect = lineRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    setCursorPosition({ x, y });
+    
     setActiveDotIndex(index);
     setIsMouseDown(true);
     setShowDots(true);
@@ -157,9 +179,10 @@ const Line = ({ squareSize, points,onChange }) => {
     return pathCommand;
   };
 
-  // Rest of the functions (handleGlobalMove, handleDotMouseDown, etc.) remain the same
-
   const pathCommand = calculateSmoothCurve(curvePoints);
+
+  // Show magnifier only when a dot is being dragged
+  const showMagnifier = isMouseDown && activeDotIndex !== null;
 
   return (
     <>
@@ -191,7 +214,6 @@ const Line = ({ squareSize, points,onChange }) => {
         />
       </svg>
 
-
       {showDots && curvePoints.map((point, index) => (
         <div
           key={index}
@@ -214,6 +236,15 @@ const Line = ({ squareSize, points,onChange }) => {
           onTouchStart={(e) => handleDotTouchStart(e, index)}
         />
       ))}
+
+      {/* Magnifier */}
+      <Magnifier 
+        show={showMagnifier}
+        position={cursorPosition}
+        imageUrl={imageUrl}
+        magnification={2}
+        size={150}
+      />
     </>
   );
 };

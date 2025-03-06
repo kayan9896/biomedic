@@ -4,13 +4,20 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ metadata, onSave }) => {
+const PatternDisplay = ({ metadata, onSave, imageUrl}) => {
   // Create state to track changes to metadata
-  const [originalMetadata] = useState({...metadata}); // Initial backend data - never changes
+  const [originalMetadata, setOriginalMetadata] = useState({...metadata}); // Initial backend data - never changes
   const [lastSavedMetadata, setLastSavedMetadata] = useState({...metadata}); // Last saved state
   const [currentMetadata, setCurrentMetadata] = useState({...metadata}); // Current editing state
   const [resetKey, setResetKey] = useState(0);
-
+  useEffect(() => {
+    if (metadata) {
+      setOriginalMetadata({...metadata});
+      setLastSavedMetadata({...metadata});
+      setCurrentMetadata({...metadata});
+      setResetKey(prev => prev + 1); // Force remount of child components
+    }
+  }, [metadata]);
   // Update methods exposed via ref
   useEffect(() => {
     if (onSave) {
@@ -134,6 +141,7 @@ const PatternDisplay = ({ metadata, onSave }) => {
         squareSize={960}
         points={currentMetadata.lines.straight}
         onChange={handleStraightLineUpdate}
+        imageUrl={imageUrl}
       />
       <Line 
         key={`line2-${resetKey}`}

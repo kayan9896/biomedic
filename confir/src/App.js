@@ -19,6 +19,7 @@ import "@fontsource/abel"; // Defaults to weight 400
 import "@fontsource/abel/400.css"; // Specify weight
 import L20 from './L20/L20';
 import L19 from './L19/L19';
+import html2canvas from 'html2canvas';
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -57,6 +58,7 @@ function App() {
   const [stage, setStage] = useState(0)
   const [showglyph, setShowglyph] =useState(false)
   const [moveNext, setMoveNext] = useState(false)
+  const frameRef = useRef(null);
 
   useEffect(() => {
     if(!isConnected) return
@@ -91,6 +93,7 @@ function App() {
         // Hide carmbox when processing is happening
         if (data.is_processing) {
           setShowCarmBox(false);
+          setError(null)
           if (carmBoxTimerRef.current) {
             clearTimeout(carmBoxTimerRef.current);
           }
@@ -297,6 +300,7 @@ function App() {
       rightSaveRef.current?.updateSavedMetadata?.();
       // Exit edit mode after successful save
       setEditing(false);
+      captureAndSaveFrame()
     } catch (error) {
       console.error('Error saving landmarks:', error);
       setError("Failed to save landmarks");
@@ -320,6 +324,42 @@ function App() {
   const handleDelete = () => {
     leftSaveRef.current?.clearAllPatterns?.();
     rightSaveRef.current?.clearAllPatterns?.();
+  };
+
+  const captureAndSaveFrame = async () => {
+    console.log(frameRef)
+    if (!frameRef.current) return;
+    
+    try {
+      // Use html2canvas to capture the frame with all overlays
+      const canvas = await html2canvas(frameRef.current, {
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+      });
+      
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        // Create form data and append the image
+        const formData = new FormData();
+        formData.append('image', blob, `stage${stage}.png`);
+        
+        // Send to backend
+        const response = await fetch(`http://localhost:5000/screenshot/${stage}`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          alert(`stage${stage} with overlays saved successfully!`);
+        } else {
+          throw new Error('Failed to save image with overlays');
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Error capturing and saving frame:', err);
+      alert('Error saving image with overlays: ' + err.message);
+    }
   };
 
   return (
@@ -348,6 +388,7 @@ function App() {
         rightImageMetadata={rightImageMetadata}
         onSaveLeft={leftSaveRef}
         onSaveRight={rightSaveRef}
+        frameRef={frameRef}
       />
       
       

@@ -8,7 +8,7 @@ from ab2 import AnalyzeBox
 from fg import FrameGrabber
 from be2 import ImageProcessingController
 from flask_cors import CORS
-import os
+import numpy as np
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -444,6 +444,33 @@ def restart():
     controller.uistates = 'restart'
     controller.model.resetdata()
     return jsonify({"message": "uistate next"})
+
+@app.route('/screenshot/<int:stage>', methods=['POST'])
+def save_screen(stage):
+    if 'image' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    # Create directory if it doesn't exist
+    save_dir = f'data/stage{stage}'
+    os.makedirs(save_dir, exist_ok=True)
+    
+    # Save the file
+    filename = f'screenshot{stage}.png'
+    file_path = os.path.join(save_dir, filename)
+    file.save(file_path)
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    image = Image.open(file)
+    image_array = np.array(image)
+    controller.model.viewpairs[stage] = image_array
+    print(controller.model.viewpairs[stage])
+    
+    return jsonify({"message": f"screenshot saved successfully"})
 
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)

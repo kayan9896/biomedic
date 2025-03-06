@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PatternDisplay from './PatternDisplay';
 
-function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, rightImageMetadata, onSaveLeft, onSaveRight}) {
+function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, rightImageMetadata, onSaveLeft, onSaveRight, frameRef}) {
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
@@ -60,7 +60,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
   };
 
   return(
-    <div className="image-container">
+    <div className="image-container" ref={frameRef}>
       <div 
         className="image-wrapper"
         ref={leftWrapperRef}
@@ -75,7 +75,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {leftImageMetadata && (
-          <PatternDisplay metadata={leftImageMetadata} onSave={onSaveLeft} />
+          <PatternDisplay metadata={leftImageMetadata} onSave={onSaveLeft} imageUrl={leftImage}/>
         )}
       </div>
 
@@ -93,7 +93,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {rightImageMetadata && (
-          <PatternDisplay metadata={rightImageMetadata} onSave={onSaveRight} />
+          <PatternDisplay metadata={rightImageMetadata} onSave={onSaveRight} imageUrl={leftImage}/>
         )}
       </div>
 
