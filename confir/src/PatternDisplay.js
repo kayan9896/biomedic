@@ -148,6 +148,7 @@ const PatternDisplay = ({ metadata, onSave, imageUrl}) => {
         squareSize={960}
         points={currentMetadata.lines.sine}
         onChange={handleSineLineUpdate}
+        imageUrl={imageUrl}
       />
     </div>}</>
   );

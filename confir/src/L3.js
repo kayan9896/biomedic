@@ -93,7 +93,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {rightImageMetadata && (
-          <PatternDisplay metadata={rightImageMetadata} onSave={onSaveRight} imageUrl={leftImage}/>
+          <PatternDisplay metadata={rightImageMetadata} onSave={onSaveRight} imageUrl={rightImage}/>
         )}
       </div>
 

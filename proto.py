@@ -472,5 +472,32 @@ def save_screen(stage):
     
     return jsonify({"message": f"screenshot saved successfully"})
 
+@app.route('/stitch/<int:stage>')
+def get_stitch(stage):
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    
+    if stage == 0:
+        return jsonify({
+        'img': None,
+        })
+    if stage == 1:
+        stitch = controller.model.data['pelvis']['stitch']
+    if stage == 2:
+        stitch = controller.model.data['regcup']['stitch']
+    if stage == 3:
+        stitch = controller.model.data['regtri']['stitch']
+    
+    
+    # Convert the image to base64 encoding
+    _, buffer = cv2.imencode('.jpg', stitch)
+    image_base64 = base64.b64encode(buffer).decode('utf-8')
+    
+    # Return both image and metadata in JSON
+    return jsonify({
+        'img': f'data:image/jpeg;base64,{image_base64}',
+    })
+
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)

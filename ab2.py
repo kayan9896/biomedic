@@ -274,7 +274,7 @@ class AnalyzeBox:
                     dataforvm = data 
                     if 'error' not in data: dataforvm['next'] = True
 
-                    return dataforsave, dataforvm, processed_frame
+                    return dataforsave, dataforvm, None
                 
                 except Exception as error:
                     return (
@@ -333,7 +333,7 @@ class AnalyzeBox:
                     dataforvm = data 
                     if 'error' not in data: dataforvm['next'] = True
 
-                    return dataforsave, dataforvm, processed_frame
+                    return dataforsave, dataforvm, None
                 
                 except Exception as error:
                     return (
@@ -390,7 +390,7 @@ class AnalyzeBox:
                     
                     dataforvm = data 
 
-                    return dataforsave, dataforvm, processed_frame
+                    return dataforsave, dataforvm, None
                 
                 except Exception as error:
                     return (

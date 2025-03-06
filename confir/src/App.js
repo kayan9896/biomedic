@@ -164,7 +164,10 @@ function App() {
       setError('Error connecting to device: ' + err.message);
     }
   };
-
+  const handlepause = async () => {
+    setPause(true)
+    captureAndSaveFrame()
+  }
   const handlenext = async () => {
     setPause(false)
     setLeftImage(require('./AP.png'));
@@ -175,6 +178,7 @@ function App() {
     setRightCheckMark(null)
     setStage(p=>p+1);
     setMoveNext(false);
+    setMeasurements(null)
     try {
       await fetch('http://localhost:5000/next', {
         method: 'POST',
@@ -300,7 +304,7 @@ function App() {
       rightSaveRef.current?.updateSavedMetadata?.();
       // Exit edit mode after successful save
       setEditing(false);
-      captureAndSaveFrame()
+      
     } catch (error) {
       console.error('Error saving landmarks:', error);
       setError("Failed to save landmarks");
@@ -410,7 +414,7 @@ function App() {
       
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && !isProcessing) && <L9 error={error} measurements={measurements} setPause={setPause} moveNext={moveNext}/>}
+      {(!pause && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
@@ -450,7 +454,7 @@ function App() {
       )}
 
       {/*L11 Report, render when report button clicked*/}
-      {report&&<L11 setReport={setReport}/>}
+      {report&&<L11 setReport={setReport} stage={stage} setError={setError}/>}
             
       {/*L12 Pause, render when next button clicked */}
       {pause&&<L12 setPause={setPause} setReport={setReport} handlenext={handlenext}/>}
