@@ -142,7 +142,7 @@ function App() {
         setError(data.error)
         setMeasurements(data.measurements)
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
-        if(data.next) setMoveNext(true)
+        setMoveNext(data.next)
     } catch (error) {
         console.error('Error fetching image:', error);
         setError("Error updating images");

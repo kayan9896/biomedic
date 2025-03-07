@@ -10,7 +10,7 @@ const Magnifier = ({
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    console.log("Magnifier image URL:", imageUrl);
+
     if (!show || !imageUrl) return;
 
     const img = new Image();

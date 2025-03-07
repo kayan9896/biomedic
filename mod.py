@@ -200,11 +200,13 @@ class ProcessingModel:
         angle = self.states['rotation_angle']
         if -15 <= angle <= 15:
             self.imgs[0]['error'] = None
+            self.imgs[0]['measurements'] = None
             if image is not None: self.imgs[0]['image'] = image
             for i in dataforvm:
                 self.imgs[0][i] = dataforvm[i]
         elif -45 <= angle <= 45:
             self.imgs[1]['error'] = None
+            self.imgs[1]['measurements'] = None
             if image is not None: self.imgs[1]['image'] = image
             for i in dataforvm:
                 self.imgs[1][i] = dataforvm[i]

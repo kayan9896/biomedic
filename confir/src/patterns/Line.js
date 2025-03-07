@@ -9,7 +9,7 @@ const Line = ({ squareSize, points, onChange, imageUrl }) => {
   const [dragLine, setDragLine] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const lineRef = useRef(null);
-  console.log(0,imageUrl)
+
   const HIT_TOLERANCE = 15;
 
   useEffect(() => {

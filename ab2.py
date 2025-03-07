@@ -66,6 +66,7 @@ class AnalyzeBox:
 
     def analyzeframe(self, section, frame):
         try:
+            self.data[section]['success'] = None
             image = cv2.imread('./glyph.png')
             difference = cv2.absdiff(image, frame)
             
@@ -118,6 +119,7 @@ class AnalyzeBox:
 
     def reconstruct(self, section):
         try:
+            self.data[section]['success'] = None
             curap = self.getfrmcase(section)[0]
             curob = self.getfrmcase(section)[1]
             if self.data[curap]['side'] != self.data[curob]['side']: 
@@ -158,6 +160,7 @@ class AnalyzeBox:
 
     def reg(self, section):
         try:
+            self.data[section]['success'] = None
             image = cv2.imread('./AP.png')
             curap = self.getfrmcase(section)[0]
             curob = self.getfrmcase(section)[1]
