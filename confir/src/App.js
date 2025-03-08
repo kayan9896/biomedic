@@ -296,6 +296,7 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          stage: stage,
           leftMetadata: leftData,
           rightMetadata: rightData
         }),

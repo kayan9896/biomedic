@@ -48,11 +48,27 @@ class ImageProcessingController:
         states['progress'] = self.model.progress
         return states
 
-    def update_landmarks(self, l, r):
-        if self.scn[:3] == 'rcn':
+    def update_landmarks(self, l, r, stage):
+        if self.scn[:3] != 'frm':
             self.uistates = 'landmarks'
-        self.model.data[f'{self.scn[4:8]}ap']['metadata'] = l
-        self.model.data[f'{self.scn[4:8]}ob']['metadata'] = r
+            
+        if stage == 0:
+            self.model.data['hp1-ap']['metadata'] = l
+            self.model.data['hp1-ob']['metadata'] = r
+            print(stage,l,r)
+        if stage == 1:
+            self.model.data['hp2-ap']['metadata'] = l
+            self.model.data['hp2-ob']['metadata'] = r
+        if stage == 2:
+            self.model.data['cup-ap']['metadata'] = l
+            self.model.data['cup-ob']['metadata'] = r
+        if stage == 3:
+            self.model.data['tri-ap']['metadata'] = l
+            self.model.data['tri-ob']['metadata'] = r
+        
+        self.viewmodel.imgs[0]['metadata'] = l
+        self.viewmodel.imgs[1]['metadata'] = r
+        
 
 
 

@@ -126,10 +126,10 @@ def landmarks():
     global controller
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
-    
+    stage = request.json.get('stage')
     l = request.json.get('leftMetadata')
     r = request.json.get('rightMetadata')
-    controller.update_landmarks(l, r)
+    controller.update_landmarks(l, r, stage)
     
     return jsonify({"message": "update landmarks"})
 
