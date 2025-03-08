@@ -19,7 +19,7 @@ function L11({setReport, stage, setError}) {
     }, []);
     return(
       <div>
-        <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
+        <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10, aspectRatio:'1920/1080',height:'1080px'}}/>
         <img src={require('./ReportImageViewport.png')} alt="ReportImageViewport" style={{position:'absolute', top:'60px', left:'0px', zIndex:11}}/>
         <img src={stitch} style={{position:'absolute', width: '1920px', height:'960px', top:'60px', left:'0px', zIndex:11}}/>
         <img src={require('./DLReportButton.png')} alt="DLReportButton" style={{position:'absolute', top:'945px', left:'1744px', zIndex:11}}/>

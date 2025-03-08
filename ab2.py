@@ -107,7 +107,7 @@ class AnalyzeBox:
             self.is_processing = False
 
             self.data[section]['image'] = frame
-            self.data[section]['meatdata'] = metadata
+            self.data[section]['metadata'] = metadata
             self.data[section]['success'] = True
             self.data[section]['side'] = side
             return result, frame
@@ -125,9 +125,7 @@ class AnalyzeBox:
             if self.data[curap]['side'] != self.data[curob]['side']: 
                 return {'checkmark': 3, 'error': 'recon fails, unmatched side'}, None
             self.is_processing = True
-            # Load metadata
-            with open('metadata.json', 'r') as f:
-                metadata = json.load(f)
+            metadata = {'ap': self.data[curap]['metadata'], 'ob': self.data[curob]['metadata']}
             
             # Process frame and generate results
             result = {
@@ -191,6 +189,7 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
+                        'folder': 'shots',
                         'metadata': data['metadata']
                     }
                     
@@ -210,10 +209,14 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
-                        'type': 'hp1'
+                        'folder': 'recons',
+                        'type': 'hp1',
+                        'metadata': data.get('metadata',None),
+                        'timestamp': str(datetime.datetime.now())
                     }
                     
                     dataforvm = data
+                    dataforvm.pop('metadata')
                     if data['checkmark'] == 2:
                         dataforvm['next'] = True
 
@@ -234,6 +237,7 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
+                        'folder': 'shots',
                         'metadata': data['metadata']
                     }
                     
@@ -253,10 +257,14 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
-                        'type': 'hp2'
+                        'folder': 'recons',
+                        'type': 'hp2',
+                        'metadata': data.get('metadata',None),
+                        'timestamp': str(datetime.datetime.now())
                     }
                     
                     dataforvm = data
+                    dataforvm.pop('metadata')
                     dataforvm['next'] = False
 
                     return dataforsave, dataforvm, processed_frame
@@ -272,7 +280,13 @@ class AnalyzeBox:
                     data, processed_frame = self.reg(scn[4:-4])
                     
                     # Prepare data for different components
-                    dataforsave = {}
+                    dataforsave = {
+                        'stitch': processed_frame,
+                        'folder': 'regs',
+                        'type': 'pelvis',
+                        'measurements': data.get('measurements',None),
+                        'timestamp': str(datetime.datetime.now())
+                    }
                     
                     dataforvm = data 
                     if 'error' not in data: dataforvm['next'] = True
@@ -293,6 +307,7 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
+                        'folder': 'shots',
                         'metadata': data['metadata']
                     }
                     
@@ -312,10 +327,14 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
-                        'type': 'cup'
+                        'folder': 'recons',
+                        'type': 'cup',
+                        'metadata': data.get('metadata',None),
+                        'timestamp': str(datetime.datetime.now())
                     }
                     
                     dataforvm = data
+                    dataforvm.pop('metadata')
                     dataforvm['next'] = False
 
                     return dataforsave, dataforvm, processed_frame
@@ -331,7 +350,13 @@ class AnalyzeBox:
                     data, processed_frame = self.reg(scn[4:-4])
                     
                     # Prepare data for different components
-                    dataforsave = {}
+                    dataforsave = {
+                        'stitch': processed_frame,
+                        'folder': 'regs',
+                        'type': 'cuo',
+                        'measurements': data.get('measurements',None),
+                        'timestamp': str(datetime.datetime.now())
+                    }
                     
                     dataforvm = data 
                     if 'error' not in data: dataforvm['next'] = True
@@ -351,6 +376,7 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
+                        'folder': 'shots',
                         'metadata': data['metadata']
                     }
                     
@@ -370,10 +396,14 @@ class AnalyzeBox:
                     
                     # Prepare data for different components
                     dataforsave = {
-                        'type': 'tri'
+                        'folder': 'recons',
+                        'type': 'tri',
+                        'metadata': data.get('metadata',None),
+                        'timestamp': str(datetime.datetime.now())
                     }
                     
                     dataforvm = data
+                    dataforvm.pop('metadata')
                     dataforvm['next'] = False
 
                     return dataforsave, dataforvm, processed_frame
@@ -389,7 +419,13 @@ class AnalyzeBox:
                     data, processed_frame = self.reg(scn[4:-4])
                     
                     # Prepare data for different components
-                    dataforsave = {}
+                    dataforsave = {
+                        'stitch': processed_frame,
+                        'folder': 'regs',
+                        'type': 'tri',
+                        'measurements': data.get('measurements',None),
+                        'timestamp': str(datetime.datetime.now())
+                    }
                     
                     dataforvm = data 
 
