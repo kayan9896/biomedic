@@ -1,11 +1,14 @@
-.circular-progress {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 15;
-  }
-  
-  .circular-progress circle {
-    transition: stroke-dashoffset 0.3s ease;
-  }
+
+.background-image {
+  position: absolute;
+  top: 366px;
+  left: 830px;
+  z-index: 15;
+}
+
+.circular-progress svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 15;
+}

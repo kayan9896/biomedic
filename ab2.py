@@ -216,7 +216,8 @@ class AnalyzeBox:
                     }
                     
                     dataforvm = data
-                    dataforvm.pop('metadata')
+                    if 'metadata' in dataforvm:
+                        dataforvm.pop('metadata')
                     if data['checkmark'] == 2:
                         dataforvm['next'] = True
 

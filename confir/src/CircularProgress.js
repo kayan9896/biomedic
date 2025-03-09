@@ -1,52 +1,83 @@
 import React from 'react';
 import './CircularProgress.css';
+import backgroundImage from './LCBg.png';
 
 const CircularProgress = ({ percentage }) => {
-  const circumference = 2 * Math.PI * 45; // radius is 45
+  const radiusOuter = 103;
+  const radiusInner = 95;
+  const circumference = 2 * Math.PI * radiusOuter;
   const offset = circumference - (percentage / 100) * circumference;
+
+  // Gradient colors
+  const gradientColors = [
+    '#0155BB', // tail (start)
+    '#3792FF', // head (end)
+  ];
 
   return (
     <div className="circular-progress">
-      <svg width="120" height="120" viewBox="0 0 120 120">
-        {/* Grey background circle */}
+      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
+      <img src={backgroundImage} alt="window background" className="background-image" />
+      <svg width="1920" height="960" viewBox="0 0 1920 960">
+        <defs>
+          <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={gradientColors[0]} />
+            <stop offset="100%" stopColor={gradientColors[1]} />
+          </linearGradient>
+        </defs>
+        {/* Outer white circle */}
         <circle
-          cx="60"
-          cy="60"
-          r="45"
-          stroke="#e6e6e6"
-          strokeWidth="10"
+          cx="960"
+          cy="496"
+          r={radiusOuter}
+          stroke="#FFF"
+          strokeWidth="16"
           fill="none"
         />
-        {/* Dark green inner circle */}
-        <circle
-          cx="60"
-          cy="60"
-          r="40"
-          fill="#004d00"
-        />
+
         {/* Blue progress circle */}
         <circle
-          cx="60"
-          cy="60"
-          r="45"
-          stroke="#007bff"
-          strokeWidth="10"
+          cx="960"
+          cy="496"
+          r={radiusOuter}
+          stroke="url(#progress-gradient)"
+          strokeWidth="16"
           fill="none"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          transform="rotate(-90 60 60)"
+          transform="rotate(-90 960 496)"
+        />
+        
+        {/* Hollow inner circle */}
+        <circle
+          cx="960"
+          cy="496"
+          r={radiusInner}
+          stroke="#000"
+          strokeWidth="1"
+          fill="none"
         />
         {/* Percentage text */}
         <text
-          x="60"
-          y="60"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="white"
-          fontSize="24px"
+          x="877"
+          y="433"
+          textAnchor="left"
+          dominantBaseline="hanging"
+          fill="#3792FF"
+          fontSize="74px"
         >
           {`${Math.round(percentage)}%`}
+        </text>
+        <text
+          x="865"
+          y="503"
+          textAnchor="left"
+          dominantBaseline="hanging"
+          fill="white"
+          fontSize="39.6px"
+        >
+          Analyzing
         </text>
       </svg>
     </div>
