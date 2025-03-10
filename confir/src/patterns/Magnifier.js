@@ -34,11 +34,11 @@ const Magnifier = ({
 
     // Calculate the source rectangle (area around cursor to zoom)
     const zoomBoxSize = size / magnification;
-    const sourceX = Math.max(0, cursorX - zoomBoxSize / 2);
-    const sourceY = Math.max(0, cursorY - zoomBoxSize / 2);
+    const sourceX = Math.max(0, cursorX/960*1024 - zoomBoxSize / 2);
+    const sourceY = Math.max(0, cursorY/960*1024 - zoomBoxSize / 2);
     const sourceWidth = zoomBoxSize;
     const sourceHeight = zoomBoxSize;
-
+    console.log(sourceX, sourceY, cursorX, cursorY)
     // Draw the zoomed image portion to the canvas
     ctx.drawImage(
       img,
@@ -77,8 +77,8 @@ const Magnifier = ({
     <div 
       style={{
         position: 'absolute',
-        top: 10,
-        left: 10,
+        top: 0,
+        left: 0,
         width: size,
         height: size,
         zIndex: 1000,

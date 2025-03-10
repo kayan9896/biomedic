@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Magnifier from './Magnifier'; // Import the Magnifier component
+import Magnifier from './Magnifier'; 
 
 const Line = ({ squareSize, points, onChange, imageUrl }) => {
   const [curvePoints, setCurvePoints] = useState(points);

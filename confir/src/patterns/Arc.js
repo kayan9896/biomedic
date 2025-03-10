@@ -1,12 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, onChange }) => {
+const Arc = ({ arc: initialArc, onChange, imageUrl }) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(null);
   const [dragStart, setDragStart] = useState(null);
   const arcRef = useRef(null);
+
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+
+
 
   // Add effect for document-level event handling
   useEffect(() => {
@@ -18,6 +24,7 @@ const Arc = ({ arc: initialArc, onChange }) => {
       const rect = arcRef.current.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+      setCursorPosition({ x: x, y: y });
 
       if (draggedPointIndex !== null) {
         // Moving a control point
@@ -48,6 +55,7 @@ const Arc = ({ arc: initialArc, onChange }) => {
     const handleGlobalUp = () => {
       setIsDragging(false);
       setDraggedPointIndex(null);
+      setShowMagnifier(false)
     };
 
     if (isDragging) {
@@ -85,7 +93,9 @@ const Arc = ({ arc: initialArc, onChange }) => {
     const rect = arcRef.current.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-
+    setShowMagnifier(true);
+    setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+  
     const controlPointIndex = arc.findIndex(point => 
       Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 25
     );
@@ -155,6 +165,7 @@ const Arc = ({ arc: initialArc, onChange }) => {
   `;
 
   return (
+    <>
     <svg 
       ref={arcRef}
       width="960" 
@@ -197,6 +208,14 @@ const Arc = ({ arc: initialArc, onChange }) => {
         ))}
       </g>
     </svg>
+    <Magnifier 
+      show={showMagnifier}
+      position={cursorPosition}
+      imageUrl={imageUrl}
+      magnification={2}
+      size={150}
+    />
+    </>
   );
 };
 

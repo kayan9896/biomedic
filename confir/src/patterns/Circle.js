@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Magnifier from './Magnifier';
 
-const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange }) => {
+const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange, imageUrl }) => {
   const [center,setcCenter]=useState(ori)
   const [edgePoint,setEdgePoint]=useState(edge)
   const [isDraggingCenter, setIsDraggingCenter] = useState(false);
@@ -8,6 +9,8 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
   const [isEditing, setIsEditing] = useState(false);
   const svgRef = useRef(null);
 
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   // Point styles
   const normalPointStyle = {
     r: 10,
@@ -38,6 +41,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
     } else {
       setIsDraggingEdge(true);
     }
+    setShowMagnifier(true)
   };
 
   const handleCircleClick = (e) => {
@@ -72,6 +76,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
         const svgRect = svgRef.current.getBoundingClientRect();
         const x = event.clientX - svgRect.left;
         const y = event.clientY - svgRect.top;
+        setCursorPosition({ x: x, y: y });
   
         if (isDraggingCenter) {
           // Handle center dragging
@@ -92,6 +97,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
     const handleGlobalUp = () => {
       setIsDraggingCenter(false);
       setIsDraggingEdge(false);
+      setShowMagnifier(false)
     };
   
     if (isDraggingCenter || isDraggingEdge) {
@@ -110,6 +116,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
   }, [isDraggingCenter, isDraggingEdge, center, edgePoint]);
 
   return (
+    <>
     <svg 
       ref={svgRef}
       width="960px" 
@@ -168,6 +175,14 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange 
         )}
       </g>
     </svg>
+    <Magnifier 
+      show={showMagnifier}
+      position={cursorPosition}
+      imageUrl={imageUrl}
+      magnification={2}
+      size={150}
+    />
+    </>
   );
 };
 

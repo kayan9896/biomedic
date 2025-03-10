@@ -122,12 +122,14 @@ const PatternDisplay = ({ metadata, onSave, imageUrl}) => {
         edgePoint={currentMetadata.circle.edgePoint}
         onCenterChange={(newCenter) => handleCircleUpdate(newCenter, currentMetadata.circle.edgePoint)}
         onEdgePointChange={(newEdge) => handleCircleUpdate(currentMetadata.circle.center, newEdge)}
+        imageUrl={imageUrl}
       />
       
       <Arc 
         key={`arc-${resetKey}`}
         arc={currentMetadata.arc}
         onChange={handleArcUpdate}
+        imageUrl={imageUrl}
       />
       
       <Ellipse 
