@@ -12,7 +12,9 @@ const Arc = ({ arc: initialArc, onChange, imageUrl }) => {
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
-
+  useEffect(()=>{
+    setArc(initialArc)
+  },[initialArc])
 
   // Add effect for document-level event handling
   useEffect(() => {

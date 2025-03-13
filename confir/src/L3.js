@@ -74,9 +74,9 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
         {activeLeft && (
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
-        {leftImageMetadata && (
-          <PatternDisplay metadata={leftImageMetadata} onSave={onSaveLeft} imageUrl={leftImage}/>
-        )}
+        {leftImageMetadata && Object.keys(leftImageMetadata).map((group, i) => (
+          <PatternDisplay key={i} group={group} metadata={leftImageMetadata} onSave={onSaveLeft} imageUrl={leftImage} />
+        ))}
       </div>
 
       <div 
@@ -92,9 +92,9 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
         {activeRight && (
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
-        {rightImageMetadata && (
-          <PatternDisplay metadata={rightImageMetadata} onSave={onSaveRight} imageUrl={rightImage}/>
-        )}
+        {rightImageMetadata && Object.keys(rightImageMetadata).map((group, i) => (
+          <PatternDisplay key={i} group={group} metadata={rightImageMetadata} onSave={onSaveRight} imageUrl={rightImage} />
+        ))}
       </div>
 
       {showMagnifier && activeImageSide && (
@@ -136,10 +136,9 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
                     style={{ position: 'absolute', top: 0, left: 0 }}
                   />
                 )}
-                {leftImageMetadata && (
-                  <div style={{ position: 'absolute', top: 0, left: 0 }}>
-                    <PatternDisplay metadata={leftImageMetadata} onSave={null} />
-                  </div>
+                {leftImageMetadata && (Object.keys(leftImageMetadata).map((group, i) => (
+          <PatternDisplay key={i} group={group} metadata={leftImageMetadata} onSave={onSaveLeft} imageUrl={leftImage} />
+        ))
                 )}
               </>
             ) : (
@@ -153,10 +152,9 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
                     style={{ position: 'absolute', top: 0, left: 0 }}
                   />
                 )}
-                {rightImageMetadata && (
-                  <div style={{ position: 'absolute', top: 0, left: 0 }}>
-                    <PatternDisplay metadata={rightImageMetadata} onSave={null} />
-                  </div>
+                {rightImageMetadata && (Object.keys(rightImageMetadata).map((group, i) => (
+          <PatternDisplay key={i} group={group} metadata={rightImageMetadata} onSave={onSaveRight} imageUrl={rightImage} />
+        ))
                 )}
               </>
             )}

@@ -1,12 +1,30 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
+const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate }) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(null);
   const [dragStart, setDragStart] = useState(null);
   const ellipseRef = useRef(null);
+
+  useEffect(()=>{
+      setEllipse(initialEllipse)
+    },[initialEllipse])
+
+  useEffect(() => {
+    if (groupOffset) {
+      const newEllipse = ellipse.map(point => [
+        point[0] + groupOffset[0],
+        point[1] + groupOffset[1]
+      ]);
+      setEllipse(newEllipse);
+      if (onChange) {
+        onChange(newEllipse);
+      }
+    }
+  }, [groupOffset]);
+
 
   // Add effect for document-level event handling
   useEffect(() => {
@@ -80,6 +98,8 @@ const Ellipse = ({ ellipse: initialEllipse, onChange }) => {
   function handleMouseDown(e) {
     e.preventDefault();
     e.stopPropagation();
+
+
     
     const event = e.touches ? e.touches[0] : e;
     const rect = ellipseRef.current.getBoundingClientRect();

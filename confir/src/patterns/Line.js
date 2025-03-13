@@ -13,6 +13,10 @@ const Line = ({ squareSize, points, onChange, imageUrl }) => {
   const HIT_TOLERANCE = 15;
 
   useEffect(() => {
+    setCurvePoints(points);
+    }, [points]);
+
+  useEffect(() => {
     const handleClickOutside = (e) => {
       if (lineRef.current && !lineRef.current.contains(e.target)) {
         setShowDots(false);
@@ -214,7 +218,7 @@ const Line = ({ squareSize, points, onChange, imageUrl }) => {
         />
       </svg>
 
-      {showDots && curvePoints.map((point, index) => (
+      {(points.length === 1 || showDots) && curvePoints.map((point, index) => (
         <div
           key={index}
           className="draggable-dot"

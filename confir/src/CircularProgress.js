@@ -62,20 +62,22 @@ const CircularProgress = ({ percentage }) => {
         <text
           x="877"
           y="433"
-          textAnchor="left"
+          textAnchor="start"
           dominantBaseline="hanging"
           fill="#3792FF"
           fontSize="74px"
+          fontFamily='abel'
         >
           {`${Math.round(percentage)}%`}
         </text>
         <text
           x="865"
           y="503"
-          textAnchor="left"
+          textAnchor="start"
           dominantBaseline="hanging"
           fill="white"
           fontSize="39.6px"
+          fontFamily='abel'
         >
           Analyzing
         </text>
