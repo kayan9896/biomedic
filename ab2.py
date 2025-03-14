@@ -88,7 +88,12 @@ class AnalyzeBox:
             self.is_processing = True
 
             # Load metadata
-            with open('metadata.json', 'r') as f:
+            file = 'metadata.json'
+            if section[:3] == 'cup':
+                file = 'cupdata.json'
+            if section[:3] == 'tri':
+                file = 'tridata.json'
+            with open(file, 'r') as f:
                 metadata = json.load(f)
             
             # Process frame and generate results

@@ -13,7 +13,6 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
   
   useEffect(() => {
     if (metadata) {
-      console.log(metadata[group])
       setOriginalMetadata([...metadata[group]]);
       setLastSavedMetadata([...metadata[group]]);
       setCurrentMetadata([...metadata[group]]);
