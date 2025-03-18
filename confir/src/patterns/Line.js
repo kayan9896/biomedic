@@ -1,16 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
 
-const Line = ({ squareSize, points, onChange, imageUrl, metadata }) => {
+const Line = ({ squareSize, points, onChange, imageUrl, metadata, idx }) => {
   const [curvePoints, setCurvePoints] = useState(points);
-  const [showDots, setShowDots] = useState(false);
-  const [activeDotIndex, setActiveDotIndex] = useState(null);
+  const [showDots, setShowDots] = useState(idx);
+  const [activeDotIndex, setActiveDotIndex] = useState(idx);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [dragLine, setDragLine] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const lineRef = useRef(null);
 
   const HIT_TOLERANCE = 15;
+  useEffect(()=>{
+    setActiveDotIndex(idx)
+    setShowDots(idx!==null)
+    },[idx])
 
   useEffect(() => {
     setCurvePoints(points);
@@ -249,6 +253,7 @@ const Line = ({ squareSize, points, onChange, imageUrl, metadata }) => {
         magnification={2}
         size={150}
         metadata={metadata}
+        idx={activeDotIndex}
       />
     </>
   );

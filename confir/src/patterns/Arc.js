@@ -1,17 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, onChange, imageUrl, metadata }) => {
+const Arc = ({ arc: initialArc, onChange, imageUrl, metadata, idx }) => {
   const [arc, setArc] = useState(initialArc);
-  const [isSelected, setIsSelected] = useState(false);
+  const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
-  const [draggedPointIndex, setDraggedPointIndex] = useState(null);
+  const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
   const [dragStart, setDragStart] = useState(null);
   const arcRef = useRef(null);
 
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
+  useEffect(()=>{
+    setDraggedPointIndex(idx)
+    setIsSelected(idx!=null)
+  },[idx])
+  
   useEffect(()=>{
     setArc(initialArc)
   },[initialArc])
@@ -202,8 +207,9 @@ const Arc = ({ arc: initialArc, onChange, imageUrl, metadata }) => {
             cx={point[0]}
             cy={point[1]}
             r={index === draggedPointIndex ? 20 : 10}
-            strokeWidth="20"
-            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0.5)' : 'yellow'}
+            strokeWidth="2"
+            stroke='yellow'
+            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0)' : 'yellow'}
             onMouseDown={(e) => handleMouseDown(e, index)}
             onTouchStart={(e) => handleMouseDown(e, index)}
           />
@@ -218,6 +224,7 @@ const Arc = ({ arc: initialArc, onChange, imageUrl, metadata }) => {
         magnification={2}
         size={150}
         metadata={metadata}
+        idx={draggedPointIndex}
       />
     </>
   );

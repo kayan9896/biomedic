@@ -2,18 +2,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import Arc from './Arc';
 import Magnifier from './Magnifier';
 
-const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, metadata}) => {
+const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, metadata, idx}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
-  const [isSelected, setIsSelected] = useState(false);
+  const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
-  const [draggedPointIndex, setDraggedPointIndex] = useState(null);
+  const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
   const [dragStart, setDragStart] = useState(null);
   const ellipseRef = useRef(null);
   const [arcPoints, setArcPoints] = useState([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   
-
+  
+  useEffect(()=>{
+    setDraggedPointIndex(idx)
+    setIsSelected(idx!==null)
+  },[idx])
+  
   useEffect(()=>{
       setEllipse(initialEllipse)
       setArcPoints([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
@@ -244,7 +249,9 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, met
             cx={point[0]}
             cy={point[1]}
             r={index === draggedPointIndex ? 20 : 10}
-            fill={index === draggedPointIndex ? 'rgba(255, 0, 255, 0.5)' : 'purple'}
+            stroke='purple'
+            strokeWidth={2}
+            fill={index === draggedPointIndex ? 'rgba(255, 0, 255, 0)' : 'purple'}
           />
           <circle
             key={index}
@@ -265,6 +272,7 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, met
         magnification={2}
         size={150}
         metadata={metadata}
+        idx={draggedPointIndex}
       />
     </>
   );

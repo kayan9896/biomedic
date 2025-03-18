@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Circle from './Circle';
 import Arc from './Arc';
 import Ellipse from './Ellipse';
@@ -10,11 +10,17 @@ const Magnifier = ({
   magnification = 2,
   size = 150,
   position: { x, y } ,
-  metadata
+  metadata,
+  idx
 }) => {
   const magnificationLevel = 2;
   const magnifierSize = 150;
+  const [i,seti] =useState(idx)
+  useEffect(()=>{
+    seti(idx)
+  },[idx])
   if (!show) return null;
+  
 
   return (
     <div 
@@ -47,7 +53,7 @@ const Magnifier = ({
             <img src={imageUrl} alt="Image 1" style={{ width: '100%', height: 'auto' }} />
         
             {metadata.map((pattern, index) => {
-            const key = `${pattern.type}-${index}`;
+            const key = `${pattern.type}-${index}-${Math.random()}`;
             
             switch (pattern.type) {
               case 'circle':
@@ -70,6 +76,7 @@ const Magnifier = ({
                     
                     imageUrl={imageUrl}
                     metadata={metadata}
+                    idx={i}
                   />
                 );
                 
@@ -81,6 +88,7 @@ const Magnifier = ({
                     
                     imageUrl={imageUrl}
                     metadata={metadata}
+                    idx={i}
                   />
                 );
                 
@@ -93,6 +101,7 @@ const Magnifier = ({
                     
                     imageUrl={imageUrl}
                     metadata={metadata}
+                    idx={i}
                   />
                 );
                 
@@ -100,6 +109,19 @@ const Magnifier = ({
                 return null;
             }
           })}
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          color: 'red',
+          fontWeight: 'bold',
+          fontSize: '20px', // Adjust size as needed
+        }}
+      >
+        +
       </div>
     </div>
   );
