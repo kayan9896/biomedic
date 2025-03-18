@@ -202,8 +202,9 @@ const Arc = ({ arc: initialArc, onChange, imageUrl }) => {
             cx={point[0]}
             cy={point[1]}
             r={index === draggedPointIndex ? 20 : 10}
-            strokeWidth="20"
-            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0.5)' : 'yellow'}
+            strokeWidth="2"
+            stroke='yellow'
+            fill={index === draggedPointIndex ? 'rgba(255, 255, 255, 0)' : 'yellow'}
             onMouseDown={(e) => handleMouseDown(e, index)}
             onTouchStart={(e) => handleMouseDown(e, index)}
           />

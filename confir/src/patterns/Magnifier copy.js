@@ -86,12 +86,13 @@ useEffect(() => {
     position: 'absolute',
     width: `${size}px`,
     height: `${size}px`,
+    borderRadius: '50%',
     border: '3px solid white',
     boxShadow: '0 0 5px rgba(0,0,0,0.5)',
     overflow: 'hidden',
     zIndex: 1000,
-    top: `${0}px`,
-    left: `${0}px`,
+    top: `${top}px`,
+    left: `${left}px`,
     pointerEvents: 'none', // Ensure it doesn't interfere with mouse events
     backgroundColor: 'white',
   };
