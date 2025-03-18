@@ -1,15 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Arc from './Arc';
+import Magnifier from './Magnifier';
 
-const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate }) => {
+const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, metadata}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(null);
   const [dragStart, setDragStart] = useState(null);
   const ellipseRef = useRef(null);
+  const [arcPoints, setArcPoints] = useState([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  
 
   useEffect(()=>{
       setEllipse(initialEllipse)
+      setArcPoints([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
     },[initialEllipse])
 
   useEffect(() => {
@@ -36,11 +43,19 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate
       const rect = ellipseRef.current.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
+      setCursorPosition({ x: x, y: y });
 
       if (draggedPointIndex !== null) {
         // Moving a control point
         const newEllipse = [...ellipse];
         newEllipse[draggedPointIndex] = [x, y];
+    
+        if (draggedPointIndex === 0 || draggedPointIndex === 2) {
+          const newArc = [...arcPoints];
+          newArc[draggedPointIndex] = [x, y];
+          setArcPoints(newArc);
+        }
+    
         setEllipse(newEllipse);
         if (onChange) {
           onChange(newEllipse);
@@ -49,13 +64,19 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate
         // Moving the entire ellipse
         const dx = x - dragStart[0];
         const dy = y - dragStart[1];
-
+    
         const newEllipse = ellipse.map(point => [
           point[0] + dx,
           point[1] + dy
         ]);
-
+    
+        const newArc = arcPoints.map(point => [
+          point[0] + dx,
+          point[1] + dy
+        ]);
+    
         setEllipse(newEllipse);
+        setArcPoints(newArc);
         if (onChange) {
           onChange(newEllipse);
         }
@@ -66,6 +87,7 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate
     const handleGlobalUp = () => {
       setIsDragging(false);
       setDraggedPointIndex(null);
+      setShowMagnifier(false)
     };
 
     if (isDragging) {
@@ -98,14 +120,14 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate
   function handleMouseDown(e) {
     e.preventDefault();
     e.stopPropagation();
-
-
     
     const event = e.touches ? e.touches[0] : e;
     const rect = ellipseRef.current.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-
+    setShowMagnifier(true);
+    setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+    
     const controlPointIndex = ellipse.findIndex(point => 
       Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 30
     );
@@ -171,6 +193,19 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate
   const { center, a, b, angle } = calculateEllipseParameters();
 
   return (
+    <>
+    <Arc
+      arc={[ellipse[0], ellipse[3], ellipse[2]]}
+      onChange={(newArc) => {
+        // Update the ellipse points based on the new arc points
+        const newEllipse = [newArc[0], ellipse[1], newArc[2], ellipse[3]];
+        setEllipse(newEllipse);
+        if (onChange) {
+          onChange(newEllipse);
+        }
+      }}
+      imageUrl={imageUrl}
+    />
     <svg 
       ref={ellipseRef}
       width="960" 
@@ -222,6 +257,16 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, onGroupUpdate
         ))}
       </g>
     </svg>
+    {/* Magnifier */}
+    <Magnifier 
+        show={showMagnifier}
+        position={cursorPosition}
+        imageUrl={imageUrl}
+        magnification={2}
+        size={150}
+        metadata={metadata}
+      />
+    </>
   );
 };
 

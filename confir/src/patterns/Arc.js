@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, onChange, imageUrl }) => {
+const Arc = ({ arc: initialArc, onChange, imageUrl, metadata }) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -210,13 +210,15 @@ const Arc = ({ arc: initialArc, onChange, imageUrl }) => {
         ))}
       </g>
     </svg>
+    {/* Magnifier */}
     <Magnifier 
-      show={showMagnifier}
-      position={cursorPosition}
-      imageUrl={imageUrl}
-      magnification={2}
-      size={150}
-    />
+        show={showMagnifier}
+        position={cursorPosition}
+        imageUrl={imageUrl}
+        magnification={2}
+        size={150}
+        metadata={metadata}
+      />
     </>
   );
 };

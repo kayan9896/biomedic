@@ -54,8 +54,6 @@ const CircularProgress = ({ percentage }) => {
           cx="960"
           cy="496"
           r={radiusInner}
-          stroke="#000"
-          strokeWidth="1"
           fill="none"
         />
         {/* Percentage text */}

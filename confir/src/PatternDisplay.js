@@ -154,6 +154,7 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
                       })
                     }
                     imageUrl={imageUrl}
+                    metadata={currentMetadata}
                   />
                 );
                 
@@ -164,6 +165,7 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
                     arc={pattern.points}
                     onChange={(newArc) => handlePatternUpdate(index, newArc)}
                     imageUrl={imageUrl}
+                    metadata={currentMetadata}
                   />
                 );
                 
@@ -173,6 +175,8 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
                     key={key}
                     ellipse={pattern.points}
                     onChange={(newEllipse) => handlePatternUpdate(index, newEllipse)}
+                    imageUrl={imageUrl}
+                    metadata={currentMetadata}
                   />
                 );
                 
@@ -184,6 +188,7 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
                     points={pattern.points}
                     onChange={(newPoints) => handlePatternUpdate(index, newPoints)}
                     imageUrl={imageUrl}
+                    metadata={currentMetadata}
                   />
                 );
                 

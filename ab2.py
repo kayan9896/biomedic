@@ -88,7 +88,7 @@ class AnalyzeBox:
             self.is_processing = True
 
             # Load metadata
-            file = 'metadata.json'
+            file = 'cupdata.json'
             if section[:3] == 'cup':
                 file = 'cupdata.json'
             if section[:3] == 'tri':
