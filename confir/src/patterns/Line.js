@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
 
-const Line = ({ squareSize, points, onChange, imageUrl, metadata, idx }) => {
+const Line = ({ squareSize, points, onChange, imageUrl, metadata, isLeftSquare, idx }) => {
   const [curvePoints, setCurvePoints] = useState(points);
   const [showDots, setShowDots] = useState(idx);
   const [activeDotIndex, setActiveDotIndex] = useState(idx);
@@ -251,7 +251,7 @@ const Line = ({ squareSize, points, onChange, imageUrl, metadata, idx }) => {
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
-        size={150}
+        isLeftSquare={isLeftSquare}
         metadata={metadata}
         idx={activeDotIndex}
       />

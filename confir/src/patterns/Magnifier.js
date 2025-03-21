@@ -8,13 +8,68 @@ const Magnifier = ({
   show, 
   imageUrl, 
   magnification = 2,
-  size = 150,
+  size = 300,
   position: { x, y } ,
   metadata,
+  isLeftSquare,
   idx
 }) => {
+    const [magnifierPosition, setMagnifierPosition] = useState('default');
+    const proximityThreshold = size*0.75; // Distance in pixels to trigger position change
+    
+    // Calculate magnifier's absolute position
+    const getMagnifierCoordinates = () => {
+      // For left square
+      if (isLeftSquare) {
+        // Default is top-left corner
+        if (magnifierPosition === 'default') {
+          return { top: 0, left: 0 };
+        } 
+        // Alternate position is top-right corner
+        else {
+          return { top: 0, left: 960 - size };
+        }
+      } 
+      // For right square
+      else {
+        // Default is top-right corner
+        if (magnifierPosition === 'default') {
+          return { top: 0, left: 960 - size };
+        } 
+        // Alternate position is top-left corner
+        else {
+          return { top: 0, left: 0 };
+        }
+      }
+    };
+  
+    // Get current coordinates
+    const coordinates = getMagnifierCoordinates();
+    
+    // Check distance between cursor and magnifier
+    useEffect(() => {
+      if (!show) return;
+      
+      // Calculate center of magnifier
+      const magnifierCenterX = coordinates.left + size/2;
+      const magnifierCenterY = coordinates.top + size/2;
+      
+      // Calculate distance between cursor and magnifier center
+      const distance = Math.sqrt(
+        Math.pow(magnifierCenterX - x, 2) + 
+        Math.pow(magnifierCenterY - y, 2)
+      );
+      
+      // Switch position if cursor is too close
+      if (distance < proximityThreshold) {
+        setMagnifierPosition('alternate');
+      } else {
+        setMagnifierPosition('default');
+      }
+    }, [x, y, show]);
+
   const magnificationLevel = 2;
-  const magnifierSize = 150;
+  const magnifierSize = size;
   const [i,seti] =useState(idx)
   useEffect(()=>{
     seti(idx)
@@ -26,8 +81,8 @@ const Magnifier = ({
     <div 
       style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
+        top: coordinates.top,
+        left: coordinates.left,
         width: size,
         height: size,
         zIndex: 1000,
@@ -38,7 +93,7 @@ const Magnifier = ({
         pointerEvents: 'none' // Don't interfere with mouse events
       }}
     >
-      <div style={{position:'absolute', top: 0, left:0}}>+</div>
+      
       <div
             style={{
               width: `${480 * magnificationLevel}px`,

@@ -415,7 +415,7 @@ function App() {
       
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext}/>}
+      {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}

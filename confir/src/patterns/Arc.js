@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, onChange, imageUrl, metadata, idx }) => {
+const Arc = ({ arc: initialArc, onChange, imageUrl, isLeftSquare, metadata, idx }) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
@@ -222,7 +222,7 @@ const Arc = ({ arc: initialArc, onChange, imageUrl, metadata, idx }) => {
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
-        size={150}
+        isLeftSquare={isLeftSquare}
         metadata={metadata}
         idx={draggedPointIndex}
       />

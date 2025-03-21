@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Arc from './Arc';
 import Magnifier from './Magnifier';
 
-const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, metadata, idx}) => {
+const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, isLeftSquare, metadata, idx}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
@@ -270,7 +270,7 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, met
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
-        size={150}
+        isLeftSquare={isLeftSquare}
         metadata={metadata}
         idx={draggedPointIndex}
       />

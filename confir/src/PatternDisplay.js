@@ -4,7 +4,7 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
+const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => {
   // Keep metadata in array format
   const [originalMetadata, setOriginalMetadata] = useState(metadata[group] || []);
   const [lastSavedMetadata, setLastSavedMetadata] = useState(metadata[group] || []);
@@ -165,6 +165,7 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
                     arc={pattern.points}
                     onChange={(newArc) => handlePatternUpdate(index, newArc)}
                     imageUrl={imageUrl}
+                    isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
                     idx={null}
                   />
@@ -177,6 +178,7 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
                     ellipse={pattern.points}
                     onChange={(newEllipse) => handlePatternUpdate(index, newEllipse)}
                     imageUrl={imageUrl}
+                    isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
                     idx={null}
                   />
@@ -190,6 +192,7 @@ const PatternDisplay = ({ group, metadata, onSave, imageUrl }) => {
                     points={pattern.points}
                     onChange={(newPoints) => handlePatternUpdate(index, newPoints)}
                     imageUrl={imageUrl}
+                    isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
                     idx={null}
                   />
