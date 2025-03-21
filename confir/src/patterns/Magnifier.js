@@ -14,8 +14,8 @@ const Magnifier = ({
   isLeftSquare,
   idx
 }) => {
-    const [magnifierPosition, setMagnifierPosition] = useState('default');
-    const proximityThreshold = size*0.75; // Distance in pixels to trigger position change
+    const [magnifierPosition, setMagnifierPosition] = useState('');
+    const proximityThreshold = size; // Distance in pixels to trigger position change
     
     // Calculate magnifier's absolute position
     const getMagnifierCoordinates = () => {
@@ -51,8 +51,8 @@ const Magnifier = ({
       if (!show) return;
       
       // Calculate center of magnifier
-      const magnifierCenterX = coordinates.left + size/2;
-      const magnifierCenterY = coordinates.top + size/2;
+      const magnifierCenterX = isLeftSquare? size/2 : 960-size/2;
+      const magnifierCenterY =  size/2;
       
       // Calculate distance between cursor and magnifier center
       const distance = Math.sqrt(
