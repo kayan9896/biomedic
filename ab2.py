@@ -88,11 +88,12 @@ class AnalyzeBox:
             self.is_processing = True
 
             # Load metadata
-            file = 'metadata.json'
+            file = 'hp1-ap.json' if section[-2:]=='ap' else 'hp2-ap.json'
+            print(section[:-2])
             if section[:3] == 'cup':
-                file = 'cupdata.json'
+                file = 'leftcup.json' if section[-2:]=='ap' else 'rightcup.json'
             if section[:3] == 'tri':
-                file = 'tridata.json'
+                file = 'lefttri.json' if section[-2:]=='ap' else 'righttri.json'
             with open(file, 'r') as f:
                 metadata = json.load(f)
             
