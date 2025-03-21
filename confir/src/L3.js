@@ -75,7 +75,14 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {leftImageMetadata && Object.keys(leftImageMetadata).map((group, i) => (
-          <PatternDisplay key={i} group={group} metadata={leftImageMetadata} onSave={onSaveLeft} isLeftSquare={true} imageUrl={leftImage} />
+          <PatternDisplay
+          key={i}
+          group={group}
+          metadata={leftImageMetadata}
+          onSave={(ref) => (onSaveLeft.current[group] = ref)} // Assign ref by group
+          isLeftSquare={true}
+          imageUrl={leftImage}
+        />
         ))}
       </div>
 
@@ -93,7 +100,14 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {rightImageMetadata && Object.keys(rightImageMetadata).map((group, i) => (
-          <PatternDisplay key={i} group={group} metadata={rightImageMetadata} onSave={onSaveRight} isLeftSquare={false} imageUrl={rightImage} />
+          <PatternDisplay
+          key={i}
+          group={group}
+          metadata={rightImageMetadata}
+          onSave={(ref) => (onSaveRight.current[group] = ref)} // Assign ref by group
+          isLeftSquare={false}
+          imageUrl={rightImage}
+        />
         ))}
       </div>
 
@@ -137,8 +151,15 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
                   />
                 )}
                 {leftImageMetadata && (Object.keys(leftImageMetadata).map((group, i) => (
-          <PatternDisplay key={i} group={group} metadata={leftImageMetadata} onSave={onSaveLeft} isLeftSquare={true} imageUrl={leftImage} />
-        ))
+          <PatternDisplay
+          key={i}
+          group={group}
+          metadata={leftImageMetadata}
+          onSave={(ref) => (onSaveLeft.current[group] = ref)} // Assign ref by group
+          isLeftSquare={true}
+          imageUrl={leftImage}
+        />
+      ))
                 )}
               </>
             ) : (
@@ -153,8 +174,15 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
                   />
                 )}
                 {rightImageMetadata && (Object.keys(rightImageMetadata).map((group, i) => (
-          <PatternDisplay key={i} group={group} metadata={rightImageMetadata} onSave={onSaveRight} isLeftSquare={false} imageUrl={rightImage} />
-        ))
+          <PatternDisplay
+          key={i}
+          group={group}
+          metadata={rightImageMetadata}
+          onSave={(ref) => (onSaveRight.current[group] = ref)} // Assign ref by group
+          isLeftSquare={false}
+          imageUrl={rightImage}
+        />
+      ))
                 )}
               </>
             )}

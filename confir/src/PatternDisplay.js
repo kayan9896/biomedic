@@ -20,48 +20,43 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
     }
   }, [metadata]);
   
-  // Update methods exposed via ref
+// Register methods with parent via callback
   useEffect(() => {
     if (onSave) {
-      onSave.current = {
-        
+      onSave({
         getCurrentMetadata: () => {
-          metadata[group]=currentMetadata
-          return metadata
+          const updatedMetadata = { ...metadata, [group]: currentMetadata };
+          return updatedMetadata;
         },
-        
         updateSavedMetadata: () => {
-          if(currentMetadata && currentMetadata.length > 0) {
+          if (currentMetadata && currentMetadata.length > 0) {
             setLastSavedMetadata([...currentMetadata]);
           } else {
             setLastSavedMetadata([]);
           }
         },
-        
         resetToLastSaved: () => {
           console.log("Resetting to last saved state:", lastSavedMetadata);
-          if(lastSavedMetadata && lastSavedMetadata.length > 0) {
+          if (lastSavedMetadata && lastSavedMetadata.length > 0) {
             setCurrentMetadata([...lastSavedMetadata]);
           } else {
             setCurrentMetadata([]);
           }
           setResetKey(prev => prev + 1);
         },
-        
         resetToOriginal: () => {
           console.log("Resetting to original state:", originalMetadata);
           setCurrentMetadata([...originalMetadata]);
           setResetKey(prev => prev + 1);
         },
-        
         clearAllPatterns: () => {
           console.log("Clearing all patterns");
           setCurrentMetadata([]);
           setResetKey(prev => prev + 1);
-        }
-      };
+        },
+      });
     }
-  }, [onSave, currentMetadata, lastSavedMetadata, originalMetadata]);
+  }, [onSave, currentMetadata, lastSavedMetadata, originalMetadata, group, metadata]);
 
   // Handler to update a specific pattern
   const handlePatternUpdate = (index, newPoints) => {

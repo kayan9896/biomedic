@@ -274,21 +274,30 @@ function App() {
     }
   }, [cursorPosition, patient]);
 
-  const leftSaveRef = useRef({});
-  const rightSaveRef = useRef({});
+  const leftSaveRefs = useRef({}); // Object to store refs by group for left side
+  const rightSaveRefs = useRef({}); // Object to store refs by group for right side
 
-  // Save handler - sends updated data to backend
   const handleSave = async () => {
     try {
-      // Get current metadata from both pattern displays
-      const leftData = leftSaveRef.current && typeof leftSaveRef.current.getCurrentMetadata === 'function' 
-        ? leftSaveRef.current.getCurrentMetadata() 
-        : leftImageMetadata;
-      
-      const rightData = rightSaveRef.current && typeof rightSaveRef.current.getCurrentMetadata === 'function' 
-        ? rightSaveRef.current.getCurrentMetadata() 
-        : rightImageMetadata;
-      
+      // Aggregate metadata from all groups
+      const leftData = Object.keys(leftSaveRefs.current).reduce((acc, group) => {
+        const ref = leftSaveRefs.current[group];
+        if (ref && typeof ref.getCurrentMetadata === 'function') {
+          const metadata = ref.getCurrentMetadata();
+          acc[group] = metadata[group]; // Only include the group-specific data
+        }
+        return acc;
+      }, {});
+
+      const rightData = Object.keys(rightSaveRefs.current).reduce((acc, group) => {
+        const ref = rightSaveRefs.current[group];
+        if (ref && typeof ref.getCurrentMetadata === 'function') {
+          const metadata = ref.getCurrentMetadata();
+          acc[group] = metadata[group]; // Only include the group-specific data
+        }
+        return acc;
+      }, {});
+
       // Send to backend
       await fetch('http://localhost:5000/landmarks', {
         method: 'POST',
@@ -298,37 +307,34 @@ function App() {
         body: JSON.stringify({
           stage: stage,
           leftMetadata: leftData,
-          rightMetadata: rightData
+          rightMetadata: rightData,
         }),
       });
-      leftSaveRef.current?.updateSavedMetadata?.();
-      rightSaveRef.current?.updateSavedMetadata?.();
-      // Exit edit mode after successful save
+
+      // Update saved metadata for all groups
+      Object.values(leftSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
+      Object.values(rightSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
       setEditing(false);
-      
     } catch (error) {
       console.error('Error saving landmarks:', error);
       setError("Failed to save landmarks");
     }
   };
 
-  // Exit handler - reverts to original positions without saving
   const handleExit = () => {
-    leftSaveRef.current?.resetToLastSaved?.();
-    rightSaveRef.current?.resetToLastSaved?.();
+    Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
+    Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
     setEditing(false);
   };
 
-  // Reset - return to original backend state
   const handleReset = () => {
-    leftSaveRef.current?.resetToOriginal?.();
-    rightSaveRef.current?.resetToOriginal?.();
+    Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
+    Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
   };
 
-  // Delete - clear all patterns
   const handleDelete = () => {
-    leftSaveRef.current?.clearAllPatterns?.();
-    rightSaveRef.current?.clearAllPatterns?.();
+    Object.values(leftSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.());
+    Object.values(rightSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.());
   };
 
   const captureAndSaveFrame = async () => {
@@ -391,8 +397,8 @@ function App() {
         rightImage={rightImage}
         activeRight={activeRight}
         rightImageMetadata={rightImageMetadata}
-        onSaveLeft={leftSaveRef}
-        onSaveRight={rightSaveRef}
+        onSaveLeft={leftSaveRefs}
+        onSaveRight={rightSaveRefs}
         frameRef={frameRef}
       />
       
