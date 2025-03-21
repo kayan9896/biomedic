@@ -58,7 +58,83 @@ server_lock = threading.Lock()
 
 from flask import send_file
 from io import BytesIO
+def frontend_to_backend_coords(coords, backend_size=1024, frontend_size=960, flip_horizontal=False):
+    """
+    Convert coordinates from frontend (960x960) to backend (1024x1024) scale
+    
+    Args:
+        coords: Can be a single [x,y] coordinate pair or nested structures containing coordinates
+        backend_size: Size of the backend image (default 1024)
+        frontend_size: Size of the frontend display (default 960)
+        flip_horizontal: If True, will flip x-coordinates horizontally (mirror effect)
+    
+    Returns:
+        Converted coordinates in the same structure as input
+    """
+    scale_factor = backend_size / frontend_size
+    
+    if isinstance(coords, list):
+        if len(coords) == 2 and all(isinstance(c, (int, float)) for c in coords):
+            # Single [x,y] coordinate pair
+            x, y = coords
+            
+            # Scale the coordinates
+            x_scaled = x * scale_factor
+            y_scaled = y * scale_factor
+            
+            # Flip horizontally if requested
+            if flip_horizontal:
+                x_scaled = backend_size - x_scaled
+                
+            return [int(x_scaled), int(y_scaled)]
+        else:
+            # Nested list structure
+            return [frontend_to_backend_coords(item, backend_size, frontend_size, flip_horizontal) for item in coords]
+    elif isinstance(coords, dict):
+        # Dictionary structure
+        return {k: frontend_to_backend_coords(v, backend_size, frontend_size, flip_horizontal) for k, v in coords.items()}
+    else:
+        # Return non-coordinate values unchanged
+        return coords
 
+def backend_to_frontend_coords(coords, backend_size=1024, frontend_size=960, flip_horizontal=False):
+    """
+    Convert coordinates from backend (1024x1024) to frontend (960x960) scale
+    
+    Args:
+        coords: Can be a single [x,y] coordinate pair or nested structures containing coordinates
+        backend_size: Size of the backend image (default 1024)
+        frontend_size: Size of the frontend display (default 960)
+        flip_horizontal: If True, will flip x-coordinates horizontally (mirror effect)
+    
+    Returns:
+        Converted coordinates in the same structure as input
+    """
+    scale_factor = frontend_size / backend_size
+    
+    if isinstance(coords, list):
+        if len(coords) == 2 and all(isinstance(c, (int, float)) for c in coords):
+            # Single [x,y] coordinate pair
+            x, y = coords
+            
+            # Flip horizontally if requested
+            if flip_horizontal:
+                x = backend_size - x
+                
+            # Scale the coordinates
+            x_scaled = x * scale_factor
+            y_scaled = y * scale_factor
+            
+            return [int(x_scaled), int(y_scaled)]
+        else:
+            # Nested list structure
+            return [backend_to_frontend_coords(item, backend_size, frontend_size, flip_horizontal) for item in coords]
+    elif isinstance(coords, dict):
+        # Dictionary structure
+        return {k: backend_to_frontend_coords(v, backend_size, frontend_size, flip_horizontal) for k, v in coords.items()}
+    else:
+        # Return non-coordinate values unchanged
+        return coords
 
 @app.route('/run2', methods=['POST'])
 def start_processing2():
@@ -111,10 +187,13 @@ def get_image_with_metadata():
     _, buffer = cv2.imencode('.jpg', image_data['image'])
     image_base64 = base64.b64encode(buffer).decode('utf-8')
     
-    # Return both image and metadata in JSON
+    # Convert metadata coordinates from backend to frontend scale
+    converted_metadata = backend_to_frontend_coords(image_data['metadata'])
+    
+    # Return both image and converted metadata in JSON
     return jsonify({
         'image': f'data:image/jpeg;base64,{image_base64}',
-        'metadata': image_data['metadata'],
+        'metadata': converted_metadata,
         'checkmark': image_data['checkmark'],
         'error': image_data['error'],
         'next': image_data['next'],
@@ -127,9 +206,16 @@ def landmarks():
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     stage = request.json.get('stage')
+    
+    # Convert landmarks from frontend to backend scale
     l = request.json.get('leftMetadata')
     r = request.json.get('rightMetadata')
-    controller.update_landmarks(l, r, stage)
+    
+    converted_l = frontend_to_backend_coords(l) if l else None
+    # Apply horizontal flipping for right metadata
+    converted_r = frontend_to_backend_coords(r, flip_horizontal=True) if r else None
+    
+    controller.update_landmarks(converted_l, converted_r, stage)
     
     return jsonify({"message": "update landmarks"})
 
