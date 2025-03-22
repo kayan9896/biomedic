@@ -107,7 +107,7 @@ const Magnifier = ({
           >
             <img src={imageUrl} alt="Image 1" style={{ width: '100%', height: 'auto' }} />
         
-            {metadata.map((pattern, index) => {
+            {metadata&&metadata.map((pattern, index) => {
             const key = `${pattern.type}-${index}-${Math.random()}`;
             
             switch (pattern.type) {
@@ -128,7 +128,7 @@ const Magnifier = ({
                   <Arc
                     key={key}
                     arc={pattern.points}
-                    
+                    colour={pattern.colour}
                     imageUrl={imageUrl}
                     metadata={metadata}
                     idx={i}
@@ -140,7 +140,7 @@ const Magnifier = ({
                   <Ellipse
                     key={key}
                     ellipse={pattern.points}
-                    
+                    colour={pattern.colour}
                     imageUrl={imageUrl}
                     metadata={metadata}
                     idx={i}
@@ -153,7 +153,7 @@ const Magnifier = ({
                     key={key}
                     squareSize={960}
                     points={pattern.points}
-                    
+                    colour={pattern.colour}
                     imageUrl={imageUrl}
                     metadata={metadata}
                     idx={i}

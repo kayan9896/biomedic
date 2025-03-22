@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Arc from './Arc';
 import Magnifier from './Magnifier';
 
-const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, isLeftSquare, metadata, idx}) => {
+const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, idx}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
@@ -12,6 +12,7 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, isL
   const [arcPoints, setArcPoints] = useState([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const patternColor = colour
   
   
   useEffect(()=>{
@@ -209,6 +210,7 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, isL
           onChange(newEllipse);
         }
       }}
+      colour={patternColor}
       imageUrl={imageUrl}
     />
     <svg 
@@ -239,8 +241,9 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, isL
           ry={b}
           transform={`rotate(${angle * 180 / Math.PI} ${center[0]} ${center[1]})`}
           fill="none"
-          stroke="purple"
+          stroke={`#${patternColor}`}
           strokeWidth="2"
+          strokeDasharray={patternColor==='FF0000'?"5,5":''}
         />
         {isSelected && ellipse.map((point, index) => (
           <>
@@ -249,9 +252,9 @@ const Ellipse = ({ ellipse: initialEllipse, onChange, groupOffset, imageUrl, isL
             cx={point[0]}
             cy={point[1]}
             r={index === draggedPointIndex ? 20 : 10}
-            stroke='purple'
+            stroke={`#${patternColor}`}
             strokeWidth={2}
-            fill={index === draggedPointIndex ? 'rgba(255, 0, 255, 0)' : 'purple'}
+            fill={index === draggedPointIndex ? 'rgba(255, 0, 255, 0)' : `#${patternColor}`}
           />
           <circle
             key={index}

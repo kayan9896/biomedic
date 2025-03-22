@@ -2,8 +2,8 @@
     "group1": [
         {
             "handle": [
-                240,
-                272
+                213,
+                579
             ],
             "points": [
                 [
@@ -27,7 +27,8 @@
                     704
                 ]
             ],
-            "type": "lines"
+            "type": "lines",
+            "colour": "D55E00"
         },
         {
             "points": [
@@ -48,7 +49,8 @@
                     678
                 ]
             ],
-            "type": "lines"
+            "type": "lines",
+            "colour": "56B4E9"
         },
         {
             "points": [
@@ -57,14 +59,15 @@
                     577
                 ]
             ],
-            "type": "lines"
+            "type": "lines",
+            "colour": "CC79A7"
         }
     ],
     "group2": [
         {
             "handle": [
-                560,
-                352
+                556,
+                428
             ],
             "points": [
                 [
@@ -84,7 +87,8 @@
                     442
                 ]
             ],
-            "type": "ellipse"
+            "type": "ellipse",
+            "colour": "0072B2"
         }
     ]
 }

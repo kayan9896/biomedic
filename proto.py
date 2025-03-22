@@ -213,7 +213,7 @@ def landmarks():
     
     converted_l = frontend_to_backend_coords(l) if l else None
     # Apply horizontal flipping for right metadata
-    converted_r = frontend_to_backend_coords(r, flip_horizontal=True) if r else None
+    converted_r = frontend_to_backend_coords(r, flip_horizontal=False) if r else None
     
     controller.update_landmarks(converted_l, converted_r, stage)
     

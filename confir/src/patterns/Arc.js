@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, onChange, imageUrl, isLeftSquare, metadata, idx }) => {
+const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, idx }) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
   const [dragStart, setDragStart] = useState(null);
   const arcRef = useRef(null);
+  const patternColor = colour
 
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
@@ -198,18 +199,19 @@ const Arc = ({ arc: initialArc, onChange, imageUrl, isLeftSquare, metadata, idx 
         <path
           d={d}
           fill="none"
-          stroke="yellow"
+          stroke={`#${patternColor}`}
           strokeWidth="2"
+          strokeDasharray={patternColor==='FF0000'?"5,5":''}
         />
-        {isSelected && arc.map((point, index) => (
+        {(isSelected && arc) && arc.map((point, index) => (
           <circle
             key={index}
             cx={point[0]}
             cy={point[1]}
             r={index === draggedPointIndex ? 20 : 10}
             strokeWidth="2"
-            stroke='yellow'
-            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0)' : 'yellow'}
+            stroke={`#${patternColor}`}
+            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0)' : `#${patternColor}`}
             onMouseDown={(e) => handleMouseDown(e, index)}
             onTouchStart={(e) => handleMouseDown(e, index)}
           />

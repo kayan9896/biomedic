@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
 
-const Line = ({ squareSize, points, onChange, imageUrl, metadata, isLeftSquare, idx }) => {
+const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeftSquare, idx }) => {
   const [curvePoints, setCurvePoints] = useState(points);
   const [showDots, setShowDots] = useState(idx);
   const [activeDotIndex, setActiveDotIndex] = useState(idx);
@@ -9,6 +9,7 @@ const Line = ({ squareSize, points, onChange, imageUrl, metadata, isLeftSquare, 
   const [dragLine, setDragLine] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const lineRef = useRef(null);
+  const patternColor = colour
 
   const HIT_TOLERANCE = 15;
   useEffect(()=>{
@@ -215,8 +216,9 @@ const Line = ({ squareSize, points, onChange, imageUrl, metadata, isLeftSquare, 
         {/* Visible smooth curve */}
         <path
           d={pathCommand}
-          stroke="red"
+          stroke={`#${patternColor}`}
           strokeWidth="2"
+          strokeDasharray={patternColor==='FF0000'?"5,5":''}
           fill="none"
           pointerEvents="none"
         />
@@ -229,8 +231,8 @@ const Line = ({ squareSize, points, onChange, imageUrl, metadata, isLeftSquare, 
           style={{
             width: activeDotIndex === index ? '40px' : '20px',
             height: activeDotIndex === index ? '40px' : '20px',
-            backgroundColor: activeDotIndex === index ? 'transparent' : 'red',
-            border: '2px solid red',
+            backgroundColor: activeDotIndex === index ? 'transparent' : `#${patternColor}`,
+            border: `2px solid #${patternColor}`,
             borderRadius: '50%',
             position: 'absolute',
             cursor: 'move',

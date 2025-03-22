@@ -66,6 +66,10 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
         ...updated[index],
         points: newPoints
       };
+      updated[0] = {
+        ...updated[0],
+        template: 0
+      }
       return updated;
     });
   };
@@ -88,7 +92,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
       
         const lastPoint = currentPattern.points[currentPattern.points.length - 1];
         const firstPoint = nextPattern.points[0];
-        console.log(lastPoint,firstPoint,currentPattern,nextPattern)
+        //console.log(lastPoint,firstPoint,currentPattern,nextPattern)
         lines.push(
           <line
             key={`dashed-line-${i}`}
@@ -158,6 +162,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                   <Arc
                     key={key}
                     arc={pattern.points}
+                    colour={currentMetadata[0].template?'FF0000':pattern.colour}
                     onChange={(newArc) => handlePatternUpdate(index, newArc)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
@@ -171,6 +176,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                   <Ellipse
                     key={key}
                     ellipse={pattern.points}
+                    colour={currentMetadata[0].template?'FF0000':pattern.colour}
                     onChange={(newEllipse) => handlePatternUpdate(index, newEllipse)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
@@ -185,6 +191,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                     key={key}
                     squareSize={960}
                     points={pattern.points}
+                    colour={currentMetadata[0].template?'FF0000':pattern.colour}
                     onChange={(newPoints) => handlePatternUpdate(index, newPoints)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
