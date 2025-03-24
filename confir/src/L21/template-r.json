@@ -32,6 +32,7 @@
             "colour": "D55E00"
         },
         {
+            "template":1,
             "points": [
                 [
                     240,
@@ -54,6 +55,7 @@
             "colour": "56B4E9"
         },
         {
+            "template":1,
             "points": [
                 [
                     345,
@@ -89,6 +91,7 @@
             "colour": "0072B2"
         },
         {
+            "template":1,
             "points": [
                 [
                     712,
@@ -111,6 +114,7 @@
             "colour": "009E73"
         },
         {
+            "template":1,
             "points": [
                 [
                     587,
@@ -129,6 +133,7 @@
             "colour": "F0E442"
         },
         {
+            "template":1,
             "points": [
                 [
                     458,
@@ -151,6 +156,7 @@
             "colour": "725DEF"
         },
         {
+            "template":1,
             "points": [
                 [
                     538,
@@ -173,6 +179,7 @@
             "colour": "DD217D"
         },
         {
+            "template":1,
             "points": [
                 [
                     602,

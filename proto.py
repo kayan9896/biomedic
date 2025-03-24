@@ -228,6 +228,15 @@ def next():
     controller.uistates = 'next'
     return jsonify({"message": "uistate next"})
 
+@app.route('/edit', methods=['POST'])
+def edit():
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    state = request.json.get('uistates')
+    controller.uistates = state
+    return jsonify({"message": "uistate edit"})
+
 @app.route('/restart', methods=['POST'])
 def restart():
     global controller

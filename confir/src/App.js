@@ -196,6 +196,22 @@ function App() {
     }
   };
 
+  const handledit = async () => {
+    setEditing('left')
+    try {
+      await fetch('http://localhost:5000/edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({'uistates': 'edit'})
+      });
+    } catch (error) {
+      console.error('Error going next:', error);
+      setError("Failed to change backend uistate edit");
+    }
+  };
+
   const handlerestart = async () => {
     setError(null)
     setLeftImage(require('./AP.png'));
@@ -325,10 +341,22 @@ function App() {
     }
   };
 
-  const handleExit = () => {
-    Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
-    Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
-    setEditing(false);
+  const handleExit = async () => {
+    try {
+      await fetch('http://localhost:5000/edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({'uistates': null})
+      });
+      Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
+      Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
+      setEditing(false);
+    } catch (error) {
+      console.error('Error going next:', error);
+      setError("Failed to change backend uistate edit");
+    }
   };
 
   const handleReset = () => {
@@ -443,7 +471,7 @@ function App() {
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 setEditing={setEditing} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark}/>}
+      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}

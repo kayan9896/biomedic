@@ -64,12 +64,9 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
       const updated = [...prev];
       updated[index] = {
         ...updated[index],
-        points: newPoints
-      };
-      updated[0] = {
-        ...updated[0],
+        points: newPoints,
         template: 0
-      }
+      };
       return updated;
     });
   };
@@ -162,7 +159,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                   <Arc
                     key={key}
                     arc={pattern.points}
-                    colour={currentMetadata[0].template?'FF0000':pattern.colour}
+                    colour={currentMetadata[index].template?'FF0000':pattern.colour}
                     onChange={(newArc) => handlePatternUpdate(index, newArc)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
@@ -176,7 +173,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                   <Ellipse
                     key={key}
                     ellipse={pattern.points}
-                    colour={currentMetadata[0].template?'FF0000':pattern.colour}
+                    colour={currentMetadata[index].template?'FF0000':pattern.colour}
                     onChange={(newEllipse) => handlePatternUpdate(index, newEllipse)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
@@ -191,7 +188,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                     key={key}
                     squareSize={960}
                     points={pattern.points}
-                    colour={currentMetadata[0].template?'FF0000':pattern.colour}
+                    colour={currentMetadata[index].template?'FF0000':pattern.colour}
                     onChange={(newPoints) => handlePatternUpdate(index, newPoints)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
@@ -225,7 +222,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
       const newMetadata = [...prev];
       updatedPatterns.forEach((pattern, i) => {
         newMetadata[i] = pattern;
-        newMetadata[0]['template']=0
+        newMetadata[i]['template']=0
       });
       return newMetadata;
     });

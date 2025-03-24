@@ -49,9 +49,7 @@ class ImageProcessingController:
         return states
 
     def update_landmarks(self, l, r, stage):
-        if self.scn[:3] != 'frm':
-            self.uistates = 'landmarks'
-            
+        
         if stage == 0:
             self.model.data['hp1-ap']['metadata'] = l
             self.model.data['hp1-ob']['metadata'] = r
@@ -66,6 +64,8 @@ class ImageProcessingController:
             self.model.data['tri-ap']['metadata'] = l
             self.model.data['tri-ob']['metadata'] = r
         
+        
+        self.uistates = 'landmarks' if self.scn[:3] != 'frm' else 'None'
         self.viewmodel.imgs[0]['metadata'] = l
         self.viewmodel.imgs[1]['metadata'] = r
         
@@ -97,9 +97,12 @@ class ImageProcessingController:
     def _process_loop(self):
         self.scn = 'init'
         while self.is_running:
+            
             frame = self.update_backendstates()
+            if self.uistates == 'edit': 
+                continue
             newscn = self.eval_modelscnario(frame)
-            #print(newscn)
+            
             if newscn == self.scn:
                 continue
             

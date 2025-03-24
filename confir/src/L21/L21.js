@@ -17,9 +17,9 @@ function scalePoints(templateData, scaleFactor) {
 
   // Function to scale a single point
   const scalePoint = (point) => point.map(coord => coord * scaleFactor);
-
+  console.log(Object.keys(scaledData))
   // Loop through the groups and scale points
-  ['group1', 'group2'].forEach(groupKey => {
+  Object.keys(scaledData).forEach(groupKey => {
       scaledData[groupKey].forEach(item => {
           item.points = item.points.map(scalePoint); // Scale each point
       });
