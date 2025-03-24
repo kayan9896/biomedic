@@ -101,6 +101,7 @@ class AnalyzeBox:
             result = {
                 'metadata': metadata,
                 'checkmark': 1,
+                'side': side,
                 'error': None
             }
             

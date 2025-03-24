@@ -20,6 +20,7 @@ import "@fontsource/abel/400.css"; // Specify weight
 import L20 from './L20/L20';
 import L19 from './L19/L19';
 import html2canvas from 'html2canvas';
+import L21 from './L21/L21';
 
 function App() {
   const [angle, setAngle] = useState(0);
@@ -58,6 +59,7 @@ function App() {
   const [stage, setStage] = useState(0)
   const [showglyph, setShowglyph] =useState(false)
   const [moveNext, setMoveNext] = useState(false)
+  const [pelvis,setPelvis] = useState(null)
   const frameRef = useRef(null);
 
   useEffect(() => {
@@ -131,6 +133,7 @@ function App() {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata);
             setLeftCheckMark(data.checkmark)
+            setPelvis(data.side)
             if (data.checkmark ==2 || data.checkmark==3)setRightCheckMark(data.checkmark)
             console.log(data.metadata)
         } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
@@ -143,6 +146,7 @@ function App() {
         setMeasurements(data.measurements)
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
         setMoveNext(data.next)
+        setPelvis(data.side)
     } catch (error) {
         console.error('Error fetching image:', error);
         setError("Error updating images");
@@ -373,6 +377,38 @@ function App() {
     }
   };
 
+  useEffect(() => {
+
+    // Function to load the appropriate template based on pelvis side
+    const applyTemplate = (side, targetSetter) => {
+      const templateData = side === 'l' ? require('./L21/template-l.json') : require('./L21/template-r.json');
+      targetSetter(templateData);
+    };
+
+    // Only run this logic when we have one side with pelvis and one without
+    if (pelvis !== null) {
+      // If left side is active and has no metadata, apply the template
+      if (leftImageMetadata === null&&leftImage!==require('./AP.png')) {
+        applyTemplate(pelvis, setLeftImageMetadata);
+      }
+      
+      // If right side is active and has no metadata, apply the template
+      if (rightImageMetadata === null&&rightImage!==require('./OB.png')) {
+        applyTemplate(pelvis, setRightImageMetadata);
+      }
+    }
+  }, [ pelvis, leftImageMetadata, rightImageMetadata,leftImage.rightImage]);
+
+  // Need to determine if we should show L21
+  const shouldShowL21 = () => {
+    if (!editing) return false;
+    if (pelvis !== null) return false;
+    
+    // If at least one side is active and has no template, show L21
+    return (leftImageMetadata === null) || 
+           (rightImageMetadata === null);
+  };
+
   return (
     <div className="app">
       
@@ -431,6 +467,17 @@ function App() {
 
       {/*L20 Glyph error*/}
       {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} setShowglyph={setShowglyph}/>}
+
+      {/*L21 Template Selection, render when editing is true and pelvis is null*/}
+      {shouldShowL21() && (
+        <L21 
+          setPelvis={setPelvis}
+          setLeftImageMetadata={setLeftImageMetadata}
+          setRightImageMetadata={setRightImageMetadata}
+          activeLeft={activeLeft}
+          activeRight={activeRight}
+        />
+      )}
 
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (

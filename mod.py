@@ -192,7 +192,7 @@ class ProcessingModel:
             'current_stage': 1,#optional
             'current_frame': 1#optional
         }
-        self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'error': None, 'next': False, 'measurements': None} for i in range(2)]
+        self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'error': None, 'next': False, 'measurements': None, 'side': None} for i in range(2)]
 
     def update(self, dataforvm, image):
         # Assuming dataforvm contains metadata
@@ -201,12 +201,14 @@ class ProcessingModel:
         if -15 <= angle <= 15:
             self.imgs[0]['error'] = None
             self.imgs[0]['measurements'] = None
+            self.imgs[0]['side'] = None
             if image is not None: self.imgs[0]['image'] = image
             for i in dataforvm:
                 self.imgs[0][i] = dataforvm[i]
         elif -45 <= angle <= 45:
             self.imgs[1]['error'] = None
             self.imgs[1]['measurements'] = None
+            self.imgs[1]['side'] = None
             if image is not None: self.imgs[1]['image'] = image
             for i in dataforvm:
                 self.imgs[1][i] = dataforvm[i]

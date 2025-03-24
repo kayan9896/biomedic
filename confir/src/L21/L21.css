@@ -1,0 +1,14 @@
+.template-dialogue-container {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  z-index: 10;
+}
+
+.dialogue-bg, .dialogue-btn, .left-template, .right-template {
+  position: absolute;
+}
+
+.left-template:hover, .right-template:hover {
+  opacity: 0.9;
+}

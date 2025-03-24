@@ -211,6 +211,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
               patterns={currentMetadata}
               onPatternsUpdate={handleMultiplePatternsUpdate}
               handle={metadata[group][0]['handle']}
+              group={group}
             />
           }
         </div>
@@ -224,6 +225,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
       const newMetadata = [...prev];
       updatedPatterns.forEach((pattern, i) => {
         newMetadata[i] = pattern;
+        newMetadata[0]['template']=0
       });
       return newMetadata;
     });
@@ -231,7 +233,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
 };
 
 // New component for managing groups of selected patterns
-const PatternGroupManager = ({ patterns, onPatternsUpdate, handle }) => {
+const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
   const [controlPoint, setControlPoint] = useState(handle);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
@@ -328,51 +330,74 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle }) => {
   }
 
   return (
-    <svg 
+    <div 
       ref={groupRef}
-      width="960" 
-      height="960"
       style={{ 
         position: 'absolute', 
         top: 0, 
-        left: 0, 
+        left: 0,
+        width: '960px',
+        height: '960px',
         pointerEvents: 'none'
       }}
     >
-      <g pointerEvents="auto">
-        <circle
-          cx={controlPoint[0]}
-          cy={controlPoint[1]}
-          r={15}
-          fill="rgba(0, 200, 0, 0.7)"
-          stroke="white"
-          strokeWidth="2"
-          cursor={isDragging ? 'grabbing' : 'grab'}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleMouseDown}
-        />
-        <circle
-          cx={controlPoint[0]}
-          cy={controlPoint[1]}
-          r={25}
-          fill="transparent"
-          stroke="rgba(0, 200, 0, 0.3)"
-          strokeWidth="2"
-          strokeDasharray="5,5"
-          pointerEvents="none"
-        />
-        <text
-          x={controlPoint[0]}
-          y={controlPoint[1] + 35}
-          textAnchor="middle"
-          fill="green"
-          fontSize="12"
-          pointerEvents="none"
-        >
-          Group
-        </text>
-      </g>
-    </svg>
+      {/* Label background with centered text */}
+      <div style={{
+        position: 'absolute',
+        left: `${controlPoint[0]}px`,
+        top: `${controlPoint[1] - 40}px`, // Position above the handle
+        transform: 'translateX(-50%)',
+        pointerEvents: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }}>
+        <div style={{
+          position: 'relative',
+          width: '60px', 
+          height: '24px'
+        }}>
+          <img 
+            src={require("./LandmarkLabel.png")} 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%'
+            }}
+          />
+          <div style={{
+            position: 'absolute',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            color: 'white',
+            fontSize: '10px',
+            fontWeight: 'bold',
+            textAlign: 'center'
+          }}>
+            {group}
+          </div>
+        </div>
+      </div>
+      
+      {/* Handle image */}
+      <img 
+        src={require("./LandmarkHandle.png")} 
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleMouseDown}
+        style={{
+          position: 'absolute',
+          width: '30px',
+          height: '30px',
+          left: `${controlPoint[0] - 15}px`,
+          top: `${controlPoint[1] - 15}px`,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          pointerEvents: 'auto'
+        }}
+      />
+    </div>
   );
 };
 
