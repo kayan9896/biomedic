@@ -92,7 +92,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
 
     const handleGlobalUp = () => {
       setIsDragging(false);
-      setDraggedPointIndex(null);
+      
       setShowMagnifier(false)
     };
 
@@ -116,6 +116,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
     const handleClickOutside = (e) => {
       if (ellipseRef.current && !ellipseRef.current.contains(e.target)) {
         setIsSelected(false);
+        setDraggedPointIndex(null);
       }
     };
 

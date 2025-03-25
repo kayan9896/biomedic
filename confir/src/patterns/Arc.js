@@ -62,7 +62,7 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
 
     const handleGlobalUp = () => {
       setIsDragging(false);
-      setDraggedPointIndex(null);
+      
       setShowMagnifier(false)
     };
 
@@ -86,6 +86,7 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     const handleClickOutside = (e) => {
       if (arcRef.current && !arcRef.current.contains(e.target)) {
         setIsSelected(false);
+        setDraggedPointIndex(null);
       }
     };
 
@@ -146,30 +147,45 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     return { center: [x, y], radius };
   }
 
-  function calculateAngle(center, point) {
-    return Math.atan2(point[1] - center[1], point[0] - center[0]);
-  }
-
   const { center, radius } = findCircle(arc[0], arc[1], arc[2]);
-  let startAngle = calculateAngle(center, arc[0]);
-  let midAngle = calculateAngle(center, arc[1]);
-  let endAngle = calculateAngle(center, arc[2]);
+  
+  function calculate(arc){
+    const x1 = arc[0][0], y1 = arc[0][1];
+    const x2 = arc[1][0], y2 = arc[1][1];
+    const x3 = arc[2][0], y3 = arc[2][1];
 
-  while (midAngle < startAngle) midAngle += 2 * Math.PI;
-  while (endAngle < midAngle) endAngle += 2 * Math.PI;
+    let sweepFlag = 1;
+    let largeArcFlag = 1;
+    if (x1 !== x3){
+      let k = (y3-y1)/(x3-x1)
+      let b = y1 - k * x1
+      if((((k < 0 && x1 > x3)||(k > 0 && x1 > x3)) && y2 <= k * x2 + b) || (((k > 0 && x1 < x3) || (k < 0 && x1 < x3)) && y2 >= k * x2 + b)){
+        sweepFlag = 0
+      }
+    }else{
+      if((y1 < y3 && x2 < x1) || (y1 > y3 && x2 > x1)) sweepFlag = 0;
+    }
+    let midx=(x1+x3)/2
+    let midy=(y1+y3)/2
 
-  const longWay = endAngle - startAngle > Math.PI;
-
-  if (longWay) {
-    [startAngle, endAngle] = [endAngle, startAngle];
+    let half=Math.sqrt(
+      Math.pow(midx - x1, 2) + Math.pow(midy - y1, 2)
+    );
+    let p2tomid=Math.sqrt(
+      Math.pow(midx - x2, 2) + Math.pow(midy - y2, 2)
+    );
+    if (p2tomid < half) {
+      largeArcFlag=0
+    }
+    console.log(p2tomid,half)
+    return [largeArcFlag, sweepFlag]
   }
-
-  const sweepFlag = longWay ? 0 : 1;
-  const largeArcFlag = longWay ? 1 : 0;
-
+  let param = calculate(arc)
+  console.log(param)
+  
   const d = `
     M ${arc[0][0]} ${arc[0][1]}
-    A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${arc[2][0]} ${arc[2][1]}
+    A ${radius} ${radius} 0 ${param[0]} ${param[1]} ${arc[2][0]} ${arc[2][1]}
   `;
 
   return (

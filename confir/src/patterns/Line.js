@@ -25,6 +25,7 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
     const handleClickOutside = (e) => {
       if (lineRef.current && !lineRef.current.contains(e.target)) {
         setShowDots(false);
+        setActiveDotIndex(null);
       }
     };
   
@@ -68,7 +69,7 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
     };
   
     const handleGlobalEnd = () => {
-      setActiveDotIndex(null);
+      
       setDragLine(false);
       setIsMouseDown(false);
     };
