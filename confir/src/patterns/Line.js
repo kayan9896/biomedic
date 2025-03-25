@@ -11,7 +11,7 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
   const lineRef = useRef(null);
   const patternColor = colour
 
-  const HIT_TOLERANCE = 15;
+  const HIT_TOLERANCE = 50;
   useEffect(()=>{
     setActiveDotIndex(idx)
     setShowDots(idx!==null)
@@ -229,6 +229,25 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
           key={index}
           className="draggable-dot"
           style={{
+            width: '50px',
+            height: '50px',
+            backgroundColor: 'transparent',
+            border: `2px solid transparent`,
+            borderRadius: '50%',
+            position: 'absolute',
+            cursor: 'move',
+            left: `${point[0]-25}px`,
+            top: `${point[1]-25}px`,
+            pointerEvents: "auto",
+            zIndex: 10
+          }}
+          onMouseDown={(e) => handleDotMouseDown(e, index)}
+          onTouchStart={(e) => handleDotTouchStart(e, index)}
+        >
+          <div
+          key={index}
+          className="draggable-dot"
+          style={{
             width: activeDotIndex === index ? '40px' : '20px',
             height: activeDotIndex === index ? '40px' : '20px',
             backgroundColor: activeDotIndex === index ? 'transparent' : `#${patternColor}`,
@@ -236,15 +255,14 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
             borderRadius: '50%',
             position: 'absolute',
             cursor: 'move',
-            left: `${point[0]-2 - (activeDotIndex === index ? 20 : 10)}px`,
-            top: `${point[1]-2 - (activeDotIndex === index ? 20 : 10)}px`,
+            left: `${-2 + (activeDotIndex === index ? 5 : 10)}px`,
+            top: `${-2 + (activeDotIndex === index ? 5 : 10)}px`,
             touchAction: 'none',
             pointerEvents: "auto",
-            zIndex: 10
+            zIndex: 11
           }}
-          onMouseDown={(e) => handleDotMouseDown(e, index)}
-          onTouchStart={(e) => handleDotTouchStart(e, index)}
-        />
+        ></div>
+        </div>
       ))}
 
       {/* Magnifier */}

@@ -63,6 +63,17 @@ function App() {
   const frameRef = useRef(null);
 
   useEffect(() => {
+    const preventLongPress = (e) => e.preventDefault();
+    document.addEventListener("contextmenu", preventLongPress); // Prevent right-click
+    document.addEventListener("touchstart", preventLongPress);  // Prevent long press
+
+    return () => {
+      document.removeEventListener("contextmenu", preventLongPress);
+      document.removeEventListener("touchstart", preventLongPress);
+    };
+  }, []);
+
+  useEffect(() => {
     if(!isConnected) return
     const fetchStates = async () => {
       try {

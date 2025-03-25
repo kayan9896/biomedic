@@ -204,17 +204,27 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
           strokeDasharray={patternColor==='FF0000'?"5,5":''}
         />
         {(isSelected && arc) && arc.map((point, index) => (
+          <>
+          <circle
+          key={index}
+          cx={point[0]}
+          cy={point[1]}
+          r={index === draggedPointIndex ? 20 : 10}
+          strokeWidth="2"
+          stroke={`#${patternColor}`}
+          fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0)' : `#${patternColor}`}
+          
+        />
           <circle
             key={index}
             cx={point[0]}
             cy={point[1]}
-            r={index === draggedPointIndex ? 20 : 10}
-            strokeWidth="2"
-            stroke={`#${patternColor}`}
-            fill={index === draggedPointIndex ? 'rgba(255, 255, 0, 0)' : `#${patternColor}`}
+            r={50}
+            
+            fill={'transparent'}
             onMouseDown={(e) => handleMouseDown(e, index)}
             onTouchStart={(e) => handleMouseDown(e, index)}
-          />
+          /></>
         ))}
       </g>
     </svg>

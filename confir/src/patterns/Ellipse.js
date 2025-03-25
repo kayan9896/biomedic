@@ -135,7 +135,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
     setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top });
     
     const controlPointIndex = ellipse.findIndex(point => 
-      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 30
+      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 50
     );
     
     if (controlPointIndex !== -1) {
@@ -260,7 +260,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
             key={index}
             cx={point[0]}
             cy={point[1]}
-            r={index === draggedPointIndex ? 40 : 20}
+            r={50}
             fill='transparent'
           />
           </>
