@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, idx }) => {
+const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, idx, editing }) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
@@ -216,7 +216,7 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
           d={d}
           fill="none"
           stroke={`#${patternColor}`}
-          strokeWidth="2"
+          strokeWidth={editing?"2":"5"}
           strokeDasharray={patternColor==='FF0000'?"5,5":''}
         />
         {(isSelected && arc) && arc.map((point, index) => (

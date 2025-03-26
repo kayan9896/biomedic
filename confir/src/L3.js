@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PatternDisplay from './PatternDisplay';
 
-function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, rightImageMetadata, onSaveLeft, onSaveRight, frameRef}) {
+function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, rightImageMetadata, onSaveLeft, onSaveRight, frameRef, editing}) {
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
@@ -82,6 +82,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
           onSave={(ref) => (onSaveLeft.current[group] = ref)} // Assign ref by group
           isLeftSquare={true}
           imageUrl={leftImage}
+          editing={editing}
         />
         ))}
       </div>
@@ -107,6 +108,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
           onSave={(ref) => (onSaveRight.current[group] = ref)} // Assign ref by group
           isLeftSquare={false}
           imageUrl={rightImage}
+          editing={editing}
         />
         ))}
       </div>

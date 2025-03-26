@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
 
-const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeftSquare, idx }) => {
+const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeftSquare, idx, editing }) => {
   const [curvePoints, setCurvePoints] = useState(points);
   const [showDots, setShowDots] = useState(idx);
   const [activeDotIndex, setActiveDotIndex] = useState(idx);
@@ -218,7 +218,7 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
         <path
           d={pathCommand}
           stroke={`#${patternColor}`}
-          strokeWidth="2"
+          strokeWidth={editing?"2":"5"}
           strokeDasharray={patternColor==='FF0000'?"5,5":''}
           fill="none"
           pointerEvents="none"

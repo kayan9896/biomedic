@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Arc from './Arc';
 import Magnifier from './Magnifier';
 
-const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, idx}) => {
+const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, idx, editing}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(idx);
   const [isDragging, setIsDragging] = useState(false);
@@ -213,6 +213,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
       }}
       colour={patternColor}
       imageUrl={imageUrl}
+      editing={editing}
     />
     <svg 
       ref={ellipseRef}
@@ -243,7 +244,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
           transform={`rotate(${angle * 180 / Math.PI} ${center[0]} ${center[1]})`}
           fill="none"
           stroke={`#${patternColor}`}
-          strokeWidth="2"
+          strokeWidth={editing?"2":"5"}
           strokeDasharray={patternColor==='FF0000'?"5,5":''}
         />
         {isSelected && ellipse.map((point, index) => (

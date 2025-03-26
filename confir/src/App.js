@@ -464,6 +464,7 @@ function App() {
         onSaveLeft={leftSaveRefs}
         onSaveRight={rightSaveRefs}
         frameRef={frameRef}
+        editing={editing}
       />
       
       

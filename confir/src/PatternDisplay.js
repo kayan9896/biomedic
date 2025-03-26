@@ -4,7 +4,7 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => {
+const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing }) => {
   // Keep metadata in array format
   const [originalMetadata, setOriginalMetadata] = useState(metadata[group] || []);
   const [lastSavedMetadata, setLastSavedMetadata] = useState(metadata[group] || []);
@@ -165,6 +165,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
                     idx={null}
+                    editing={editing}
                   />
                 );
                 
@@ -179,6 +180,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
                     idx={null}
+                    editing={editing}
                   />
                 );
                 
@@ -194,6 +196,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
                     idx={null}
+                    editing={editing}
                   />
                 );
                 
@@ -204,7 +207,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl }) => 
           
           {/* Group control for selected patterns, if at least 2 are selected */}
           {
-            <PatternGroupManager
+            editing&&<PatternGroupManager
               patterns={currentMetadata}
               onPatternsUpdate={handleMultiplePatternsUpdate}
               handle={metadata[group][0]['handle']}

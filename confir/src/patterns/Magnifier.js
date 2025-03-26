@@ -132,6 +132,7 @@ const Magnifier = ({
                     imageUrl={imageUrl}
                     metadata={metadata}
                     idx={i}
+                    editing={true}
                   />
                 );
                 
@@ -144,6 +145,7 @@ const Magnifier = ({
                     imageUrl={imageUrl}
                     metadata={metadata}
                     idx={i}
+                    editing={true}
                   />
                 );
                 
@@ -157,6 +159,7 @@ const Magnifier = ({
                     imageUrl={imageUrl}
                     metadata={metadata}
                     idx={i}
+                    editing={true}
                   />
                 );
                 
