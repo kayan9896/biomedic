@@ -187,7 +187,72 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     M ${arc[0][0]} ${arc[0][1]}
     A ${radius} ${radius} 0 ${param[0]} ${param[1]} ${arc[2][0]} ${arc[2][1]}
   `;
+{// // 
+// function getLineEquation(p1, p2) {
+//   if (p2[0] - p1[0] === 0) {
+//     return { isVertical: true, x: p1[0] };
+//   }
+//   const k = (p2[1] - p1[1]) / (p2[0] - p1[0]);
+//   const b = p1[1] - k * p1[0];
+//   return { isVertical: false, k, b };
+// }
 
+// function isPointAboveLine(point, lineEquation) {
+//   if (lineEquation.isVertical) {
+//     // For vertical lines, "above" means to the right
+//     return point[0] > lineEquation.x;
+//   }
+//   const expectedY = lineEquation.k * point[0] + lineEquation.b;
+//   return point[1] < expectedY;
+// }
+
+// function getMidpoint(p1, p2) {
+//   return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+// }
+
+// function getDistance(p1, p2) {
+//   return Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2));
+// }
+
+// // In your render logic:
+// const { center, radius } = findCircle(arc[0], arc[1], arc[2]);
+// const lineEquation = getLineEquation(arc[0], arc[2]);
+// const isSecondPointAbove = isPointAboveLine(arc[1], lineEquation);
+
+// // Handle the case where points have the same X coordinate
+// let isFirstPointRightOfLast;
+// if (arc[0][0] === arc[2][0]) {
+//   // If vertical line, compare Y coordinates
+//   isFirstPointRightOfLast = arc[0][1] > arc[2][1];
+// } else {
+//   isFirstPointRightOfLast = arc[0][0] > arc[2][0];
+// }
+
+// // Calculate midpoint of chord
+// const chordMidpoint = getMidpoint(arc[0], arc[2]);
+
+// // Calculate distance from second point to chord midpoint
+// const distanceToMidpoint = getDistance(arc[1], chordMidpoint);
+// const chordLength = getDistance(arc[0], arc[2]);
+
+// // Use distance to midpoint for largeArcFlag threshold
+// const largeArcFlag = distanceToMidpoint > chordLength / 2 ? 1 : 0;
+
+// // For vertical lines, we need to adjust our logic
+// let sweepFlag;
+// if (lineEquation.isVertical) {
+//   // For vertical lines, "above" means to the right of the line
+//   sweepFlag = isSecondPointAbove !== isFirstPointRightOfLast ? 1 : 0;
+// } else {
+//   sweepFlag = isSecondPointAbove !== isFirstPointRightOfLast ? 1 : 0;
+// }
+
+// const d = `
+//   M ${arc[0][0]} ${arc[0][1]}
+//   A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${arc[2][0]} ${arc[2][1]}
+// `;
+// // 
+}
   return (
     <>
     <svg 
