@@ -13,6 +13,7 @@ from glob import glob
 import datetime
 from imu import IMU
 from exam import Exam
+from panel import IMU3
 
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
@@ -35,7 +36,7 @@ class ImageProcessingController:
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
-        self.imu = IMU(self.viewmodel)  # Pass viewmodel to IMU
+        self.imu = IMU3(self.viewmodel)  # Pass viewmodel to IMU
     
     def imuonob(self):
         return (not self.imuonap()) and (-45<=self.imu.rotation_angle and self.imu.rotation_angle<=45)
