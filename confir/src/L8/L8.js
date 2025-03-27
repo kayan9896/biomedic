@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L8({setEditing, onSave, onExit, onReset, onDelete}) {
+function L8({editing, onSave, onExit, onReset, onDelete}) {
     return(
       <div>
         <img src={require('./EditModeBlueBorder.png')} alt="EditModeBlueBorder" style={{position:'absolute', top:'0px', left:'0px', zIndex:7, pointerEvents:'none'}}/>
@@ -14,7 +14,7 @@ function L8({setEditing, onSave, onExit, onReset, onDelete}) {
           src={require('./ResetIcon.png')} 
           alt="ResetIcon" 
           style={{position:'absolute', top:'492px', left:'927px', zIndex:7, cursor:'pointer'}}
-          onClick={onReset}
+          onClick={()=>onDelete(false)}
         />
         
         {/* Delete button */}
@@ -23,7 +23,7 @@ function L8({setEditing, onSave, onExit, onReset, onDelete}) {
           src={require('./DeleteIcon.png')} 
           alt="DeleteIcon" 
           style={{position:'absolute', top:'572px', left:'927px', zIndex:7, cursor:'pointer'}}
-          onClick={onDelete}
+          onClick={()=>onDelete(true)}
         />
         
         {/* Save button */}

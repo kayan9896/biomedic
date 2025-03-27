@@ -22,6 +22,27 @@ import L19 from './L19/L19';
 import html2canvas from 'html2canvas';
 import L21 from './L21/L21';
 
+import leftTemplate from './L21/template-l.json';
+import rightTemplate from './L21/template-r.json';
+function scalePoints(templateData, scaleFactor) {
+  const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
+
+  // Function to scale a single point
+  const scalePoint = (point) => point.map(coord => coord * scaleFactor);
+  console.log(Object.keys(scaledData))
+  // Loop through the groups and scale points
+  Object.keys(scaledData).forEach(groupKey => {
+      scaledData[groupKey].forEach(item => {
+          item.points = item.points.map(scalePoint); // Scale each point
+      });
+  });
+
+  return scaledData;
+}
+
+const scaleFactor = 960 / 1024;
+const leftTemplateData = scalePoints(leftTemplate, scaleFactor);
+const rightTemplateData = scalePoints(rightTemplate, scaleFactor);
 function App() {
   const [angle, setAngle] = useState(0);
   const [patient, setPatient] = useState('');
@@ -59,7 +80,7 @@ function App() {
   const [stage, setStage] = useState(0)
   const [showglyph, setShowglyph] =useState(false)
   const [moveNext, setMoveNext] = useState(false)
-  const [pelvis,setPelvis] = useState(null)
+  const [pelvis, setPelvis] = useState([null, null])
   const frameRef = useRef(null);
 
   useEffect(() => {
@@ -133,20 +154,29 @@ function App() {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata);
             setLeftCheckMark(data.checkmark)
-            setPelvis(data.side)
+            setPelvis((prev) => {
+              let tmp = [...prev]
+              tmp[0] = data.side
+              return tmp
+            })
             if (data.checkmark ==2 || data.checkmark==3)setRightCheckMark(data.checkmark)
             console.log(data.metadata)
         } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
             setRightImage(data.image);  // This is now a data URL
             setRightImageMetadata(data.metadata);
             setRightCheckMark(data.checkmark)
+            setPelvis((prev) => {
+              let tmp = [...prev]
+              tmp[1] = data.side
+              return tmp
+            })
             if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
         }
         setError(data.error)
         setMeasurements(data.measurements)
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
         setMoveNext(data.next)
-        setPelvis(data.side)
+
     } catch (error) {
         console.error('Error fetching image:', error);
         setError("Error updating images");
@@ -364,9 +394,18 @@ function App() {
     Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
   };
 
-  const handleDelete = () => {
-    Object.values(leftSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.());
-    Object.values(rightSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.());
+  const handleDelete = (both) => {
+    const p = editing === 'left'? pelvis[0] : pelvis[1]
+    if (both){
+      let template = p === 'r'? leftTemplateData: rightTemplateData;
+      Object.values(leftSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
+      Object.values(rightSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
+      setPelvis(p === 'l'? ['r','r']: ['l','l'])
+    }else{ 
+      let template = p === 'l'? leftTemplateData: rightTemplateData;
+      if (editing === 'left') Object.values(leftSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
+      if (editing === 'right') Object.values(rightSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
+    }
   };
 
   const captureAndSaveFrame = async () => {
@@ -409,32 +448,42 @@ function App() {
 
     // Function to load the appropriate template based on pelvis side
     const applyTemplate = (side, targetSetter) => {
-      const templateData = side === 'l' ? require('./L21/template-l.json') : require('./L21/template-r.json');
+      const templateData = side === 'l' ? leftTemplateData : rightTemplateData;
       targetSetter(templateData);
     };
 
     // Only run this logic when we have one side with pelvis and one without
-    if (pelvis !== null) {
+    if (pelvis[0] == null && pelvis[1] !== null) {
       // If left side is active and has no metadata, apply the template
-      if (leftImageMetadata === null&&leftImage!==require('./AP.png')) {
-        applyTemplate(pelvis, setLeftImageMetadata);
-      }
-      
-      // If right side is active and has no metadata, apply the template
-      if (rightImageMetadata === null&&rightImage!==require('./OB.png')) {
-        applyTemplate(pelvis, setRightImageMetadata);
+      if (leftImage!==require('./AP.png')) {
+        applyTemplate(pelvis[1], setLeftImageMetadata);
+        setPelvis((prev) => {
+          let tmp = [...prev]
+          tmp[0] = pelvis[1]
+          return tmp
+        })
       }
     }
-  }, [ pelvis, leftImageMetadata, rightImageMetadata,leftImage.rightImage]);
+    if (pelvis[0] !== null && pelvis[1] == null) {  
+      // If right side is active and has no metadata, apply the template
+      if (rightImage!==require('./OB.png')) {
+        applyTemplate(pelvis[0], setRightImageMetadata);
+        setPelvis((prev) => {
+          let tmp = [...prev]
+          tmp[0] = pelvis[0]
+          return tmp
+        })
+      }
+    }
+  }, [ pelvis, leftImage, rightImage]);
 
   // Need to determine if we should show L21
   const shouldShowL21 = () => {
     if (!editing) return false;
-    if (pelvis !== null) return false;
     
     // If at least one side is active and has no template, show L21
-    return (leftImageMetadata === null) || 
-           (rightImageMetadata === null);
+    return (pelvis[0] === null) && 
+           (pelvis[1] === null);
   };
 
   return (
@@ -477,7 +526,7 @@ function App() {
 
       {/*L8 Edit bar, render when editing true*/}
       {editing && <L8 
-        setEditing={setEditing} 
+        editing={editing} 
         onSave={handleSave} 
         onExit={handleExit}
         onReset={handleReset}

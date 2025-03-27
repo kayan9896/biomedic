@@ -49,9 +49,10 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
           setCurrentMetadata([...originalMetadata]);
           setResetKey(prev => prev + 1);
         },
-        clearAllPatterns: () => {
-          console.log("Clearing all patterns");
-          setCurrentMetadata([]);
+        clearAllPatterns: (template) => {
+          console.log(template,currentMetadata,"tmp");
+          setCurrentMetadata(template[group]);
+          console.log(currentMetadata,'cur')
           setResetKey(prev => prev + 1);
         },
       });

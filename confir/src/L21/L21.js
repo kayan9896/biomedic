@@ -57,7 +57,7 @@ const L21 = ({
           : rightTemplateData;
         
         // Set pelvis value based on selection
-        setPelvis(selectedTemplate === 'left' ? 'l' : 'r');
+        setPelvis(selectedTemplate === 'left' ? ['l', 'l'] : ['r', 'r']);
         
         // Update the appropriate image metadata based on which side is active
         if (activeLeft) {

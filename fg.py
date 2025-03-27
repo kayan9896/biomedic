@@ -101,7 +101,7 @@ class FrameGrabber:
             return f"Error initiating video: {str(e)}"
 
 
-    def compare_frames(self, frame1, frame2, threshold=30) -> bool:
+    def compare_frames(self, frame1, frame2, threshold=10) -> bool:
         """
         Compare two frames and determine if they are different enough
         
