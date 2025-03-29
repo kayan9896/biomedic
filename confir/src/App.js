@@ -538,7 +538,7 @@ function App() {
       {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
-      {(showCarmBox && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
+      {(true && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
 
       {/*L19 Reg error*/}
       {(error==='reg fails' && stage===1) && <L19 handlerestart={handlerestart}/>}

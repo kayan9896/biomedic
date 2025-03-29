@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
+import * as THREE from 'three';
 
 const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeftSquare, idx, editing }) => {
   const [curvePoints, setCurvePoints] = useState(points);
@@ -32,6 +33,8 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  
 
   useEffect(() => {
     const handleGlobalMove = (e) => {
@@ -152,44 +155,30 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
     setShowDots(true);
   };
 
-  const calculateSmoothCurve = (points) => {
-    if (points.length < 2) return '';
-    if (points.length === 2) {
-      return `M${points[0][0]},${points[0][1]} L${points[1][0]},${points[1][1]}`;
-    }
-
-    // Calculate control points for each point
-    const controlPoints = [];
-    for (let i = 0; i < points.length; i++) {
-      const prev = i > 0 ? points[i - 1] : points[i];
-      const current = points[i];
-      const next = i < points.length - 1 ? points[i + 1] : points[i];
-
-      // Calculate the vector between previous and next point
-      const vector = [next[0] - prev[0], next[1] - prev[1]];
-      
-      // Create control points by using a fraction of the vector
-      const fraction = 0.25; // Adjust this value to change curve smoothness
-      
-      controlPoints.push([
-        [current[0] - vector[0] * fraction, current[1] - vector[1] * fraction],
-        [current[0] + vector[0] * fraction, current[1] + vector[1] * fraction]
-      ]);
-    }
-
-    // Build the SVG path command
-    let pathCommand = `M${points[0][0]},${points[0][1]}`;
-    for (let i = 1; i < points.length; i++) {
-      const cp1 = controlPoints[i-1][1];
-      const cp2 = controlPoints[i][0];
-      const p = points[i];
-      pathCommand += ` C${cp1[0]},${cp1[1]} ${cp2[0]},${cp2[1]} ${p[0]},${p[1]}`;
-    }
+  
+ 
+  const createSmoothPath = (points) => {
+    // Convert points to THREE.Vector2
+    const vectors = points.map(p => new THREE.Vector2(p[0], p[1]));
     
-    return pathCommand;
+    // Create a curve
+    const curve = new THREE.SplineCurve(vectors);
+    
+    // Get points along the curve
+    const curvePoints = curve.getPoints(50); // 50 divisions
+    
+    // Convert to SVG path
+    let path = `M${curvePoints[0].x},${curvePoints[0].y}`;
+    curvePoints.slice(1).forEach(p => {
+      path += ` L${p.x},${p.y}`;
+    });
+    
+    return path;
   };
 
-  const pathCommand = calculateSmoothCurve(curvePoints);
+  // Generate the smooth path using D3
+  const pathCommand = createSmoothPath(curvePoints);
+
 
   // Show magnifier only when a dot is being dragged
   const showMagnifier = isMouseDown && activeDotIndex !== null;

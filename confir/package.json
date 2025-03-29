@@ -7,13 +7,17 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "cra-template": "1.2.0",
+    "d3": "^7.9.0",
     "html2canvas": "^1.4.1",
     "msw": "^2.7.0",
+    "paper": "^0.12.18",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-gauge-component": "^1.2.64",
     "react-router-dom": "^7.1.5",
     "react-scripts": "5.0.1",
-    "react-simple-keyboard": "^3.8.43"
+    "react-simple-keyboard": "^3.8.43",
+    "three": "^0.174.0"
   },
   "scripts": {
     "start": "react-scripts start",
