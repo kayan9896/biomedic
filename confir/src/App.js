@@ -83,105 +83,252 @@ function App() {
   const [pelvis, setPelvis] = useState([null, null])
   const frameRef = useRef(null);
 
-  useEffect(() => {
-    if(!isConnected) return
-    const fetchStates = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/states');
-        const data = await response.json();
-        setAngle(data.angle);
-        
-        // Check if rotation angle has changed
-        if (data.rotation_angle !== previousRotationAngleRef.current) {
-          setRotationAngle(data.rotation_angle);
-          previousRotationAngleRef.current = data.rotation_angle;
+    // New state variables for the angle tracking feature
+    const [targetTiltAngle, setTargetTiltAngle] = useState(null);
+    const [targetRotationAngle, setTargetRotationAngle] = useState(null);
+    const [isTiltSaved, setIsTiltSaved] = useState(false);
+    const [isRotationSaved, setIsRotationSaved] = useState(false);
+  
+    // References for the timers
+    const tiltSaveTimerRef = useRef(null);
+    const rotationSaveTimerRef = useRef(null);
+    const windowCloseTimerRef = useRef(null);
+  
+    // References to track the last angle values
+    const lastTiltAngleRef = useRef(angle);
+    const lastRotationAngleRef = useRef(rotationAngle);
+  
+    useEffect(() => {
+      if(!isConnected) return;
+      
+      const fetchStates = async () => {
+        try {
+          const response = await fetch('http://localhost:5000/api/states');
+          const data = await response.json();
           
-          // Show carmbox when rotation angle changes
-          setShowCarmBox(true);
-          
-          // Clear any existing timer
-          if (carmBoxTimerRef.current) {
-            clearTimeout(carmBoxTimerRef.current);
+          // Check if tilt angle has changed
+          if (data.angle !== lastTiltAngleRef.current) {
+            lastTiltAngleRef.current = data.angle;
+            setAngle(data.angle);
+            setIsTiltSaved(false);
+            
+            // Clear any existing tilt timer
+            if (tiltSaveTimerRef.current) {
+              clearTimeout(tiltSaveTimerRef.current);
+            }
+            
+            // Show carmbox when angle changes
+            setShowCarmBox(true);
+            
+            // Clear any existing carmbox timer
+            if (carmBoxTimerRef.current) {
+              clearTimeout(carmBoxTimerRef.current);
+              carmBoxTimerRef.current = null;
+            }
+            
+            // Set a new timer to mark tilt as saved after 3 seconds of no changes
+            // But only set it as saved if it's within the valid range
+            tiltSaveTimerRef.current = setTimeout(() => {
+              const isTiltValid = data.angle >= -20 && data.angle <= 20;
+              if (isTiltValid) {
+                setIsTiltSaved(true);
+              } else {
+                // Force the carmbox to stay open by ensuring it's not saved
+                setIsTiltSaved(false);
+                
+                // Re-check after a second (keep checking until angle is valid)
+                setTimeout(() => {
+                  // Re-check current tilt value
+                  const currentIsTiltValid = angle >= -20 && angle <= 20;
+                  if (!currentIsTiltValid) {
+                    // Force window to stay visible if tilt remains invalid
+                    setShowCarmBox(true);
+                  }
+                }, 1000);
+              }
+            }, 3000);
           }
           
-          // Set a new timer to hide carmbox after 5 seconds if no further changes
-          carmBoxTimerRef.current = setTimeout(() => {
+          // Check if rotation angle has changed
+          if (data.rotation_angle !== lastRotationAngleRef.current) {
+            lastRotationAngleRef.current = data.rotation_angle;
+            setRotationAngle(data.rotation_angle);
+            setIsRotationSaved(false);
+            
+            // Clear any existing rotation timer
+            if (rotationSaveTimerRef.current) {
+              clearTimeout(rotationSaveTimerRef.current);
+            }
+            
+            // Show carmbox when angle changes
+            setShowCarmBox(true);
+            
+            // Clear any existing carmbox timer
+            if (carmBoxTimerRef.current) {
+              clearTimeout(carmBoxTimerRef.current);
+              carmBoxTimerRef.current = null;
+            }
+            
+            // Set a new timer to mark rotation as saved after 3 seconds of no changes
+            // But only set it as saved if it's within valid range based on AP mode
+            rotationSaveTimerRef.current = setTimeout(() => {
+              // AP mode is when rotation angle is between -15 and 15 degrees
+              const isInAPMode = data.rotation_angle >= -15 && data.rotation_angle <= 15;
+              
+              // Check if angle is valid:
+              // - If in AP mode, rotation angle must be between -20 and 20
+              // - If not in AP mode, no additional range restrictions
+              const isRotationValid = !isInAPMode || (isInAPMode && data.rotation_angle >= -20 && data.rotation_angle <= 20);
+              
+              // Only mark as saved if within valid range
+              if (isRotationValid) {
+                setIsRotationSaved(true);
+              } else {
+                // Force the carmbox to stay open by ensuring it's not saved
+                setIsRotationSaved(false);
+                
+                // Re-check after a second (keep checking until angle is valid)
+                setTimeout(() => {
+                  // Re-check current values
+                  const currentIsInAPMode = rotationAngle >= -15 && rotationAngle <= 15;
+                  const currentIsValid = !currentIsInAPMode || (currentIsInAPMode && rotationAngle >= -20 && rotationAngle <= 20);
+                  
+                  if (!currentIsValid) {
+                    // Force window to stay visible if angle remains invalid
+                    setShowCarmBox(true);
+                  }
+                }, 1000);
+              }
+            }, 3000);
+          }
+          
+          setIsProcessing(data.is_processing);
+          setProgress(data.progress);
+          
+          // Hide carmbox when processing is happening
+          if (data.is_processing) {
             setShowCarmBox(false);
-          }, 5000);
-        }
-        
-        setIsProcessing(data.is_processing);
-        setProgress(data.progress);
-        
-        // Hide carmbox when processing is happening
-        if (data.is_processing) {
-          setShowCarmBox(false);
-          setError(null)
-          if (carmBoxTimerRef.current) {
-            clearTimeout(carmBoxTimerRef.current);
+            setError(null);
+            if (carmBoxTimerRef.current) {
+              clearTimeout(carmBoxTimerRef.current);
+            }
+            if (windowCloseTimerRef.current) {
+              clearTimeout(windowCloseTimerRef.current);
+            }
           }
+          
+          if (data.img_count !== previousImgCountRef.current) {
+            previousImgCountRef.current = data.img_count;
+            await updateImages(data.rotation_angle);
+          }
+  
+          if (data.measurements) {
+            setMeasurements(data.measurements);
+          }
+        } catch (error) {
+          console.error('Error fetching states:', error);
+          setError("Error connecting to server");
+        }
+      };
+  
+      const intervalId = setInterval(fetchStates, 100);
+      
+      return () => {
+        clearInterval(intervalId);
+        if (tiltSaveTimerRef.current) clearTimeout(tiltSaveTimerRef.current);
+        if (rotationSaveTimerRef.current) clearTimeout(rotationSaveTimerRef.current);
+        if (windowCloseTimerRef.current) clearTimeout(windowCloseTimerRef.current);
+        if (carmBoxTimerRef.current) clearTimeout(carmBoxTimerRef.current);
+      };
+    }, [isConnected]);
+    
+    // Effect to check if angles are valid and can be saved
+    useEffect(() => {
+      // For tilt angle: only valid if within [-20, 20] range
+      const isTiltValid = angle >= -20 && angle <= 20;
+      
+      // For rotation angle: if in AP mode (activeLeft), must be within [-20, 20]
+      // If in Oblique mode, this constraint doesn't apply
+      const isRotationValid = !activeLeft || (activeLeft && rotationAngle >= -20 && rotationAngle <= 20);
+      
+      // If angles become invalid, reset their saved status
+      if (!isTiltValid && isTiltSaved) {
+        setIsTiltSaved(false);
+      }
+      
+      if (!isRotationValid && isRotationSaved) {
+        setIsRotationSaved(false);
+      }
+    }, [angle, rotationAngle, activeLeft, isTiltSaved, isRotationSaved]);
+  
+    // Effect to handle window closing when both angles are saved
+    useEffect(() => {
+      // Only start the window close timer if both angles are saved, valid, and the window is visible
+      const isTiltValid = angle >= -20 && angle <= 20;
+      const isRotationValid = !activeLeft || (activeLeft && rotationAngle >= -20 && rotationAngle <= 20);
+      
+      if (isTiltSaved && isRotationSaved && isTiltValid && isRotationValid && showCarmBox && !isProcessing) {
+        // Clear any existing window close timer
+        if (windowCloseTimerRef.current) {
+          clearTimeout(windowCloseTimerRef.current);
         }
         
-        if (data.img_count !== previousImgCountRef.current) {
-          previousImgCountRef.current = data.img_count;
-          await updateImages(data.rotation_angle);
-        }
-
-        if (data.measurements) {
-          setMeasurements(data.measurements);
-        }
+        // Set a new timer to close the window after 3 seconds
+        windowCloseTimerRef.current = setTimeout(() => {
+          setShowCarmBox(false);
+          
+          // Update target angles when window closes
+          setTargetTiltAngle(angle);
+          setTargetRotationAngle(rotationAngle);
+          console.log(`Target angles saved - Tilt: ${angle}°, Rotation: ${rotationAngle}°`);
+        }, 3000);
+      } else if (windowCloseTimerRef.current && (!isTiltSaved || !isRotationSaved || !isTiltValid || !isRotationValid)) {
+        // If either angle is not saved anymore or invalid and we have a close timer, clear it
+        clearTimeout(windowCloseTimerRef.current);
+        windowCloseTimerRef.current = null;
+      }
+    }, [isTiltSaved, isRotationSaved, angle, rotationAngle, activeLeft, showCarmBox, isProcessing]);
+  
+    // Rest of the original code...
+    const updateImages = async (currentRotationAngle) => {
+      try {
+          const response = await fetch('http://localhost:5000/api/image-with-metadata');
+          const data = await response.json();
+          
+          if (currentRotationAngle >= -15 && currentRotationAngle <= 15) {
+              setLeftImage(data.image);  // This is now a data URL
+              setLeftImageMetadata(data.metadata);
+              setLeftCheckMark(data.checkmark)
+              setPelvis((prev) => {
+                let tmp = [...prev]
+                tmp[0] = data.side
+                return tmp
+              })
+              if (data.checkmark ==2 || data.checkmark==3)setRightCheckMark(data.checkmark)
+              console.log(data.metadata)
+          } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
+              setRightImage(data.image);  // This is now a data URL
+              setRightImageMetadata(data.metadata);
+              setRightCheckMark(data.checkmark)
+              setPelvis((prev) => {
+                let tmp = [...prev]
+                tmp[1] = data.side
+                return tmp
+              })
+              if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
+          }
+          setError(data.error)
+          setMeasurements(data.measurements)
+          if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
+          setMoveNext(data.next)
+  
       } catch (error) {
-        console.error('Error fetching states:', error);
-        setError("Error connecting to server");
+          console.error('Error fetching image:', error);
+          setError("Error updating images");
       }
     };
 
-    const intervalId = setInterval(fetchStates, 100);
-    return () => {
-      clearInterval(intervalId);
-      if (carmBoxTimerRef.current) {
-        clearTimeout(carmBoxTimerRef.current);
-      }
-    };
-  }, [isConnected]);
-
-  const updateImages = async (currentRotationAngle) => {
-    try {
-        const response = await fetch('http://localhost:5000/api/image-with-metadata');
-        const data = await response.json();
-        
-        if (currentRotationAngle >= -15 && currentRotationAngle <= 15) {
-            setLeftImage(data.image);  // This is now a data URL
-            setLeftImageMetadata(data.metadata);
-            setLeftCheckMark(data.checkmark)
-            setPelvis((prev) => {
-              let tmp = [...prev]
-              tmp[0] = data.side
-              return tmp
-            })
-            if (data.checkmark ==2 || data.checkmark==3)setRightCheckMark(data.checkmark)
-            console.log(data.metadata)
-        } else if (currentRotationAngle >= -45 && currentRotationAngle <= 45) {
-            setRightImage(data.image);  // This is now a data URL
-            setRightImageMetadata(data.metadata);
-            setRightCheckMark(data.checkmark)
-            setPelvis((prev) => {
-              let tmp = [...prev]
-              tmp[1] = data.side
-              return tmp
-            })
-            if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
-        }
-        setError(data.error)
-        setMeasurements(data.measurements)
-        if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
-        setMoveNext(data.next)
-
-    } catch (error) {
-        console.error('Error fetching image:', error);
-        setError("Error updating images");
-    }
-};
+ 
 
   const handleConnect = async () => {
     try {
@@ -538,7 +685,14 @@ function App() {
       {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
-      {(true && !isProcessing) && <L10 angle={angle} rotationAngle={rotationAngle}/>}
+      {(showCarmBox && !isProcessing) && 
+          <L10 
+            angle={angle} 
+            rotationAngle={rotationAngle} 
+            isTiltSaved={isTiltSaved} 
+            isRotationSaved={isRotationSaved}
+          />
+        }
 
       {/*L19 Reg error*/}
       {(error==='reg fails' && stage===1) && <L19 handlerestart={handlerestart}/>}
