@@ -1,6 +1,6 @@
 {
     "folder": "recons",
-    "type": "hp1",
+    "type": "hp2",
     "metadata": {
         "ap": {
             "group1": [
@@ -387,5 +387,5 @@
             ]
         }
     },
-    "timestamp": "2025-04-07 16:00:31.584280"
+    "timestamp": "2025-04-07 15:18:11.425054"
 }

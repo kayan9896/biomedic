@@ -198,14 +198,14 @@ class ProcessingModel:
         # Assuming dataforvm contains metadata
         
         angle = self.states['rotation_angle']
-        if -15 <= angle <= 15:
+        if -20 <= angle <= 20:
             self.imgs[0]['error'] = None
             self.imgs[0]['measurements'] = None
             self.imgs[0]['side'] = None
             if image is not None: self.imgs[0]['image'] = image
             for i in dataforvm:
                 self.imgs[0][i] = dataforvm[i]
-        elif -45 <= angle <= 45:
+        elif -50 <= angle <= 50:
             self.imgs[1]['error'] = None
             self.imgs[1]['measurements'] = None
             self.imgs[1]['side'] = None
@@ -217,13 +217,13 @@ class ProcessingModel:
 
     def store_frame(self, frame, angle):
         """Store frame based on angle conditions and update img_count"""
-        if -15 <= angle <= 15:
+        if -20 <= angle <= 20:
             self.imgs[0] = frame
             self.update_img_count()
-        elif -45 <= angle <= 45:
+        elif -50 <= angle <= 50:
             self.imgs[1] = frame
             self.update_img_count()
-        # If angle is outside [-45, 45], frame is discarded and img_count not updated
+        # If angle is outside [-50, 50], frame is discarded and img_count not updated
 
     def update_img_count(self):
         """Update img_count cycling from 0 to 4"""

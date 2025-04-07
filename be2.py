@@ -39,9 +39,9 @@ class ImageProcessingController:
         self.imu = IMU3(self.viewmodel)  # Pass viewmodel to IMU
     
     def imuonob(self):
-        return (not self.imuonap()) and (-45<=self.imu.rotation_angle and self.imu.rotation_angle<=45)
+        return (not self.imuonap()) and (-50<=self.imu.rotation_angle and self.imu.rotation_angle<=50)
     def imuonap(self):
-        return -15<=self.imu.rotation_angle<=15
+        return -20<=self.imu.rotation_angle<=20
 
     def get_states(self):
         states = self.viewmodel.states

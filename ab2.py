@@ -138,6 +138,7 @@ class AnalyzeBox:
             result = {
                 'metadata': metadata,
                 'checkmark': 2,
+                'side': self.data[curap]['side'],
                 'error': None
             }
             
