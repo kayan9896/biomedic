@@ -847,7 +847,7 @@ function App() {
         <L1/>
         
         {/*L2 Status bar*/}
-        <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting} stage={stage}/>
+        <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting} stage={stage} setStage={setStage} moveNext={moveNext} handlerestart={handlerestart} handlenext={handlenext}/>
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
         <L3 
@@ -882,7 +882,7 @@ function App() {
       
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext}/>}
+      {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && 

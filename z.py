@@ -1,122 +1,76 @@
-import json
-import os
-from pathlib import Path
+import pygame
+import sys
 
-def add_colors_to_patterns(json_data):
-    # Define the color lists for each group
-    group1_colors = ["D55E00", "56B4E9", "CC79A7"]
-    group2_colors = ["0072B2", "009E73", "F0E442", "725DEF", "DD217D", "E69F00"]
-    
-    # Find the two group keys from the json data
-    group_keys = list(json_data.keys())
-    if len(group_keys) != 2:
-        return None  # Not a valid template file
-    
-    try:
-        # Add colors to first group
-        for i, pattern in enumerate(json_data[group_keys[0]]):
-            pattern["colour"] = group1_colors[i]
-        
-        # Add colors to second group
-        for i, pattern in enumerate(json_data[group_keys[1]]):
-            pattern["colour"] = group2_colors[i]
-        
-        return json_data
-    except (KeyError, TypeError, IndexError):
-        return None  # Return None if the file doesn't have the expected structure
+# Initialize Pygame
+pygame.init()
 
-def process_template_files():
-    # Get the current directory
-    current_dir = Path.cwd()
-    
-    # Find all JSON files with 'left' or 'right' in the name
-    json_files = list(current_dir.glob('*left*.json')) + list(current_dir.glob('*right*.json'))
-    
-    for file_path in json_files:
-        try:
-            # Read the JSON file
-            with open(file_path, 'r') as f:
-                json_data = json.load(f)
-            
-            # Process the file
-            updated_data = add_colors_to_patterns(json_data)
-            
-            # If the file was successfully processed, save it back
-            if updated_data is not None:
-                with open(file_path, 'w') as f:
-                    json.dump(updated_data, f, indent=4)
-                print(f"Successfully processed: {file_path}")
-            else:
-                print(f"Skipped non-template file: {file_path}")
-                
-        except json.JSONDecodeError:
-            print(f"Skipped invalid JSON file: {file_path}")
-            continue
-        except Exception as e:
-            print(f"Error processing {file_path}: {str(e)}")
-            continue
+# Constants
+WIDTH, HEIGHT = 800, 600
+BALL_SIZE = 20
+PADDLE_WIDTH, PADDLE_HEIGHT = 10, 100
+BALL_SPEED = [5, 5]
+PADDLE_SPEED = 7
 
-if __name__ == "__main__":
-    process_template_files()
+# Set up display
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Pong')
 
-'''
-import os
-import json
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
-def add_colors_to_patterns(directory_path):
-    # Define the color lists for each group
-    first_group_colors = ["D55E00", "56B4E9", "CC79A7"]
-    second_group_colors = ["0072B2", "009E73", "F0E442", "725DEF", "DD217D", "E69F00"]
-    
-    # Find all JSON files with 'left' or 'right' in the name
-    json_files = [f for f in os.listdir(directory_path) 
-                 if ('left' in f.lower() or 'right' in f.lower()) and f.endswith('.json')]
-    
-    for filename in json_files:
-        file_path = os.path.join(directory_path, filename)
-        
-        try:
-            # Load the JSON file
-            with open(file_path, 'r') as file:
-                try:
-                    json_data = json.load(file)
-                    
-                    # Check if this is a template file (should have exactly two group keys)
-                    if not isinstance(json_data, dict):
-                        print(f"Skipping {filename}: not a JSON object")
-                        continue
-                    
-                    # Get the group names (first two keys in the JSON)
-                    group_names = list(json_data.keys())
-                    if len(group_names) < 2:
-                        print(f"Skipping {filename}: doesn't have at least two groups")
-                        continue
-                    
-                    # Add colors to the first group
-                    first_group = group_names[0]
-                    for i, pattern in enumerate(json_data[first_group]):
-                        if i < len(first_group_colors):
-                            pattern["colour"] = first_group_colors[i]
-                    
-                    # Add colors to the second group
-                    second_group = group_names[1]
-                    for i, pattern in enumerate(json_data[second_group]):
-                        if i < len(second_group_colors):
-                            pattern["colour"] = second_group_colors[i]
-                    
-                    # Write the updated data back to the file with same indentation
-                    with open(file_path, 'w') as outfile:
-                        json.dump(json_data, outfile, indent=4)
-                        
-                    print(f"Updated colors in {filename}")
-                    
-                except json.JSONDecodeError:
-                    print(f"Skipping {filename}: not a valid JSON file")
-                    continue
-                
-        except Exception as e:
-            print(f"Error processing {filename}: {str(e)}")
-            continue
+# Clock for controlling the frame rate
+clock = pygame.time.Clock()
 
-add_colors_to_patterns('./')
-'''
+# Paddle and Ball Initialization
+ball = pygame.Rect(WIDTH // 2 - BALL_SIZE // 2, HEIGHT // 2 - BALL_SIZE // 2, BALL_SIZE, BALL_SIZE)
+left_paddle = pygame.Rect(10, HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+right_paddle = pygame.Rect(WIDTH - 20 - PADDLE_WIDTH, HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+
+# Game loop
+while True:
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    # Move paddles
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP]:
+        left_paddle.y -= PADDLE_SPEED
+    if keys[pygame.K_DOWN]:
+        left_paddle.y += PADDLE_SPEED
+    if keys[pygame.K_w]:
+        right_paddle.y -= PADDLE_SPEED
+    if keys[pygame.K_s]:
+        right_paddle.y += PADDLE_SPEED
+
+    # Bounce the ball off the top and bottom walls
+    if ball.y <= 0 or ball.y >= HEIGHT - BALL_SIZE:
+        ball.y = -ball.y
+        BALL_SPEED[1] = -BALL_SPEED[1]
+
+    # Move the ball
+    ball.x += BALL_SPEED[0]
+    ball.y += BALL_SPEED[1]
+
+    # Bounce the ball off the paddles
+    if (ball.colliderect(left_paddle) or ball.colliderect(right_paddle)) and ball.x <= WIDTH - BALL_SIZE:
+        BALL_SPEED[0] = -BALL_SPEED[0]
+
+    # Check for ball out of bounds (game over)
+    if ball.x <= 0:
+        ball.x, ball.y = WIDTH // 2 - BALL_SIZE // 2, HEIGHT // 2 - BALL_SIZE // 2
+        ball.y = HEIGHT // 2 - BALL_SIZE // 2
+        BALL_SPEED[0] = 5
+
+    # Drawing
+    screen.fill(BLACK)
+    pygame.draw.rect(screen, WHITE, left_paddle)
+    pygame.draw.rect(screen, WHITE, right_paddle)
+    pygame.draw.ellipse(screen, WHITE, ball)
+    pygame.display.flip()
+
+    # Cap the frame rate
+    clock.tick(60)

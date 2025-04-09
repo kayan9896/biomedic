@@ -590,7 +590,7 @@ function L10({
         <div style={{
           position:'absolute', 
           top: 0, 
-          right:'113px', 
+          right:(stage === 0 && activeLeft)?'148px':'113px', 
           width:'100%', 
           textAlign:'right', 
           color: getTiltColor(),
@@ -602,7 +602,7 @@ function L10({
         <div style={{
           position:'absolute', 
           top: 0, 
-          left: '213px', 
+          left: (stage === 0 && activeLeft)?'179px':'213px', 
           width:'100%', 
           textAlign:'left', 
           color: getTiltColor(),
@@ -620,7 +620,7 @@ function L10({
         <div style={{
           position:'absolute', 
           top: 0, 
-          right: '113px', 
+          right: ((stage !== 0 && activeLeft)||(stage !== 0 && stage !== 1 && activeRight))?'113px':'148px', 
           width:'100%', 
           textAlign:'right', 
           color: getRotationColor(),
@@ -632,7 +632,7 @@ function L10({
         <div style={{
           position:'absolute', 
           top: 0, 
-          left: '213px', 
+          left: ((stage !== 0 && activeLeft)||(stage !== 0 && stage !== 1 && activeRight))?'213px':'179px', 
           width:'100%', 
           textAlign:'left', 
           color: getRotationColor(),
