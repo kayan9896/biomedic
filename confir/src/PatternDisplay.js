@@ -346,7 +346,7 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
       <div style={{
         position: 'absolute',
         left: `${controlPoint[0]}px`,
-        top: `${controlPoint[1] - 40}px`, // Position above the handle
+        top: `${controlPoint[1] - 50}px`, // Position above the handle
         transform: 'translateX(-50%)',
         pointerEvents: 'none',
         display: 'flex',
@@ -374,7 +374,8 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
             alignItems: 'center',
             height: '100%',
             color: 'white',
-            fontSize: '10px',
+            fontSize: '25px',
+            fontFamily: 'abel',
             fontWeight: 'bold',
             textAlign: 'center'
           }}>

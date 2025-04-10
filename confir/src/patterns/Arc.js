@@ -177,11 +177,9 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     if (p2tomid < half) {
       largeArcFlag=0
     }
-    console.log(p2tomid,half)
     return [largeArcFlag, sweepFlag]
   }
   let param = calculate(arc)
-  console.log(param)
   
   const d = `
     M ${arc[0][0]} ${arc[0][1]}

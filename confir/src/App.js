@@ -90,6 +90,13 @@ function App() {
   const [apRotationAngle, setAPRotationAngle] = useState(null);
   const [obRotationAngle, setOBRotationAngle] = useState(null);
   const [obRotationAngle2, setOBRotationAngle2] = useState(null);
+  const [isCupReg, setIsCupReg] = useState(null)
+  const [usedOB, setUsedOB] = useState(-12.3)
+
+  const [tiltTaken, setTiltTaken] = useState(null)
+  const [apTaken, setApTaken] = useState(null)
+  const [obTaken, setObTaken] = useState(null)
+  const [obTaken2, setObTaken2] = useState(null)
   
   const [isTiltSaved, setIsTiltSaved] = useState(false);
   
@@ -274,10 +281,12 @@ function App() {
               const isOBRotationValid = stageRef.current === 0 ? (
                 (currentRotationAngle >= -50 && currentRotationAngle <= -20) || 
                 (currentRotationAngle >= 20 && currentRotationAngle <= 50)):
-                (
-                  ((currentRotationAngle >= -50 && currentRotationAngle <= -20) || 
+                (stageRef.current === 1 ?
+                  (((currentRotationAngle >= -50 && currentRotationAngle <= -20) || 
                   (currentRotationAngle >= 20 && currentRotationAngle <= 50)) 
-                  && currentRotationAngle * obRotationAngle < 0)
+                  && currentRotationAngle * obRotationAngle < 0):
+                  (currentRotationAngle === obRotationAngle || currentRotationAngle === obRotationAngle2)
+                )
                   
               if (isOBRotationValid) {
                 setIsOBRotationSaved(true);
@@ -390,7 +399,7 @@ function App() {
       if (windowCloseTimerRef.current) clearTimeout(windowCloseTimerRef.current);
       if (carmBoxTimerRef.current) clearTimeout(carmBoxTimerRef.current);
     };
-  }, [isConnected, stage]);
+  }, [isConnected, stage, targetTiltAngle, apRotationAngle, obRotationAngle, obRotationAngle2]);
 
   const isTiltValid = () => {
     if (stage === 0 && activeLeft) return angle > -20 && angle <= 20;
@@ -404,6 +413,8 @@ function App() {
     if (stage === 1) return activeLeft ? apRotationAngle === rotationAngle : 
     (((rotationAngle > -50 && rotationAngle <= -20) || (rotationAngle > 20 && rotationAngle <= 50)) && 
     rotationAngle * obRotationAngle < 0);
+    if (stage === 2) return activeLeft ? apRotationAngle === rotationAngle : 
+    ((rotationAngle === obRotationAngle) || (rotationAngle === obRotationAngle2))
   }
 
   // Effect to check if angles are valid and adjust saved status if they become invalid
@@ -519,7 +530,17 @@ function App() {
             if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
         }
         setError(data.error)
+        setTiltTaken(targetTiltAngle)
+        setApTaken(apRotationAngle)
+        setObTaken(obRotationAngle)
+        setObTaken2(obRotationAngle2)
+        console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2)
         setMeasurements(data.measurements)
+        if(stage === 2){
+          if(data.measurements) setIsCupReg(true)
+          if(currentRotationAngle === obRotationAngle) setUsedOB(obRotationAngle)
+          if(currentRotationAngle === obRotationAngle2) setUsedOB(obRotationAngle2)
+        }
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
         setMoveNext(data.next)
 
@@ -560,6 +581,11 @@ function App() {
     setStage(p=>p+1);
     setMoveNext(false);
     setMeasurements(null)
+    setTargetTiltAngle(tiltTaken)
+    setAPRotationAngle(apTaken)
+    //setOBRotationAngle(obTaken)
+    //setOBRotationAngle2(obTaken2)
+    console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2)
     try {
       await fetch('http://localhost:5000/next', {
         method: 'POST',
@@ -847,7 +873,7 @@ function App() {
         <L1/>
         
         {/*L2 Status bar*/}
-        <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting} stage={stage} setStage={setStage} moveNext={moveNext} handlerestart={handlerestart} handlenext={handlenext}/>
+        <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting} stage={stage} setStage={setStage} moveNext={moveNext} handlerestart={handlerestart} handlenext={handlenext} isCupReg={isCupReg}/>
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
         <L3 
@@ -900,6 +926,8 @@ function App() {
           isOBRotationSaved={isOBRotationSaved}
           targetTiltAngle={targetTiltAngle}
           stage={stage}
+          isCupReg={isCupReg}
+          usedOB={usedOB}
         />
       
         }

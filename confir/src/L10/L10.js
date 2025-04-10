@@ -14,7 +14,9 @@ function L10({
   isAPRotationSaved,
   isOBRotationSaved,
   targetTiltAngle,
-  stage
+  stage,
+  isCupReg,
+  usedOB
 }) {
   const blue60 = '#3ca4e5';
   const blue80 = '#0260a0';
@@ -51,7 +53,11 @@ function L10({
   const getRotationColor = () => {
     if (stage === 0 && (activeLeft || activeRight)) return '#46a745'
     if (stage === 1 && ((activeLeft && rotationAngle === apRotationAngle) || (activeRight && rotationAngle * obRotationAngle < 0))) return '#46a745'
-    if (stage === 2 && ((activeLeft && rotationAngle === apRotationAngle) || (activeRight && (rotationAngle === obRotationAngle || rotationAngle === obRotationAngle2)))) return '#46a745'
+    if (!isCupReg){
+      if((rotationAngle === apRotationAngle) || ((rotationAngle === obRotationAngle || rotationAngle === obRotationAngle2))) return '#46a745'
+    }else{
+      if((rotationAngle === apRotationAngle) || (rotationAngle === usedOB)) return '#46a745'
+    }
     return '#FFFFFF'
   };
 
@@ -180,7 +186,7 @@ function L10({
       return array
     }
     const array = []
-    
+    if(!isCupReg || (isCupReg && usedOB <= -20)){
       array.push(
         {
           value: obl,
@@ -195,18 +201,20 @@ function L10({
             distanceFromArc: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >=-50)? 3 : 5,color:'#ffffff'}
         }
       )
-      array.push({
-        value: apRotationAngle,
-        valueConfig:{
-          style: {
-          fontSize: (rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? '50px' : '30px',
-          fill:'white',
-          fontFamily:'abel'
-        }},
-        lineConfig:{width:(rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? '5px' : '3px',
-          length:(rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 20 : 5,
-          distanceFromArc: (rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 3 : 5,color:'#ffffff'}
-      })
+    }
+    array.push({
+      value: apRotationAngle,
+      valueConfig:{
+        style: {
+        fontSize: (rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? '50px' : '30px',
+        fill:'white',
+        fontFamily:'abel'
+      }},
+      lineConfig:{width:(rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? '5px' : '3px',
+        length:(rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 20 : 5,
+        distanceFromArc: (rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 3 : 5,color:'#ffffff'}
+    })
+    if(!isCupReg || (isCupReg && usedOB > 20)){
       array.push({
         value: obr,
         valueConfig:{
@@ -219,6 +227,7 @@ function L10({
           length:(rotationAngle <= 50 && rotationAngle >(apRotationAngle + obr)/2) ? 20 : 5,
           distanceFromArc: (rotationAngle <= 50 && rotationAngle >(apRotationAngle + obr)/2) ? 3 : 5,color:'#ffffff'}
       })
+    }
       return array
   }
 
@@ -396,30 +405,36 @@ function L10({
         showTick: false,
         tooltip: { text: 'Out' }
       }]
-    
-    array.push(
-      {
-        limit: Math.max(obl - 0.5, -49.99),
-        color: blue10,
+      
+    if(isCupReg && usedOB > 20){
+      array.push({
+        limit: (obl + apRotationAngle)/2,
+        color: 'grey',
         showTick: false,
         tooltip: { text: 'OB Range' }
-      },
-      {
-        limit: Math.min(obl + 0.5, (obl + apRotationAngle)/2 - 0.01),
-        color: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >-50) ? blue80 : blue40,
-        showTick: false,
-        tooltip: { text: 'OB Range' }
-      },
-    )
-    
-    array.push({
+      },)
+    }else{
+      array.push(
+        {
+          limit: Math.max(obl - 0.5, -49.99),
+          color: blue10,
+          showTick: false,
+          tooltip: { text: 'OB Range' }
+        },
+        {
+          limit: Math.min(obl + 0.5, (obl + apRotationAngle)/2 - 0.01),
+          color: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >-50) ? blue80 : blue40,
+          showTick: false,
+          tooltip: { text: 'OB Range' }
+        },)
+      array.push({
         limit: (obl + apRotationAngle)/2,
         color: blue10,
         showTick: false,
         tooltip: { text: 'OB Range' }
       },)
-
-
+    }
+    
     array.push(
       {
         limit: Math.max(apRotationAngle - 0.5, (obl + apRotationAngle)/2 + 0.01),
@@ -442,6 +457,14 @@ function L10({
         tooltip: { text: 'AP Range' }
       },)
 
+      if(isCupReg && usedOB <= -20){
+        array.push({
+          limit: 50,
+          color: 'grey',
+          showTick: false,
+          tooltip: { text: 'OB Range' }
+        },)
+      }else{
       array.push(
         {
           limit: Math.max(obr - 0.5, (apRotationAngle + obr)/2 + 0.01),
@@ -462,14 +485,13 @@ function L10({
         color: blue10,
         showTick: false,
         tooltip: { text: 'OB Range' }
-      },
-      {
+      },)}
+      array.push({
         limit: 90,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
-      }
-    )
+      })
   
     return array;
   }

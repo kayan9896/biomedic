@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,setting,stage,setStage,moveNext,handlerestart,handlenext}) {
+function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,setting,stage,setStage,moveNext,handlerestart,handlenext,isCupReg}) {
   const clickDash = () => {
     if(stage === 0){
       if(moveNext) handlenext()
@@ -46,19 +46,19 @@ function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,sett
         {showDash(stage)[0]!==null&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
 
         {(
-          stage===0&&!moveNext?<img src={require('./HipIcon1.png')} style={{'position':'absolute', top:'988px', left:'319px', pointerEvents:'none'}}/>:
-          <img src={require('./HipIcon2.png')} style={{'position':'absolute', top:'988px', left:'319px', pointerEvents:'none'}}/>
+          stage===0&&!moveNext?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>:
+          <img src={require('./HipIcon2.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>
         )}
         {(
-          stage===0||(stage===1&&!moveNext)?<img src={require('./HipIcon3.png')} style={{'position':'absolute', top:'988px', left:'385px', pointerEvents:'none'}}/>:
-          <img src={require('./HipIcon4.png')} style={{'position':'absolute', top:'988px', left:'385px', pointerEvents:'none'}}/>
+          stage===0||(stage===1&&!moveNext)?<img src={require('./HipIcon3.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'385px', pointerEvents:'none'}}/>:
+          <img src={require('./HipIcon4.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'385px', pointerEvents:'none'}}/>
         )}
         {(
-          stage>2||(stage===2&&moveNext)?<img src={require('./CupIcon2.png')} style={{'position':'absolute', top:'988px', left:'483px', pointerEvents:'none'}}/>:
-          <img src={require('./CupIcon1.png')} style={{'position':'absolute', top:'988px', left:'483px', pointerEvents:'none'}}/>
+          isCupReg?<img src={require('./CupIcon2.png')} style={{'position':'absolute', width:'75px', height:'75px', top:'988px', left:'483px', pointerEvents:'none'}}/>:
+          <img src={require('./CupIcon1.png')} style={{'position':'absolute', width:'75px', height:'75px', top:'988px', left:'483px', pointerEvents:'none'}}/>
         )}
-        {(stage===3&&moveNext)?<img src={require('./TrialIcon2.png')} style={{'position':'absolute', top:'992px', left:'584px', pointerEvents:'none'}}/>:
-        <img src={require('./TrialIcon1.png')} style={{'position':'absolute', top:'992px', left:'584px', pointerEvents:'none'}}/>
+        {(stage===3&&moveNext)?<img src={require('./TrialIcon2.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>:
+        <img src={require('./TrialIcon1.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>
         }
         <img src={require('./NavMeasurementsSegment.png')} style={{'position':'absolute', top:'977px', left:'667px'}}/>
         <img src={require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px', pointerEvents:'none'}} onClick={()=>{setSetting(!setting)}}/>
