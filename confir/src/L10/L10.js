@@ -32,13 +32,16 @@ function L10({
   const obr = obRotationAngle < -20 ? obRotationAngle2 : obRotationAngle;
   const isAPRotationValid = stage < 2 ? activeLeft : rotationAngle >= (obl+apRotationAngle)/2 && rotationAngle < (obr+apRotationAngle)/2;
   const isOBRotationValid = stage < 2 ? activeRight :
-    (rotationAngle > -50 && rotationAngle <= -(obl+apRotationAngle)/2) || 
+    (rotationAngle > -50 && rotationAngle <= (obl+apRotationAngle)/2) || 
     (rotationAngle > (obr+apRotationAngle)/2 && rotationAngle <= 50);
   
   // Display value for rotation angle (saved or current)
   const getDisplayRotationValue = () => {
     if (stage !== 0 && isAPRotationValid) return `${rotationAngle - apRotationAngle}`
-    if (stage !== 0 && stage !== 1 && isOBRotationValid) return rotationAngle * obRotationAngle > 0 ? `${rotationAngle - obRotationAngle}` : `${rotationAngle - obRotationAngle2}`
+    if (stage !== 0 && stage !== 1 && isOBRotationValid){
+      if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? `${rotationAngle - obRotationAngle}` : `${rotationAngle - obRotationAngle2}`
+      if(rotationAngle * usedOB > 0) return `${rotationAngle - usedOB}` 
+    } 
     return `${rotationAngle}`;
   };
   
@@ -75,7 +78,14 @@ function L10({
       return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
     }else{
       if (stage !== 0 && activeLeft) return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
-      if (stage !== 0 && stage !== 1 && activeRight) return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
+      if (stage !== 0 && stage !== 1 && activeRight){
+        if(isCupReg){
+          if((usedOB > 0 && rotationAngle < (obl+apRotationAngle)/2) || (usedOB <= 0 && rotationAngle > (obr+apRotationAngle)/2)){
+            return require('./WhiteAngleDegreeBg.png')
+          } 
+        }
+        return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
+      }
       return c === '#46a745' ? require('./AngleDegreeBg.png') : require('./WhiteAngleDegreeBg.png')
     }
   }
@@ -495,7 +505,17 @@ function L10({
   
     return array;
   }
-  console.log( getDynamicArray())
+  const deltaDecimal = ()=> {
+    if (stage !== 0 && activeLeft) return true
+    if (stage !== 0 && stage !== 1 && activeRight){
+      if(isCupReg){
+        if((usedOB > 0 && rotationAngle < (obl+apRotationAngle)/2) || (usedOB <= 0 && rotationAngle > (obr+apRotationAngle)/2)) return false
+      }
+      return true
+    } 
+    return false
+  }
+
 
 
   return(
@@ -642,7 +662,7 @@ function L10({
         <div style={{
           position:'absolute', 
           top: 0, 
-          right: ((stage !== 0 && activeLeft)||(stage !== 0 && stage !== 1 && activeRight))?'113px':'148px', 
+          right: deltaDecimal()?'113px':'148px', 
           width:'100%', 
           textAlign:'right', 
           color: getRotationColor(),
@@ -654,7 +674,7 @@ function L10({
         <div style={{
           position:'absolute', 
           top: 0, 
-          left: ((stage !== 0 && activeLeft)||(stage !== 0 && stage !== 1 && activeRight))?'213px':'179px', 
+          left: deltaDecimal()?'213px':'179px', 
           width:'100%', 
           textAlign:'left', 
           color: getRotationColor(),

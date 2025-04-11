@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PatternDisplay from './PatternDisplay';
 
-function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, rightImageMetadata, onSaveLeft, onSaveRight, frameRef, editing}) {
+function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, rightImageMetadata, onSaveLeft, onSaveRight, frameRef, editing, bright}) {
   const [showMagnifier, setShowMagnifier] = useState(false);
   const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
@@ -70,7 +70,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
         onMouseLeave={handleMouseLeave}
         style={{ position: 'relative' }}
       >
-        <img src={leftImage} alt="Image 1" style={{ width: '100%', height: 'auto' }} />
+        <img src={leftImage} alt="Image 1" style={{ width: '100%', height: 'auto', filter:`brightness(${(bright[0]+100)/100})` }} />
         {activeLeft && (
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}
@@ -96,7 +96,7 @@ function L3({leftImage, activeLeft, leftImageMetadata, rightImage, activeRight, 
         onMouseLeave={handleMouseLeave}
         style={{ position: 'relative' }}
       >
-        <img src={rightImage} alt="Image 2" style={{ width: '100%', height: 'auto' }} />
+        <img src={rightImage} alt="Image 2" style={{ width: '100%', height: 'auto', filter:`brightness(${(bright[1]+100)/100})`}} />
         {activeRight && (
           <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
         )}

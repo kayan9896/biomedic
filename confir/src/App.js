@@ -120,6 +120,8 @@ function App() {
   // Flag to track if this is the first load of the component
   const isFirstLoad = useRef(true);
 
+  const [bright, setBright] = useState([0,0])
+
   useEffect(() => {
     if(!isConnected) return;
     stageRef.current = stage;
@@ -408,12 +410,12 @@ function App() {
 
   // Check which rotation angle we need to validate based on current mode
   const isRotationValid = () => {
-    if (stage === 0) return activeLeft ? (rotationAngle > -20 && rotationAngle <= 20) : 
-    ((rotationAngle > -50 && rotationAngle <= -20) || (rotationAngle > 20 && rotationAngle <= 50));
+    if (stage === 0) return activeLeft || activeRight;
     if (stage === 1) return activeLeft ? apRotationAngle === rotationAngle : 
     (((rotationAngle > -50 && rotationAngle <= -20) || (rotationAngle > 20 && rotationAngle <= 50)) && 
     rotationAngle * obRotationAngle < 0);
-    if (stage === 2) return activeLeft ? apRotationAngle === rotationAngle : 
+    if (isCupReg) return apRotationAngle === rotationAngle || rotationAngle === usedOB
+    return activeLeft ? apRotationAngle === rotationAngle : 
     ((rotationAngle === obRotationAngle) || (rotationAngle === obRotationAngle2))
   }
 
@@ -887,6 +889,7 @@ function App() {
         onSaveRight={rightSaveRefs}
         frameRef={frameRef}
         editing={editing}
+        bright={bright}
       />
       
       
@@ -904,6 +907,8 @@ function App() {
         onExit={handleExit}
         onReset={handleReset}
         onDelete={handleDelete}
+        bright={bright}
+        setBright={setBright}
       />}
       
         
