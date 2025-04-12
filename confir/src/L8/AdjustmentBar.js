@@ -1,5 +1,5 @@
 function AdjustmentBar({ type, editing, value, onChange }) {
-    const position = type === 'brightness' ? '251px' : '332px';
+    const position = type === 'brightness' ? '230px' : '311px';
     const leftPosition = editing === 'left' ? 960 : 646;
     const middleValue = 100;
   
