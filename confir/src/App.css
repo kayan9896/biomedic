@@ -151,34 +151,31 @@ body{
 }
 
 
-input[type="range"] {
-  width: 100%;
-  top: 30%;
-  cursor: pointer;
-  background: transparent;
-  position: relative;
-  z-index: 2;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-}
-
-
-/* Style the default track */
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px;
-  background: transparent;
-  border-radius: 2px;
-}
-
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: #2196F3;
-  cursor: pointer;
-  margin-top: -6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  background: #A0A3A3;
+  border: 0px solid #4499ff;
+  box-shadow: 0 0 6px rgba(0,0,0,0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #4499ff;
+  box-shadow: 0 0 6px rgba(0,0,0,0.5);
+}
+
+input[type="range"]::-ms-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #4499ff;
+  box-shadow: 0 0 6px rgba(0,0,0,0.5);
 }

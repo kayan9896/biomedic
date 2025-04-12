@@ -861,6 +861,25 @@ function App() {
            (pelvis[1] === null);
   };
 
+  const [brightness, setBrightness] = useState([100, 100]);
+  const [contrast, setContrast] = useState([100, 100]);
+
+  const handleBrightnessChange = (value) => {
+    setBrightness(prev => {
+      const newBrightness = [...prev];
+      newBrightness[editing === 'left' ? 0 : 1] = value;
+      return newBrightness;
+    });
+  };
+
+  const handleContrastChange = (value) => {
+    setContrast(prev => {
+      const newContrast = [...prev];
+      newContrast[editing === 'left' ? 0 : 1] = value;
+      return newContrast;
+    });
+  };
+
   return (
     <div className="app">
       
@@ -878,19 +897,21 @@ function App() {
         <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting} stage={stage} setStage={setStage} moveNext={moveNext} handlerestart={handlerestart} handlenext={handlenext} isCupReg={isCupReg}/>
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
-        <L3 
-        leftImage={leftImage} 
-        activeLeft={activeLeft} 
-        leftImageMetadata={leftImageMetadata} 
-        rightImage={rightImage}
-        activeRight={activeRight}
-        rightImageMetadata={rightImageMetadata}
-        onSaveLeft={leftSaveRefs}
-        onSaveRight={rightSaveRefs}
-        frameRef={frameRef}
-        editing={editing}
-        bright={bright}
-      />
+        <L3
+          leftImage={leftImage}
+          activeLeft={activeLeft}
+          leftImageMetadata={leftImageMetadata}
+          rightImage={rightImage}
+          activeRight={activeRight}
+          rightImageMetadata={rightImageMetadata}
+          onSaveLeft={leftSaveRefs}
+          onSaveRight={rightSaveRefs}
+          frameRef={frameRef}
+          editing={editing}
+          brightness={brightness}
+          contrast={contrast}
+        />
+
       
       
       {/*L6 Edit blur, render when editing true*/}
@@ -901,15 +922,17 @@ function App() {
 
 
       {/*L8 Edit bar, render when editing true*/}
-      {editing && <L8 
-        editing={editing} 
-        onSave={handleSave} 
-        onExit={handleExit}
-        onReset={handleReset}
-        onDelete={handleDelete}
-        bright={bright}
-        setBright={setBright}
-      />}
+      {editing && <L8
+            editing={editing}
+            onSave={handleSave}
+            onExit={handleExit}
+            onReset={handleReset}
+            onDelete={handleDelete}
+            brightness={brightness[editing === 'left' ? 0 : 1]}
+            contrast={contrast[editing === 'left' ? 0 : 1]}
+            onBrightnessChange={handleBrightnessChange}
+            onContrastChange={handleContrastChange}
+          />}
       
         
       {/*L9 Message box, render based on backend measurements or error*/}
