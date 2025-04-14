@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, send_from_directory
 import cv2
 import threading
 import io
@@ -7,8 +7,10 @@ import time
 from ab2 import AnalyzeBox
 from fg import FrameGrabber
 from be2 import ImageProcessingController
+from config_manager import ConfigManager
 from flask_cors import CORS
 import numpy as np
+import json
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -53,11 +55,10 @@ CORS(app)
 frame_grabber = None
 analyze_box = None
 controller = None
+config = ConfigManager()
 server_lock = threading.Lock()
 
 
-from flask import send_file
-from io import BytesIO
 def frontend_to_backend_coords(coords, backend_size=1024, frontend_size=960, flip_horizontal=False):
     """
     Convert coordinates from frontend (960x960) to backend (1024x1024) scale
@@ -136,6 +137,49 @@ def backend_to_frontend_coords(coords, backend_size=1024, frontend_size=960, fli
         # Return non-coordinate values unchanged
         return coords
 
+CARM_DATA_PATH = './carm.json'
+
+@app.route('/get-carms', methods=['GET'])
+def get_carms():
+    """Endpoint to retrieve C-arm data from JSON file"""
+    try:
+        with open(CARM_DATA_PATH, 'r') as file:
+            carm_data = json.load(file)
+        
+        # Add full image URLs to the data
+        base_url = request.url_root
+        for carm_name, carm_info in carm_data.items():
+            # Update the image path to be a full URL
+            image_filename = os.path.basename(carm_info['image'])
+            carm_info['image'] = f"http://localhost:5000/carm-images/{image_filename}"
+        
+        return jsonify(carm_data)
+    except Exception as e:
+        print(f"Error fetching C-arm data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/carm-images/<filename>', methods=['GET'])
+def serve_carm_image(filename):
+    """Endpoint to serve C-arm images"""
+    try:
+        return send_from_directory(config.get("carm_folder", "./carm"), filename)
+    except Exception as e:
+        print(f"Error serving image {filename}: {str(e)}")
+        return jsonify({"error": str(e)}), 404
+
+
+@app.route('/check-video-connection', methods=['GET'])
+def check_video_connection():
+    """Endpoint to simulate checking video connection"""
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
+        result = controller.connect_video()
+            
+        return jsonify(result)
+
 @app.route('/run2', methods=['POST'])
 def start_processing2():
     """Start video capture and frame processing"""
@@ -143,7 +187,7 @@ def start_processing2():
     
     with server_lock:
         if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
         
         if controller.is_running:
             return jsonify({"error": "Processing is already running"}), 400

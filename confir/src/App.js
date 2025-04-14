@@ -120,8 +120,6 @@ function App() {
   // Flag to track if this is the first load of the component
   const isFirstLoad = useRef(true);
 
-  const [bright, setBright] = useState([0,0])
-
   useEffect(() => {
     if(!isConnected) return;
     stageRef.current = stage;
@@ -519,6 +517,7 @@ function App() {
               return tmp
             })
             if (data.checkmark ==2 || data.checkmark==3)setRightCheckMark(data.checkmark)
+            setApTaken(currentRotationAngle)
             console.log(data.metadata)
         } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
             setRightImage(data.image);  // This is now a data URL
@@ -530,18 +529,20 @@ function App() {
               return tmp
             })
             if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
+            if(stage===0){setObTaken(currentRotationAngle)}
+            else{setObTaken2(currentRotationAngle)}
         }
         setError(data.error)
         setTiltTaken(targetTiltAngle)
-        setApTaken(apRotationAngle)
-        setObTaken(obRotationAngle)
-        setObTaken2(obRotationAngle2)
+        
+        
         console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2)
         setMeasurements(data.measurements)
         if(stage === 2){
           if(data.measurements) setIsCupReg(true)
           if(currentRotationAngle === obRotationAngle) setUsedOB(obRotationAngle)
           if(currentRotationAngle === obRotationAngle2) setUsedOB(obRotationAngle2)
+          console.log(usedOB,obRotationAngle,obRotationAngle2)
         }
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
         setMoveNext(data.next)
@@ -585,9 +586,9 @@ function App() {
     setMeasurements(null)
     setTargetTiltAngle(tiltTaken)
     setAPRotationAngle(apTaken)
-    //setOBRotationAngle(obTaken)
-    //setOBRotationAngle2(obTaken2)
-    console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2)
+    setOBRotationAngle(obTaken)
+    setOBRotationAngle2(obTaken2)
+    console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2,usedOB)
     try {
       await fetch('http://localhost:5000/next', {
         method: 'POST',
@@ -879,6 +880,8 @@ function App() {
       return newContrast;
     });
   };
+  const [selectedCArm, setSelectedCArm] = useState(null);
+
 
   return (
     <div className="app">
@@ -886,7 +889,7 @@ function App() {
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <L13 handleConnect={handleConnect}/>  
+          <L13 handleConnect={handleConnect} setSelectedCArm={setSelectedCArm}/>  
         </div>
       ) : (
         <>

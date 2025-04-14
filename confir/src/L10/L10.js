@@ -56,10 +56,12 @@ function L10({
   const getRotationColor = () => {
     if (stage === 0 && (activeLeft || activeRight)) return '#46a745'
     if (stage === 1 && ((activeLeft && rotationAngle === apRotationAngle) || (activeRight && rotationAngle * obRotationAngle < 0))) return '#46a745'
-    if (!isCupReg){
-      if((rotationAngle === apRotationAngle) || ((rotationAngle === obRotationAngle || rotationAngle === obRotationAngle2))) return '#46a745'
-    }else{
-      if((rotationAngle === apRotationAngle) || (rotationAngle === usedOB)) return '#46a745'
+    if(stage > 1){
+      if (!isCupReg){
+        if((rotationAngle === apRotationAngle) || ((rotationAngle === obRotationAngle || rotationAngle === obRotationAngle2))) return '#46a745'
+      }else{
+        if((rotationAngle === apRotationAngle) || (rotationAngle === usedOB)) return '#46a745'
+      }
     }
     return '#FFFFFF'
   };
@@ -424,6 +426,7 @@ function L10({
         tooltip: { text: 'OB Range' }
       },)
     }else{
+      console.log((obl + apRotationAngle)/2 - 0.01)
       array.push(
         {
           limit: Math.max(obl - 0.5, -49.99),
@@ -505,6 +508,7 @@ function L10({
   
     return array;
   }
+  console.log(getDynamicArray())
   const deltaDecimal = ()=> {
     if (stage !== 0 && activeLeft) return true
     if (stage !== 0 && stage !== 1 && activeRight){

@@ -16,19 +16,21 @@ from exam import Exam
 from panel import IMU3
 
 class ImageProcessingController:
-    def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox'):
+    def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox', config = None):
         self.frame_grabber = frame_grabber
         self.model = analyze_box
         self.current_stage = 1
         self.current_frame = 1
         self.is_running = False
         self.process_thread = None
-        self.stitch_thread = None
-        self.process_next_frame = True  
-        self._device_configs = {}
-        self._calib_folders = {}
-        self.last = [1, 1]
-        self.all_shots = {'shots': []}
+        
+        # Get configuration
+        self.config = config
+        
+        # Initialize based on configuration
+        self.on_simulation = self.config.get("on_simultation", True)
+        self.mode = self.config.get("mode", 0)
+        self.video_connected = False
         
         self.viewmodel = ProcessingModel()
         self.exam = Exam()
@@ -36,7 +38,13 @@ class ImageProcessingController:
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
-        self.imu = IMU3(self.viewmodel)  # Pass viewmodel to IMU
+        
+        # Initialize IMU if enabled in config
+        self.imu = None
+        if self.config.get("imu_on", True):
+            self.imu = IMU3(self.viewmodel)
+            imu_port = self.config.get("imu_port", "COM3")
+            
     
     def imuonob(self):
         return (not self.imuonap()) and (-50<=self.imu.rotation_angle and self.imu.rotation_angle<=50)
@@ -71,16 +79,55 @@ class ImageProcessingController:
         self.viewmodel.imgs[1]['metadata'] = r
         
 
-
+    def connect_video(self):
+        """
+        Connect to the video device and start video capture
+        
+        Returns:
+            Dict: Result with success status and message
+        """
+        # Get device name from config
+        device = self.config.get("framegrabber_device", "OBS Virtual Camera")
+        if self.video_connected:
+            return {
+                "connected": True,
+                "message": f"Successfully connected to {device}"
+            }
+        try: 
+            # Initiate video connection
+            result = self.frame_grabber.initiateVideo(device)
+            if isinstance(result, str):
+                self.video_connected = False
+                return {
+                    "connected": False,
+                    "message": f"Failed to connect to video device: {result}"
+                }
+            
+            # Start video capture
+            start_result = self.frame_grabber.startVideo(self.config.get("framegrabber_frequency", 30.0))
+            if isinstance(start_result, str):
+                self.video_connected = False
+                return {
+                    "connected": False,
+                    "message": f"Failed to start video capture: {start_result}"
+                }
+            
+            self.video_connected = True
+            return {
+                "connected": True,
+                "message": f"Successfully connected to {device}"
+            }
+        
+        except Exception as e:
+            self.video_connected = False
+            self.logger.error(f"Error connecting to video: {str(e)}")
+            return {
+                "connected": False,
+                "message": f"Error connecting to video: {str(e)}"
+            }
 
 
     def run2(self):
-        result = self.frame_grabber.initiateVideo('OBS Virtual Camera')
-        if isinstance(result, str):
-            return result
-        
-        # Start video capture and processing
-        self.frame_grabber.startVideo()
         self.start_processing2()
         return True
 

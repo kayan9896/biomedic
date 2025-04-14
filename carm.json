@@ -1,0 +1,11 @@
+{
+    "carm1":{
+        "image": "./carm/carm1.png"
+    },
+    "carm2":{
+        "image": "./carm/carm2.png"
+    },
+    "carm3":{
+        "image": "./carm/carm3.png"
+    }
+}

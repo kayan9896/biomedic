@@ -1,0 +1,15 @@
+{
+    "on_simultation": true,
+    "mode": 0, 
+    "imu_on": true,
+    "imu_port": "COM3",
+    "glyph_on": true,
+    "framegrabber_device": "OBS Virtual Camera",
+    "framegrabber_autocollect": true,
+    "calibphantom_design": "abc'",
+    "model_simdata_path": "./",
+    "template_path": "./",
+    "carm_folder": "./carm",
+    "backend_pixel": 1024,
+    "ui_pixel": 960
+}

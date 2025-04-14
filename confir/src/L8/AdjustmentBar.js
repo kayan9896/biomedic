@@ -71,7 +71,7 @@ function AdjustmentBar({ type, editing, value, onChange }) {
                 left: `${blueBarLeft}px`,
                 width: `${blueBarWidth}px`,
                 height: '100%',
-                backgroundColor: '#4499ff',
+                backgroundColor: '#00B0F0',
                 borderRadius: '11px',
               }}
             />
