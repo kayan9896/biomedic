@@ -355,8 +355,8 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
       }}>
         <div style={{
           position: 'relative',
-          width: '60px', 
-          height: '24px'
+          width: '69px', 
+          height: '26px'
         }}>
           <img 
             src={require("./LandmarkLabel.png")} 
@@ -379,7 +379,7 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
             fontWeight: 'bold',
             textAlign: 'center'
           }}>
-            {group}
+            pelvis
           </div>
         </div>
       </div>

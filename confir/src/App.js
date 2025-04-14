@@ -530,7 +530,7 @@ function App() {
             })
             if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
             if(stage===0){setObTaken(currentRotationAngle)}
-            else{setObTaken2(currentRotationAngle)}
+            if(stage===1){setObTaken2(currentRotationAngle)}
         }
         setError(data.error)
         setTiltTaken(targetTiltAngle)

@@ -39,7 +39,7 @@ function AdjustmentBar({ type, editing, value, onChange }) {
             position: 'absolute',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -60%)',  // Perfect center
+            transform: 'translate(-70%, -60%)',  // Perfect center
             lineHeight: 1,  // Prevent extra space above/below
           }}>−</span>
         </div>
@@ -112,7 +112,7 @@ function AdjustmentBar({ type, editing, value, onChange }) {
             position: 'absolute',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -60%)',  // Perfect center
+            transform: 'translate(-30%, -60%)',  // Perfect center
             lineHeight: 1,  // Prevent extra space above/below
           }}>+</span>
         </div>

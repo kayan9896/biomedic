@@ -81,6 +81,8 @@ function L13({ handleConnect }) {
       <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
       <img src={require('../L2/ExitIcon.png')} style={{position:'absolute', top:'1016px', left:'1853px'}} />
 
+      <img src={require('./StatusBg.png')} 
+        style={{position:'absolute', zIndex:13, top:'144px', left:'285px'}} />
       <img src={require(cArmSelected ? './CrossWhite.png' : './CrossGray.png')} 
         style={{position:'absolute', zIndex:13, top:'153px', left:'329px'}} />
       <div style={{position:'absolute', fontFamily:'abel', fontSize:'46px', color: '#00B0F0', width: '538px', zIndex:13, top:'148px', left:'385px'}}>C-ARM EQUIPMENT</div>
@@ -99,6 +101,9 @@ function L13({ handleConnect }) {
         {cArmSelected ? 'C-arm has been successfully selected.' : 'Please select the C-arm model.'}
       </div>
 
+
+      <img src={require('./StatusBg.png')} 
+        style={{position:'absolute', zIndex:13, top:'356px', left:'285px'}} />
       <img src={require(videoConnected ? './CrossWhite.png' : './CrossGray.png')} 
         style={{position:'absolute', zIndex:13, top:'364px', left:'329px'}} />
       <div style={{position:'absolute', fontFamily:'abel', fontSize:'46px', color: '#00B0F0', width: '538px', zIndex:13, top:'358px', left:'385px'}}>VIDEO CONNECTION</div>

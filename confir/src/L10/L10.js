@@ -462,7 +462,7 @@ function L10({
         tooltip: { text: 'AP Range' }
       },
     )
-  
+
       array.push({
         limit: (apRotationAngle + obr)/2,
         color: red10,
