@@ -176,10 +176,77 @@ def check_video_connection():
     with server_lock:
         if controller is None:
             controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
+        
+        # Get the connection result
         result = controller.connect_video()
-            
+        
+        # If connection successful, try to get the first frame
+        if result.get('connected', False):
+            try:
+                # Wait a brief moment for the video to stabilize
+                time.sleep(0.5)
+                
+                # Fetch the first frame
+                frame = controller.frame_grabber.fetchFrame()
+                
+                if frame is not None:
+                    # Convert numpy array to JPEG
+                    retval, buffer = cv2.imencode('.jpg', frame)
+                    
+                    if retval:
+                        # Convert to base64
+                        jpg_bytes = buffer.tobytes()
+                        base64_str = base64.b64encode(jpg_bytes).decode('utf-8')
+                        
+                        # Add the frame to the result as a data URI
+                        result['frame'] = f"data:image/jpeg;base64,{base64_str}"
+                    else:
+                        controller.logger.warning("Failed to encode frame to JPEG")
+                else:
+                    controller.logger.warning("No frame available after connection")
+                    
+            except Exception as e:
+                controller.logger.error(f"Error getting initial frame: {str(e)}")
+                # Still return success but without the frame
+                pass
+        
         return jsonify(result)
 
+tilt_sensor_check_count = 0
+
+@app.route('/check-tilt-sensor', methods=['GET'])
+def check_tilt_sensor():
+    """Endpoint to simulate checking tilt sensor status with different responses for testing"""
+    global tilt_sensor_check_count
+    
+    # Increment the check count each time the endpoint is called
+    tilt_sensor_check_count += 1
+    
+    # First call: disconnected
+    if tilt_sensor_check_count == 1:
+        return jsonify({
+            "connected": False,
+            "battery_low": False,
+            "message": "Tilt sensor disconnected. Please check the connection."
+        })
+    
+    # Second call: connected but low battery
+    elif tilt_sensor_check_count == 2:
+        return jsonify({
+            "connected": True,
+            "battery_low": True,
+            "message": "Tilt sensor connected but battery is low. Consider replacing batteries soon."
+        })
+    
+    # All subsequent calls: connected and battery OK
+    else:
+        return jsonify({
+            "connected": True,
+            "battery_low": False,
+            "message": "Tilt sensor connected successfully."
+        })
+
+        
 @app.route('/run2', methods=['POST'])
 def start_processing2():
     """Start video capture and frame processing"""
