@@ -179,3 +179,11 @@ input[type="range"]::-ms-thumb {
   border: 3px solid #4499ff;
   box-shadow: 0 0 6px rgba(0,0,0,0.5);
 }
+
+select {
+  appearance: none; /* Removes default styling */
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
+  background: url('./L13/DropdownListBg.png') no-repeat center; /* Custom arrow */
+  padding-right: 30px; /* Adjust padding to make space for the arrow */
+}

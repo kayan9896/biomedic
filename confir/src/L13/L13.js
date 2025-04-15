@@ -155,7 +155,7 @@ function L13({ handleConnect }) {
     return { background, textColor, icon, isComplete };
   };
 
-  const renderCheck = (step, title, yPos, content) => {
+  const renderCheck = (step, title, yPos, yPos2, content) => {
     const status = getCheckStatus(step);
     return (
       <>
@@ -167,7 +167,7 @@ function L13({ handleConnect }) {
           {title}
         </div>
         {content && step <= currentStep && (
-          <div style={{position:'absolute', fontFamily:'abel', fontSize:'30px', color: status.textColor, width: '498px', zIndex:13, top:`${yPos+80}px`, left:'385px'}}>
+          <div style={{position:'absolute', fontFamily:'abel', fontSize:'30px', color: status.textColor, width: '498px', zIndex:13, top:`${yPos2}px`, left:'385px'}}>
             {content}
           </div>
         )}
@@ -179,15 +179,14 @@ function L13({ handleConnect }) {
     <div>
       <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'6px', left:'240px', zIndex:13}}/>
       <img 
-        src={require('./SetupTryAgain.png')} 
+        src={(currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? require('./SetupTryAgainBtn.png') : require('./SetupTryAgainBtnDisable.png')} 
         alt="SetupTryAgain" 
         style={{
           position:'absolute', 
           top:'826px', 
           left:'995px', 
           zIndex:13, 
-          cursor: (currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? 'pointer' : 'default',
-          opacity: (currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? 1 : 0.5
+          cursor: (currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? 'pointer' : 'default'
         }} 
         onClick={
           currentStep === 2 && !videoConnected 
@@ -198,15 +197,14 @@ function L13({ handleConnect }) {
         } 
       />
       <img 
-        src={require('./SetupReturn.png')} 
+        src={isCurrentStepComplete() ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png')} 
         alt="SetupReturn" 
         style={{
           position:'absolute', 
           top:'826px', 
           left:'1330px', 
           zIndex:13, 
-          cursor: isCurrentStepComplete() ? 'pointer' : 'default',
-          opacity: isCurrentStepComplete() ? 1 : 0.5
+          cursor: isCurrentStepComplete() ? 'pointer' : 'default'
         }} 
         onClick={isCurrentStepComplete() ? handleContinue : null} 
       />
@@ -214,16 +212,17 @@ function L13({ handleConnect }) {
       <img src={require('../L2/ExitIcon.png')} style={{position:'absolute', top:'1016px', left:'1853px'}} />
 
       {/* Check 1: C-ARM EQUIPMENT */}
-      {renderCheck(1, 'C-ARM EQUIPMENT', 144, 
+      {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289,
         cArmSelected ? 'C-arm has been successfully selected.' : 'Please select the C-arm model.'
       )}
       
-      {currentStep === 1 && (
+      {(
         <select 
           value={selectedCArm}
           onChange={handleCarmChange}
-          style={{position:'absolute', fontFamily:'abel', zIndex:13, width: '546px', height:'58px', top:'224px', left:'329px'}}>
-            <option value="">Select a C-arm model</option>
+          disabled={currentStep>1}
+          style={{position:'absolute', paddingLeft:'10px',fontFamily:'abel', fontSize:'30px', zIndex:13, width: '546px', height:'58px', top:'224px', left:'329px', border: '1px solid #E5E5E5', borderRadius:'7.5px'}}>
+            <option value="" >Select a C-arm model</option>
             {Object.keys(cArms).map(carmName => (
               <option key={carmName} value={carmName}>{carmName}</option>
             ))}
@@ -231,17 +230,17 @@ function L13({ handleConnect }) {
       )}
       
       {/* Check 2: VIDEO CONNECTION */}
-      {renderCheck(2, 'VIDEO CONNECTION', 356,
+      {renderCheck(2, 'VIDEO CONNECTION', 356, 435,
         videoConnected ? 'Video input detected successfully.' : 'Video input not detected.'
       )}
       
       {/* Check 3: TILT SENSOR */}
-      {renderCheck(3, 'TILT SENSOR', 501,
+      {renderCheck(3, 'TILT SENSOR', 501, 578,
         tiltSensorConnected ? (tiltSensorBatteryLow ? 'Tilt Sensor connected but battery is low.' : 'Tilt Sensor connected successfully.') : 'Tilt Sensor not connected.'
       )}
       
       {/* Check 4: REFERENCE BODIES */}
-      {renderCheck(4, 'REFERENCE BODIES', 647, null)}
+      {renderCheck(4, 'REFERENCE BODIES', 647, 649, null)}
       
       {/* Instructions based on current step */}
       {currentStep === 1 && (
