@@ -151,7 +151,7 @@ class ImageProcessingController:
                 continue
             newscn = self.eval_modelscnario(frame)
             
-            if newscn == self.scn:
+            if newscn == self.scn or newscn[-3:] == 'end':
                 continue
             
             dataforsave, dataforvm, image = self.model.exec(newscn, frame)
@@ -293,6 +293,11 @@ class ImageProcessingController:
                 return self.scn
             
             case 'frm:cup-ap:end'| 'frm:cup-ob:end':
+                if self.uistates == 'next':                        
+                    self.model.data['tri-ap'] = self.model.data['cup-ap']
+                    self.model.data['tri-ob'] = self.model.data['cup-ob']
+                    self.scn = 'frm:tri-ob:end'
+                    return self.scn
                 if self.model.data['cup-ap']['success'] and self.model.data['cup-ob']['success']:
                     return 'rcn:acecup:bgn'
                 else:
@@ -354,6 +359,11 @@ class ImageProcessingController:
                 return self.scn
 
             case 'frm:tri-ap:end'| 'frm:tri-ob:end':
+                if self.uistates == 'prev':                        
+                    self.model.data['cup-ap'] = self.model.data['tri-ap'] 
+                    self.model.data['cup-ob'] = self.model.data['tri-ob'] 
+                    self.scn = 'frm:cup-ob:end'
+                    return self.scn
                 if self.model.data['tri-ap']['success'] and self.model.data['tri-ob']['success']:
                     return 'rcn:tothip:bgn'
                 else:

@@ -573,7 +573,7 @@ function App() {
     setPause(true)
     captureAndSaveFrame()
   }
-  const handlenext = async () => {
+  const handlenext = async (next = true) => {
     setPause(false)
     setLeftImage(require('./AP.png'));
     setRightImage(require('./OB.png'));
@@ -581,7 +581,8 @@ function App() {
     setRightImageMetadata(null)
     setLeftCheckMark(null)
     setRightCheckMark(null)
-    setStage(p=>p+1);
+    if(next){setStage(p => p + 1);
+    }else{setStage(p => p - 1)}
     setMoveNext(false);
     setMeasurements(null)
     setTargetTiltAngle(tiltTaken)
@@ -590,11 +591,12 @@ function App() {
     setOBRotationAngle2(obTaken2)
     console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2,usedOB)
     try {
-      await fetch('http://localhost:5000/next', {
+      await fetch('http://localhost:5000/edit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({'uistates': next ? 'next' : 'prev'})
       });
     } catch (error) {
       console.error('Error going next:', error);
@@ -639,6 +641,25 @@ function App() {
       setError("Failed to change backend uistate restart");
     }
   };
+
+  useEffect(() => {
+    const setEditUIState = async () => {
+      try {
+        await fetch('http://localhost:5000/edit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({'uistates': showCarmBox || isProcessing ? 'edit' : null})
+        });
+      } catch (error) {
+        console.error('Error setting edit UI state:', error);
+        setError("Failed to set UIState");
+      }
+    };
+  
+    setEditUIState();
+  }, [showCarmBox,isProcessing]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -897,7 +918,20 @@ function App() {
         <L1/>
         
         {/*L2 Status bar*/}
-        <L2 onInputChange={onInputChange} setShowKeyboard={setShowKeyboard} onSelect={onSelect} inputRef={inputRef} pid={patient} setSetting={setSetting} setting={setting} stage={stage} setStage={setStage} moveNext={moveNext} handlerestart={handlerestart} handlenext={handlenext} isCupReg={isCupReg}/>
+        <L2 
+          onInputChange={onInputChange} 
+          setShowKeyboard={setShowKeyboard} 
+          onSelect={onSelect} inputRef={inputRef} 
+          pid={patient} setSetting={setSetting} 
+          setting={setting} 
+          stage={stage} 
+          setStage={setStage} 
+          moveNext={moveNext} 
+          handlerestart={handlerestart} 
+          handlenext={handlenext} 
+          isCupReg={isCupReg}
+          showCarmBox={showCarmBox}
+        />
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
         <L3

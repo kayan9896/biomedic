@@ -331,14 +331,6 @@ def landmarks():
     
     return jsonify({"message": "update landmarks"})
 
-@app.route('/next', methods=['POST'])
-def next():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    controller.uistates = 'next'
-    return jsonify({"message": "uistate next"})
-
 @app.route('/edit', methods=['POST'])
 def edit():
     global controller
@@ -346,7 +338,7 @@ def edit():
         return jsonify({"error": "Controller not initialized"}), 404
     state = request.json.get('uistates')
     controller.uistates = state
-    return jsonify({"message": "uistate edit"})
+    return jsonify({"message": "uistate updated"})
 
 @app.route('/restart', methods=['POST'])
 def restart():
@@ -355,7 +347,7 @@ def restart():
         return jsonify({"error": "Controller not initialized"}), 404
     controller.uistates = 'restart'
     controller.model.resetdata()
-    return jsonify({"message": "uistate next"})
+    return jsonify({"message": "uistate restart"})
 
 @app.route('/screenshot/<int:stage>', methods=['POST'])
 def save_screen(stage):
