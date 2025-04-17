@@ -198,6 +198,7 @@ class AnalyzeBox:
                     # Prepare data for different components
                     dataforsave = {
                         'folder': 'shots',
+                        'type': scn[4:-4],
                         'metadata': data['metadata']
                     }
                     
@@ -247,6 +248,7 @@ class AnalyzeBox:
                     # Prepare data for different components
                     dataforsave = {
                         'folder': 'shots',
+                        'type': scn[4:-4],
                         'metadata': data['metadata']
                     }
                     
@@ -317,6 +319,7 @@ class AnalyzeBox:
                     # Prepare data for different components
                     dataforsave = {
                         'folder': 'shots',
+                        'type': scn[4:-4],
                         'metadata': data['metadata']
                     }
                     
@@ -386,6 +389,7 @@ class AnalyzeBox:
                     # Prepare data for different components
                     dataforsave = {
                         'folder': 'shots',
+                        'type': scn[4:-4],
                         'metadata': data['metadata']
                     }
                     

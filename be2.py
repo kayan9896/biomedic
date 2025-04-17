@@ -34,6 +34,7 @@ class ImageProcessingController:
         
         self.viewmodel = ProcessingModel()
         self.exam = Exam()
+        self.pause_states= None
         self.uistates = None
         self.check_interval = 0.1
         
@@ -147,8 +148,11 @@ class ImageProcessingController:
         while self.is_running:
             
             frame = self.update_backendstates()
-            if self.uistates == 'edit': 
+            if self.pause_states == 'edit': 
+                time.sleep(1)
                 continue
+            if self.uistates == 'next':
+                print(self.scn)
             newscn = self.eval_modelscnario(frame)
             
             if newscn == self.scn or newscn[-3:] == 'end':

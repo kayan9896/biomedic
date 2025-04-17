@@ -337,8 +337,17 @@ def edit():
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     state = request.json.get('uistates')
+    controller.pause_states = state
+    return jsonify({"message": "pause_states updated"})
+
+@app.route('/next', methods=['POST'])
+def next():
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    state = request.json.get('uistates')
     controller.uistates = state
-    return jsonify({"message": "uistate updated"})
+    return jsonify({"message": "uistates updated"})
 
 @app.route('/restart', methods=['POST'])
 def restart():

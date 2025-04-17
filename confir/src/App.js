@@ -401,21 +401,115 @@ function App() {
     };
   }, [isConnected, stage, targetTiltAngle, apRotationAngle, obRotationAngle, obRotationAngle2]);
 
-  const isTiltValid = () => {
-    if (stage === 0 && activeLeft) return angle > -20 && angle <= 20;
-    return angle === targetTiltAngle
-  }
+  const validateTiltAngle = (angle, stage, targetAngle) => {
+    if (stage === 0) {
+      return angle > -20 && angle <= 20;
+    }
+    return angle === targetAngle;
+  };
+  
+  const validateRotationAngle = (angle, stage, apRotation, obRotation, obRotation2, activeLeft, activeRight, isCupReg, usedOB) => {
+    if (stage === 0) {
+      return activeLeft || activeRight;
+    }
+    
+    if (stage === 1) {
+      if (activeLeft) {
+        return apRotation === angle;
+      }
+      return ((angle > -50 && angle <= -20) || (angle > 20 && angle <= 50)) && 
+             angle * obRotation < 0;
+    }
+    
+    if (isCupReg) {
+      return apRotation === angle || angle === usedOB;
+    }
+    
+    if (activeLeft) {
+      return apRotation === angle;
+    }
+    
+    return (angle === obRotation) || (angle === obRotation2);
+  };
+  
+  // Update the validation functions that use these helpers
+  const isTiltValid = () => validateTiltAngle(angle, stage, targetTiltAngle);
+  
+  const isRotationValid = () => validateRotationAngle(
+    rotationAngle, 
+    stage, 
+    apRotationAngle, 
+    obRotationAngle, 
+    obRotationAngle2, 
+    activeLeft, 
+    activeRight, 
+    isCupReg, 
+    usedOB
+  );
 
-  // Check which rotation angle we need to validate based on current mode
-  const isRotationValid = () => {
-    if (stage === 0) return activeLeft || activeRight;
-    if (stage === 1) return activeLeft ? apRotationAngle === rotationAngle : 
-    (((rotationAngle > -50 && rotationAngle <= -20) || (rotationAngle > 20 && rotationAngle <= 50)) && 
-    rotationAngle * obRotationAngle < 0);
-    if (isCupReg) return apRotationAngle === rotationAngle || rotationAngle === usedOB
-    return activeLeft ? apRotationAngle === rotationAngle : 
-    ((rotationAngle === obRotationAngle) || (rotationAngle === obRotationAngle2))
+  const isAPRotationValidForMode = (angle) => angle >= -20 && angle <= 20;
+const isOBRotationValidForMode = (angle) => 
+  (angle >= -50 && angle <= -20) || (angle >= 20 && angle <= 50);
+
+// Replace the duplicate checks with a helper function
+const updateRotationSavedState = (currentRotationAngle) => {
+  const isInAPMode = isAPRotationValidForMode(currentRotationAngle);
+  
+  if (isInAPMode) {
+    const isAPValid = isAPRotationValidForMode(currentRotationAngle);
+    
+    if (isAPValid) {
+      if (stageRef.current === 0) {
+        setIsAPRotationSaved(true);
+        setAPRotationAngle(currentRotationAngle);
+        console.log(stage, 2);
+      } else if (currentRotationAngle === apRotationAngle) {
+        setIsAPRotationSaved(true);
+      }
+    } else {
+      setIsAPRotationSaved(false);
+      // Re-check logic can be simplified too
+      setTimeout(() => {
+        const currentIsInAPMode = rotationAngle >= -20 && rotationAngle <= 20;
+        const currentIsAPRotationValid = rotationAngle >= -20 && rotationAngle <= 20;
+        
+        if (currentIsInAPMode && !currentIsAPRotationValid) {
+          setShowCarmBox(true);
+        }
+      }, 1000);
+    }
+  } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
+    const isOBValid = stageRef.current === 0 ? 
+      isOBRotationValidForMode(currentRotationAngle) :
+      stageRef.current === 1 ?
+        isOBRotationValidForMode(currentRotationAngle) && currentRotationAngle * obRotationAngle < 0 :
+        (currentRotationAngle === obRotationAngle || currentRotationAngle === obRotationAngle2);
+    
+    if (isOBValid) {
+      setIsOBRotationSaved(true);
+      if (stageRef.current === 0) {
+        setOBRotationAngle(currentRotationAngle);
+      }
+      if (stageRef.current === 1) {
+        setOBRotationAngle2(currentRotationAngle);
+      }
+    } else {
+      setIsOBRotationSaved(false);
+      // Similar re-check logic
+      setTimeout(() => {
+        const currentIsInOBMode = 
+          rotationAngle >= -50 && rotationAngle <= 50 && 
+          !(rotationAngle >= -20 && rotationAngle <= 20);
+        const currentIsOBRotationValid = isOBRotationValidForMode(rotationAngle);
+        
+        if (currentIsInOBMode && !currentIsOBRotationValid) {
+          setShowCarmBox(true);
+        }
+      }, 1000);
+    }
   }
+};
+
 
   // Effect to check if angles are valid and adjust saved status if they become invalid
   useEffect(() => {
@@ -591,7 +685,7 @@ function App() {
     setOBRotationAngle2(obTaken2)
     console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2,usedOB)
     try {
-      await fetch('http://localhost:5000/edit', {
+      await fetch('http://localhost:5000/next', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
