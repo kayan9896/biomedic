@@ -74,7 +74,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [editing, setEditing] = useState(false)
   const [report, setReport] = useState(false)
-  const [pause, setPause] = useState(false)
+  const [pause, setPause] = useState(0)
   const [setting, setSetting] = useState(false)
   const [measurements, setMeasurements] = useState(null)
   const [stage, setStage] = useState(0)
@@ -663,11 +663,11 @@ const updateRotationSavedState = (currentRotationAngle) => {
       setError('Error connecting to device: ' + err.message);
     }
   };
-  const handlepause = async () => {
-    setPause(true)
+  const handlepause = async (num) => {
+    setPause(num)
     captureAndSaveFrame()
   }
-  const handlenext = async (next = true) => {
+  const handlenext = async (next = 'next') => {
     setPause(false)
     setLeftImage(require('./AP.png'));
     setRightImage(require('./OB.png'));
@@ -675,8 +675,9 @@ const updateRotationSavedState = (currentRotationAngle) => {
     setRightImageMetadata(null)
     setLeftCheckMark(null)
     setRightCheckMark(null)
-    if(next){setStage(p => p + 1);
-    }else{setStage(p => p - 1)}
+    if(next === 'next') setStage(p => p + 1);
+    if(next === 'skip') setStage(p => p + 2);
+    if(!next) setStage(p => p - 1);
     setMoveNext(false);
     setMeasurements(null)
     setTargetTiltAngle(tiltTaken)
@@ -690,7 +691,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({'uistates': next ? 'next' : 'prev'})
+        body: JSON.stringify({'uistates': next ? next : 'prev'})
       });
     } catch (error) {
       console.error('Error going next:', error);
@@ -1140,7 +1141,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {report&&<L11 setReport={setReport} stage={stage} setError={setError}/>}
             
       {/*L12 Pause, render when next button clicked */}
-      {pause&&<L12 setPause={setPause} setReport={setReport} handlenext={handlenext}/>}
+      {<L12 pause={pause} setPause={setPause} setReport={setReport} handlenext={handlenext}/>}
       
       {/*L13 Setup, render when iscoonected false*/}
 
