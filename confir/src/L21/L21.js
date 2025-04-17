@@ -88,7 +88,7 @@ const L21 = ({
         className="left-template" 
         style={{ 
           position: 'absolute', 
-          left: selectedTemplate === 'left' ? '613px' : '618px', 
+          left: selectedTemplate === 'left' ? '650px' : '655px', 
           top: selectedTemplate === 'left' ? '359px' : '364px',
           cursor: 'pointer' 
         }}
@@ -102,7 +102,7 @@ const L21 = ({
         className="right-template" 
         style={{ 
           position: 'absolute', 
-          left: selectedTemplate === 'right' ? '1297px' : '1302px', 
+          left: selectedTemplate === 'right' ? '993px' : '998px', 
           top: '364px',
           cursor: 'pointer' 
         }}

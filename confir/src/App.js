@@ -1002,10 +1002,10 @@ const updateRotationSavedState = (currentRotationAngle) => {
   return (
     <div className="app">
       
-      {!isConnected ? (
+      {!isConnected ? ( pause === 10 ? <L12 pause={pause} setPause={setPause} handlenext={handlenext} handleConnect={handleConnect}/>:
         <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <L13 handleConnect={handleConnect} setSelectedCArm={setSelectedCArm}/>  
+          <L13 setPause={setPause} setSelectedCArm={setSelectedCArm}/>  
         </div>
       ) : (
         <>
@@ -1141,9 +1141,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {report&&<L11 setReport={setReport} stage={stage} setError={setError}/>}
             
       {/*L12 Pause, render when next button clicked */}
-      {<L12 pause={pause} setPause={setPause} setReport={setReport} handlenext={handlenext}/>}
-      
-      {/*L13 Setup, render when iscoonected false*/}
+      {<L12 pause={pause} setPause={setPause} handlenext={handlenext} handleConnect={handleConnect}/>}
 
       {/*L14 Setting, render when setting true*/}
       {setting&&<L14/>}
