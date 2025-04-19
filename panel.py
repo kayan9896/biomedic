@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import threading
+import os
 
 class IMU3:
     def __init__(self, viewmodel):
@@ -10,6 +11,9 @@ class IMU3:
         self._auto_mode = False  # Start in manual mode
         self._running = True
         self.increasing = True
+        
+        self.test_image_ready = False  # Flag to indicate test image is ready for processing
+        self.test_image_path = None    # Path to the test image
         
         # Initialize the angles in viewmodel
         self.viewmodel.update_state('angle', self.angle)
@@ -101,7 +105,61 @@ class IMU3:
         auto_button = tk.Button(main_frame, text="Auto Mode: OFF", command=self._toggle_auto_mode_gui)
         self.auto_button = auto_button
         auto_button.pack(fill=tk.X, pady=(10, 0))
+
+        test_frame = tk.LabelFrame(main_frame, text="Test Controls")
+        test_frame.pack(fill=tk.X, pady=(10, 10))
+        
+        # Image selection dropdown
+        select_frame = tk.Frame(test_frame)
+        select_frame.pack(fill=tk.X, pady=5, padx=5)
+        
+        tk.Label(select_frame, text="Test Image:").pack(side=tk.LEFT)
+        self.image_var = tk.StringVar()
+        self.image_dropdown = ttk.Combobox(select_frame, textvariable=self.image_var, state="readonly", width=40)
+        self.image_dropdown.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        self._update_image_list()
+        
+        # Add refresh button for image list
+        tk.Button(select_frame, text="↻", width=3, command=self._update_image_list).pack(side=tk.LEFT, padx=(5, 0))
+        
+        # Test button
+        test_button = tk.Button(test_frame, text="Test Selected Image", command=self._test_selected_image)
+        test_button.pack(fill=tk.X, padx=5, pady=5)
     
+    def _update_image_list(self):
+        """Update the dropdown list with PNG files from Downloads folder"""
+        downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads/ImageIntensifier/ImageIntensifier")
+        png_files = []
+        
+        try:
+            if os.path.exists(downloads_folder):
+                png_files = [f for f in os.listdir(downloads_folder) if f.lower().endswith('.png')]
+                png_files.sort()
+        except Exception as e:
+            print(f"Error reading Downloads folder: {e}")
+        
+        self.image_dropdown['values'] = png_files
+        if png_files:
+            self.image_dropdown.current(0)
+    
+    def _test_selected_image(self):
+        """Set the test image flag and path"""
+        selected_image = self.image_var.get()
+        
+        if not selected_image:
+            print("Please select a test image first!")
+            return
+        
+        downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads/ImageIntensifier/ImageIntensifier")
+        image_path = os.path.join(downloads_folder, selected_image)
+        
+        if os.path.exists(image_path):
+            self.test_image_path = image_path
+            self.test_image_ready = True
+            print(f"Test image ready: {selected_image}")
+        else:
+            print(f"Image not found: {image_path}")
+
     def _create_tab_content(self, tab_frame):
         """Create the content for a tab"""
         content_frame = tk.Frame(tab_frame, padx=5, pady=5)

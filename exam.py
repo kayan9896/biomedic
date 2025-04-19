@@ -5,44 +5,67 @@ import json
 class Exam:
     def __init__(self):
         self.exam_folder = 'exam'
-        self.shot_ct = 0
-        self.recon_ct = 0
-        self.reg_ct = 0
+        self.total_count = 0  # Single counter for all save operations
         
     def save_json(self, data, filepath):
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=4)
+    
+    def get_formatted_filename(self, prefix, data_type):
+        """Generate filename with format: [Prefix]-[Count]-[Type].extension"""
+        count_str = f'{self.total_count:03d}'  # Format as 3-digit string with leading zeros
+        return f"{prefix}-{count_str}-{data_type}"
 
     def save(self, dataforsave, image=None, rawframe=None):
+        data_type = dataforsave.get('type', 'unknown')  # Get type or default to 'unknown'
+        
         if dataforsave['folder'] == 'shots':
+            # Save raw frame with 'W' prefix
             if rawframe is not None:
-                raw_path = os.path.join(self.exam_folder, 'shots/rawframes', f'{self.shot_ct}.png')
+                raw_filename = self.get_formatted_filename('W', data_type) + '.png'
+                raw_path = os.path.join(self.exam_folder, 'shots/rawframes', raw_filename)
                 os.makedirs(os.path.dirname(raw_path), exist_ok=True)
                 cv2.imwrite(raw_path, rawframe)
 
+            # Save shot with 'S' prefix
             if image is not None:
-                shot_path = os.path.join(self.exam_folder, 'shots', f'shot{self.shot_ct}.png')
+                shot_filename = self.get_formatted_filename('S', data_type) + '.png'
+                shot_path = os.path.join(self.exam_folder, 'shots', shot_filename)
                 os.makedirs(os.path.dirname(shot_path), exist_ok=True)
                 cv2.imwrite(shot_path, image)
                 
+            # Save JSON with 'S' prefix
+            json_filename = self.get_formatted_filename('S', data_type) + '.json'
+            json_path = os.path.join(self.exam_folder, 'shots', json_filename)
+            self.save_json(dataforsave, json_path)
 
-            json_path = f'shots/shot{self.shot_ct}.json'
-            self.save_json(dataforsave, os.path.join(self.exam_folder, json_path))
-            self.shot_ct += 1
+        elif dataforsave['folder'] == 'recons':
+            # Save recon with 'R' prefix
+            json_filename = self.get_formatted_filename('R', data_type) + '.json'
+            json_path = os.path.join(self.exam_folder, 'recons', json_filename)
+            self.save_json(dataforsave, json_path)
 
-        if dataforsave['folder'] == 'recons':
-            json_path = f'recons/recon{self.recon_ct}.json'
-            self.save_json(dataforsave, os.path.join(self.exam_folder, json_path))
-            self.recon_ct += 1
-
-        if dataforsave['folder'] == 'regs':
-            stitch = dataforsave['stitch']
+        elif dataforsave['folder'] == 'regs':
+            # Save stitch image with 'M' prefix
+            stitch = dataforsave.get('stitch')
             if stitch is not None:
-                stitch_path = f'regs/stitch{self.reg_ct}.png'
-                os.makedirs(os.path.dirname(os.path.join(self.exam_folder, stitch_path)), exist_ok=True)
-                cv2.imwrite(os.path.join(self.exam_folder, stitch_path), stitch)
-            json_path = f'regs/reg{self.reg_ct}.json'
-            dataforsave.pop('stitch')
-            self.save_json(dataforsave, os.path.join(self.exam_folder, json_path))
-            self.reg_ct += 1
+                stitch_filename = self.get_formatted_filename('M', data_type) + '.png'
+                stitch_path = os.path.join(self.exam_folder, 'regs', stitch_filename)
+                os.makedirs(os.path.dirname(stitch_path), exist_ok=True)
+                cv2.imwrite(stitch_path, stitch)
+            
+            # Save JSON with 'M' prefix
+            json_filename = self.get_formatted_filename('M', data_type) + '.json'
+            json_path = os.path.join(self.exam_folder, 'regs', json_filename)
+            
+            # Remove stitch data before saving JSON
+            dataforsave.pop('stitch', None)  # Use pop with default to avoid KeyError
+            self.save_json(dataforsave, json_path)
+        
+        # Increment total count after all save operations for this call
+        self.total_count += 1
+        
+        # Ensure counter doesn't exceed 999
+        if self.total_count > 999:
+            raise Exception("Maximum save count (999) exceeded")

@@ -146,13 +146,25 @@ class ImageProcessingController:
     def _process_loop(self):
         self.scn = 'init'
         while self.is_running:
+            if self.imu and self.imu.test_image_ready:
+                try:
+                    # Read the test image
+                    frame = cv2.imread(self.imu.test_image_path)
+                except Exception as e:
+                    print(f"Error reading test image: {e}")
+                    frame = None
+                
+                # Clear the test flag
+                self.imu.test_image_ready = False
+                self.imu.test_image_path = None
+            else:
+                # Normal processing
+                frame = self.update_backendstates()
             
-            frame = self.update_backendstates()
             if self.pause_states == 'edit': 
                 time.sleep(1)
                 continue
-            if self.uistates == 'next':
-                print(self.scn)
+
             newscn = self.eval_modelscnario(frame)
             
             if newscn == self.scn or newscn[-3:] == 'end':
