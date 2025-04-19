@@ -294,7 +294,7 @@ class AnalyzeBox:
                     dataforsave = {
                         'stitch': processed_frame,
                         'folder': 'regs',
-                        'type': 'pelvis',
+                        'type': 'hp2',
                         'measurements': data.get('measurements',None),
                         'timestamp': str(datetime.datetime.now())
                     }
@@ -365,7 +365,7 @@ class AnalyzeBox:
                     dataforsave = {
                         'stitch': processed_frame,
                         'folder': 'regs',
-                        'type': 'cuo',
+                        'type': 'cup',
                         'measurements': data.get('measurements',None),
                         'timestamp': str(datetime.datetime.now())
                     }
