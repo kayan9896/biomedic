@@ -7,7 +7,7 @@
     "framegrabber_device": "OBS Virtual Camera",
     "framegrabber_autocollect": true,
     "calibphantom_design": "abc'",
-    "model_simdata_path": "./",
+    "model_simdata_path": "./exam",
     "template_path": "./",
     "carm_folder": "./carm",
     "backend_pixel": 1024,

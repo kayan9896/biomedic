@@ -4,47 +4,50 @@ import threading
 import os
 
 class IMU3:
-    def __init__(self, viewmodel):
+    def __init__(self, viewmodel, config=None):
         self.viewmodel = viewmodel
         self.angle = 0
         self.rotation_angle = 0
-        self._auto_mode = False  # Start in manual mode
+        self._auto_mode = False
         self._running = True
         self.increasing = True
         
-        self.test_image_ready = False  # Flag to indicate test image is ready for processing
-        self.test_image_path = None    # Path to the test image
+        self.bypass = False
+        self.test_image_ready = False
+        self.test_image_path = None
+        
+        # Get the exam folder path from config
+        self.sim_data_path = config.get("model_simdata_path", "exam") if config else "exam"
         
         # Initialize the angles in viewmodel
         self.viewmodel.update_state('angle', self.angle)
         self.viewmodel.update_state('rotation_angle', self.rotation_angle)
         
-        # Launch the GUI in a separate thread to avoid blocking the main thread
+        # Launch the GUI in a separate thread
         self.gui_thread = threading.Thread(target=self._run_gui)
         self.gui_thread.daemon = True
         self.gui_thread.start()
     
     def _run_gui(self):
         """Run the GUI in its own thread"""
-        # Create the main window
         self.root = tk.Tk()
         self.root.title("IMU Control")
         self.root.protocol("WM_DELETE_WINDOW", self.cleanup)
         
-        # Set window to stay on top and make it non-resizable
+        # Set window attributes
         self.root.attributes("-topmost", True)
         self.root.resizable(False, False)
         
         # Create UI components
         self._create_ui()
         
-        # Position window at bottom right of screen
+        # Position window at bottom right
         self._position_window_bottom_right()
         
-        # Set up a periodic task for auto mode updates
+        # Set up periodic updates
         self._setup_auto_mode_update()
         
-        # Start the mainloop in this thread
+        # Start the mainloop
         self.root.mainloop()
     
     def _create_ui(self):
@@ -85,143 +88,178 @@ class IMU3:
         # Create tabs
         tab_control = ttk.Notebook(main_frame)
         
-        # Create the three tabs
-        self.ref_tab = ttk.Frame(tab_control)
+        # Create the four tabs
+        self.hp1_tab = ttk.Frame(tab_control)
+        self.hp2_tab = ttk.Frame(tab_control)
         self.cup_tab = ttk.Frame(tab_control)
         self.tri_tab = ttk.Frame(tab_control)
         
-        tab_control.add(self.ref_tab, text='ref')
+        tab_control.add(self.hp1_tab, text='hp1')
+        tab_control.add(self.hp2_tab, text='hp2')
         tab_control.add(self.cup_tab, text='cup')
         tab_control.add(self.tri_tab, text='tri')
         
         tab_control.pack(fill=tk.BOTH, expand=True)
         
         # Create content for each tab
-        self._create_tab_content(self.ref_tab)
-        self._create_tab_content(self.cup_tab)
-        self._create_tab_content(self.tri_tab)
+        self.tab_widgets = {
+            'hp1': self._create_tab_content(self.hp1_tab, 'hp1'),
+            'hp2': self._create_tab_content(self.hp2_tab, 'hp2'),
+            'cup': self._create_tab_content(self.cup_tab, 'cup'),
+            'tri': self._create_tab_content(self.tri_tab, 'tri')
+        }
+        
+        # Update all file lists
+        self._update_all_file_lists()
         
         # Auto mode toggle
         auto_button = tk.Button(main_frame, text="Auto Mode: OFF", command=self._toggle_auto_mode_gui)
         self.auto_button = auto_button
         auto_button.pack(fill=tk.X, pady=(10, 0))
-
-        test_frame = tk.LabelFrame(main_frame, text="Test Controls")
-        test_frame.pack(fill=tk.X, pady=(10, 10))
-        
-        # Image selection dropdown
-        select_frame = tk.Frame(test_frame)
-        select_frame.pack(fill=tk.X, pady=5, padx=5)
-        
-        tk.Label(select_frame, text="Test Image:").pack(side=tk.LEFT)
-        self.image_var = tk.StringVar()
-        self.image_dropdown = ttk.Combobox(select_frame, textvariable=self.image_var, state="readonly", width=40)
-        self.image_dropdown.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
-        self._update_image_list()
-        
-        # Add refresh button for image list
-        tk.Button(select_frame, text="↻", width=3, command=self._update_image_list).pack(side=tk.LEFT, padx=(5, 0))
-        
-        # Test button
-        test_button = tk.Button(test_frame, text="Test Selected Image", command=self._test_selected_image)
-        test_button.pack(fill=tk.X, padx=5, pady=5)
     
-    def _update_image_list(self):
-        """Update the dropdown list with PNG files from Downloads folder"""
-        downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads/ImageIntensifier/ImageIntensifier")
-        png_files = []
-        
-        try:
-            if os.path.exists(downloads_folder):
-                png_files = [f for f in os.listdir(downloads_folder) if f.lower().endswith('.png')]
-                png_files.sort()
-        except Exception as e:
-            print(f"Error reading Downloads folder: {e}")
-        
-        self.image_dropdown['values'] = png_files
-        if png_files:
-            self.image_dropdown.current(0)
-    
-    def _test_selected_image(self):
-        """Set the test image flag and path"""
-        selected_image = self.image_var.get()
-        
-        if not selected_image:
-            print("Please select a test image first!")
-            return
-        
-        downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads/ImageIntensifier/ImageIntensifier")
-        image_path = os.path.join(downloads_folder, selected_image)
-        
-        if os.path.exists(image_path):
-            self.test_image_path = image_path
-            self.test_image_ready = True
-            print(f"Test image ready: {selected_image}")
-        else:
-            print(f"Image not found: {image_path}")
-
-    def _create_tab_content(self, tab_frame):
-        """Create the content for a tab"""
+    def _create_tab_content(self, tab_frame, tab_type):
+        """Create the content for a tab with four dropdowns and error lists"""
         content_frame = tk.Frame(tab_frame, padx=5, pady=5)
         content_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Create a frame for the left side (dropdown)
-        left_frame = tk.Frame(content_frame)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        tab_widgets = {
+            'dropdowns': {},
+            'error_lists': {},
+            'test_buttons': {}
+        }
         
-        tk.Label(left_frame, text="Options:").pack(anchor=tk.W)
+        # Create four sections: ap, ob, recons, and regs
+        for section in ['ap', 'ob', 'recons', 'regs']:
+            section_frame = tk.LabelFrame(content_frame, text=section.upper(), padx=5, pady=5)
+            section_frame.pack(fill=tk.X, pady=(0, 10))
+            
+            # File selection dropdown
+            dropdown_frame = tk.Frame(section_frame)
+            dropdown_frame.pack(fill=tk.X, pady=(0, 5))
+            
+            tk.Label(dropdown_frame, text="File:").pack(side=tk.LEFT)
+            file_var = tk.StringVar()
+            dropdown = ttk.Combobox(dropdown_frame, textvariable=file_var, state="readonly", width=30)
+            dropdown.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+            
+            # Refresh button
+            tk.Button(dropdown_frame, text="↻", width=3, 
+                     command=lambda t=tab_type, s=section: self._update_file_list_for_tab_section(t, s)).pack(side=tk.LEFT, padx=(5, 0))
+            
+            # Test button
+            test_button = tk.Button(dropdown_frame, text="Test", 
+                                  command=lambda t=tab_type, s=section: self._test_selected_image(t, s))
+            test_button.pack(side=tk.LEFT, padx=(5, 0))
+            
+            # Error listbox
+            error_frame = tk.Frame(section_frame)
+            error_frame.pack(fill=tk.X)
+            
+            tk.Label(error_frame, text="Errors:").pack(side=tk.LEFT)
+            error_listbox = tk.Listbox(error_frame, height=3, width=15)
+            error_listbox.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+            
+            # Add default error codes
+            for i in range(1, 6):
+                error_listbox.insert(tk.END, f"{i:03d}")
+            
+            # Store widgets
+            tab_widgets['dropdowns'][section] = dropdown
+            tab_widgets['error_lists'][section] = error_listbox
+            tab_widgets['test_buttons'][section] = test_button
         
-        # Dropdown with 6 options
-        option_var = tk.StringVar()
-        options = ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6']
-        dropdown = ttk.Combobox(left_frame, textvariable=option_var, values=options, state="readonly")
-        dropdown.pack(fill=tk.X, pady=5)
-        dropdown.current(0)
+        return tab_widgets
+    
+    def _get_files_for_tab_section(self, tab_type, section):
+        """Get files filtered by tab type and section"""
+        files = []
+        if not os.path.exists(self.sim_data_path):
+            return files
         
-        # Create a frame for the middle (L/R radio buttons)
-        middle_frame = tk.Frame(content_frame)
-        middle_frame.pack(side=tk.LEFT, fill=tk.BOTH, padx=5)
+        try:
+            # Determine which folder to look in based on section
+            if section in ['ap', 'ob']:
+                folder = 'shots'
+            else:
+                folder = section  # recons or regs
+            
+            folder_path = os.path.join(self.sim_data_path, folder)
+            if not os.path.exists(folder_path):
+                return files
+            
+            for filename in os.listdir(folder_path):
+                if filename.lower().endswith('.png') or filename.lower().endswith('.json'):
+                    # Filter by tab type
+                    should_include = False
+                    filename_lower = filename.lower()
+                    
+                    if tab_type == 'hp1' and 'hp1' in filename_lower:
+                        should_include = True
+                    elif tab_type == 'hp2' and 'hp2' in filename_lower:
+                        should_include = True
+                    elif tab_type == 'cup' and 'cup' in filename_lower:
+                        should_include = True
+                    elif tab_type == 'tri' and 'tri' in filename_lower:
+                        should_include = True
+                    
+                    # Further filter shots by ap/ob
+                    if should_include and folder == 'shots':
+                        if section == 'ap' and 'ap' in filename_lower:
+                            files.append(filename)
+                        elif section == 'ob' and 'ob' in filename_lower:
+                            files.append(filename)
+                    elif should_include and folder == section:
+                        files.append(filename)
+            
+            files.sort()  # Sort files by name
+            
+        except Exception as e:
+            print(f"Error reading exam folder: {e}")
         
-        tk.Label(middle_frame, text="Select:").pack(anchor=tk.W)
+        return files
+    
+    def _update_file_list_for_tab_section(self, tab_type, section):
+        """Update the dropdown list for a specific tab and section"""
+        files = self._get_files_for_tab_section(tab_type, section)
+        self.tab_widgets[tab_type]['dropdowns'][section]['values'] = files
+        if files:
+            self.tab_widgets[tab_type]['dropdowns'][section].current(0)
+    
+    def _update_all_file_lists(self):
+        """Update all dropdown lists for all tabs and sections"""
+        for tab_type in ['hp1', 'hp2', 'cup', 'tri']:
+            for section in ['ap', 'ob', 'recons', 'regs']:
+                self._update_file_list_for_tab_section(tab_type, section)
+    
+    def _test_selected_image(self, tab_type, section):
+        """Set the test image flag and path for the selected tab and section"""
+        dropdown = self.tab_widgets[tab_type]['dropdowns'][section]
+        selected_file = dropdown.get()
         
-        # Radio buttons for L/R selection
-        selection_var = tk.StringVar(value="L")
+        if not selected_file:
+            print(f"Please select a test image first in the {tab_type} tab, {section} section!")
+            return
         
-        # Frame to hold radio buttons with circular appearance
-        radio_frame = tk.Frame(middle_frame)
-        radio_frame.pack(fill=tk.X, pady=5)
+        if not selected_file.lower().endswith('.png'):
+            print(f"Selected file is not an image: {selected_file}")
+            return
         
-        r1 = tk.Radiobutton(radio_frame, text="L", variable=selection_var, value="L", indicatoron=0,
-                         width=2, height=1, borderwidth=2, relief="raised")
-        r1.pack(side=tk.LEFT, padx=2)
+        # Construct full path based on section
+        if section in ['ap', 'ob']:
+            folder = 'shots'
+        else:
+            folder = section
         
-        r2 = tk.Radiobutton(radio_frame, text="R", variable=selection_var, value="R", indicatoron=0,
-                         width=2, height=1, borderwidth=2, relief="raised")
-        r2.pack(side=tk.LEFT, padx=2)
+        file_path = os.path.join(self.sim_data_path, folder, selected_file)
         
-        # Create a frame for the right side (scrollable list)
-        right_frame = tk.Frame(content_frame)
-        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0))
-        
-        tk.Label(right_frame, text="Error Codes:").pack(anchor=tk.W)
-        
-        # Create a frame for the list and scrollbar
-        list_frame = tk.Frame(right_frame)
-        list_frame.pack(fill=tk.BOTH, expand=True, pady=5)
-        
-        # Scrollbar for the list
-        scrollbar = tk.Scrollbar(list_frame)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        # Create the listbox with error codes
-        error_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, height=5)
-        
-        # Add error codes to the listbox
-        for i in range(1, 11):
-            error_listbox.insert(tk.END, f"{i:03d}")
-        
-        error_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.config(command=error_listbox.yview)
+        if os.path.exists(file_path):
+            self.test_image_path = file_path
+            self.test_image_ready = True
+            print(f"Test image ready: {selected_file} ({tab_type} - {section})")
+        else:
+            print(f"File not found: {file_path}")
+
+
     
     def _setup_auto_mode_update(self):
         """Set up a periodic task for auto mode updates"""

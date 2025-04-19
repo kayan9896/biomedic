@@ -43,7 +43,7 @@ class ImageProcessingController:
         # Initialize IMU if enabled in config
         self.imu = None
         if self.config.get("imu_on", True):
-            self.imu = IMU3(self.viewmodel)
+            self.imu = IMU3(self.viewmodel, config=self.config)
             imu_port = self.config.get("imu_port", "COM3")
             
     
