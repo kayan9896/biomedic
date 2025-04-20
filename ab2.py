@@ -6,13 +6,14 @@ import json
 import datetime
 
 class AnalyzeBox:
-    def __init__(self):
+    def __init__(self, controller=None):
         self.progress = 0
         self._lock = threading.Lock()
         self.viewpairs = [None]*4
         self.is_processing = False
         self._stitch_thread = None
         self.mode = 1  
+        self.controller = controller  # Store reference to controller
         self.resetdata()
 
     def resetdata(self):
@@ -87,15 +88,32 @@ class AnalyzeBox:
                     return {'metadata': None, 'checkmark': None, 'error': 'wrong side'}, frame
             self.is_processing = True
 
-            # Load metadata
-            file = 'hp1-ap-right.json' if side=='r' else 'hp2-ap-left.json'
-            print(section[:-2])
-            if section[:3] == 'cup':
-                file = 'leftcup.json' if side=='l' else 'rightcup.json'
-            if section[:3] == 'tri':
-                file = 'lefttri.json' if side=='l' else 'righttri.json'
-            with open(file, 'r') as f:
-                metadata = json.load(f)
+            # Check if we should use test JSON data
+            if (hasattr(self.controller, 'on_simulation') and self.controller.on_simulation and 
+                hasattr(self.controller, 'imu') and self.controller.imu is not None and
+                hasattr(self.controller.imu, 'test_json_path') and self.controller.imu.test_json_path):
+                
+                try:
+                    with open(self.controller.imu.test_json_path, 'r') as f:
+                        metadata = json.load(f)
+                    print(f"Using test data from: {self.controller.imu.test_json_path}")
+                except Exception as e:
+                    print(f"Error loading test JSON: {e}")
+                    # Fall back to default processing
+                    metadata = None
+            else:
+                metadata = None
+            
+            # If no test metadata, use the default files
+            if metadata is None:
+                file = 'hp1-ap-right.json' if side=='r' else 'hp2-ap-left.json'
+                print(section[:-2])
+                if section[:3] == 'cup':
+                    file = 'leftcup.json' if side=='l' else 'rightcup.json'
+                if section[:3] == 'tri':
+                    file = 'lefttri.json' if side=='l' else 'righttri.json'
+                with open(file, 'r') as f:
+                    metadata = json.load(f)
             
             # Process frame and generate results
             result = {

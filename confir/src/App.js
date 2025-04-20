@@ -603,7 +603,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
         
         if (currentRotationAngle >= -20 && currentRotationAngle <= 20) {
             setLeftImage(data.image);  // This is now a data URL
-            setLeftImageMetadata(data.metadata);
+            setLeftImageMetadata(data.metadata.metadata);
             setLeftCheckMark(data.checkmark)
             setPelvis((prev) => {
               let tmp = [...prev]
@@ -615,7 +615,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
             console.log(data.metadata)
         } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
             setRightImage(data.image);  // This is now a data URL
-            setRightImageMetadata(data.metadata);
+            setRightImageMetadata(data.metadata.metadata);
             setRightCheckMark(data.checkmark)
             setPelvis((prev) => {
               let tmp = [...prev]

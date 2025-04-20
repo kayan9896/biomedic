@@ -232,32 +232,36 @@ class IMU3:
                 self._update_file_list_for_tab_section(tab_type, section)
     
     def _test_selected_image(self, tab_type, section):
-        """Set the test image flag and path for the selected tab and section"""
+        """Set the test image and json data flag and path for the selected tab and section"""
         dropdown = self.tab_widgets[tab_type]['dropdowns'][section]
         selected_file = dropdown.get()
         
         if not selected_file:
-            print(f"Please select a test image first in the {tab_type} tab, {section} section!")
+            print(f"Please select a test file first in the {tab_type} tab, {section} section!")
             return
         
-        if not selected_file.lower().endswith('.png'):
-            print(f"Selected file is not an image: {selected_file}")
-            return
+        # Extract the base name without extension
+        base_name = os.path.splitext(selected_file)[0]
         
-        # Construct full path based on section
+        # Determine the folder
         if section in ['ap', 'ob']:
             folder = 'shots'
         else:
             folder = section
         
-        file_path = os.path.join(self.sim_data_path, folder, selected_file)
+        # Construct full paths for both PNG and JSON files
+        image_path = os.path.join(self.sim_data_path, folder, f"{base_name}.png")
+        json_path = os.path.join(self.sim_data_path, folder, f"{base_name}.json")
         
-        if os.path.exists(file_path):
-            self.test_image_path = file_path
+        if os.path.exists(image_path):
+            self.test_image_path = image_path
+            self.test_json_path = json_path
+            self.test_section = f"{tab_type}-{section}"  # Store the current section
             self.test_image_ready = True
-            print(f"Test image ready: {selected_file} ({tab_type} - {section})")
+            print(f"Test files ready: {base_name} ({tab_type} - {section})")
         else:
-            print(f"File not found: {file_path}")
+            print(f"Image file not found: {image_path}")
+
 
 
     

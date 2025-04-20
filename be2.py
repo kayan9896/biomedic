@@ -18,6 +18,8 @@ from panel import IMU3
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox', config = None):
         self.frame_grabber = frame_grabber
+        if analyze_box:
+            analyze_box.controller = self
         self.model = analyze_box
         self.current_stage = 1
         self.current_frame = 1
