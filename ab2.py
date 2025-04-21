@@ -88,32 +88,40 @@ class AnalyzeBox:
                     return {'metadata': None, 'checkmark': None, 'error': 'wrong side'}, frame
             self.is_processing = True
 
+            tab_type = section[:3]  # hp1, hp2, cup, tri
+            section_type = section[-2:]  # ap, ob
+            
             # Check if we should use test JSON data
             if (hasattr(self.controller, 'on_simulation') and self.controller.on_simulation and 
-                hasattr(self.controller, 'imu') and self.controller.imu is not None and
-                hasattr(self.controller.imu, 'test_json_path') and self.controller.imu.test_json_path):
-                
-                try:
-                    with open(self.controller.imu.test_json_path, 'r') as f:
-                        metadata = json.load(f)
-                    print(f"Using test data from: {self.controller.imu.test_json_path}")
-                except Exception as e:
-                    print(f"Error loading test JSON: {e}")
-                    # Fall back to default processing
+            hasattr(self.controller, 'imu') and self.controller.imu is not None and
+            hasattr(self.controller.imu, 'test_data')):
+            
+                # Use the simplified test data structure
+                test_entry = self.controller.imu.test_data.get(section_type)
+                if test_entry and test_entry.get('json_path'):
+                    try:
+                        frame = cv2.imread(test_entry.get('image_path'))
+                        error_code = test_entry['errors']
+                        print(f"Simulating error {error_code} for {section}")
+                        with open(test_entry['json_path'], 'r') as f:
+                            metadata = json.load(f)
+                        print(f"Using test data for {section}: {test_entry['file_name']}")
+                    except Exception as e:
+                        print(f"Error loading test JSON: {e}")
+                        metadata = None
+                else:
                     metadata = None
-            else:
-                metadata = None
             
             # If no test metadata, use the default files
             if metadata is None:
                 file = 'hp1-ap-right.json' if side=='r' else 'hp2-ap-left.json'
-                print(section[:-2])
                 if section[:3] == 'cup':
                     file = 'leftcup.json' if side=='l' else 'rightcup.json'
                 if section[:3] == 'tri':
                     file = 'lefttri.json' if side=='l' else 'righttri.json'
                 with open(file, 'r') as f:
                     metadata = json.load(f)
+            
             
             # Process frame and generate results
             result = {

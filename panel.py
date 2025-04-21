@@ -12,9 +12,16 @@ class IMU3:
         self._running = True
         self.increasing = True
         
-        self.bypass = False
         self.test_image_ready = False
         self.test_image_path = None
+
+        self.current_tab = 'hp1'  # Default tab
+        self.test_data = {
+            'ap': None, 
+            'ob': None, 
+            'recons': None, 
+            'regs': None
+        }
         
         # Get the exam folder path from config
         self.sim_data_path = config.get("model_simdata_path", "exam") if config else "exam"
@@ -60,7 +67,7 @@ class IMU3:
         angle_frame = tk.Frame(main_frame)
         angle_frame.pack(fill=tk.X, pady=(0, 10))
         
-        # Labels for angle values
+        # Labels for angle values (same as before)
         tk.Label(angle_frame, text="Angle:").grid(row=0, column=0, sticky=tk.W)
         self.angle_value = tk.Label(angle_frame, text=str(self.angle))
         self.angle_value.grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
@@ -73,13 +80,12 @@ class IMU3:
         button_frame = tk.Frame(main_frame)
         button_frame.pack(fill=tk.X, pady=(0, 10))
         
-        # Angle control
+        # Angle controls (same as before)
         angle_ctrl_frame = tk.LabelFrame(button_frame, text="Angle Control")
         angle_ctrl_frame.pack(fill=tk.X, pady=(0, 5))
         tk.Button(angle_ctrl_frame, text="−", width=3, command=lambda: self._adjust_angle(-5)).pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(angle_ctrl_frame, text="+", width=3, command=lambda: self._adjust_angle(5)).pack(side=tk.RIGHT, padx=5, pady=5)
         
-        # Rotation angle control
         rot_ctrl_frame = tk.LabelFrame(button_frame, text="Rotation Control")
         rot_ctrl_frame.pack(fill=tk.X)
         tk.Button(rot_ctrl_frame, text="−", width=3, command=lambda: self._adjust_angle2(-5)).pack(side=tk.LEFT, padx=5, pady=5)
@@ -87,6 +93,7 @@ class IMU3:
         
         # Create tabs
         tab_control = ttk.Notebook(main_frame)
+        tab_control.bind("<<NotebookTabChanged>>", self._on_tab_changed)
         
         # Create the four tabs
         self.hp1_tab = ttk.Frame(tab_control)
@@ -112,11 +119,31 @@ class IMU3:
         # Update all file lists
         self._update_all_file_lists()
         
+        # Single test button
+        test_button = tk.Button(main_frame, text="TEST", command=self._test_with_selected_files)
+        test_button.pack(fill=tk.X, pady=(10, 5))
+        
         # Auto mode toggle
         auto_button = tk.Button(main_frame, text="Auto Mode: OFF", command=self._toggle_auto_mode_gui)
         self.auto_button = auto_button
-        auto_button.pack(fill=tk.X, pady=(10, 0))
+        auto_button.pack(fill=tk.X)
     
+    def _on_tab_changed(self, event):
+        """Handle tab change event to update current tab"""
+        tab_control = event.widget
+        selected_tab_index = tab_control.index(tab_control.select())
+        tab_names = ['hp1', 'hp2', 'cup', 'tri']
+        self.current_tab = tab_names[selected_tab_index]
+        print(f"Current tab changed to: {self.current_tab}")
+        
+        # Clear test data on tab change
+        self.test_data = {
+            'ap': None, 
+            'ob': None, 
+            'recons': None, 
+            'regs': None
+        }
+
     def _create_tab_content(self, tab_frame, tab_type):
         """Create the content for a tab with four dropdowns and error lists"""
         content_frame = tk.Frame(tab_frame, padx=5, pady=5)
@@ -124,8 +151,7 @@ class IMU3:
         
         tab_widgets = {
             'dropdowns': {},
-            'error_lists': {},
-            'test_buttons': {}
+            'error_lists': {}
         }
         
         # Create four sections: ap, ob, recons, and regs
@@ -144,20 +170,29 @@ class IMU3:
             
             # Refresh button
             tk.Button(dropdown_frame, text="↻", width=3, 
-                     command=lambda t=tab_type, s=section: self._update_file_list_for_tab_section(t, s)).pack(side=tk.LEFT, padx=(5, 0))
+                    command=lambda t=tab_type, s=section: self._update_file_list_for_tab_section(t, s)).pack(side=tk.LEFT, padx=(5, 0))
             
-            # Test button
-            test_button = tk.Button(dropdown_frame, text="Test", 
-                                  command=lambda t=tab_type, s=section: self._test_selected_image(t, s))
-            test_button.pack(side=tk.LEFT, padx=(5, 0))
-            
-            # Error listbox
+            # Error listbox with scrollbar
             error_frame = tk.Frame(section_frame)
             error_frame.pack(fill=tk.X)
             
             tk.Label(error_frame, text="Errors:").pack(side=tk.LEFT)
-            error_listbox = tk.Listbox(error_frame, height=3, width=15)
-            error_listbox.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+            
+            # Create a frame to contain the listbox and scrollbar
+            error_list_frame = tk.Frame(error_frame)
+            error_list_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+            
+            # Create the scrollbar
+            scrollbar = tk.Scrollbar(error_list_frame, orient="vertical")
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            
+            # Create the listbox with scrollbar
+            error_listbox = tk.Listbox(error_list_frame, height=3, width=15, 
+                                    yscrollcommand=scrollbar.set, selectmode=tk.EXTENDED)
+            error_listbox.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            
+            # Configure the scrollbar
+            scrollbar.config(command=error_listbox.yview)
             
             # Add default error codes
             for i in range(1, 6):
@@ -166,15 +201,66 @@ class IMU3:
             # Store widgets
             tab_widgets['dropdowns'][section] = dropdown
             tab_widgets['error_lists'][section] = error_listbox
-            tab_widgets['test_buttons'][section] = test_button
         
         return tab_widgets
     
+    def _test_with_selected_files(self):
+        """Collect selected files and error codes for the current tab"""
+        # Clear previous test data
+        self.test_data = {
+            'ap': None, 
+            'ob': None, 
+            'recons': None, 
+            'regs': None
+        }
+        
+        # Get selected files from current tab only
+        tab_type = self.current_tab  # hp1, hp2, cup, tri
+        
+        for section in ['ap', 'ob', 'recons', 'regs']:
+            # Get selected file
+            dropdown = self.tab_widgets[tab_type]['dropdowns'][section]
+            selected_base_name = dropdown.get()
+            
+            # Get selected errors
+            error_listbox = self.tab_widgets[tab_type]['error_lists'][section]
+            selected_indices = error_listbox.curselection()
+            selected_errors = [error_listbox.get(i) for i in selected_indices]
+            
+            if selected_base_name:
+                # Determine the folder
+                if section in ['ap', 'ob']:
+                    folder = 'shots'
+                else:
+                    folder = section
+                
+                # Construct full paths for both PNG and JSON files
+                image_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.png")
+                json_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.json")
+                
+                self.test_data[section] = {
+                    'image_path': image_path if os.path.exists(image_path) else None,
+                    'json_path': json_path if os.path.exists(json_path) else None,
+                    'file_name': selected_base_name,
+                    'errors': selected_errors
+                }
+        
+        # Trigger the test with the first available ap image
+        for section in ['ap', 'ob']:
+            if self.test_data[section] and self.test_data[section]['image_path']:
+                self.test_image_path = self.test_data[section]['image_path']
+                self.test_image_ready = True
+                print(f"Test initiated with selected files from tab {tab_type}")
+                print(f"Starting with {section} file: {self.test_data[section]['file_name']}")
+                return
+        
+        print("No valid image file selected for testing!")
+    
     def _get_files_for_tab_section(self, tab_type, section):
         """Get files filtered by tab type and section"""
-        files = []
+        files = set()  # Use a set to avoid duplicates
         if not os.path.exists(self.sim_data_path):
-            return files
+            return []
         
         try:
             # Determine which folder to look in based on section
@@ -185,13 +271,16 @@ class IMU3:
             
             folder_path = os.path.join(self.sim_data_path, folder)
             if not os.path.exists(folder_path):
-                return files
+                return []
             
             for filename in os.listdir(folder_path):
-                if filename.lower().endswith('.png') or filename.lower().endswith('.json'):
+                if filename.lower().endswith(('.png', '.json')):
+                    # Extract base name without extension
+                    base_name = os.path.splitext(filename)[0]
+                    filename_lower = filename.lower()
+                    
                     # Filter by tab type
                     should_include = False
-                    filename_lower = filename.lower()
                     
                     if tab_type == 'hp1' and 'hp1' in filename_lower:
                         should_include = True
@@ -205,16 +294,17 @@ class IMU3:
                     # Further filter shots by ap/ob
                     if should_include and folder == 'shots':
                         if section == 'ap' and 'ap' in filename_lower:
-                            files.append(filename)
+                            files.add(base_name)
                         elif section == 'ob' and 'ob' in filename_lower:
-                            files.append(filename)
+                            files.add(base_name)
                     elif should_include and folder == section:
-                        files.append(filename)
+                        files.add(base_name)
             
-            files.sort()  # Sort files by name
+            # Convert to sorted list
+            files = sorted(list(files))
             
         except Exception as e:
-            print(f"Error reading exam folder: {e}")
+            print(f"Error reading folder: {e}")
         
         return files
     
@@ -231,37 +321,6 @@ class IMU3:
             for section in ['ap', 'ob', 'recons', 'regs']:
                 self._update_file_list_for_tab_section(tab_type, section)
     
-    def _test_selected_image(self, tab_type, section):
-        """Set the test image and json data flag and path for the selected tab and section"""
-        dropdown = self.tab_widgets[tab_type]['dropdowns'][section]
-        selected_file = dropdown.get()
-        
-        if not selected_file:
-            print(f"Please select a test file first in the {tab_type} tab, {section} section!")
-            return
-        
-        # Extract the base name without extension
-        base_name = os.path.splitext(selected_file)[0]
-        
-        # Determine the folder
-        if section in ['ap', 'ob']:
-            folder = 'shots'
-        else:
-            folder = section
-        
-        # Construct full paths for both PNG and JSON files
-        image_path = os.path.join(self.sim_data_path, folder, f"{base_name}.png")
-        json_path = os.path.join(self.sim_data_path, folder, f"{base_name}.json")
-        
-        if os.path.exists(image_path):
-            self.test_image_path = image_path
-            self.test_json_path = json_path
-            self.test_section = f"{tab_type}-{section}"  # Store the current section
-            self.test_image_ready = True
-            print(f"Test files ready: {base_name} ({tab_type} - {section})")
-        else:
-            print(f"Image file not found: {image_path}")
-
 
 
     
