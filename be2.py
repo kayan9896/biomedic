@@ -63,23 +63,24 @@ class ImageProcessingController:
     def update_landmarks(self, l, r, stage):
         
         if stage == 0:
-            self.model.data['hp1-ap']['metadata'] = l
-            self.model.data['hp1-ob']['metadata'] = r
+            self.model.data['hp1-ap']['metadata']['metadata'] = l
+            self.model.data['hp1-ob']['metadata']['metadata'] = r
             print(stage,l,r)
         if stage == 1:
-            self.model.data['hp2-ap']['metadata'] = l
-            self.model.data['hp2-ob']['metadata'] = r
+            self.model.data['hp2-ap']['metadata']['metadata'] = l
+            self.model.data['hp2-ob']['metadata']['metadata'] = r
         if stage == 2:
-            self.model.data['cup-ap']['metadata'] = l
-            self.model.data['cup-ob']['metadata'] = r
+            self.model.data['cup-ap']['metadata']['metadata'] = l
+            self.model.data['cup-ob']['metadata']['metadata'] = r
         if stage == 3:
-            self.model.data['tri-ap']['metadata'] = l
-            self.model.data['tri-ob']['metadata'] = r
+            self.model.data['tri-ap']['metadata']['metadata'] = l
+            self.model.data['tri-ob']['metadata']['metadata'] = r
         
         
         self.uistates = 'landmarks' if self.scn[:3] != 'frm' else 'None'
-        self.viewmodel.imgs[0]['metadata'] = l
-        self.viewmodel.imgs[1]['metadata'] = r
+        self.pause_states = None
+        self.viewmodel.imgs[0]['metadata']['metadata'] = l
+        self.viewmodel.imgs[1]['metadata']['metadata'] = r
         
 
     def connect_video(self):

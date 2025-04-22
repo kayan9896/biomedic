@@ -1,6 +1,8 @@
 {
     "folder": "shots",
     "type": "hp1-ap",
+    "side": "r",
+    "imuangles": [0, 0],
     "metadata": {
         "pelvis": [
             {
@@ -192,5 +194,7 @@
                 "colour": "E69F00"
             }
         ]
-    }
+    },
+    "Calibration": {},
+    "Segmentation": null
 }

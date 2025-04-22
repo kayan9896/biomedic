@@ -68,6 +68,7 @@ class AnalyzeBox:
     def analyzeframe(self, section, frame):
         try:
             self.data[section]['success'] = None
+            
             image = cv2.imread('./glyph.png')
             difference = cv2.absdiff(image, frame)
             
@@ -79,13 +80,8 @@ class AnalyzeBox:
             if np.mean(difference2)<10:
                 return {'metadata': None, 'checkmark': 0, 'error': 'landmarks fail'}, frame
 
-            image = cv2.imread('./l.png')
-            difference = cv2.absdiff(image, frame)
-            
-            side = 'l' if np.mean(difference)<10 else 'r'
-            if section[:3] == 'hp2' or  section[:3] == 'tri':
-                if side != self.data[section]['side']:
-                    return {'metadata': None, 'checkmark': None, 'error': 'wrong side'}, frame
+
+
             self.is_processing = True
 
             tab_type = section[:3]  # hp1, hp2, cup, tri
@@ -122,7 +118,13 @@ class AnalyzeBox:
                 with open(file, 'r') as f:
                     metadata = json.load(f)
             
-            
+                        
+            side = metadata['side']
+            if section[:3] == 'hp2' or  section[:3] == 'tri':
+                if side != self.data[section]['side']:
+                    return {'metadata': None, 'checkmark': None, 'error': 'wrong side'}, frame
+
+            metadata['imuangles'] = [self.controller.imu.angle, self.controller.imu.rotation_angle]
             # Process frame and generate results
             result = {
                 'metadata': metadata,
@@ -217,19 +219,16 @@ class AnalyzeBox:
 
     def exec(self, scn, frame=None):
         match scn:
-            case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn':   
+            case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn' | 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn' | 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn' | 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
                 try:
                     data, processed_frame = self.analyzeframe(scn[4:-4], frame)
                     
                     # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'shots',
-                        'type': scn[4:-4],
-                        'metadata': data['metadata']
-                    }
+                    dataforsave = data['metadata']
                     
                     dataforvm = data
                     dataforvm['next'] = False
+
                     return dataforsave, dataforvm, processed_frame
                 
                 except Exception as error:
@@ -238,16 +237,22 @@ class AnalyzeBox:
                         {'success': False, 'error': str(error)},
                         None
                     )
-            case 'rcn:hmplv1:bgn':
+            case 'rcn:hmplv1:bgn' | 'rcn:hmplv2:bgn' | 'rcn:acecup:bgn' | 'rcn:tothip:bgn':
+                map = {
+                    'rcn:hmplv1:bgn': 'hp1',
+                    'rcn:hmplv2:bgn': 'hp2',
+                    'rcn:acecup:bgn': 'cup',
+                    'rcn:tothip:bgn': 'tri'
+                }
                 try:
                     data, processed_frame = self.reconstruct(scn[4:-4])
                     
                     # Prepare data for different components
                     dataforsave = {
                         'folder': 'recons',
-                        'type': 'hp1',
-                        'metadata': data.get('metadata',None),
-                        'timestamp': str(datetime.datetime.now())
+                        'type': map[scn],
+                        'shot_1': data['metadata']['ap'],
+                        'shot_2': data['metadata']['ob']
                     }
                     
                     dataforvm = data
@@ -267,51 +272,8 @@ class AnalyzeBox:
                     )
 
 
-            case 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn':   
-                try:
-                    data, processed_frame = self.analyzeframe(scn[4:-4], frame)
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'shots',
-                        'type': scn[4:-4],
-                        'metadata': data['metadata']
-                    }
-                    
-                    dataforvm = data
-                    dataforvm['next'] = False
-                    return dataforsave, dataforvm, processed_frame
-                
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
-            case 'rcn:hmplv2:bgn':
-                try:
-                    data, processed_frame = self.reconstruct(scn[4:-4])
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'recons',
-                        'type': 'hp2',
-                        'metadata': data.get('metadata',None),
-                        'timestamp': str(datetime.datetime.now())
-                    }
-                    
-                    dataforvm = data
-                    dataforvm.pop('metadata')
-                    dataforvm['next'] = False
-
-                    return dataforsave, dataforvm, processed_frame
-                
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
+            
+            
             case 'reg:pelvis:bgn':
                 try:
                     data, processed_frame = self.reg(scn[4:-4])
@@ -322,7 +284,7 @@ class AnalyzeBox:
                         'folder': 'regs',
                         'type': 'hp2',
                         'measurements': data.get('measurements',None),
-                        'timestamp': str(datetime.datetime.now())
+                        
                     }
                     
                     dataforvm = data 
@@ -338,51 +300,8 @@ class AnalyzeBox:
                     )
 
 
-            case 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn':   
-                try:
-                    data, processed_frame = self.analyzeframe(scn[4:-4], frame)
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'shots',
-                        'type': scn[4:-4],
-                        'metadata': data['metadata']
-                    }
-                    
-                    dataforvm = data
-                    dataforvm['next'] = False
-                    return dataforsave, dataforvm, processed_frame
-                
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
-            case 'rcn:acecup:bgn':
-                try:
-                    data, processed_frame = self.reconstruct(scn[4:-4])
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'recons',
-                        'type': 'cup',
-                        'metadata': data.get('metadata',None),
-                        'timestamp': str(datetime.datetime.now())
-                    }
-                    
-                    dataforvm = data
-                    dataforvm.pop('metadata')
-                    dataforvm['next'] = False
-
-                    return dataforsave, dataforvm, processed_frame
-
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
+            
+            
             case 'reg:regcup:bgn':
                 try:
                     data, processed_frame = self.reg(scn[4:-4])
@@ -393,7 +312,7 @@ class AnalyzeBox:
                         'folder': 'regs',
                         'type': 'cup',
                         'measurements': data.get('measurements',None),
-                        'timestamp': str(datetime.datetime.now())
+                        
                     }
                     
                     dataforvm = data 
@@ -408,51 +327,8 @@ class AnalyzeBox:
                         None
                     )
 
-            case 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
-                try:
-                    data, processed_frame = self.analyzeframe(scn[4:-4], frame)
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'shots',
-                        'type': scn[4:-4],
-                        'metadata': data['metadata']
-                    }
-                    
-                    dataforvm = data
-                    dataforvm['next'] = False
-                    return dataforsave, dataforvm, processed_frame
-                
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
-            case 'rcn:tothip:bgn':
-                try:
-                    data, processed_frame = self.reconstruct(scn[4:-4])
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'recons',
-                        'type': 'tri',
-                        'metadata': data.get('metadata',None),
-                        'timestamp': str(datetime.datetime.now())
-                    }
-                    
-                    dataforvm = data
-                    dataforvm.pop('metadata')
-                    dataforvm['next'] = False
-
-                    return dataforsave, dataforvm, processed_frame
-
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
+            
+            
             case 'reg:regtri:bgn':
                 try:
                     data, processed_frame = self.reg(scn[4:-4])
@@ -463,7 +339,7 @@ class AnalyzeBox:
                         'folder': 'regs',
                         'type': 'tri',
                         'measurements': data.get('measurements',None),
-                        'timestamp': str(datetime.datetime.now())
+                        
                     }
                     
                     dataforvm = data 
