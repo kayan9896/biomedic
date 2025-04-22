@@ -745,7 +745,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({'uistates': showCarmBox || isProcessing ? 'edit' : null})
+          body: JSON.stringify({'uistates': showCarmBox || isProcessing || pause ? 'edit' : null})
         });
       } catch (error) {
         console.error('Error setting edit UI state:', error);
@@ -754,7 +754,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
     };
   
     setEditUIState();
-  }, [showCarmBox,isProcessing]);
+  }, [showCarmBox, isProcessing, pause]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1002,10 +1002,10 @@ const updateRotationSavedState = (currentRotationAngle) => {
   return (
     <div className="app">
       
-      {!isConnected ? ( pause === 10 ? <L12 pause={pause} setPause={setPause} handlenext={handlenext} handleConnect={handleConnect}/>:
+      {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <L13 setPause={setPause} setSelectedCArm={setSelectedCArm}/>  
+          <L13 setPause={setPause} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect}/>  
         </div>
       ) : (
         <>
@@ -1141,7 +1141,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {report&&<L11 setReport={setReport} stage={stage} setError={setError}/>}
             
       {/*L12 Pause, render when next button clicked */}
-      {<L12 pause={pause} setPause={setPause} handlenext={handlenext} handleConnect={handleConnect}/>}
+      {<L12 pause={pause} setPause={setPause} handlenext={handlenext}/>}
 
       {/*L14 Setting, render when setting true*/}
       {setting&&<L14/>}

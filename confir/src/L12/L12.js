@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L12({pause, setPause, setReport, handlenext, handleConnect}) {
+function L12({pause, setPause, setReport, handlenext}) {
   const [next, setNext] = useState(null)
   if(pause === 1)
     return(
@@ -38,9 +38,7 @@ function L12({pause, setPause, setReport, handlenext, handleConnect}) {
     return(
       <div>
         <img src={require('./RefPauseWindow.png')} alt="RefPauseWindow" style={{position:'absolute', top:'77px', left:'217px', zIndex:10}}/>
-        <img src={require('./GoBackButton.png')} alt="GoBackButton" style={{position:'absolute', top:'765px', left:'267px', zIndex:10}} onClick={()=>setPause(0)}/>
         <img src={require('./ContinueButton.png')} alt="ContinueButton" style={{position:'absolute', top:'765px', left:'1359px', zIndex:10, cursor:'pointer'}} onClick={()=>{
-          handleConnect()
           setPause(0)
         }}/>
       </div>

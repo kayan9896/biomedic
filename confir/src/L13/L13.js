@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function L13({ setPause }) {
+function L13({ setPause, handleConnect }) {
   const [cArms, setCArms] = useState([]);
   const [selectedCArm, setSelectedCArm] = useState('');
   const [cArmSelected, setCarmSelected] = useState(false);
@@ -84,6 +84,7 @@ function L13({ setPause }) {
       setCurrentStep(4);
       setAllChecksComplete(true); // Final step
     } else if (currentStep === 4 && allChecksComplete) {
+      handleConnect()
       setPause(10); // When all checks complete, proceed to next screen
     }
   };
