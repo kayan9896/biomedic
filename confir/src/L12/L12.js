@@ -37,6 +37,7 @@ function L12({pause, setPause, setReport, handlenext}) {
   if(pause === 10)
     return(
       <div>
+        <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
         <img src={require('./RefPauseWindow.png')} alt="RefPauseWindow" style={{position:'absolute', top:'77px', left:'217px', zIndex:10}}/>
         <img src={require('./ContinueButton.png')} alt="ContinueButton" style={{position:'absolute', top:'765px', left:'1359px', zIndex:10, cursor:'pointer'}} onClick={()=>{
           setPause(0)

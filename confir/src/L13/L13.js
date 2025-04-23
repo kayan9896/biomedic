@@ -179,13 +179,13 @@ function L13({ setPause, handleConnect }) {
   return (
     <div>
       <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'6px', left:'240px', zIndex:13}}/>
-      <img 
+      {(currentStep ===2 || currentStep ===3) && <img 
         src={(currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? require('./SetupTryAgainBtn.png') : require('./SetupTryAgainBtnDisable.png')} 
         alt="SetupTryAgain" 
         style={{
           position:'absolute', 
-          top:'826px', 
-          left:'995px', 
+          top:'839px', 
+          left:'1002px', 
           zIndex:13, 
           cursor: (currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? 'pointer' : 'default'
         }} 
@@ -196,19 +196,20 @@ function L13({ setPause, handleConnect }) {
               ? checkTiltSensor 
               : null
         } 
-      />
+      />}
       <img 
         src={isCurrentStepComplete() ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png')} 
         alt="SetupReturn" 
         style={{
           position:'absolute', 
-          top:'826px', 
-          left:'1330px', 
+          top:'839px', 
+          left: (currentStep ===2 || currentStep ===3) ? '1327px' : '1164px', 
           zIndex:13, 
           cursor: isCurrentStepComplete() ? 'pointer' : 'default'
         }} 
         onClick={isCurrentStepComplete() ? handleContinue : null} 
       />
+      <img src={require('./RestartBtn.png')} style={{position:'absolute', top:'839px', left:'284px', zIndex:13}} onClick={()=>setCurrentStep(1)} />
       <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
       <img src={require('../L2/ExitIcon.png')} style={{position:'absolute', top:'1016px', left:'1853px'}} />
 

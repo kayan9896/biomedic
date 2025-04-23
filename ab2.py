@@ -122,7 +122,9 @@ class AnalyzeBox:
             side = metadata['side']
             if section[:3] == 'hp2' or  section[:3] == 'tri':
                 if side != self.data[section]['side']:
-                    return {'metadata': None, 'checkmark': None, 'error': 'wrong side'}, frame
+                    metadata['metadata'] = None
+                    self.is_processing = False
+                    return {'metadata': metadata, 'checkmark': None, 'error': 'wrong side'}, frame
 
             metadata['imuangles'] = [self.controller.imu.angle, self.controller.imu.rotation_angle]
             # Process frame and generate results

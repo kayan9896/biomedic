@@ -1117,7 +1117,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
             position:'absolute', 
             top:'863px', 
             left:'1825px',
-            zIndex:10
+            zIndex:14
           }}
         />
       ):(<img 
@@ -1127,15 +1127,14 @@ const updateRotationSavedState = (currentRotationAngle) => {
           top:'864px', 
           left:'1435px',
           animation: 'slideIn 0.5s ease-in-out',
-          zIndex:10
+          zIndex:14
         }}
       />)}
       <img 
         src={require('./videoConnectionIcon.png')} 
-        style={{position:'absolute', top:'765px', left:'1825px',zIndex:10}}
+        style={{position:'absolute', top:'765px', left:'1825px',zIndex:14}}
       />
-      </>
-      )}
+      
 
       {/*L11 Report, render when report button clicked*/}
       {report&&<L11 setReport={setReport} stage={stage} setError={setError}/>}
@@ -1192,7 +1191,8 @@ const updateRotationSavedState = (currentRotationAngle) => {
           </div>
         )}
   
-
+        </>
+      )}
     </div>
   );
 }

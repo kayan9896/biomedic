@@ -356,6 +356,7 @@ def restart():
         return jsonify({"error": "Controller not initialized"}), 404
     controller.uistates = 'restart'
     controller.model.resetdata()
+    controller.scn = 'init'
     return jsonify({"message": "uistate restart"})
 
 @app.route('/screenshot/<int:stage>', methods=['POST'])
