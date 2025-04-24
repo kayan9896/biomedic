@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import os
+import cv2
 
-class IMU3:
-    def __init__(self, viewmodel, config=None):
-        self.viewmodel = viewmodel
+class Panel:
+    def __init__(self, controller, config=None):
+        self.controller = controller
         self.angle = 0
         self.rotation_angle = 0
         self._auto_mode = False
@@ -26,10 +27,7 @@ class IMU3:
         # Get the exam folder path from config
         self.sim_data_path = config.get("model_simdata_path", "exam") if config else "exam"
         
-        # Initialize the angles in viewmodel
-        self.viewmodel.update_state('angle', self.angle)
-        self.viewmodel.update_state('rotation_angle', self.rotation_angle)
-        
+
         # Launch the GUI in a separate thread
         self.gui_thread = threading.Thread(target=self._run_gui)
         self.gui_thread.daemon = True
@@ -119,8 +117,11 @@ class IMU3:
         # Update all file lists
         self._update_all_file_lists()
         
+        transfer_button = tk.Button(main_frame, text="TRANSFER", command=self._test_with_selected_files)
+        transfer_button.pack(fill=tk.X)
+
         # Single test button
-        test_button = tk.Button(main_frame, text="TEST", command=self._test_with_selected_files)
+        test_button = tk.Button(main_frame, text="TRIGGER", command=self._test)
         test_button.pack(fill=tk.X, pady=(10, 5))
         
         # Auto mode toggle
@@ -237,25 +238,21 @@ class IMU3:
                 # Construct full paths for both PNG and JSON files
                 image_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.png")
                 json_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.json")
-                
+
                 self.test_data[section] = {
                     'image_path': image_path if os.path.exists(image_path) else None,
                     'json_path': json_path if os.path.exists(json_path) else None,
                     'file_name': selected_base_name,
                     'errors': selected_errors
                 }
+                self.controller.model.settest(self.test_data)
         
-        # Trigger the test with the first available ap image
-        for section in ['ap', 'ob']:
-            if self.test_data[section] and self.test_data[section]['image_path']:
-                self.test_image_path = self.test_data[section]['image_path']
-                self.test_image_ready = True
-                print(f"Test initiated with selected files from tab {tab_type}")
-                print(f"Starting with {section} file: {self.test_data[section]['file_name']}")
-                return
+    def _test(self):
+        # Trigger the test 
+        self.image_path = self.test_data['ap']['image_path'] if -20 < self.rotation_angle < 20 else self.test_data['ob']['image_path']
+        self.controller.frame_grabber.last_frame = cv2.imread(self.image_path)
+        self.controller.frame_grabber._is_new_frame_available = True
         
-        print("No valid image file selected for testing!")
-    
     def _get_files_for_tab_section(self, tab_type, section):
         """Get files filtered by tab type and section"""
         files = set()  # Use a set to avoid duplicates
@@ -341,7 +338,7 @@ class IMU3:
                     self.increasing = True
                     
             # Update the viewmodel and UI
-            self.viewmodel.update_state('angle', self.angle)
+            self.controller.viewmodel.update_state('angle', self.angle)
             self.angle_value.config(text=str(self.angle))
         
         # Schedule the next update if still running
@@ -372,7 +369,7 @@ class IMU3:
         if not self._auto_mode:
             new_angle = min(max(self.angle + change, -60), 60)
             self.angle = new_angle
-            self.viewmodel.update_state('angle', self.angle)
+            self.controller.imu.set_tilt(self.angle)
             self.angle_value.config(text=str(self.angle))
             print(f"Current angle: {self.angle}")
     
@@ -381,7 +378,7 @@ class IMU3:
         if not self._auto_mode:
             new_angle = min(max(self.rotation_angle + change, -60), 60)
             self.rotation_angle = new_angle
-            self.viewmodel.update_state('rotation_angle', self.rotation_angle)
+            self.controller.imu.set_rotation(self.rotation_angle)
             self.rotation_angle_value.config(text=str(self.rotation_angle))
             print(f"Current rotation_angle: {self.rotation_angle}")
     

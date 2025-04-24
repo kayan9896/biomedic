@@ -6,15 +6,21 @@ import json
 import datetime
 
 class AnalyzeBox:
-    def __init__(self, controller=None):
+    def __init__(self):
         self.progress = 0
         self._lock = threading.Lock()
         self.viewpairs = [None]*4
         self.is_processing = False
         self._stitch_thread = None
         self.mode = 1  
-        self.controller = controller  # Store reference to controller
+        self.on_simulation = False
         self.resetdata()
+        self.test_data = {
+            'ap': None, 
+            'ob': None, 
+            'recons': None, 
+            'regs': None
+        }
 
     def resetdata(self):
         self.data = {
@@ -65,7 +71,9 @@ class AnalyzeBox:
         result = np.hstack((frame1_resized, frame2_resized))
         return result
 
-    def analyzeframe(self, section, frame):
+    def settest(self, testdata):
+        self.test_data = testdata
+    def analyzeframe(self, section, frame, angle, rotation_angle):
         try:
             self.data[section]['success'] = None
             
@@ -81,32 +89,22 @@ class AnalyzeBox:
                 return {'metadata': None, 'checkmark': 0, 'error': 'landmarks fail'}, frame
 
 
-
             self.is_processing = True
-
-            tab_type = section[:3]  # hp1, hp2, cup, tri
             section_type = section[-2:]  # ap, ob
             
-            # Check if we should use test JSON data
-            if (hasattr(self.controller, 'on_simulation') and self.controller.on_simulation and 
-            hasattr(self.controller, 'imu') and self.controller.imu is not None and
-            hasattr(self.controller.imu, 'test_data')):
-            
-                # Use the simplified test data structure
-                test_entry = self.controller.imu.test_data.get(section_type)
-                if test_entry and test_entry.get('json_path'):
-                    try:
-                        frame = cv2.imread(test_entry.get('image_path'))
-                        error_code = test_entry['errors']
-                        print(f"Simulating error {error_code} for {section}")
-                        with open(test_entry['json_path'], 'r') as f:
-                            metadata = json.load(f)
-                        print(f"Using test data for {section}: {test_entry['file_name']}")
-                    except Exception as e:
-                        print(f"Error loading test JSON: {e}")
-                        metadata = None
-                else:
+            test_entry = self.test_data.get(section_type)
+            if test_entry and test_entry.get('json_path'):
+                try:
+                    error_code = test_entry['errors']
+                    print(f"Simulating error {error_code} for {section}")
+                    with open(test_entry['json_path'], 'r') as f:
+                        metadata = json.load(f)
+                    print(f"Using test data for {section}: {test_entry['file_name']}")
+                except Exception as e:
+                    print(f"Error loading test JSON: {e}")
                     metadata = None
+            else:
+                metadata = None
             
             # If no test metadata, use the default files
             if metadata is None:
@@ -126,7 +124,7 @@ class AnalyzeBox:
                     self.is_processing = False
                     return {'metadata': metadata, 'checkmark': None, 'error': 'wrong side'}, frame
 
-            metadata['imuangles'] = [self.controller.imu.angle, self.controller.imu.rotation_angle]
+            metadata['imuangles'] = [angle, rotation_angle]
             # Process frame and generate results
             result = {
                 'metadata': metadata,
@@ -149,6 +147,7 @@ class AnalyzeBox:
             self.data[section]['side'] = side
             return result, frame
         except Exception as e:
+            print(e)
             return {
                 'success': False,
                 'error': str(e)
@@ -219,11 +218,11 @@ class AnalyzeBox:
                 'error': str(e)
             }, None
 
-    def exec(self, scn, frame=None):
+    def exec(self, scn, frame=None, angle=0, rotation_angle=0):
         match scn:
             case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn' | 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn' | 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn' | 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
                 try:
-                    data, processed_frame = self.analyzeframe(scn[4:-4], frame)
+                    data, processed_frame = self.analyzeframe(scn[4:-4], frame, angle, rotation_angle)
                     
                     # Prepare data for different components
                     dataforsave = data['metadata']

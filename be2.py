@@ -11,15 +11,13 @@ import json
 import shutil
 from glob import glob
 import datetime
-from imu import IMU
+from imu2 import IMU2
 from exam import Exam
-from panel import IMU3
+from panel import Panel
 
 class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox', config = None):
         self.frame_grabber = frame_grabber
-        if analyze_box:
-            analyze_box.controller = self
         self.model = analyze_box
         self.current_stage = 1
         self.current_frame = 1
@@ -29,9 +27,12 @@ class ImageProcessingController:
         # Get configuration
         self.config = config
         
+        self.panel = None
         # Initialize based on configuration
-        self.on_simulation = self.config.get("on_simultation", True)
+        self.on_simulation = self.config.get("on_simulation", False) 
+            
         self.mode = self.config.get("mode", 0)
+        self.model.mode = self.mode
         self.video_connected = False
         
         self.viewmodel = ProcessingModel()
@@ -43,16 +44,20 @@ class ImageProcessingController:
         self.logger = frame_grabber.logger
         
         # Initialize IMU if enabled in config
-        self.imu = None
+        
         if self.config.get("imu_on", True):
-            self.imu = IMU3(self.viewmodel, config=self.config)
             imu_port = self.config.get("imu_port", "COM3")
+            self.imu = IMU2(self, imu_port)
+            
+        if self.on_simulation:
+            self.panel = Panel(self, config=self.config)
+            self.model.on_simulation = self.on_simulation
             
     
     def imuonob(self):
-        return (not self.imuonap()) and (-50<=self.imu.rotation_angle and self.imu.rotation_angle<=50)
+        return (not self.imuonap()) and (-50<=self.panel.rotation_angle and self.panel.rotation_angle<=50)
     def imuonap(self):
-        return -20<=self.imu.rotation_angle<=20
+        return -20<=self.panel.rotation_angle<=20
 
     def get_states(self):
         states = self.viewmodel.states
@@ -92,7 +97,7 @@ class ImageProcessingController:
         """
         # Get device name from config
         device = self.config.get("framegrabber_device", "OBS Virtual Camera")
-        if self.video_connected:
+        if self.video_connected or self.on_simulation:
             return {
                 "connected": True,
                 "message": f"Successfully connected to {device}"
@@ -149,17 +154,17 @@ class ImageProcessingController:
     def _process_loop(self):
         self.scn = 'init'
         while self.is_running:
-            if self.imu and self.imu.test_image_ready:
+            if self.panel and self.panel.test_image_ready:
                 try:
                     # Read the test image
-                    frame = cv2.imread(self.imu.test_image_path)
+                    frame = cv2.imread(self.panel.test_image_path)
                 except Exception as e:
                     print(f"Error reading test image: {e}")
                     frame = None
                 
                 # Clear the test flag
-                self.imu.test_image_ready = False
-                self.imu.test_image_path = None
+                self.panel.test_image_ready = False
+                self.panel.test_image_path = None
             else:
                 # Normal processing
                 frame = self.update_backendstates()
@@ -173,7 +178,7 @@ class ImageProcessingController:
             if newscn == self.scn or newscn[-3:] == 'end':
                 continue
             
-            dataforsave, dataforvm, image = self.model.exec(newscn, frame)
+            dataforsave, dataforvm, image = self.model.exec(newscn, frame, self.imu.angle, self.imu.rotation_angle)
             print(frame,image,dataforvm,newscn)
             self.scn = newscn[:-3] + 'end'
             self.viewmodel.update(dataforvm, image)

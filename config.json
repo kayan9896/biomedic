@@ -1,5 +1,5 @@
 {
-    "on_simultation": true,
+    "on_simulation": true,
     "mode": 0, 
     "imu_on": true,
     "imu_port": "COM3",
