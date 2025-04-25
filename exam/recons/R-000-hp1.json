@@ -203,7 +203,7 @@
         },
         "Calibration": {},
         "Segmentation": null,
-        "index": 0
+        "ShotIndex": 0
     },
     "shot_2": {
         "folder": "shots",
@@ -407,7 +407,8 @@
         },
         "Calibration": {},
         "Segmentation": null,
-        "index": 1
+        "ShotIndex": 1
     },
-    "index": 0
+    "ReconResult": 1,
+    "ReconIndex": 0
 }

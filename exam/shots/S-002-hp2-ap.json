@@ -3,7 +3,7 @@
     "type": "hp2-ap",
     "side": "l",
     "imuangles": [
-        0,
+        -5,
         -5
     ],
     "metadata": {
@@ -200,5 +200,5 @@
     },
     "Calibration": {},
     "Segmentation": null,
-    "index": 1
+    "ShotIndex": 2
 }

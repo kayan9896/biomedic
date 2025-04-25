@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-function L13({ setPause, handleConnect }) {
+function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
   const [cArms, setCArms] = useState([]);
-  const [selectedCArm, setSelectedCArm] = useState('');
   const [cArmSelected, setCarmSelected] = useState(false);
   const [videoConnected, setVideoConnected] = useState(false);
   const [videoFrame, setVideoFrame] = useState(null);

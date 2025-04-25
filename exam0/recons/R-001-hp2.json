@@ -1,9 +1,9 @@
 {
     "folder": "recons",
-    "type": "hp1",
+    "type": "hp2",
     "shot_1": {
         "folder": "shots",
-        "type": "hp1-ap",
+        "type": "hp2-ap",
         "side": "r",
         "imuangles": [
             -5,
@@ -216,7 +216,7 @@
     },
     "shot_2": {
         "folder": "shots",
-        "type": "hp1-ob",
+        "type": "hp2-ob",
         "side": "r",
         "imuangles": [
             -5,
@@ -427,5 +427,5 @@
         "Segmentation": null,
         "index": 1
     },
-    "index": 1
+    "ReconResult": 1
 }

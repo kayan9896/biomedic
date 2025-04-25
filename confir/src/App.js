@@ -24,6 +24,7 @@ import L21 from './L21/L21';
 
 import leftTemplate from './L21/template-l.json';
 import rightTemplate from './L21/template-r.json';
+import ReconnectionPage from './L13/ReconnectionPage';
 function scalePoints(templateData, scaleFactor) {
   const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
 
@@ -65,7 +66,7 @@ function App() {
   const isInYellowSector = rotationAngle >= -50 && rotationAngle <= 50;
   const activeLeft = isInGreenSector;
   const activeRight = isInYellowSector && !isInGreenSector;
-  const imuon = angle >= -50 && angle <= 50 ;
+  const imuon = angle >= 0 && angle <= 50 ;
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
@@ -119,6 +120,11 @@ function App() {
 
   // Flag to track if this is the first load of the component
   const isFirstLoad = useRef(true);
+  const [showReconnectionPage, setShowReconnectionPage] = useState(false);
+  const video_on = rotationAngle>0;
+  const handleReconnectionReturn = () => {
+    setShowReconnectionPage(false);
+  };
 
   useEffect(() => {
     if(!isConnected) return;
@@ -996,7 +1002,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       return newContrast;
     });
   };
-  const [selectedCArm, setSelectedCArm] = useState(null);
+  const [selectedCArm, setSelectedCArm] = useState('');
 
 
   return (
@@ -1005,7 +1011,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <L13 setPause={setPause} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect}/>  
+          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect}/>  
         </div>
       ) : (
         <>
@@ -1133,6 +1139,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       <img 
         src={require('./videoConnectionIcon.png')} 
         style={{position:'absolute', top:'765px', left:'1825px',zIndex:14}}
+        onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />
       
 
@@ -1147,6 +1154,14 @@ const updateRotationSavedState = (currentRotationAngle) => {
 
       {/*L1x Progree bar, render based on backend params*/}
       {isProcessing && <CircularProgress percentage={progress} />}
+
+      {showReconnectionPage &&
+            <ReconnectionPage 
+            selectedCArm={selectedCArm}
+            onClose={handleReconnectionReturn} 
+            videoConnected={video_on} 
+            imuConnected={imuon} 
+          />}
       
       {/*L1x Keyboard, render when showKeyboard true*/}
       {showKeyboard && (

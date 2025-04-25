@@ -38,7 +38,7 @@ class Exam:
                 cv2.imwrite(shot_path, image)
                 
             # Save JSON with 'S' prefix
-            dataforsave['index'] = self.shot_count
+            dataforsave['ShotIndex'] = self.shot_count
             json_filename = self.get_formatted_filename('S', data_type, self.shot_count) + '.json'
             json_path = os.path.join(self.exam_folder, 'shots', json_filename)
             self.save_json(dataforsave, json_path)
@@ -47,7 +47,7 @@ class Exam:
 
         elif dataforsave['folder'] == 'recons':
             # Save recon with 'R' prefix
-            dataforsave['index'] = self.recon_count
+            dataforsave['ReconIndex'] = self.recon_count
             json_filename = self.get_formatted_filename('R', data_type, self.recon_count) + '.json'
             json_path = os.path.join(self.exam_folder, 'recons', json_filename)
             self.save_json(dataforsave, json_path)
@@ -63,7 +63,7 @@ class Exam:
                 cv2.imwrite(stitch_path, stitch)
             
             # Save JSON with 'M' prefix
-            dataforsave['index'] = self.reg_count
+            dataforsave['RegIndex'] = self.reg_count
             json_filename = self.get_formatted_filename('M', data_type, self.reg_count) + '.json'
             json_path = os.path.join(self.exam_folder, 'regs', json_filename)
             

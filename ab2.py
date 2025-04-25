@@ -158,10 +158,30 @@ class AnalyzeBox:
             self.data[section]['success'] = None
             curap = self.getfrmcase(section)[0]
             curob = self.getfrmcase(section)[1]
-            if self.data[curap]['side'] != self.data[curob]['side']: 
-                return {'checkmark': 3, 'error': 'recon fails, unmatched side'}, None
+            
             self.is_processing = True
-            metadata = {'ap': self.data[curap]['metadata'], 'ob': self.data[curob]['metadata']}
+
+            test_entry = self.test_data.get('recons')
+            if test_entry and test_entry.get('json_path'):
+                try:
+                    error_code = test_entry['errors']
+                    print(f"Simulating error {error_code} for {section}")
+                    with open(test_entry['json_path'], 'r') as f:
+                        metadata = json.load(f)
+                    print(f"Using test data for {section}: {test_entry['file_name']}")
+                except Exception as e:
+                    print(f"Error loading test JSON: {e}")
+                    metadata = None
+            else:
+                metadata = None
+            if self.data[curap]['side'] != self.data[curob]['side']: 
+                metadata['shot_1'] = None
+                metadata['shot_2'] = None
+                metadata['ReconResult'] = 'recon fails, unmatched side'
+                self.is_processing = False
+                return {'metadata': metadata, 'checkmark': 3, 'error': 'recon fails, unmatched side'}, None
+            metadata['shot_1'] = self.data[curap]['metadata']
+            metadata['shot_2'] = self.data[curob]['metadata']
             
             # Process frame and generate results
             result = {
@@ -185,6 +205,7 @@ class AnalyzeBox:
                 self.data['tri-ap']['side'] = self.data['cup-ap']['side']
                 self.data['tri-ob']['side'] = self.data['tri-ap']['side']
             self.data[section]['success'] = True
+            self.data[section]['metadata'] = metadata
             return result, None
         except Exception as e:
             return {
@@ -203,16 +224,38 @@ class AnalyzeBox:
             difference2 = cv2.absdiff(image, self.data[curob]['image'])
             if np.mean(difference) < 10 or np.mean(difference2) < 10:
                 return {'error': 'reg fails'}, None
+            
             self.is_processing = True
+            test_entry = self.test_data.get('regs')
+            if test_entry and test_entry.get('json_path'):
+                try:
+                    error_code = test_entry['errors']
+                    print(f"Simulating error {error_code} for {section}")
+                    with open(test_entry['json_path'], 'r') as f:
+                        metadata = json.load(f)
+                    print(f"Using test data for {section}: {test_entry['file_name']}")
+                except Exception as e:
+                    print(f"Error loading test JSON: {e}")
+                    metadata = None
+            else:
+                metadata = None
+
+            metadata['Pelvis_Recon'] = {'hmplv1':self.data['hmplv1']['metadata'], 'hmplv2':self.data['hmplv2']['metadata']}
+            if section == 'regtri':
+                metadata['Implant_Recon'] = self.data['tothip']['metadata'] 
+            if section == 'regcup':
+                metadata['Implant_Recon'] = self.data['acecup']['metadata'] 
+
             res = self.stitch(self.data['hp1-ap']['image'],self.data[curap]['image'])
-            result = {}
-            if section != 'pelvis': result['measurements'] = 123
+            metadata['stitch'] = res
+            
             self.is_processing = False
 
             self.data[section]['success'] = True
             self.data[section]['stitch'] = res
-            return result, res
+            return metadata, res
         except Exception as e:
+            print(e)
             return {
                 'success': False,
                 'error': str(e)
@@ -238,23 +281,13 @@ class AnalyzeBox:
                         {'success': False, 'error': str(error)},
                         None
                     )
+
             case 'rcn:hmplv1:bgn' | 'rcn:hmplv2:bgn' | 'rcn:acecup:bgn' | 'rcn:tothip:bgn':
-                map = {
-                    'rcn:hmplv1:bgn': 'hp1',
-                    'rcn:hmplv2:bgn': 'hp2',
-                    'rcn:acecup:bgn': 'cup',
-                    'rcn:tothip:bgn': 'tri'
-                }
                 try:
                     data, processed_frame = self.reconstruct(scn[4:-4])
                     
                     # Prepare data for different components
-                    dataforsave = {
-                        'folder': 'recons',
-                        'type': map[scn],
-                        'shot_1': data['metadata']['ap'],
-                        'shot_2': data['metadata']['ob']
-                    }
+                    dataforsave = data['metadata']
                     
                     dataforvm = data
                     if 'metadata' in dataforvm:
@@ -265,30 +298,22 @@ class AnalyzeBox:
                     return dataforsave, dataforvm, processed_frame
                 
                 except Exception as error:
-                    print(error)
+                    
                     return (
                         {'success': False, 'error': str(error)},
                         {'success': False, 'error': str(error)},
                         None
                     )
-
-
+   
             
-            
-            case 'reg:pelvis:bgn':
+            case 'reg:pelvis:bgn' | 'reg:regcup:bgn' | 'reg:regtri:bgn':
                 try:
                     data, processed_frame = self.reg(scn[4:-4])
                     
                     # Prepare data for different components
-                    dataforsave = {
-                        'stitch': processed_frame,
-                        'folder': 'regs',
-                        'type': 'hp2',
-                        'measurements': data.get('measurements',None),
-                        
-                    }
+                    dataforsave = data
                     
-                    dataforvm = data 
+                    dataforvm = {'measurements': data['RegsResult']}
                     if 'error' not in data: dataforvm['next'] = True
 
                     return dataforsave, dataforvm, None
@@ -299,60 +324,8 @@ class AnalyzeBox:
                         {'success': False, 'error': str(error)},
                         None
                     )
-
-
             
             
-            case 'reg:regcup:bgn':
-                try:
-                    data, processed_frame = self.reg(scn[4:-4])
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'stitch': processed_frame,
-                        'folder': 'regs',
-                        'type': 'cup',
-                        'measurements': data.get('measurements',None),
-                        
-                    }
-                    
-                    dataforvm = data 
-                    if 'error' not in data: dataforvm['next'] = True
 
-                    return dataforsave, dataforvm, None
-                
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
-
-            
-            
-            case 'reg:regtri:bgn':
-                try:
-                    data, processed_frame = self.reg(scn[4:-4])
-                    
-                    # Prepare data for different components
-                    dataforsave = {
-                        'stitch': processed_frame,
-                        'folder': 'regs',
-                        'type': 'tri',
-                        'measurements': data.get('measurements',None),
-                        
-                    }
-                    
-                    dataforvm = data 
-                    if 'error' not in data: dataforvm['next'] = True
-
-                    return dataforsave, dataforvm, None
-                
-                except Exception as error:
-                    return (
-                        {'success': False, 'error': str(error)},
-                        {'success': False, 'error': str(error)},
-                        None
-                    )
             case _:
                 return None, None, None

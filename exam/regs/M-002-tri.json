@@ -1,6 +1,6 @@
 {
     "folder": "regs",
-    "type": "hp2",
+    "type": "tri",
     "Pelvis_Recon": {
         "hmplv1": {
             "folder": "recons",
@@ -831,8 +831,297 @@
             "ReconIndex": 1
         }
     },
-    "Implant_Recon": null,
+    "Implant_Recon": {
+        "folder": "recons",
+        "type": "hp2",
+        "shot_1": {
+            "folder": "shots",
+            "type": "tri-ap",
+            "side": "l",
+            "imuangles": [
+                -5,
+                -5
+            ],
+            "metadata": {
+                "group1": [
+                    {
+                        "handle": [
+                            736,
+                            584
+                        ],
+                        "points": [
+                            [
+                                630,
+                                272
+                            ],
+                            [
+                                620,
+                                374
+                            ],
+                            [
+                                656,
+                                487
+                            ],
+                            [
+                                736,
+                                624
+                            ],
+                            [
+                                832,
+                                708
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "D55E00"
+                    },
+                    {
+                        "points": [
+                            [
+                                753,
+                                800
+                            ],
+                            [
+                                663,
+                                826
+                            ],
+                            [
+                                604,
+                                754
+                            ],
+                            [
+                                637,
+                                672
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "56B4E9"
+                    },
+                    {
+                        "points": [
+                            [
+                                660,
+                                592
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "CC79A7"
+                    }
+                ],
+                "group2": [
+                    {
+                        "handle": [
+                            477,
+                            824
+                        ],
+                        "points": [
+                            [
+                                202,
+                                903
+                            ],
+                            [
+                                201,
+                                870
+                            ],
+                            [
+                                199,
+                                837
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "0072B2"
+                    },
+                    {
+                        "points": [
+                            [
+                                426,
+                                790
+                            ],
+                            [
+                                437,
+                                824
+                            ],
+                            [
+                                450,
+                                862
+                            ],
+                            [
+                                423,
+                                899
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "009E73"
+                    },
+                    {
+                        "points": [
+                            [
+                                402,
+                                922
+                            ],
+                            [
+                                375,
+                                947
+                            ],
+                            [
+                                374,
+                                984
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "F0E442"
+                    }
+                ]
+            },
+            "Calibration": {},
+            "Segmentation": null,
+            "ShotIndex": 6
+        },
+        "shot_2": {
+            "folder": "shots",
+            "type": "tri-ob",
+            "side": "l",
+            "imuangles": [
+                -5,
+                -25
+            ],
+            "metadata": {
+                "group1": [
+                    {
+                        "handle": [
+                            736,
+                            584
+                        ],
+                        "points": [
+                            [
+                                630,
+                                272
+                            ],
+                            [
+                                620,
+                                374
+                            ],
+                            [
+                                656,
+                                487
+                            ],
+                            [
+                                736,
+                                624
+                            ],
+                            [
+                                832,
+                                708
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "D55E00"
+                    },
+                    {
+                        "points": [
+                            [
+                                753,
+                                800
+                            ],
+                            [
+                                663,
+                                826
+                            ],
+                            [
+                                604,
+                                754
+                            ],
+                            [
+                                637,
+                                672
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "56B4E9"
+                    },
+                    {
+                        "points": [
+                            [
+                                660,
+                                592
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "CC79A7"
+                    }
+                ],
+                "group2": [
+                    {
+                        "handle": [
+                            477,
+                            824
+                        ],
+                        "points": [
+                            [
+                                202,
+                                903
+                            ],
+                            [
+                                201,
+                                870
+                            ],
+                            [
+                                199,
+                                837
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "0072B2"
+                    },
+                    {
+                        "points": [
+                            [
+                                426,
+                                790
+                            ],
+                            [
+                                437,
+                                824
+                            ],
+                            [
+                                450,
+                                862
+                            ],
+                            [
+                                423,
+                                899
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "009E73"
+                    },
+                    {
+                        "points": [
+                            [
+                                402,
+                                922
+                            ],
+                            [
+                                375,
+                                947
+                            ],
+                            [
+                                374,
+                                984
+                            ]
+                        ],
+                        "type": "lines",
+                        "colour": "F0E442"
+                    }
+                ]
+            },
+            "Calibration": {},
+            "Segmentation": null,
+            "ShotIndex": 7
+        },
+        "ReconResult": 1,
+        "ReconIndex": 3
+    },
     "RegsResult": 123,
     "timestamp": "2025-04-18 20:33:01.641711",
-    "RegIndex": 0
+    "RegIndex": 2
 }

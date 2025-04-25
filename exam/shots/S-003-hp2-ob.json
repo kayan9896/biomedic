@@ -3,8 +3,8 @@
     "type": "hp2-ob",
     "side": "l",
     "imuangles": [
-        0,
-        -25
+        -5,
+        40
     ],
     "metadata": {
         "group1": [
@@ -200,5 +200,5 @@
     },
     "Calibration": {},
     "Segmentation": null,
-    "index": 3
+    "ShotIndex": 3
 }
