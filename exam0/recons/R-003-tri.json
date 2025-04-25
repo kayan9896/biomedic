@@ -1,6 +1,6 @@
 {
     "folder": "recons",
-    "type": "hp2",
+    "type": "tri",
     "shot_1": {
         "folder": "shots",
         "type": "hp2-ap",
