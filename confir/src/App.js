@@ -67,6 +67,7 @@ function App() {
   const activeLeft = isInGreenSector;
   const activeRight = isInYellowSector && !isInGreenSector;
   const imuon = angle >= 0 && angle <= 50 ;
+  const [video_on, setVideo_on] = useState(false);
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
@@ -121,7 +122,6 @@ function App() {
   // Flag to track if this is the first load of the component
   const isFirstLoad = useRef(true);
   const [showReconnectionPage, setShowReconnectionPage] = useState(false);
-  const video_on = rotationAngle>0;
   const handleReconnectionReturn = () => {
     setShowReconnectionPage(false);
   };
@@ -369,6 +369,7 @@ function App() {
         
         setIsProcessing(data.is_processing);
         setProgress(data.progress);
+        setVideo_on(data.video_on)
         
         // Hide carmbox when processing is happening
         if (data.is_processing) {

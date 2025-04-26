@@ -63,6 +63,13 @@ class ImageProcessingController:
         states = self.viewmodel.states
         states['is_processing'] = self.model.is_processing
         states['progress'] = self.model.progress
+        
+        # Update video_on based on frame_grabber state
+        if hasattr(self, 'frame_grabber'):
+            is_connected = getattr(self.frame_grabber, 'is_connected', False)
+            is_running = getattr(self.frame_grabber, 'is_running', False)
+            states['video_on'] = is_connected and is_running
+        
         return states
 
     def update_landmarks(self, l, r, stage):

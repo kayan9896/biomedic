@@ -61,10 +61,42 @@ class Panel:
         main_frame = tk.Frame(self.root, padx=10, pady=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
+        # Add Framegrabber section
+        framegrabber_frame = tk.LabelFrame(main_frame, text="Framegrabber Control")
+        framegrabber_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        # Initialize framegrabber state variables
+        self.is_connected_var = tk.BooleanVar(value=False)
+        self.is_running_var = tk.BooleanVar(value=False)
+        
+        # Create connection controls
+        connection_frame = tk.Frame(framegrabber_frame)
+        connection_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        tk.Label(connection_frame, text="Is Connected:").pack(side=tk.LEFT)
+        tk.Radiobutton(connection_frame, text="True", variable=self.is_connected_var, 
+                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(10, 5))
+        tk.Radiobutton(connection_frame, text="False", variable=self.is_connected_var, 
+                    value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
+        
+        # Create running controls
+        running_frame = tk.Frame(framegrabber_frame)
+        running_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        tk.Label(running_frame, text="Is Running:").pack(side=tk.LEFT)
+        tk.Radiobutton(running_frame, text="True", variable=self.is_running_var, 
+                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(10, 5))
+        tk.Radiobutton(running_frame, text="False", variable=self.is_running_var, 
+                    value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
+                    
+        # Create status display
+        self.video_status = tk.Label(framegrabber_frame, text="Video Status: OFF", fg="red")
+        self.video_status.pack(anchor=tk.W, padx=5, pady=5)
+        
         # Create angle display and controls (outside tabs)
         angle_frame = tk.Frame(main_frame)
         angle_frame.pack(fill=tk.X, pady=(0, 10))
-        
+            
         # Labels for angle values (same as before)
         tk.Label(angle_frame, text="Angle:").grid(row=0, column=0, sticky=tk.W)
         self.angle_value = tk.Label(angle_frame, text=str(self.angle))
@@ -318,7 +350,27 @@ class Panel:
             for section in ['ap', 'ob', 'recons', 'regs']:
                 self._update_file_list_for_tab_section(tab_type, section)
     
-
+    def _update_framegrabber_state(self):
+        """Update the framegrabber properties based on UI settings"""
+        is_connected = self.is_connected_var.get()
+        is_running = self.is_running_var.get()
+        
+        # Update framegrabber properties if available
+        if hasattr(self.controller, 'frame_grabber'):
+            self.controller.frame_grabber.is_connected = is_connected
+            self.controller.frame_grabber.is_running = is_running
+            
+            # Update controller properties
+            self.controller.video_connected = is_connected
+            
+        # Update the video status display
+        video_on = is_connected and is_running
+        if video_on:
+            self.video_status.config(text="Video Status: ON", fg="green")
+        else:
+            self.video_status.config(text="Video Status: OFF", fg="red")
+        
+        print(f"Framegrabber updated: connected={is_connected}, running={is_running}, video_on={video_on}")
 
     
     def _setup_auto_mode_update(self):
