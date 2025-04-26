@@ -221,7 +221,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
       )}
       
       {currentStep === 3 && !imuStatus && (
-        <img src={require('./TiltSensorLowBatteryInstruction.png')} 
+        <img src={require('./VideoConnectionFailedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       

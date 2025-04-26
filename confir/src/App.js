@@ -66,7 +66,7 @@ function App() {
   const isInYellowSector = rotationAngle >= -50 && rotationAngle <= 50;
   const activeLeft = isInGreenSector;
   const activeRight = isInYellowSector && !isInGreenSector;
-  const imuon = angle >= 0 && angle <= 50 ;
+  const [imuon, setImuon] = useState(false);
   const [video_on, setVideo_on] = useState(false);
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
@@ -370,6 +370,7 @@ function App() {
         setIsProcessing(data.is_processing);
         setProgress(data.progress);
         setVideo_on(data.video_on)
+        setImuon(data.imu_on)
         
         // Hide carmbox when processing is happening
         if (data.is_processing) {

@@ -212,40 +212,38 @@ def check_video_connection():
         
         return jsonify(result)
 
-tilt_sensor_check_count = 0
-
 @app.route('/check-tilt-sensor', methods=['GET'])
 def check_tilt_sensor():
-    """Endpoint to simulate checking tilt sensor status with different responses for testing"""
-    global tilt_sensor_check_count
+    """Endpoint to check tilt sensor status using actual IMU values"""
+    global controller
     
-    # Increment the check count each time the endpoint is called
-    tilt_sensor_check_count += 1
-    
-    # First call: disconnected
-    if tilt_sensor_check_count == 1:
+    with server_lock:
+        if controller is None:
+            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
+        
+        # Get IMU connection status and battery level
+        is_connected = False
+        battery_level = 100
+        
+        if hasattr(controller, 'imu'):
+            is_connected = getattr(controller.imu, 'is_connected', False)
+            battery_level = getattr(controller.imu, 'battery_level', 100)
+        
+        # Determine battery_low status
+        battery_low = battery_level <= 20
+        
+        if not is_connected:
+            message = "Tilt sensor disconnected. Please check the connection."
+        elif battery_low:
+            message = "Tilt sensor connected but battery is low. Consider replacing batteries soon."
+        else:
+            message = "Tilt sensor connected successfully."
+        
         return jsonify({
-            "connected": False,
-            "battery_low": False,
-            "message": "Tilt sensor disconnected. Please check the connection."
+            "connected": is_connected,
+            "battery_low": battery_low,
+            "message": message
         })
-    
-    # Second call: connected but low battery
-    elif tilt_sensor_check_count == 2:
-        return jsonify({
-            "connected": True,
-            "battery_low": True,
-            "message": "Tilt sensor connected but battery is low. Consider replacing batteries soon."
-        })
-    
-    # All subsequent calls: connected and battery OK
-    else:
-        return jsonify({
-            "connected": True,
-            "battery_low": False,
-            "message": "Tilt sensor connected successfully."
-        })
-
         
 @app.route('/run2', methods=['POST'])
 def start_processing2():

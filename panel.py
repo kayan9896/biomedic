@@ -61,9 +61,61 @@ class Panel:
         main_frame = tk.Frame(self.root, padx=10, pady=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Add Framegrabber section
-        framegrabber_frame = tk.LabelFrame(main_frame, text="Framegrabber Control")
-        framegrabber_frame.pack(fill=tk.X, pady=(0, 10))
+        # Create a container frame for the left-side controls
+        controls_container = tk.Frame(main_frame)
+        controls_container.pack(fill=tk.X, pady=(0, 10))
+        
+        # Left column - IMU frame
+        imu_frame = tk.LabelFrame(controls_container, text="IMU Control")
+        imu_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        
+        # IMU connection status
+        self.imu_connected_var = tk.BooleanVar(value=False)
+        imu_conn_frame = tk.Frame(imu_frame)
+        imu_conn_frame.pack(fill=tk.X, padx=5, pady=(5, 2))
+        
+        tk.Label(imu_conn_frame, text="Connected:").pack(side=tk.LEFT)
+        tk.Radiobutton(imu_conn_frame, text="True", variable=self.imu_connected_var, 
+                    value=True, command=self._update_imu_state).pack(side=tk.LEFT, padx=(5, 2))
+        tk.Radiobutton(imu_conn_frame, text="False", variable=self.imu_connected_var, 
+                    value=False, command=self._update_imu_state).pack(side=tk.LEFT)
+        
+        # IMU battery status
+        battery_frame = tk.Frame(imu_frame)
+        battery_frame.pack(fill=tk.X, padx=5, pady=(2, 5))
+        
+        tk.Label(battery_frame, text="Battery (%):").pack(side=tk.LEFT)
+        self.battery_var = tk.StringVar(value="100")
+        battery_entry = tk.Entry(battery_frame, textvariable=self.battery_var, width=5)
+        battery_entry.pack(side=tk.LEFT, padx=(5, 0))
+        battery_entry.bind("<FocusOut>", self._update_imu_state)
+        battery_entry.bind("<Return>", self._update_imu_state)
+        
+        # Display battery status
+        self.battery_status = tk.Label(imu_frame, text="Battery Status: OK", fg="green")
+        self.battery_status.pack(anchor=tk.W, padx=5, pady=(0, 5))
+        
+        # Compressed angle display in the same frame
+        angle_frame = tk.Frame(imu_frame)
+        angle_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        # First row: angle display and controls
+        tk.Label(angle_frame, text="Angle:").grid(row=0, column=0, sticky=tk.W)
+        self.angle_value = tk.Label(angle_frame, text=str(self.angle))
+        self.angle_value.grid(row=0, column=1, sticky=tk.W, padx=(5, 10))
+        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle(-5)).grid(row=0, column=2)
+        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle(5)).grid(row=0, column=3)
+        
+        # Second row: rotation angle display and controls
+        tk.Label(angle_frame, text="Rotation:").grid(row=1, column=0, sticky=tk.W)
+        self.rotation_angle_value = tk.Label(angle_frame, text=str(self.rotation_angle))
+        self.rotation_angle_value.grid(row=1, column=1, sticky=tk.W, padx=(5, 10))
+        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle2(-5)).grid(row=1, column=2)
+        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle2(5)).grid(row=1, column=3)
+        
+        # Right column - Framegrabber frame
+        framegrabber_frame = tk.LabelFrame(controls_container, text="Framegrabber Control")
+        framegrabber_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
         
         # Initialize framegrabber state variables
         self.is_connected_var = tk.BooleanVar(value=False)
@@ -73,9 +125,9 @@ class Panel:
         connection_frame = tk.Frame(framegrabber_frame)
         connection_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        tk.Label(connection_frame, text="Is Connected:").pack(side=tk.LEFT)
+        tk.Label(connection_frame, text="Connected:").pack(side=tk.LEFT)
         tk.Radiobutton(connection_frame, text="True", variable=self.is_connected_var, 
-                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(10, 5))
+                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(5, 2))
         tk.Radiobutton(connection_frame, text="False", variable=self.is_connected_var, 
                     value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
         
@@ -83,43 +135,15 @@ class Panel:
         running_frame = tk.Frame(framegrabber_frame)
         running_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        tk.Label(running_frame, text="Is Running:").pack(side=tk.LEFT)
+        tk.Label(running_frame, text="Running:").pack(side=tk.LEFT)
         tk.Radiobutton(running_frame, text="True", variable=self.is_running_var, 
-                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(10, 5))
+                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(5, 2))
         tk.Radiobutton(running_frame, text="False", variable=self.is_running_var, 
                     value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
                     
         # Create status display
         self.video_status = tk.Label(framegrabber_frame, text="Video Status: OFF", fg="red")
         self.video_status.pack(anchor=tk.W, padx=5, pady=5)
-        
-        # Create angle display and controls (outside tabs)
-        angle_frame = tk.Frame(main_frame)
-        angle_frame.pack(fill=tk.X, pady=(0, 10))
-            
-        # Labels for angle values (same as before)
-        tk.Label(angle_frame, text="Angle:").grid(row=0, column=0, sticky=tk.W)
-        self.angle_value = tk.Label(angle_frame, text=str(self.angle))
-        self.angle_value.grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
-        
-        tk.Label(angle_frame, text="Rotation Angle:").grid(row=1, column=0, sticky=tk.W)
-        self.rotation_angle_value = tk.Label(angle_frame, text=str(self.rotation_angle))
-        self.rotation_angle_value.grid(row=1, column=1, sticky=tk.W, padx=(5, 0))
-        
-        # Create angle control buttons (outside tabs)
-        button_frame = tk.Frame(main_frame)
-        button_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        # Angle controls (same as before)
-        angle_ctrl_frame = tk.LabelFrame(button_frame, text="Angle Control")
-        angle_ctrl_frame.pack(fill=tk.X, pady=(0, 5))
-        tk.Button(angle_ctrl_frame, text="−", width=3, command=lambda: self._adjust_angle(-5)).pack(side=tk.LEFT, padx=5, pady=5)
-        tk.Button(angle_ctrl_frame, text="+", width=3, command=lambda: self._adjust_angle(5)).pack(side=tk.RIGHT, padx=5, pady=5)
-        
-        rot_ctrl_frame = tk.LabelFrame(button_frame, text="Rotation Control")
-        rot_ctrl_frame.pack(fill=tk.X)
-        tk.Button(rot_ctrl_frame, text="−", width=3, command=lambda: self._adjust_angle2(-5)).pack(side=tk.LEFT, padx=5, pady=5)
-        tk.Button(rot_ctrl_frame, text="+", width=3, command=lambda: self._adjust_angle2(5)).pack(side=tk.RIGHT, padx=5, pady=5)
         
         # Create tabs
         tab_control = ttk.Notebook(main_frame)
@@ -372,6 +396,34 @@ class Panel:
         
         print(f"Framegrabber updated: connected={is_connected}, running={is_running}, video_on={video_on}")
 
+    def _update_imu_state(self, event=None):
+        """Update the IMU properties based on UI settings"""
+        is_connected = self.imu_connected_var.get()
+        
+        # Get battery level
+        try:
+            battery_level = int(self.battery_var.get())
+            # Keep battery level within valid range
+            battery_level = max(0, min(100, battery_level))
+            self.battery_var.set(str(battery_level))
+        except ValueError:
+            battery_level = 100
+            self.battery_var.set(str(battery_level))
+        
+        # Update IMU properties if available
+        if hasattr(self.controller, 'imu'):
+            self.controller.imu.is_connected = is_connected
+            self.controller.imu.battery_level = battery_level
+        
+        # Update battery status display
+        if battery_level <= 20:
+            self.battery_status.config(text=f"Battery Status: LOW ({battery_level}%)", fg="red")
+        elif battery_level <= 50:
+            self.battery_status.config(text=f"Battery Status: MEDIUM ({battery_level}%)", fg="orange")
+        else:
+            self.battery_status.config(text=f"Battery Status: OK ({battery_level}%)", fg="green")
+        
+        print(f"IMU state updated: connected={is_connected}, battery={battery_level}%")
     
     def _setup_auto_mode_update(self):
         """Set up a periodic task for auto mode updates"""

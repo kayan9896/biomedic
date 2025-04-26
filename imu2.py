@@ -7,6 +7,8 @@ class IMU2:
         self.angle = 0
         self.rotation_angle = 0
         self.controller = controller
+        self.is_connected = False
+        self.battery_level  = 100
         
     def set_tilt(self, a):
         self.angle = a

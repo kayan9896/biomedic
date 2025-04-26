@@ -70,6 +70,10 @@ class ImageProcessingController:
             is_running = getattr(self.frame_grabber, 'is_running', False)
             states['video_on'] = is_connected and is_running
         
+        # Update imu_on based on IMU is_connected
+        if hasattr(self, 'imu'):
+            states['imu_on'] = getattr(self.imu, 'is_connected', True)  # Default to True if property not found
+        
         return states
 
     def update_landmarks(self, l, r, stage):
@@ -104,7 +108,28 @@ class ImageProcessingController:
         """
         # Get device name from config
         device = self.config.get("framegrabber_device", "OBS Virtual Camera")
-        if self.video_connected or self.on_simulation:
+        if self.on_simulation:
+            # Use the framegrabber connection state from Panel
+            is_connected = False
+            is_running = False
+            
+            if hasattr(self, 'frame_grabber'):
+                is_connected = getattr(self.frame_grabber, 'is_connected', False)
+                is_running = getattr(self.frame_grabber, 'is_running', False)
+            
+            connected = is_connected and is_running
+            
+            if connected:
+                return {
+                    "connected": True,
+                    "message": f"Successfully connected to {device}"
+                }
+            else:
+                return {
+                    "connected": False,
+                    "message": "Failed to connect to camera device"
+                }
+        if self.video_connected:
             return {
                 "connected": True,
                 "message": f"Successfully connected to {device}"
