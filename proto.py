@@ -137,6 +137,148 @@ def backend_to_frontend_coords(coords, backend_size=1024, frontend_size=960, fli
         # Return non-coordinate values unchanged
         return coords
 
+@app.route('/check-running-state', methods=['GET'])
+def check_running_state():
+    """Check if controller is running and return necessary state data including all image data"""
+    global controller
+    
+    with server_lock:
+        if controller is None or not controller.is_running:
+            return jsonify({"running": False})
+        
+        # Get basic states
+        states = controller.get_states()
+        current_stage = states.get('current_stage', 1)
+        
+        # Determine which data keys to check based on current stage
+        stage_data_mapping = {
+            1: ['hp1-ap', 'hp1-ob'],
+            2: ['hp2-ap', 'hp2-ob'],
+            3: ['cup-ap', 'cup-ob'],
+            4: ['tri-ap', 'tri-ob']
+        }
+        
+        # Create a map of all stage data to check the full state
+        all_stage_data = {}
+        for stage, keys in stage_data_mapping.items():
+            stage_idx = stage - 1  # Convert to 0-indexed for frontend
+            all_stage_data[stage_idx] = {
+                'ap_key': keys[0],
+                'ob_key': keys[1],
+                'ap_has_data': False,
+                'ob_has_data': False,
+                'ap_image': None,
+                'ob_image': None,
+                'ap_metadata': None,
+                'ob_metadata': None,
+                'ap_checkmark': None,
+                'ob_checkmark': None,
+                'ap_side': None,
+                'ob_side': None
+            }
+            
+            # Check if this stage has valid data
+            ap_data = controller.model.data.get(keys[0], {})
+            ob_data = controller.model.data.get(keys[1], {})
+            
+            # Determine if each side has valid data
+            ap_has_data = ap_data.get('image') is not None and ap_data.get('success') is True
+            ob_has_data = ob_data.get('image') is not None and ob_data.get('success') is True
+            
+            # Store the evaluation results
+            all_stage_data[stage_idx]['ap_has_data'] = ap_has_data
+            all_stage_data[stage_idx]['ob_has_data'] = ob_has_data
+            
+            # Only prepare image data if the side has valid data
+            if ap_has_data:
+                _, buffer = cv2.imencode('.jpg', ap_data['image'])
+                all_stage_data[stage_idx]['ap_image'] = f'data:image/jpeg;base64,{base64.b64encode(buffer).decode("utf-8")}'
+                all_stage_data[stage_idx]['ap_metadata'] = backend_to_frontend_coords(ap_data.get('metadata', {})) if ap_data.get('metadata') else None
+                all_stage_data[stage_idx]['ap_side'] = ap_data.get('side')
+            
+            if ob_has_data:
+                _, buffer = cv2.imencode('.jpg', ob_data['image'])
+                all_stage_data[stage_idx]['ob_image'] = f'data:image/jpeg;base64,{base64.b64encode(buffer).decode("utf-8")}'
+                all_stage_data[stage_idx]['ob_metadata'] = backend_to_frontend_coords(ob_data.get('metadata', {})) if ob_data.get('metadata') else None
+                all_stage_data[stage_idx]['ob_side'] = ob_data.get('side')
+        
+        # Get viewmodel data for current AP and OB
+        ap_viewmodel = controller.viewmodel.imgs[0] if hasattr(controller, 'viewmodel') else {}
+        ob_viewmodel = controller.viewmodel.imgs[1] if hasattr(controller, 'viewmodel') else {}
+        
+        # Get current stage data
+        current_stage_idx = current_stage - 1  # Convert to 0-indexed
+        current_stage_data = all_stage_data.get(current_stage_idx, {})
+        
+        # Add checkmarks from viewmodel for the current stage
+        if current_stage_data:
+            current_stage_data['ap_checkmark'] = ap_viewmodel.get('checkmark')
+            current_stage_data['ob_checkmark'] = ob_viewmodel.get('checkmark')
+        
+        # Get error messages
+        ap_error = ap_viewmodel.get('error') if ap_viewmodel else None
+        ob_error = ob_viewmodel.get('error') if ob_viewmodel else None
+        
+        # Check if we should move to next stage
+        move_next = (ap_viewmodel.get('next', False) or ob_viewmodel.get('next', False))
+        
+        # Get measurements data
+        measurements = None
+        # Check the relevant section for the current stage
+        stage_measurement_mapping = {
+            2: 'pelvis',
+            3: 'regcup',
+            4: 'regtri'
+        }
+        
+        if current_stage in stage_measurement_mapping:
+            section_data = controller.model.data.get(stage_measurement_mapping[current_stage], {})
+            if section_data.get('success'):
+                measurements = section_data.get('RegsResult', None)
+        
+        return jsonify({
+            "running": True,
+            "states": states,
+            "current_stage": controller.current_stage,  # 0-indexed for frontend
+            "all_stage_data": all_stage_data,
+            "move_next": move_next,
+            "tilt_angle": states.get('angle', 0),
+            "rotation_angle": states.get('rotation_angle', 0),
+            "ap_rotation_angle": getattr(controller, 'ap_rotation_angle', None),
+            "ob_rotation_angle": getattr(controller, 'ob_rotation_angle', None),
+            "ob_rotation_angle2": getattr(controller, 'ob_rotation_angle2', None),
+            "target_tilt_angle": getattr(controller, 'target_tilt_angle', None),
+            "measurements": measurements,
+            "error": ap_error or ob_error
+        })
+
+@app.route('/update-angle-state', methods=['POST'])
+def update_angle_state():
+    """Update angle states in the controller"""
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        data = request.json
+        
+        # Update angle states
+        if 'target_tilt_angle' in data:
+            controller.target_tilt_angle = data['target_tilt_angle']
+        
+        if 'ap_rotation_angle' in data:
+            controller.ap_rotation_angle = data['ap_rotation_angle']
+            
+        if 'ob_rotation_angle' in data:
+            controller.ob_rotation_angle = data['ob_rotation_angle']
+            
+        if 'ob_rotation_angle2' in data:
+            controller.ob_rotation_angle2 = data['ob_rotation_angle2']
+        
+        return jsonify({"message": "Angle states updated successfully"})
+
+
 CARM_DATA_PATH = './carm.json'
 
 @app.route('/get-carms', methods=['GET'])
@@ -344,7 +486,9 @@ def next():
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     state = request.json.get('uistates')
+    stage = request.json.get('stage')
     controller.uistates = state
+    controller.current_stage = stage
     return jsonify({"message": "uistates updated"})
 
 @app.route('/restart', methods=['POST'])

@@ -19,7 +19,7 @@ class ImageProcessingController:
     def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'AnalyzeBox', config = None):
         self.frame_grabber = frame_grabber
         self.model = analyze_box
-        self.current_stage = 1
+        self.current_stage = 0
         self.current_frame = 1
         self.is_running = False
         self.process_thread = None
@@ -53,6 +53,14 @@ class ImageProcessingController:
             self.panel = Panel(self, config=self.config)
             self.model.on_simulation = self.on_simulation
             
+        self.target_tilt_angle = None
+        self.ap_rotation_angle = None
+        self.ob_rotation_angle = None
+        self.ob_rotation_angle2 = None
+    
+    def update_ui_state(self, state_key, value):
+        """Update UI state for restoration purposes"""
+        self.ui_state[state_key] = value
     
     def imuonob(self):
         return (not self.imuonap()) and (-50<=self.panel.rotation_angle and self.panel.rotation_angle<=50)
@@ -63,7 +71,8 @@ class ImageProcessingController:
         states = self.viewmodel.states
         states['is_processing'] = self.model.is_processing
         states['progress'] = self.model.progress
-        
+        states['stage'] = self.current_stage
+    
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
             is_connected = getattr(self.frame_grabber, 'is_connected', False)

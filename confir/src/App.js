@@ -126,6 +126,193 @@ function App() {
     setShowReconnectionPage(false);
   };
 
+  const [isCheckingBackend, setIsCheckingBackend] = useState(true);
+
+  // Add a useEffect to check backend state on mount
+  useEffect(() => {
+    const checkBackendState = async () => {
+      try {
+        setIsCheckingBackend(true);
+        const response = await fetch('http://localhost:5000/check-running-state');
+        const data = await response.json();
+        
+        if (data.running) {
+          // Backend is already running, restore the state
+          setIsConnected(true);
+          
+          // Restore basic states
+          if (data.states) {
+            setAngle(data.states.angle);
+            setRotationAngle(data.states.rotation_angle);
+            setImuon(data.states.imu_on);
+            setVideo_on(data.states.video_on);
+            setIsProcessing(data.states.is_processing);
+            setProgress(data.states.progress);
+          }
+          
+          // Set current stage
+          const currentStage = data.current_stage !== undefined ? data.current_stage : 0;
+          setStage(currentStage);
+          
+          // Restore angle related states
+          if (data.target_tilt_angle !== null) setTargetTiltAngle(data.target_tilt_angle);
+          if (data.ap_rotation_angle !== null) setAPRotationAngle(data.ap_rotation_angle);
+          if (data.ob_rotation_angle !== null) setOBRotationAngle(data.ob_rotation_angle);
+          if (data.ob_rotation_angle2 !== null) setOBRotationAngle2(data.ob_rotation_angle2);
+          
+          // Get data for current stage
+          const currentStageData = data.all_stage_data?.[currentStage] || {};
+          
+          console.log(`Current stage: ${currentStage}`);
+          console.log(`AP has data: ${currentStageData.ap_has_data}, OB has data: ${currentStageData.ob_has_data}`);
+          
+          // IMPORTANT: Always reset both images to default first
+          setLeftImage(require('./AP.png'));
+          setRightImage(require('./OB.png'));
+          setLeftImageMetadata(null);
+          setRightImageMetadata(null);
+          setLeftCheckMark(null);
+          setRightCheckMark(null);
+          
+          // Only update left (AP) image if the current stage has valid AP data
+          if (currentStageData.ap_has_data && currentStageData.ap_image) {
+            setLeftImage(currentStageData.ap_image);
+            if (currentStageData.ap_metadata.metadata) {
+              setLeftImageMetadata(currentStageData.ap_metadata.metadata);
+            }
+            setLeftCheckMark(currentStageData.ap_checkmark);
+            
+            // Update AP side of pelvis if we have side data
+            if (currentStageData.ap_side) {
+              setPelvis(prev => {
+                const newPelvis = [...prev];
+                newPelvis[0] = currentStageData.ap_side;
+                return newPelvis;
+              });
+            }
+            console.log('Restored AP image and metadata for current stage');
+          }
+          
+          // Only update right (OB) image if the current stage has valid OB data
+          if (currentStageData.ob_has_data && currentStageData.ob_image) {
+            setRightImage(currentStageData.ob_image);
+            if (currentStageData.ob_metadata.metadata) {
+              setRightImageMetadata(currentStageData.ob_metadata.metadata);
+            }
+            setRightCheckMark(currentStageData.ob_checkmark);
+            
+            // Update OB side of pelvis if we have side data
+            if (currentStageData.ob_side) {
+              setPelvis(prev => {
+                const newPelvis = [...prev];
+                newPelvis[1] = currentStageData.ob_side;
+                return newPelvis;
+              });
+            }
+            console.log('Restored OB image and metadata for current stage');
+          }
+          
+          // Set saved states based on available data
+          if (data.tilt_angle !== null && data.tilt_angle >= -20 && data.tilt_angle <= 20) {
+            setIsTiltSaved(true);
+            setTiltTaken(data.tilt_angle);
+          }
+          
+          const rotationInAPRange = data.rotation_angle >= -20 && data.rotation_angle <= 20;
+          const rotationInOBRange = (data.rotation_angle >= -50 && data.rotation_angle <= -20) || 
+                                   (data.rotation_angle >= 20 && data.rotation_angle <= 50);
+          
+          if (rotationInAPRange) {
+            setIsAPRotationSaved(true);
+            setApTaken(data.rotation_angle);
+          } else if (rotationInOBRange) {
+            setIsOBRotationSaved(true);
+            if (currentStage === 0) {
+              setObTaken(data.rotation_angle);
+            } else if (currentStage === 1) {
+              setObTaken2(data.rotation_angle);
+            }
+          }
+          
+          // Set error message if any
+          if (data.error) {
+            setError(data.error);
+            if (data.error === 'glyph') {
+              setShowglyph(true);
+            }
+          }
+          
+          // Set measurements data
+          if (data.measurements) {
+            setMeasurements(data.measurements);
+          }
+          
+          // Set next stage flag
+          setMoveNext(data.move_next);
+          
+          // Set initial refs to prevent useEffect triggers
+          lastTiltAngleRef.current = data.tilt_angle;
+          lastRotationAngleRef.current = data.rotation_angle;
+          isFirstLoad.current = false;
+          
+          console.log('State successfully restored from backend');
+        }
+      } catch (error) {
+        console.error('Error checking backend state:', error);
+      } finally {
+        setIsCheckingBackend(false);
+      }
+    };
+    
+    checkBackendState();
+  }, []); // Run only on mount
+
+  const syncAngleStatesToBackend = async () => {
+    if (!isConnected) return;
+    
+    try {
+      await fetch('http://localhost:5000/update-angle-state', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          target_tilt_angle: targetTiltAngle,
+          ap_rotation_angle: apRotationAngle,
+          ob_rotation_angle: obRotationAngle,
+          ob_rotation_angle2: obRotationAngle2
+        }),
+      });
+    } catch (error) {
+      console.error('Error syncing angle states to backend:', error);
+    }
+  };
+  
+  // Add useEffect hooks to sync when these states change
+  useEffect(() => {
+    if (targetTiltAngle !== null && isConnected) {
+      syncAngleStatesToBackend();
+    }
+  }, [targetTiltAngle, apRotationAngle, obRotationAngle, obRotationAngle2, isConnected]);
+  
+  useEffect(() => {
+    if (apRotationAngle !== null && isConnected) {
+      syncAngleStatesToBackend();
+    }
+  }, [apRotationAngle, isConnected]);
+  
+  useEffect(() => {
+    if (obRotationAngle !== null && isConnected) {
+      syncAngleStatesToBackend();
+    }
+  }, [obRotationAngle, isConnected]);
+  
+  useEffect(() => {
+    if (obRotationAngle2 !== null && isConnected) {
+      syncAngleStatesToBackend();
+    }
+  }, [obRotationAngle2, isConnected]);
+
   useEffect(() => {
     if(!isConnected) return;
     stageRef.current = stage;
@@ -683,9 +870,9 @@ const updateRotationSavedState = (currentRotationAngle) => {
     setRightImageMetadata(null)
     setLeftCheckMark(null)
     setRightCheckMark(null)
-    if(next === 'next') setStage(p => p + 1);
-    if(next === 'skip') setStage(p => p + 2);
-    if(!next) setStage(p => p - 1);
+    if(next === 'next'){stageRef.current=stage+1; setStage(p => p + 1);}
+    if(next === 'skip'){stageRef.current=stage+2; setStage(p => p + 2);}
+    if(!next) {stageRef.current=stage-1;setStage(p => p - 1);}
     setMoveNext(false);
     setMeasurements(null)
     setTargetTiltAngle(tiltTaken)
@@ -699,7 +886,8 @@ const updateRotationSavedState = (currentRotationAngle) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({'uistates': next ? next : 'prev'})
+        body: JSON.stringify({'uistates': next ? next : 'prev', 
+          'stage': stageRef.current})
       });
     } catch (error) {
       console.error('Error going next:', error);
