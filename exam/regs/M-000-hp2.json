@@ -207,7 +207,7 @@
                 },
                 "Calibration": {},
                 "Segmentation": null,
-                "ShotIndex": 0
+                "ShotIndex": 3
             },
             "shot_2": {
                 "folder": "shots",
@@ -411,10 +411,10 @@
                 },
                 "Calibration": {},
                 "Segmentation": null,
-                "ShotIndex": 1
+                "ShotIndex": 7
             },
             "ReconResult": 1,
-            "ReconIndex": 0
+            "ReconIndex": 3
         },
         "hmplv2": {
             "folder": "recons",
@@ -621,7 +621,7 @@
                 },
                 "Calibration": {},
                 "Segmentation": null,
-                "ShotIndex": 2
+                "ShotIndex": 9
             },
             "shot_2": {
                 "folder": "shots",
@@ -629,7 +629,7 @@
                 "side": "l",
                 "imuangles": [
                     -5,
-                    40
+                    35
                 ],
                 "metadata": {
                     "group1": [
@@ -825,10 +825,10 @@
                 },
                 "Calibration": {},
                 "Segmentation": null,
-                "ShotIndex": 3
+                "ShotIndex": 10
             },
             "ReconResult": 1,
-            "ReconIndex": 1
+            "ReconIndex": 4
         }
     },
     "Implant_Recon": null,

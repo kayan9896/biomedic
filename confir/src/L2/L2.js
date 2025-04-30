@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,setting,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox}) {
+function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox}) {
   const clickDash = () => {
     if(stage === 0){
       if(moveNext) handlenext()
@@ -61,8 +61,8 @@ function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,sett
         <img src={require('./TrialIcon1.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>
         }
         <img src={require('./NavMeasurementsSegment.png')} style={{'position':'absolute', top:'977px', left:'667px'}}/>
-        <img src={require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px', pointerEvents:'none'}} onClick={()=>{setSetting(!setting)}}/>
-        <img src={require('./ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px', pointerEvents:'none'}}/>
+        <img src={require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px'}} onClick={()=>{setSetting(true)}}/>
+        <img src={require('./ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>
         <input
         ref={inputRef}
         type="text"

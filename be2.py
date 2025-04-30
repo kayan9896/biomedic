@@ -35,7 +35,7 @@ class ImageProcessingController:
         self.model.mode = self.mode
         self.video_connected = False
         
-        self.viewmodel = ProcessingModel()
+        self.viewmodel = ProcessingModel(config)
         self.exam = Exam()
         self.pause_states= None
         self.uistates = None
@@ -59,11 +59,12 @@ class ImageProcessingController:
     def imuonap(self):
         return -20<=self.panel.rotation_angle<=20
 
+
     def get_states(self):
         states = self.viewmodel.states
         states['is_processing'] = self.model.is_processing
         states['progress'] = self.model.progress
-        
+        states['ai_mode'] = self.mode
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
             is_connected = getattr(self.frame_grabber, 'is_connected', False)

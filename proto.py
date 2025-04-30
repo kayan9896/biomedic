@@ -385,6 +385,24 @@ def get_states():
     
     return jsonify(controller.get_states())
 
+@app.route('/api/ai-mode', methods=['POST'])
+def set_ai_mode():
+    global controller
+    if controller is None:
+        controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+    
+    try:
+        data = request.get_json()
+        ai_mode = data.get('ai_mode', 0)
+        
+        # Update the controller's AI mode
+        controller.mode = ai_mode
+        controller.model.mode = ai_mode
+        
+        return jsonify({'success': True, 'ai_mode': controller.mode})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 import base64
 @app.route('/api/image-with-metadata')
 def get_image_with_metadata():

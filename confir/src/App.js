@@ -25,6 +25,7 @@ import L21 from './L21/L21';
 import leftTemplate from './L21/template-l.json';
 import rightTemplate from './L21/template-r.json';
 import ReconnectionPage from './L13/ReconnectionPage';
+import L17 from './L17/L17';
 function scalePoints(templateData, scaleFactor) {
   const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
 
@@ -68,6 +69,7 @@ function App() {
   const activeRight = isInYellowSector && !isInGreenSector;
   const [imuon, setImuon] = useState(false);
   const [video_on, setVideo_on] = useState(false);
+  const [ai_mode, setAi_mode] = useState(0);
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
@@ -78,6 +80,7 @@ function App() {
   const [report, setReport] = useState(false)
   const [pause, setPause] = useState(0)
   const [setting, setSetting] = useState(false)
+  const [exit, setExit] = useState(false)
   const [measurements, setMeasurements] = useState(null)
   const [stage, setStage] = useState(0)
   const [showglyph, setShowglyph] =useState(false)
@@ -457,6 +460,7 @@ function App() {
         setProgress(data.progress);
         setVideo_on(data.video_on)
         setImuon(data.imu_on)
+        setAi_mode(data.ai_mode)
         
         // Hide carmbox when processing is happening
         if (data.is_processing) {
@@ -1121,7 +1125,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
           setShowKeyboard={setShowKeyboard} 
           onSelect={onSelect} inputRef={inputRef} 
           pid={patient} setSetting={setSetting} 
-          setting={setting} 
+          setExit={setExit}
           stage={stage} 
           setStage={setStage} 
           moveNext={moveNext} 
@@ -1247,7 +1251,10 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {<L12 pause={pause} setPause={setPause} handlenext={handlenext}/>}
 
       {/*L14 Setting, render when setting true*/}
-      {setting&&<L14/>}
+      {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode}/>}
+
+      {/*L17 Exit, render when exit true*/}
+      {exit&&<L17 setExit={setExit} handlerestart={handlerestart}/>}
 
       {/*L1x Progree bar, render based on backend params*/}
       {isProcessing && <CircularProgress percentage={progress} />}
