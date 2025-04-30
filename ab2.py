@@ -77,18 +77,6 @@ class AnalyzeBox:
         try:
             self.data[section]['success'] = None
             
-            image = cv2.imread('./glyph.png')
-            difference = cv2.absdiff(image, frame)
-            
-            if np.mean(difference)<10:
-                return {'metadata': None, 'checkmark': None, 'error': 'glyph'}, frame
-
-            image2 = cv2.imread('./nomark.png')
-            difference2 = cv2.absdiff(image2, frame)
-            if np.mean(difference2)<10:
-                return {'metadata': None, 'checkmark': 0, 'error': 'landmarks fail'}, frame
-
-
             self.is_processing = True
             section_type = section[-2:]  # ap, ob
             
@@ -123,6 +111,22 @@ class AnalyzeBox:
                     metadata['metadata'] = None
                     self.is_processing = False
                     return {'metadata': metadata, 'checkmark': None, 'error': 'wrong side'}, frame
+
+            if error_code == ['003']:
+                metadata['metadata'] = None
+                self.is_processing = False
+                return {'metadata': metadata, 'checkmark': None, 'error': 'wrong side'}, frame
+
+            if error_code == ['001']:
+                metadata['metadata'] = None
+                self.is_processing = False
+                return {'metadata': metadata, 'checkmark': None, 'error': 'glyph'}, frame
+
+            if error_code == ['002']:
+                metadata['metadata'] = None
+                self.is_processing = False
+                return {'metadata': metadata, 'checkmark': 0, 'error': 'landmarks fail'}, frame
+
 
             metadata['imuangles'] = [angle, rotation_angle]
             # Process frame and generate results
@@ -159,7 +163,7 @@ class AnalyzeBox:
             curap = self.getfrmcase(section)[0]
             curob = self.getfrmcase(section)[1]
             
-            self.is_processing = True
+            #self.is_processing = True
 
             test_entry = self.test_data.get('recons')
             if test_entry and test_entry.get('json_path'):
@@ -180,6 +184,14 @@ class AnalyzeBox:
                 metadata['ReconResult'] = 'recon fails, unmatched side'
                 self.is_processing = False
                 return {'metadata': metadata, 'checkmark': 3, 'error': 'recon fails, unmatched side'}, None
+
+            if error_code == ['004']: 
+                metadata['shot_1'] = None
+                metadata['shot_2'] = None
+                metadata['ReconResult'] = 'recon fails'
+                self.is_processing = False
+                return {'metadata': metadata, 'checkmark': 3, 'error': 'recon fails'}, None
+
             metadata['shot_1'] = self.data[curap]['metadata']
             metadata['shot_2'] = self.data[curob]['metadata']
             
@@ -191,12 +203,7 @@ class AnalyzeBox:
                 'error': None
             }
             
-            k=0
-            for i in range(10000):
-                for j in range(3000):
-                    with self._lock:
-                        self.progress = (k + 1) /300000
-                        k+=1
+
             self.is_processing = False
             if section == 'hmplv1':
                 self.data['hp2-ap']['side'] = 'l' if self.data['hp1-ap']['side'] == 'r' else 'r'
@@ -217,14 +224,9 @@ class AnalyzeBox:
     def reg(self, section):
         try:
             self.data[section]['success'] = None
-            image = cv2.imread('./AP.png')
             curap = self.getfrmcase(section)[0]
             curob = self.getfrmcase(section)[1]
-            difference = cv2.absdiff(image, self.data[curap]['image'])
-            difference2 = cv2.absdiff(image, self.data[curob]['image'])
-            if np.mean(difference) < 10 or np.mean(difference2) < 10:
-                return {'error': 'reg fails'}, None
-            
+
             self.is_processing = True
             test_entry = self.test_data.get('regs')
             if test_entry and test_entry.get('json_path'):
@@ -239,6 +241,14 @@ class AnalyzeBox:
                     metadata = None
             else:
                 metadata = None
+
+
+            if error_code == ['005']:
+                metadata['Pelvis_Recon'] = None
+                metadata['Implant_Recon'] = None
+                metadata['RegsResult'] = 'reg fails'
+                self.is_processing = False
+                return metadata, None
 
             metadata['Pelvis_Recon'] = {'hmplv1':self.data['hmplv1']['metadata'], 'hmplv2':self.data['hmplv2']['metadata']}
             if section == 'regtri':
@@ -313,8 +323,14 @@ class AnalyzeBox:
                     # Prepare data for different components
                     dataforsave = data
                     
-                    dataforvm = {'measurements': data['RegsResult']}
-                    if 'error' not in data: dataforvm['next'] = True
+                    dataforvm = {}
+                    if data['Implant_Recon'] is not None: 
+                        dataforvm['next'] = True
+                        dataforvm['measurements']: data['RegsResult']
+                    else: 
+                        dataforvm['next'] = False
+                        dataforvm['error'] = data['RegsResult']
+                    
 
                     return dataforsave, dataforvm, None
                 

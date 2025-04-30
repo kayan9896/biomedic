@@ -189,8 +189,11 @@ class ProcessingModel:
             'imu_on': True,
             'video_on':True,
             'carm_moving':False,#optional
-            'current_stage': 1,#optional
-            'current_frame': 1#optional
+            'stage': 0,
+            "ap_rotation_angle": None,
+            "ob_rotation_angle": None,
+            "ob_rotation_angle2": None,
+            "target_tilt_angle": None,
         }
         self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'error': None, 'next': False, 'measurements': None, 'side': None} for i in range(2)]
 
