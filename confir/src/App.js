@@ -1112,7 +1112,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect}/>  
+          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect}/>
         </div>
       ) : (
         <>
@@ -1253,8 +1253,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {/*L14 Setting, render when setting true*/}
       {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode}/>}
 
-      {/*L17 Exit, render when exit true*/}
-      {exit&&<L17 setExit={setExit} handlerestart={handlerestart}/>}
+      
 
       {/*L1x Progree bar, render based on backend params*/}
       {isProcessing && <CircularProgress percentage={progress} />}
@@ -1312,6 +1311,9 @@ const updateRotationSavedState = (currentRotationAngle) => {
   
         </>
       )}
+      {/*L17 Exit, render when exit true*/}
+      {exit&&<L17 setExit={setExit} handlerestart={handlerestart}/>}
+      <img src={require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>
     </div>
   );
 }

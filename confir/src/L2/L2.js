@@ -62,7 +62,7 @@ function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,setE
         }
         <img src={require('./NavMeasurementsSegment.png')} style={{'position':'absolute', top:'977px', left:'667px'}}/>
         <img src={require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px'}} onClick={()=>{setSetting(true)}}/>
-        <img src={require('./ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>
+        
         <input
         ref={inputRef}
         type="text"

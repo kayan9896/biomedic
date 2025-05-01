@@ -210,7 +210,6 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
       />
       <img src={require('./RestartBtn.png')} style={{position:'absolute', top:'839px', left:'284px', zIndex:13}} onClick={()=>setCurrentStep(1)} />
       <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
-      <img src={require('../L2/ExitIcon.png')} style={{position:'absolute', top:'1016px', left:'1853px'}} />
 
       {/* Check 1: C-ARM EQUIPMENT */}
       {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289,
