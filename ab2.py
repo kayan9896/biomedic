@@ -12,7 +12,7 @@ class AnalyzeBox:
         self.viewpairs = [None]*4
         self.is_processing = False
         self._stitch_thread = None
-        self.mode = 1  
+        self.ai_mode = True
         self.on_simulation = False
         self.resetdata()
         self.test_data = {

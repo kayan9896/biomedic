@@ -9,7 +9,6 @@ function KB({
   comment,
   setComment,
   setPatient,
-  cursorPosition, 
   setShowKeyboard, 
   keyboardLayout, 
   setKeyboardLayout, 
@@ -20,7 +19,7 @@ function KB({
   const commentInputRef = useRef(null);
   
   const [activeInput, setActiveInput] = useState('pid'); // 'pid', 'ratio', or 'comment'
-  const [localCursorPosition, setLocalCursorPosition] = useState(cursorPosition);
+  const [localCursorPosition, setLocalCursorPosition] = useState(null);
 
   useEffect(() => {
     // Focus the active input when component mounts or active input changes
@@ -149,6 +148,7 @@ function KB({
             border: activeInput === 'pid' ? '2px solid #4a90e2' : '0px solid',
             borderRadius: '21px',
             fontSize: '51px',
+            fontFamily:'abel',
             zIndex: 14
           }}
           placeholder="no pid data"
@@ -174,6 +174,7 @@ function KB({
             border: activeInput === 'ratio' ? '2px solid #4a90e2' : '0px solid',
             borderRadius: '21px',
             fontSize: '51px',
+            fontFamily:'abel',
             zIndex: 14
           }}
           placeholder="Ratio"
@@ -198,6 +199,7 @@ function KB({
             borderRadius: '21px',
             fontSize: '55px',
             padding: '10px',
+            fontFamily:'abel',
             zIndex: 14
           }}
           placeholder="Add comment here..."

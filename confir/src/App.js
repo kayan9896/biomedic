@@ -55,8 +55,6 @@ function App() {
   const [rightImage, setRightImage] = useState(require('./OB.png'));
   const [error, setError] = useState(null);
   const [showKeyboard, setShowKeyboard] = useState(false);
-  const keyboardRef = useRef(null);
-  const [cursorPosition, setCursorPosition] = useState(0);
   const [keyboardLayout, setKeyboardLayout] = useState('default');
 
   const [showCarmBox, setShowCarmBox] = useState(false);
@@ -72,6 +70,7 @@ function App() {
   const [imuon, setImuon] = useState(false);
   const [video_on, setVideo_on] = useState(false);
   const [ai_mode, setAi_mode] = useState(0);
+  const [autocollect, setAutocollect] = useState('true')
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
@@ -463,6 +462,7 @@ function App() {
         setVideo_on(data.video_on)
         setImuon(data.imu_on)
         setAi_mode(data.ai_mode)
+        setAutocollect(data.autocollect)
         
         // Hide carmbox when processing is happening
         if (data.is_processing) {
@@ -1073,6 +1073,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
           handlenext={handlenext} 
           isCupReg={isCupReg}
           showCarmBox={showCarmBox}
+          autocollect={autocollect}
         />
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
@@ -1191,7 +1192,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {<L12 pause={pause} setPause={setPause} handlenext={handlenext}/>}
 
       {/*L14 Setting, render when setting true*/}
-      {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode}/>}
+      {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode} autocollect={autocollect}/>}
 
       
 
@@ -1215,7 +1216,6 @@ const updateRotationSavedState = (currentRotationAngle) => {
           comment={comment}
           setComment={setComment}
           setPatient={setPatient}
-          cursorPosition={cursorPosition}
           setShowKeyboard={setShowKeyboard}
           keyboardLayout={keyboardLayout}
           setKeyboardLayout={setKeyboardLayout}

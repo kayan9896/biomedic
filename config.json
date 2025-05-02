@@ -1,6 +1,6 @@
 {
     "on_simulation": true,
-    "mode": 0, 
+    "ai_mode": true, 
     "imu_on": true,
     "imu_port": "COM3",
     "glyph_on": true,

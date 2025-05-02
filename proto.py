@@ -385,7 +385,7 @@ def get_states():
     
     return jsonify(controller.get_states())
 
-@app.route('/api/ai-mode', methods=['POST'])
+@app.route('/api/setting', methods=['POST'])
 def set_ai_mode():
     global controller
     if controller is None:
@@ -393,13 +393,15 @@ def set_ai_mode():
     
     try:
         data = request.get_json()
-        ai_mode = data.get('ai_mode', 0)
-        
-        # Update the controller's AI mode
-        controller.mode = ai_mode
-        controller.model.mode = ai_mode
-        
-        return jsonify({'success': True, 'ai_mode': controller.mode})
+        if 'ai_mode' in data:
+            ai_mode = data.get('ai_mode', True)
+            controller.ai_mode = ai_mode
+            controller.model.ai_mode = ai_mode
+        if 'autocollect' in data:
+            autocollect = data.get('autocollect', True)
+            controller.autocollect = autocollect
+
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -460,6 +462,16 @@ def landmarks():
     
     return jsonify({"message": "update landmarks"})
 
+
+@app.route('/cap', methods=['POST'])
+def cap():
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    state = request.json.get('cap')
+    controller.do_capture = state
+    return jsonify({"message": "do capture"})
+    
 @app.route('/edit', methods=['POST'])
 def edit():
     global controller

@@ -11,8 +11,7 @@ function L7({handledit, setReport, leftCheckMark, rightCheckMark}) {
     return(
       <div>
         <img className="image-button" src={require('./ImagingModeToolbar.png')} alt="Imaging Mode Toolbar" style={{position:'absolute', top:'458px', left:'921px', zIndex:7}}/>
-        <img className="image-button" src={require('./AcquireImageIconBg.png')} alt="acquire icon" style={{position:'absolute', top:'297px', left:'899px', zIndex:7}}/>
-        <img className="image-button"  src={require('./AcquireImageIcon.png')} alt="acquire icon" style={{position:'absolute', top:'305px', left:'907px', zIndex:7}}/>
+        
         <img className="image-button"  src={require('./EditIcon.png')} alt="edit icon" style={{position:'absolute', top:'466px', left:'928px', zIndex:7}} onClick={handledit}/>
         <img className="image-button"  src={require('./ReportIcon.png')} alt="Report Icon" style={{position:'absolute', top:'547px', left:'928px', zIndex:7}} onClick={()=>{setReport(true)}}/>
         {/*Show icon based on backend param*/}

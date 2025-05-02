@@ -30,15 +30,16 @@ class ImageProcessingController:
         self.panel = None
         # Initialize based on configuration
         self.on_simulation = self.config.get("on_simulation", False) 
-            
-        self.mode = self.config.get("mode", 0)
-        self.model.mode = self.mode
+        self.autocollect = self.config.get('framegrabber_autocollect', True)
+        self.ai_mode = self.config.get("ai_mode", True)
+        self.model.ai_mode = self.ai_mode
         self.video_connected = False
         
         self.viewmodel = ProcessingModel(config)
         self.exam = Exam()
         self.pause_states= None
         self.uistates = None
+        self.do_capture = False
         self.check_interval = 0.1
         
         self.logger = frame_grabber.logger
@@ -64,7 +65,8 @@ class ImageProcessingController:
         states = self.viewmodel.states
         states['is_processing'] = self.model.is_processing
         states['progress'] = self.model.progress
-        states['ai_mode'] = self.mode
+        states['ai_mode'] = self.ai_mode
+        states['autocollect'] = self.autocollect 
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
             is_connected = getattr(self.frame_grabber, 'is_connected', False)
@@ -187,17 +189,9 @@ class ImageProcessingController:
     def _process_loop(self):
         self.scn = 'init'
         while self.is_running:
-            if self.panel and self.panel.test_image_ready:
-                try:
-                    # Read the test image
-                    frame = cv2.imread(self.panel.test_image_path)
-                except Exception as e:
-                    print(f"Error reading test image: {e}")
-                    frame = None
-                
-                # Clear the test flag
-                self.panel.test_image_ready = False
-                self.panel.test_image_path = None
+            if self.do_capture:
+                frame = self.frame_grabber.last_frame
+                self.do_capture = False
             else:
                 # Normal processing
                 frame = self.update_backendstates()

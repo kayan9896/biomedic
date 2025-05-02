@@ -1,6 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox}) {
+function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox,autocollect}) {
+  const handleCapture = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/cap', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ cap: true }),
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to update AI mode');
+      }
+  } catch (error) {
+      console.error('Error updating AI mode:', error);
+    }
+  }
   const clickDash = () => {
     if(stage === 0){
       if(moveNext) handlenext()
@@ -42,6 +59,10 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
   }
     return(
       <>
+        {!autocollect&&(<>
+        <img className="image-button" src={require('./AcquireImageIconBg.png')} alt="acquire icon" style={{position:'absolute', top:'297px', left:'899px', zIndex:7}}/>
+        <img className="image-button"  src={require('./AcquireImageIcon.png')} alt="acquire icon" style={{position:'absolute', top:'305px', left:'907px', zIndex:7}} onClick={handleCapture}/>
+        </>)}
         <img src={require('./CurrentStageBg.png')} style={blueStage(stage)}/>
         {showDash(stage)[0]!==null&&!showCarmBox&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
 
@@ -79,7 +100,7 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
           textOverflow: 'ellipsis',
           border: '0px solid',
           padding: '8px',
-          fontSize: '16px'
+          fontSize: '16px',
         }}
         placeholder="no patient data"
       />
