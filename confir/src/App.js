@@ -26,6 +26,7 @@ import leftTemplate from './L21/template-l.json';
 import rightTemplate from './L21/template-r.json';
 import ReconnectionPage from './L13/ReconnectionPage';
 import L17 from './L17/L17';
+import KB from './KB';
 function scalePoints(templateData, scaleFactor) {
   const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
 
@@ -48,12 +49,13 @@ const rightTemplateData = scalePoints(rightTemplate, scaleFactor);
 function App() {
   const [angle, setAngle] = useState(0);
   const [patient, setPatient] = useState('');
+  const [ratio, setRatio] = useState('');
+  const [comment, setComment] = useState('');
   const [leftImage, setLeftImage] = useState(require('./AP.png'));
   const [rightImage, setRightImage] = useState(require('./OB.png'));
   const [error, setError] = useState(null);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const keyboardRef = useRef(null);
-  const inputRef = useRef(null);
   const [cursorPosition, setCursorPosition] = useState(0);
   const [keyboardLayout, setKeyboardLayout] = useState('default');
 
@@ -863,66 +865,6 @@ const updateRotationSavedState = (currentRotationAngle) => {
     setEditUIState();
   }, [showCarmBox, isProcessing, pause]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        showKeyboard &&
-        !inputRef.current.contains(event.target) &&
-        (!keyboardRef.current || !keyboardRef.current.contains(event.target))
-      ) {
-        setShowKeyboard(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [showKeyboard]);
-
-  const onInputChange = (e) => {
-    const value = e.target.value;
-    setPatient(value);
-    setCursorPosition(e.target.selectionStart);
-  };
-
-  const onKeyboardButtonPress = (button) => {
-    if (button === "{enter}") {
-      setShowKeyboard(false);
-    } else if (button === "{bksp}") {
-      const beforeCursor = patient.substring(0, cursorPosition - 1);
-      const afterCursor = patient.substring(cursorPosition);
-      setPatient(beforeCursor + afterCursor);
-      setCursorPosition(cursorPosition - 1);
-    } else if (button === "{space}") {
-      insertAtCursor(' ');
-    } else if (button === "{shift}"||button === "{lock}") {
-      setKeyboardLayout(keyboardLayout === "default" ? "shift" : "default");
-    } else if (!button.includes("{")) {
-      insertAtCursor(button);
-    }
-  
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-  const insertAtCursor = (str) => {
-    const beforeCursor = patient.substring(0, cursorPosition);
-    const afterCursor = patient.substring(cursorPosition);
-    const newValue = beforeCursor + str + afterCursor;
-    setPatient(newValue);
-    setCursorPosition(cursorPosition + str.length);
-  };
-
-  // Update cursor position when input is focused or clicked
-  const onSelect = (e) => {
-    setCursorPosition(e.target.selectionStart);
-  };
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
-    }
-  }, [cursorPosition, patient]);
-
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
 
@@ -1121,9 +1063,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
         
         {/*L2 Status bar*/}
         <L2 
-          onInputChange={onInputChange} 
           setShowKeyboard={setShowKeyboard} 
-          onSelect={onSelect} inputRef={inputRef} 
           pid={patient} setSetting={setSetting} 
           setExit={setExit}
           stage={stage} 
@@ -1268,45 +1208,18 @@ const updateRotationSavedState = (currentRotationAngle) => {
       
       {/*L1x Keyboard, render when showKeyboard true*/}
       {showKeyboard && (
-          <div 
-            ref={keyboardRef}
-            style={{
-              position: 'absolute',
-              left: '30px',
-              top: '740px',
-              width: '750px',
-              zIndex: 1000
-            }}
-          >
-            <Keyboard
-              layoutName={keyboardLayout}
-              layout={{
-                default: [
-                  "` 1 2 3 4 5 6 7 8 9 0 - = {bksp}",
-                  "{tab} q w e r t y u i o p [ ] \\",
-                  "{lock} a s d f g h j k l ; ' {enter}",
-                  "{shift} z x c v b n m , . / {shift}",
-                  "{space}"
-                ],
-                shift: [
-                  "~ ! @ # $ % ^ & * ( ) _ + {bksp}",
-                  "{tab} Q W E R T Y U I O P { } |",
-                  '{lock} A S D F G H J K L : " {enter}',
-                  "{shift} Z X C V B N M < > ? {shift}",
-                  "{space}"
-                ]
-              }}
-               
-              theme={"hg-theme-default myTheme"}
-              buttonTheme={[
-                {
-                  class: "hg-black",
-                  buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shift} z x c v b n m , . / {shift} {space}"
-                }
-              ]}
-              onKeyPress={onKeyboardButtonPress}
-            />
-          </div>
+          <KB
+          pid={patient}
+          ratio={ratio}
+          setRatio={setRatio}
+          comment={comment}
+          setComment={setComment}
+          setPatient={setPatient}
+          cursorPosition={cursorPosition}
+          setShowKeyboard={setShowKeyboard}
+          keyboardLayout={keyboardLayout}
+          setKeyboardLayout={setKeyboardLayout}
+        />
         )}
   
         </>

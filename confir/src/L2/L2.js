@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox}) {
+function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox}) {
   const clickDash = () => {
     if(stage === 0){
       if(moveNext) handlenext()
@@ -64,12 +64,9 @@ function L2({onInputChange,setShowKeyboard,onSelect,inputRef,pid,setSetting,setE
         <img src={require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px'}} onClick={()=>{setSetting(true)}}/>
         
         <input
-        ref={inputRef}
         type="text"
         value={pid}
-        onChange={onInputChange}
         onClick={() => setShowKeyboard(true)}
-        onSelect={onSelect}
         style={{
           position: 'absolute',
           left: '66px',

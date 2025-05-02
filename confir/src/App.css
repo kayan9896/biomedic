@@ -135,10 +135,21 @@ body{
   color: white;
 }
 
+
 .myTheme {
-  background-color: black;
-  width: calc(100% - 20px);
+  width: 100%;
+  
+  margin: 0 auto;
 }
+
+.myTheme .hg-button {
+  height: 100px !important;
+  font-size: 32px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 
 .image-button {
   cursor: pointer;
