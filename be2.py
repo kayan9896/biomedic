@@ -96,7 +96,7 @@ class ImageProcessingController:
             self.model.data['tri-ob']['metadata']['metadata'] = r
         
         
-        self.uistates = 'landmarks' if self.scn[:3] != 'frm' else 'None'
+        self.uistates = 'landmarks' if 'ap' not in self.scn else 'None'
         self.pause_states = None
         self.viewmodel.imgs[0]['metadata']['metadata'] = l
         self.viewmodel.imgs[1]['metadata']['metadata'] = r
@@ -227,6 +227,13 @@ class ImageProcessingController:
                 return self.scn
 
             case 'frm:hp1-ap:end'| 'frm:hp1-ob:end':
+                
+                if self.uistates == 'landmarks':
+                    print('land',self.uistates)
+                    time.sleep(10)
+                    self.uistates = None
+                    return 'rcn:hmplv1:bgn'
+
                 if self.model.data['hp1-ap']['success'] and self.model.data['hp1-ob']['success']:
                     return 'rcn:hmplv1:bgn'
                 else:

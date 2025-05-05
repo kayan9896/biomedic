@@ -198,7 +198,6 @@ function KB({
             border: activeInput === 'comment' ? '2px solid #4a90e2' : '1px solid #ccc',
             borderRadius: '21px',
             fontSize: '55px',
-            padding: '10px',
             fontFamily:'abel',
             zIndex: 14
           }}

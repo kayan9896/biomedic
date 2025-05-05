@@ -127,6 +127,12 @@ class AnalyzeBox:
                 self.is_processing = False
                 return {'metadata': metadata, 'checkmark': 0, 'error': 'landmarks fail'}, frame
 
+            if not self.ai_mode:
+                metadata['metadata'] = None
+                self.is_processing = False
+                self.data[section]['image'] = frame
+                self.data[section]['metadata'] = metadata
+                return {'metadata': metadata, 'checkmark': 1, 'error': None}, frame
 
             metadata['imuangles'] = [angle, rotation_angle]
             # Process frame and generate results
