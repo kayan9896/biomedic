@@ -437,6 +437,7 @@ def get_image_with_metadata():
         'image': f'data:image/jpeg;base64,{image_base64}',
         'metadata': converted_metadata,
         'checkmark': image_data['checkmark'],
+        'recon': image_data['recon'],
         'error': image_data['error'],
         'next': image_data['next'],
         'measurements': image_data['measurements'],

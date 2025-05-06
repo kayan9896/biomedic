@@ -75,6 +75,7 @@ function App() {
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
   const [rightCheckMark, setRightCheckMark] = useState(null);
+  const [recon, setRecon] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [editing, setEditing] = useState(false)
@@ -710,7 +711,6 @@ const updateRotationSavedState = (currentRotationAngle) => {
               tmp[0] = data.side
               return tmp
             })
-            if (data.checkmark ==2 || data.checkmark==3)setRightCheckMark(data.checkmark)
             setApTaken(currentRotationAngle)
             console.log(data.metadata)
         } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
@@ -722,10 +722,10 @@ const updateRotationSavedState = (currentRotationAngle) => {
               tmp[1] = data.side
               return tmp
             })
-            if (data.checkmark ==2 || data.checkmark==3)setLeftCheckMark(data.checkmark)
             if(stage===0){setObTaken(currentRotationAngle)}
             if(stage===1){setObTaken2(currentRotationAngle)}
         }
+        setRecon(data.recon)
         setError(data.error)
         setTiltTaken(targetTiltAngle)
         
@@ -1098,7 +1098,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark}/>}
+      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}

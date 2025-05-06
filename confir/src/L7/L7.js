@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L7({handledit, setReport, leftCheckMark, rightCheckMark}) {
+function L7({handledit, setReport, leftCheckMark, rightCheckMark, recon}) {
     const imageMap = {
       1: require('./APStatusIcon.png'),
-      2: require('./RcnCheckmark.png'),
-      3: require('./RecFailedIcon.png'),
+      2: require('./RcnSucceed.png'),
+      3: require('./RcnFailed.png'),
       0: require('./OBStatusIcon.png'),
     };
   
@@ -16,10 +16,13 @@ function L7({handledit, setReport, leftCheckMark, rightCheckMark}) {
         <img className="image-button"  src={require('./ReportIcon.png')} alt="Report Icon" style={{position:'absolute', top:'547px', left:'928px', zIndex:7}} onClick={()=>{setReport(true)}}/>
         {/*Show icon based on backend param*/}
         {rightCheckMark!==null && (
-          <img src={imageMap[rightCheckMark]} style={{ position: 'absolute', top: '857px', left: '1019px', zIndex: 7 }} alt="status icon" />
+          <img src={imageMap[rightCheckMark]} style={{ position: 'absolute', top: '860px', left: '1020px', zIndex: 7 }} alt="status icon" />
         )}
         {leftCheckMark!==null && (
-          <img src={imageMap[leftCheckMark]} style={{ position: 'absolute', top: '860px', left: '816px', zIndex: 7 }} alt="status icon" />
+          <img src={imageMap[leftCheckMark]} style={{ position: 'absolute', top: '860px', left: '815px', zIndex: 7 }} alt="status icon" />
+        )}
+        {recon!==null && (
+          <img src={imageMap[recon]} style={{ position: 'absolute', top: '852px', left: '807px', zIndex: 7 }} alt="recon icon" />
         )}
       </div>
     )

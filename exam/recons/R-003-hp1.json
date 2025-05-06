@@ -407,8 +407,8 @@
         },
         "Calibration": {},
         "Segmentation": null,
-        "ShotIndex": 1
+        "ShotIndex": 5
     },
     "ReconResult": 1,
-    "ReconIndex": 0
+    "ReconIndex": 3
 }

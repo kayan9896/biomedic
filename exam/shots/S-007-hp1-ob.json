@@ -1,10 +1,10 @@
 {
     "folder": "shots",
-    "type": "hp1-ap",
+    "type": "hp1-ob",
     "side": "r",
     "imuangles": [
         0,
-        0
+        -25
     ],
     "metadata": {
         "pelvis": [
@@ -200,5 +200,5 @@
     },
     "Calibration": {},
     "Segmentation": null,
-    "ShotIndex": 0
+    "ShotIndex": 7
 }

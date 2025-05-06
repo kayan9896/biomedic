@@ -120,25 +120,26 @@ class AnalyzeBox:
             if error_code == ['001']:
                 metadata['metadata'] = None
                 self.is_processing = False
-                return {'metadata': metadata, 'checkmark': None, 'error': 'glyph'}, frame
+                return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'glyph'}, frame
 
             if error_code == ['002']:
                 metadata['metadata'] = None
                 self.is_processing = False
-                return {'metadata': metadata, 'checkmark': 0, 'error': 'landmarks fail'}, frame
+                return {'metadata': metadata, 'checkmark': 0, 'recon': None, 'error': 'landmarks fail'}, frame
 
             if not self.ai_mode:
                 metadata['metadata'] = None
                 self.is_processing = False
                 self.data[section]['image'] = frame
                 self.data[section]['metadata'] = metadata
-                return {'metadata': metadata, 'checkmark': 1, 'error': None}, frame
+                return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': None}, frame
 
             metadata['imuangles'] = [angle, rotation_angle]
             # Process frame and generate results
             result = {
                 'metadata': metadata,
                 'checkmark': 1,
+                'recon': None,
                 'side': side,
                 'error': None
             }
@@ -189,14 +190,14 @@ class AnalyzeBox:
                 metadata['shot_2'] = None
                 metadata['ReconResult'] = 'recon fails, unmatched side'
                 self.is_processing = False
-                return {'metadata': metadata, 'checkmark': 3, 'error': 'recon fails, unmatched side'}, None
+                return {'metadata': metadata, 'recon': 3, 'error': 'recon fails, unmatched side'}, None
 
             if error_code == ['004']: 
                 metadata['shot_1'] = None
                 metadata['shot_2'] = None
                 metadata['ReconResult'] = 'recon fails'
                 self.is_processing = False
-                return {'metadata': metadata, 'checkmark': 3, 'error': 'recon fails'}, None
+                return {'metadata': metadata, 'recon': 3, 'error': 'recon fails'}, None
 
             metadata['shot_1'] = self.data[curap]['metadata']
             metadata['shot_2'] = self.data[curob]['metadata']
@@ -204,7 +205,7 @@ class AnalyzeBox:
             # Process frame and generate results
             result = {
                 'metadata': metadata,
-                'checkmark': 2,
+                'recon': 2,
                 'side': self.data[curap]['side'],
                 'error': None
             }
@@ -308,7 +309,7 @@ class AnalyzeBox:
                     dataforvm = data
                     if 'metadata' in dataforvm:
                         dataforvm.pop('metadata')
-                    if data['checkmark'] == 2:
+                    if data['recon'] == 2:
                         dataforvm['next'] = True
 
                     return dataforsave, dataforvm, processed_frame

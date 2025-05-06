@@ -57,13 +57,15 @@ const L21 = ({
           : rightTemplateData;
         
         // Set pelvis value based on selection
-        setPelvis(selectedTemplate === 'left' ? ['l', 'l'] : ['r', 'r']);
+        
         
         // Update the appropriate image metadata based on which side is active
         if (activeLeft) {
           setLeftImageMetadata(templateData);
+          setPelvis(selectedTemplate === 'left' ? ['l', null] : ['r', null]);
         } else if (activeRight) {
           setRightImageMetadata(templateData);
+          setPelvis(selectedTemplate === 'left' ? [null, 'l'] : [null, 'r']);
         }
       } catch (error) {
         console.error('Error loading template:', error);

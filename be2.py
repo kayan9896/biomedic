@@ -229,8 +229,6 @@ class ImageProcessingController:
             case 'frm:hp1-ap:end'| 'frm:hp1-ob:end':
                 
                 if self.uistates == 'landmarks':
-                    print('land',self.uistates)
-                    time.sleep(10)
                     self.uistates = None
                     return 'rcn:hmplv1:bgn'
 
