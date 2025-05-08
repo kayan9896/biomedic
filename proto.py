@@ -415,15 +415,7 @@ def get_image_with_metadata():
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     
-    angle = controller.viewmodel.states['rotation_angle']
-    
-    # Determine which image data to send
-    if -15 <= angle <= 15:
-        image_data = controller.viewmodel.imgs[0]
-    elif -45 <= angle <= 45:
-        image_data = controller.viewmodel.imgs[1]
-    else:
-        return jsonify({"error": "Angle out of range"}), 400
+    image_data = controller.get_image_with_metadata()
     
     if image_data['image'] is None:
         return jsonify({"error": "No image available"}), 404

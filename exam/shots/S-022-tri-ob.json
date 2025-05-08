@@ -1,0 +1,13 @@
+{
+    "folder": "shots",
+    "type": "tri-ob",
+    "side": "l",
+    "imuangles": [
+        0,
+        -30
+    ],
+    "metadata": null,
+    "Calibration": {},
+    "Segmentation": null,
+    "ShotIndex": 22
+}

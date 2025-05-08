@@ -302,12 +302,13 @@ class Panel:
                     'errors': selected_errors
                 }
                 self.controller.model.settest(self.test_data)
-        self.image_path = self.test_data['ap']['image_path'] if -20 < self.rotation_angle < 20 else self.test_data['ob']['image_path']
+        self.image_path = self.test_data['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data['ob']['image_path']
         self.controller.frame_grabber.last_frame = cv2.imread(self.image_path)
         
     def _test(self):
         # Trigger the test 
-        
+        self.image_path = self.test_data['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data['ob']['image_path']
+        self.controller.frame_grabber.last_frame = cv2.imread(self.image_path)
         self.controller.frame_grabber._is_new_frame_available = True
         
     def _get_files_for_tab_section(self, tab_type, section):

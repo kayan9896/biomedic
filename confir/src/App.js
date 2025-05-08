@@ -853,6 +853,8 @@ const updateRotationSavedState = (currentRotationAngle) => {
     setRightImageMetadata(null)
     setLeftCheckMark(null)
     setRightCheckMark(null)
+    setRecon(null)
+    setIsCupReg(false)
     setStage(0);
     try {
       await fetch('http://localhost:5000/restart', {

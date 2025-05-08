@@ -1,0 +1,218 @@
+{
+    "folder": "recons",
+    "type": "cup",
+    "shot_1": {
+        "folder": "shots",
+        "type": "cup-ap",
+        "side": "l",
+        "imuangles": [
+            0,
+            -10
+        ],
+        "metadata": {
+            "group1": [
+                {
+                    "handle": [
+                        811,
+                        578
+                    ],
+                    "points": [
+                        [
+                            712,
+                            309
+                        ],
+                        [
+                            716,
+                            416
+                        ],
+                        [
+                            742,
+                            505
+                        ],
+                        [
+                            811,
+                            618
+                        ],
+                        [
+                            894,
+                            704
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "D55E00"
+                },
+                {
+                    "points": [
+                        [
+                            854,
+                            773
+                        ],
+                        [
+                            757,
+                            825
+                        ],
+                        [
+                            704,
+                            768
+                        ],
+                        [
+                            722,
+                            677
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "56B4E9"
+                },
+                {
+                    "points": [
+                        [
+                            746,
+                            576
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "CC79A7"
+                }
+            ],
+            "group2": [
+                {
+                    "handle": [
+                        468,
+                        427
+                    ],
+                    "points": [
+                        [
+                            468,
+                            467
+                        ],
+                        [
+                            593,
+                            538
+                        ],
+                        [
+                            682,
+                            675
+                        ],
+                        [
+                            637,
+                            441
+                        ]
+                    ],
+                    "type": "ellipse",
+                    "colour": "F0E442"
+                }
+            ]
+        },
+        "Calibration": {},
+        "Segmentation": null,
+        "ShotIndex": 13
+    },
+    "shot_2": {
+        "folder": "shots",
+        "type": "cup-ob",
+        "side": "l",
+        "imuangles": [
+            0,
+            -30
+        ],
+        "metadata": {
+            "group1": [
+                {
+                    "handle": [
+                        811,
+                        578
+                    ],
+                    "points": [
+                        [
+                            712,
+                            309
+                        ],
+                        [
+                            716,
+                            416
+                        ],
+                        [
+                            742,
+                            505
+                        ],
+                        [
+                            811,
+                            618
+                        ],
+                        [
+                            894,
+                            704
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "D55E00"
+                },
+                {
+                    "points": [
+                        [
+                            854,
+                            773
+                        ],
+                        [
+                            757,
+                            825
+                        ],
+                        [
+                            704,
+                            768
+                        ],
+                        [
+                            722,
+                            677
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "56B4E9"
+                },
+                {
+                    "points": [
+                        [
+                            746,
+                            576
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "CC79A7"
+                }
+            ],
+            "group2": [
+                {
+                    "handle": [
+                        468,
+                        427
+                    ],
+                    "points": [
+                        [
+                            468,
+                            467
+                        ],
+                        [
+                            593,
+                            538
+                        ],
+                        [
+                            682,
+                            675
+                        ],
+                        [
+                            637,
+                            441
+                        ]
+                    ],
+                    "type": "ellipse",
+                    "colour": "F0E442"
+                }
+            ]
+        },
+        "Calibration": {},
+        "Segmentation": null,
+        "ShotIndex": 14
+    },
+    "ReconResult": 1,
+    "ReconIndex": 4
+}

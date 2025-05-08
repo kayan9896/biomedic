@@ -80,6 +80,12 @@ class ImageProcessingController:
 
         return states
 
+    def get_image_with_metadata(self):
+        if self.viewmodel.states['active_side'] == 'ap':
+            return self.viewmodel.imgs[0]
+        elif self.viewmodel.states['active_side'] == 'ob':
+            return self.viewmodel.imgs[1]
+
     def update_landmarks(self, l, r, stage):
         
         if stage == 0:
