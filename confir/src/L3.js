@@ -40,7 +40,7 @@ function L3({
           }}
         />
         {activeLeft && (
-          <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
+          <img src={require('./L5/APViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {leftImageMetadata && Object.keys(leftImageMetadata).map((group, i) => (
           <PatternDisplay
@@ -70,7 +70,7 @@ function L3({
           }}
         />
         {activeRight && (
-          <img src={require('./blueBox.png')} alt="blue box" className="blue-box-overlay" />
+          <img src={require('./L5/OBViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {rightImageMetadata && Object.keys(rightImageMetadata).map((group, i) => (
           <PatternDisplay
