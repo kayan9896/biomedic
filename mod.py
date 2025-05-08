@@ -10,6 +10,7 @@ class ProcessingModel:
             'angle': 0,
             'rotation_angle': 0,
             'img_count': 0,  
+            'active_side': None,
             'is_processing': False,
             'progress': 0,
             'ap_carm': False,
@@ -28,14 +29,13 @@ class ProcessingModel:
     def update(self, dataforvm, image):
         # Assuming dataforvm contains metadata
         
-        angle = self.states['rotation_angle']
-        if -20 <= angle <= 20:
+        if self.states['active_side'] == 'ap':
             self.imgs[0]['error'] = None
             self.imgs[0]['measurements'] = None
             if image is not None: self.imgs[0]['image'] = image
             for i in dataforvm:
                 self.imgs[0][i] = dataforvm[i]
-        elif -50 <= angle <= 50:
+        elif self.states['active_side'] == 'ob':
             self.imgs[1]['error'] = None
             self.imgs[1]['measurements'] = None
             if image is not None: self.imgs[1]['image'] = image

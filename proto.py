@@ -400,6 +400,9 @@ def set_ai_mode():
         if 'autocollect' in data:
             autocollect = data.get('autocollect', True)
             controller.autocollect = autocollect
+        if 'tracking' in data:
+            tracking = data.get('tracking', True)
+            controller.tracking = tracking
 
         return jsonify({'success': True})
     except Exception as e:
@@ -472,6 +475,15 @@ def cap():
     state = request.json.get('cap')
     controller.do_capture = state
     return jsonify({"message": "do capture"})
+
+@app.route('/label', methods=['POST'])
+def label():
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    label = request.json.get('label')
+    controller.viewmodel.states['active_side'] = label
+    return jsonify({"message": "click label switch active side"})
     
 @app.route('/edit', methods=['POST'])
 def edit():

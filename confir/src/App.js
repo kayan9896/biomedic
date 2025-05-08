@@ -63,14 +63,14 @@ function App() {
   const carmBoxTimerRef = useRef(null);
   const [rotationAngle, setRotationAngle] = useState(0);
   const previousRotationAngleRef = useRef(rotationAngle);
-  const isInGreenSector = rotationAngle >= -20 && rotationAngle <= 20;
-  const isInYellowSector = rotationAngle >= -50 && rotationAngle <= 50;
-  const activeLeft = isInGreenSector;
-  const activeRight = isInYellowSector && !isInGreenSector;
+
+  const [activeLeft, setActiveLeft] = useState(false);
+  const [activeRight, setActiveRight] = useState(false)
   const [imuon, setImuon] = useState(false);
   const [video_on, setVideo_on] = useState(false);
   const [ai_mode, setAi_mode] = useState(0);
-  const [autocollect, setAutocollect] = useState('true')
+  const [autocollect, setAutocollect] = useState(true)
+  const [tracking, setTracking] = useState(true)
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
@@ -464,6 +464,9 @@ function App() {
         setImuon(data.imu_on)
         setAi_mode(data.ai_mode)
         setAutocollect(data.autocollect)
+        setTracking(data.tracking)
+        setActiveLeft(data.active_side === 'ap' ? true: false)
+        setActiveRight(data.active_side === 'ob' ? true: false)
         
         // Hide carmbox when processing is happening
         if (data.is_processing) {
@@ -479,7 +482,7 @@ function App() {
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
-          await updateImages(data.rotation_angle);
+          await updateImages(data.rotation_angle, data.active_side);
         }
 
         if (data.measurements) {
@@ -697,12 +700,12 @@ const updateRotationSavedState = (currentRotationAngle) => {
     }
   }, [isTiltSaved, isAPRotationSaved, isOBRotationSaved, angle, rotationAngle, activeLeft, activeRight, showCarmBox, isProcessing]);
 
-  const updateImages = async (currentRotationAngle) => {
+  const updateImages = async (currentRotationAngle, active_side) => {
     try {
         const response = await fetch('http://localhost:5000/api/image-with-metadata');
         const data = await response.json();
         
-        if (currentRotationAngle >= -20 && currentRotationAngle <= 20) {
+        if (active_side === 'ap') {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata.metadata);
             setLeftCheckMark(data.checkmark)
@@ -713,7 +716,11 @@ const updateRotationSavedState = (currentRotationAngle) => {
             })
             setApTaken(currentRotationAngle)
             console.log(data.metadata)
-        } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
+
+            setRightImage(require('./OB.png'));
+            setRightImageMetadata(null)
+            setRightCheckMark(null)
+        } else if (active_side === 'ob') {
             setRightImage(data.image);  // This is now a data URL
             setRightImageMetadata(data.metadata.metadata);
             setRightCheckMark(data.checkmark)
@@ -805,6 +812,20 @@ const updateRotationSavedState = (currentRotationAngle) => {
     } catch (error) {
       console.error('Error going next:', error);
       setError("Failed to change backend uistate");
+    }
+  };
+
+  const handlLabelClick = async (label) => {
+    try {
+      await fetch('http://localhost:5000/label', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({'label': label})
+      });
+    } catch (error) {
+      setError("Failed to change active side");
     }
   };
 
@@ -984,7 +1005,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       alert('Error saving image with overlays: ' + err.message);
     }
   };
-
+/*
   useEffect(() => {
 
     // Function to load the appropriate template based on pelvis side
@@ -1017,7 +1038,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       }
     }
   }, [ pelvis, leftImage, rightImage]);
-
+*/
   // Need to determine if we should show L21
   const shouldShowL21 = () => {
     if (!editing) return false;
@@ -1059,7 +1080,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       ) : (
         <>
         {/*L1 Background*/}
-        <L1/>
+        <L1 tracking={tracking} handlLabelClick={handlLabelClick}/>
         
         {/*L2 Status bar*/}
         <L2 
@@ -1074,6 +1095,8 @@ const updateRotationSavedState = (currentRotationAngle) => {
           isCupReg={isCupReg}
           showCarmBox={showCarmBox}
           autocollect={autocollect}
+          editing={editing}
+          recon={recon}
         />
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
@@ -1098,7 +1121,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon}/>}
+      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon} setPause={setPause}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}
@@ -1160,7 +1183,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (
         <img 
-          src={require('./IMUConnectionIcon.png')} 
+          src={require('./L7/IMUConnectionIcon.png')} 
           style={{
             position:'absolute', 
             top:'863px', 
@@ -1169,20 +1192,30 @@ const updateRotationSavedState = (currentRotationAngle) => {
           }}
         />
       ):(<img 
-        src={require('./IMUerr.png')} 
+        src={require('./L7/IMUConnErrorNotice.png')} 
         style={{
           position:'absolute', 
           top:'864px', 
-          left:'1435px',
+          left:'1772px',
           animation: 'slideIn 0.5s ease-in-out',
           zIndex:14
         }}
-      />)}
-      <img 
-        src={require('./videoConnectionIcon.png')} 
-        style={{position:'absolute', top:'765px', left:'1825px',zIndex:14}}
         onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
-      />
+      />)}
+      {video_on ? (<img 
+        src={require('./L7/VideoConnectionIcon.png')} 
+        style={{position:'absolute', top:'765px', left:'1825px',zIndex:14}}
+      />):(<img 
+        src={require('./L7/VideoConnErrorNotice.png')} 
+        style={{
+          position:'absolute', 
+          top:'765px', 
+          left:'1772px',
+          animation: 'slideIn 0.5s ease-in-out',
+          zIndex:14
+        }}
+        onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+      />)}
       
 
       {/*L11 Report, render when report button clicked*/}
@@ -1192,7 +1225,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {<L12 pause={pause} setPause={setPause} handlenext={handlenext}/>}
 
       {/*L14 Setting, render when setting true*/}
-      {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode} autocollect={autocollect}/>}
+      {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode} autocollect={autocollect} tracking={tracking}/>}
 
       
 

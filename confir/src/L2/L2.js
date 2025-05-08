@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox,autocollect}) {
+function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox,autocollect,editing,recon}) {
   const handleCapture = async () => {
     try {
       const response = await fetch('http://localhost:5000/cap', {
@@ -20,7 +20,7 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
   }
   const clickDash = () => {
     if(stage === 0){
-      if(moveNext) handlenext()
+      if(recon === 2) handlenext()
     }
     if(stage === 1){
       if(!moveNext) handlerestart()
@@ -41,7 +41,7 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
   }
   const showDash = (stage) => {
     if(stage === 0){
-      if(moveNext) return [1, {'position':'absolute', top:'983px', left:'381px'}]
+      if(recon === 2) return [1, {'position':'absolute', top:'983px', left:'381px'}]
       return [null, null]
     }
     if (stage === 1){
@@ -59,15 +59,18 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
   }
     return(
       <>
-        {!autocollect&&(<>
-        <img className="image-button" src={require('./AcquireImageIconBg.png')} alt="acquire icon" style={{position:'absolute', top:'297px', left:'899px', zIndex:7}}/>
-        <img className="image-button"  src={require('./AcquireImageIcon.png')} alt="acquire icon" style={{position:'absolute', top:'305px', left:'907px', zIndex:7}} onClick={handleCapture}/>
-        </>)}
+        {(!autocollect&&!editing) && (
+          <>
+          <img className="image-button" src={require('./AcquireImageIconBg.png')} alt="acquire icon" style={{position:'absolute', top:'297px', left:'899px', zIndex:7}}/>
+          <img className="image-button"  src={require('./AcquireImageIcon.png')} alt="acquire icon" style={{position:'absolute', top:'305px', left:'907px', zIndex:7}} onClick={handleCapture}/>
+          </>)
+        }
+
         <img src={require('./CurrentStageBg.png')} style={blueStage(stage)}/>
         {showDash(stage)[0]!==null&&!showCarmBox&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
 
         {(
-          stage===0&&!moveNext?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>:
+          stage===0&&recon!==2?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>:
           <img src={require('./HipIcon2.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>
         )}
         {(

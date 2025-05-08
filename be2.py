@@ -33,6 +33,7 @@ class ImageProcessingController:
         self.autocollect = self.config.get('framegrabber_autocollect', True)
         self.ai_mode = self.config.get("ai_mode", True)
         self.model.ai_mode = self.ai_mode
+        self.tracking = True
         self.video_connected = False
         
         self.viewmodel = ProcessingModel(config)
@@ -48,17 +49,12 @@ class ImageProcessingController:
         
         if self.config.get("imu_on", True):
             imu_port = self.config.get("imu_port", "COM3")
-            self.imu = IMU2(self, imu_port)
+            self.imu = IMU2(imu_port)
             
         if self.on_simulation:
             self.panel = Panel(self, config=self.config)
             self.model.on_simulation = self.on_simulation
-            
-    
-    def imuonob(self):
-        return (not self.imuonap()) and (-50<=self.panel.rotation_angle and self.panel.rotation_angle<=50)
-    def imuonap(self):
-        return -20<=self.panel.rotation_angle<=20
+
 
 
     def get_states(self):
@@ -67,6 +63,7 @@ class ImageProcessingController:
         states['progress'] = self.model.progress
         states['ai_mode'] = self.ai_mode
         states['autocollect'] = self.autocollect 
+        states['tracking'] = self.tracking 
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
             is_connected = getattr(self.frame_grabber, 'is_connected', False)
@@ -74,9 +71,13 @@ class ImageProcessingController:
             states['video_on'] = is_connected and is_running
         
         # Update imu_on based on IMU is_connected
-        if hasattr(self, 'imu'):
-            states['imu_on'] = getattr(self.imu, 'is_connected', True)  # Default to True if property not found
-        
+        states['imu_on'] = getattr(self.imu, 'is_connected', True)  # Default to True if property not found
+
+        if self.tracking:
+            states['angle'] = self.imu.angle
+            states['rotation_angle'] = self.imu.rotation_angle
+            states['active_side'] = self.imu.activeside()
+
         return states
 
     def update_landmarks(self, l, r, stage):
@@ -220,9 +221,9 @@ class ImageProcessingController:
         match self.scn:
             case 'init':
                 if frame is not None:
-                    if self.imuonap():
+                    if self.viewmodel.states['active_side'] == 'ap':
                         return 'frm:hp1-ap:bgn'
-                    if self.imuonob():
+                    if self.viewmodel.states['active_side'] == 'ob':
                         return 'frm:hp1-ob:bgn' 
                 return self.scn
 
@@ -236,9 +237,9 @@ class ImageProcessingController:
                     return 'rcn:hmplv1:bgn'
                 else:
                     if frame is not None:
-                        if self.imuonap():
+                        if self.viewmodel.states['active_side'] == 'ap':
                             return 'frm:hp1-ap:bgn'
-                        if self.imuonob():
+                        if self.viewmodel.states['active_side'] == 'ob':
                             return 'frm:hp1-ob:bgn'
                     return self.scn
             
@@ -248,9 +249,9 @@ class ImageProcessingController:
                     if self.uistates == 'next':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.imuonap():
+                            if self.viewmodel.states['active_side'] == 'ap':
                                 return 'frm:hp2-ap:bgn'
-                            if self.imuonob():
+                            if self.viewmodel.states['active_side'] == 'ob':
                                 return 'frm:hp2-ob:bgn'
                     
                 #sucess or not, user can either edit landmarks changes, redo recon
@@ -261,10 +262,10 @@ class ImageProcessingController:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.imuonap():
+                    if self.viewmodel.states['active_side'] == 'ap':
                         self.model.data['hp1-ap']['success'] = None
                         return 'frm:hp1-ap:bgn'
-                    if self.imuonob():
+                    if self.viewmodel.states['active_side'] == 'ob':
                         self.model.data['hp1-ob']['success'] = None
                         return 'frm:hp1-ob:bgn'
 
@@ -276,9 +277,9 @@ class ImageProcessingController:
                     return 'rcn:hmplv2:bgn'
                 else:
                     if frame is not None:
-                        if self.imuonap():
+                        if self.viewmodel.states['active_side'] == 'ap':
                             return 'frm:hp2-ap:bgn'
-                        if self.imuonob():
+                        if self.viewmodel.states['active_side'] == 'ob':
                             return 'frm:hp2-ob:bgn'
                     return self.scn
                 
@@ -294,10 +295,10 @@ class ImageProcessingController:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.imuonap():
+                    if self.viewmodel.states['active_side'] == 'ap':
                         self.model.data['hp2-ap']['success'] = None
                         return 'frm:hp2-ap:bgn'
-                    if self.imuonob():
+                    if self.viewmodel.states['active_side'] == 'ob':
                         self.model.data['hp2-ob']['success'] = None
                         return 'frm:hp2-ob:bgn'
 
@@ -310,16 +311,16 @@ class ImageProcessingController:
                     if self.uistates == 'next':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.imuonap():
+                            if self.viewmodel.states['active_side'] == 'ap':
                                 return 'frm:cup-ap:bgn'
-                            if self.imuonob():
+                            if self.viewmodel.states['active_side'] == 'ob':
                                 return 'frm:cup-ob:bgn'
                     if self.uistates == 'skip':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.imuonap():
+                            if self.viewmodel.states['active_side'] == 'ap':
                                 return 'frm:tri-ap:bgn'
-                            if self.imuonob():
+                            if self.viewmodel.states['active_side'] == 'ob':
                                 return 'frm:tri-ob:bgn'
 
                     #reg succeeds, user can still edit landmarks changes, redo recon
@@ -330,10 +331,10 @@ class ImageProcessingController:
                     #user does nothing/ editing
                     #they can retake
                     if frame is not None:
-                        if self.imuonap():
+                        if self.viewmodel.states['active_side'] == 'ap':
                             self.model.data['hp2-ap']['success'] = None
                             return 'frm:hp2-ap:bgn'
-                        if self.imuonob():
+                        if self.viewmodel.states['active_side'] == 'ob':
                             self.model.data['hp2-ob']['success'] = None
                             return 'frm:hp2-ob:bgn'
                             
@@ -342,9 +343,9 @@ class ImageProcessingController:
                     if self.uistates == 'restart':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.imuonap():
+                            if self.viewmodel.states['active_side'] == 'ap':
                                 return 'frm:hp1-ap:bgn'
-                            if self.imuonob():
+                            if self.viewmodel.states['active_side'] == 'ob':
                                 return 'frm:hp1-ob:bgn'
                 return self.scn
             
@@ -358,9 +359,9 @@ class ImageProcessingController:
                     return 'rcn:acecup:bgn'
                 else:
                     if frame is not None:
-                        if self.imuonap():
+                        if self.viewmodel.states['active_side'] == 'ap':
                             return 'frm:cup-ap:bgn'
-                        if self.imuonob():
+                        if self.viewmodel.states['active_side'] == 'ob':
                             return 'frm:cup-ob:bgn'
                     return self.scn
 
@@ -376,10 +377,10 @@ class ImageProcessingController:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.imuonap():
+                    if self.viewmodel.states['active_side'] == 'ap':
                         self.model.data['cup-ap']['success'] = None
                         return 'frm:cup-ap:bgn'
-                    if self.imuonob():
+                    if self.viewmodel.states['active_side'] == 'ob':
                         self.model.data['cup-ob']['success'] = None
                         return 'frm:cup-ob:bgn'
 
@@ -392,9 +393,9 @@ class ImageProcessingController:
                     if self.uistates == 'next':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.imuonap():
+                            if self.viewmodel.states['active_side'] == 'ap':
                                 return 'frm:tri-ap:bgn'
-                            if self.imuonob():
+                            if self.viewmodel.states['active_side'] == 'ob':
                                 return 'frm:tri-ob:bgn'
 
                 #reg succeeds or not, user can still edit landmarks changes, redo recon
@@ -405,10 +406,10 @@ class ImageProcessingController:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.imuonap():
+                    if self.viewmodel.states['active_side'] == 'ap':
                         self.model.data['cup-ap']['success'] = None
                         return 'frm:cup-ap:bgn'
-                    if self.imuonob():
+                    if self.viewmodel.states['active_side'] == 'ob':
                         self.model.data['cup-ob']['success'] = None
                         return 'frm:cup-ob:bgn'
                             
@@ -424,9 +425,9 @@ class ImageProcessingController:
                     return 'rcn:tothip:bgn'
                 else:
                     if frame is not None:
-                        if self.imuonap():
+                        if self.viewmodel.states['active_side'] == 'ap':
                             return 'frm:tri-ap:bgn'
-                        if self.imuonob():
+                        if self.viewmodel.states['active_side'] == 'ob':
                             return 'frm:tri-ob:bgn'
                     return self.scn
 
@@ -442,10 +443,10 @@ class ImageProcessingController:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.imuonap():
+                    if self.viewmodel.states['active_side'] == 'ap':
                         self.model.data['tri-ap']['success'] = None
                         return 'frm:tri-ap:bgn'
-                    if self.imuonob():
+                    if self.viewmodel.states['active_side'] == 'ob':
                         self.model.data['tri-ob']['success'] = None
                         return 'frm:tri-ob:bgn'
 
@@ -461,10 +462,10 @@ class ImageProcessingController:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.imuonap():
+                    if self.viewmodel.states['active_side'] == 'ap':
                         self.model.data['tri-ap']['success'] = None
                         return 'frm:tri-ap:bgn'
-                    if self.imuonob():
+                    if self.viewmodel.states['active_side'] == 'ob':
                         self.model.data['tri-ob']['success'] = None
                         return 'frm:tri-ob:bgn'
                             

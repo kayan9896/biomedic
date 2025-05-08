@@ -3,7 +3,7 @@
     "type": "hp1-ob",
     "side": "r",
     "imuangles": [
-        0,
+        -5,
         -25
     ],
     "metadata": {

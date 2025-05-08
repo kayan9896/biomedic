@@ -73,13 +73,16 @@ class AnalyzeBox:
 
     def settest(self, testdata):
         self.test_data = testdata
-    def analyzeframe(self, section, frame, angle, rotation_angle):
+    def analyzeframe(self, section, frame, angle=None, rotation_angle=None):
         try:
             self.data[section]['success'] = None
             
             self.is_processing = True
             section_type = section[-2:]  # ap, ob
-            
+            tmp = section[:-2] + 'ob'
+            if section_type == 'ap': 
+                self.data[tmp] = {'image': None, 'metadata': None, 'success': False, 'side': None}
+                
             test_entry = self.test_data.get(section_type)
             if test_entry and test_entry.get('json_path'):
                 try:
@@ -104,13 +107,15 @@ class AnalyzeBox:
                 with open(file, 'r') as f:
                     metadata = json.load(f)
             
-                        
+            metadata['imuangles'] = [angle, rotation_angle]
+
             side = metadata['side']
             if section[:3] == 'hp2' or  section[:3] == 'tri':
                 if side != self.data[section]['side']:
                     metadata['metadata'] = None
                     self.is_processing = False
                     return {'metadata': metadata, 'checkmark': None, 'error': 'wrong side'}, frame
+            self.data[tmp]['side'] = side
 
             if error_code == ['003']:
                 metadata['metadata'] = None
@@ -134,7 +139,7 @@ class AnalyzeBox:
                 self.data[section]['metadata'] = metadata
                 return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': None}, frame
 
-            metadata['imuangles'] = [angle, rotation_angle]
+            
             # Process frame and generate results
             result = {
                 'metadata': metadata,
@@ -278,7 +283,7 @@ class AnalyzeBox:
                 'error': str(e)
             }, None
 
-    def exec(self, scn, frame=None, angle=0, rotation_angle=0):
+    def exec(self, scn, frame=None, angle=None, rotation_angle=None):
         match scn:
             case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn' | 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn' | 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn' | 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
                 try:
@@ -309,8 +314,6 @@ class AnalyzeBox:
                     dataforvm = data
                     if 'metadata' in dataforvm:
                         dataforvm.pop('metadata')
-                    if data['recon'] == 2:
-                        dataforvm['next'] = True
 
                     return dataforsave, dataforvm, processed_frame
                 
@@ -331,9 +334,9 @@ class AnalyzeBox:
                     dataforsave = data
                     
                     dataforvm = {}
-                    if data['Implant_Recon'] is not None: 
+                    if data['RegsResult'] != 'reg fails': 
                         dataforvm['next'] = True
-                        dataforvm['measurements']: data['RegsResult']
+                        dataforvm['measurements'] = data['RegsResult']
                     else: 
                         dataforvm['next'] = False
                         dataforvm['error'] = data['RegsResult']
