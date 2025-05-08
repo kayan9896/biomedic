@@ -98,6 +98,7 @@ function App() {
   const [obRotationAngle, setOBRotationAngle] = useState(null);
   const [obRotationAngle2, setOBRotationAngle2] = useState(null);
   const [isCupReg, setIsCupReg] = useState(null)
+  const [isTriReg, setIsTriReg] = useState(null)
   const [usedOB, setUsedOB] = useState(-12.3)
 
   const [tiltTaken, setTiltTaken] = useState(null)
@@ -745,6 +746,9 @@ const updateRotationSavedState = (currentRotationAngle) => {
           if(currentRotationAngle === obRotationAngle2) setUsedOB(obRotationAngle2)
           console.log(usedOB,obRotationAngle,obRotationAngle2)
         }
+        if(stage === 3){
+          if(data.measurements) setIsTriReg(true)
+        }
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
         setMoveNext(data.next)
 
@@ -855,6 +859,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
     setRightCheckMark(null)
     setRecon(null)
     setIsCupReg(false)
+    setIsTriReg(false)
     setStage(0);
     try {
       await fetch('http://localhost:5000/restart', {
@@ -1095,6 +1100,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
           handlerestart={handlerestart} 
           handlenext={handlenext} 
           isCupReg={isCupReg}
+          isTriReg={isTriReg}
           showCarmBox={showCarmBox}
           autocollect={autocollect}
           editing={editing}
@@ -1141,7 +1147,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage}/>}
+      {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
       {(showCarmBox && !isProcessing) && 

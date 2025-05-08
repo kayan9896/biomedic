@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,showCarmBox,autocollect,editing,recon}) {
+function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon}) {
   const handleCapture = async () => {
     try {
       const response = await fetch('http://localhost:5000/cap', {
@@ -49,11 +49,11 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
       return [0, {'position':'absolute', top:'983px', left:'293px'}]
     }
     if(stage === 2){
-      if(moveNext) return [null, null]
+      if(isCupReg) return [null, null]
       return [3, {'position':'absolute', top:'983px', left:'571px'}]
     }
     if(stage === 3){
-      if(moveNext) return [null, null]
+      if(isTriReg) return [null, null]
       return [2, {'position':'absolute', top:'983px', left:'476px'}]
     }
   }
