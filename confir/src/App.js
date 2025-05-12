@@ -58,6 +58,12 @@ function App() {
   const [keyboardLayout, setKeyboardLayout] = useState('default');
 
   const [showCarmBox, setShowCarmBox] = useState(false);
+  const [showCarm, setShowCarm] = useState(false);
+  const [showIcon, setShowIcon] = useState(false)
+  const [tiltValid, setTiltValid] = useState(false)
+  const [rotValid, setRotValid] = useState(false)
+  const [obl, setObl] = useState(null)
+  const [obr, setObr] = useState(null)
   const [isConnected, setIsConnected] = useState(false);
   const previousImgCountRef = useRef(0); 
   const carmBoxTimerRef = useRef(null);
@@ -468,6 +474,17 @@ function App() {
         setTracking(data.tracking)
         setActiveLeft(data.active_side === 'ap' ? true: false)
         setActiveRight(data.active_side === 'ob' ? true: false)
+        setAPRotationAngle(data.aptarget)
+        setOBRotationAngle(data.obtarget1)
+        setOBRotationAngle2(data.obtarget1)
+        setTargetTiltAngle(data.tilttarget)
+        setUsedOB(data.used_ob)
+        setShowCarm(data.show_window)
+        setShowIcon(data.show_icon)
+        setTiltValid(data.is_tilt_valid)
+        setRotValid(data.is_rot_valid)
+        setObl(data.ob_min)
+        setObr(data.ob_max)
         
         // Hide carmbox when processing is happening
         if (data.is_processing) {
@@ -699,7 +716,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       clearTimeout(windowCloseTimerRef.current);
       windowCloseTimerRef.current = null;
     }
-  }, [isTiltSaved, isAPRotationSaved, isOBRotationSaved, angle, rotationAngle, activeLeft, activeRight, showCarmBox, isProcessing]);
+  }, [isTiltSaved, isAPRotationSaved, isOBRotationSaved, angle, rotationAngle, activeLeft, activeRight, showCarm, isProcessing]);
 
   const updateImages = async (currentRotationAngle, active_side) => {
     try {
@@ -882,7 +899,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({'uistates': showCarmBox || isProcessing || pause ? 'edit' : null})
+          body: JSON.stringify({'uistates': showCarm || isProcessing || pause ? 'edit' : null})
         });
       } catch (error) {
         console.error('Error setting edit UI state:', error);
@@ -891,7 +908,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
     };
   
     setEditUIState();
-  }, [showCarmBox, isProcessing, pause]);
+  }, [showCarm, isProcessing, pause]);
 
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
@@ -1101,7 +1118,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
           handlenext={handlenext} 
           isCupReg={isCupReg}
           isTriReg={isTriReg}
-          showCarmBox={showCarmBox}
+          showCarmBox={showCarm}
           autocollect={autocollect}
           editing={editing}
           recon={recon}
@@ -1150,7 +1167,7 @@ const updateRotationSavedState = (currentRotationAngle) => {
       {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
-      {(showCarmBox && !isProcessing) && 
+      {(showCarm && !isProcessing) && 
           <L10 
           angle={angle} 
           rotationAngle={rotationAngle} 
@@ -1167,6 +1184,11 @@ const updateRotationSavedState = (currentRotationAngle) => {
           stage={stage}
           isCupReg={isCupReg}
           usedOB={usedOB}
+          showIcon={showIcon}
+          tiltValid={tiltValid}
+          rotValid={rotValid}
+          obl={obl}
+          obr={obr}
         />
       
         }

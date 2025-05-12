@@ -13,11 +13,8 @@ class ProcessingModel:
             'active_side': None,
             'is_processing': False,
             'progress': 0,
-            'ap_carm': False,
-            'ob_carm': False,
             'imu_on': True,
             'video_on':True,
-            'carm_moving':False,#optional
             'stage': 0,
             "ap_rotation_angle": None,
             "ob_rotation_angle": None,

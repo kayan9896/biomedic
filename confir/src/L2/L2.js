@@ -81,7 +81,7 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
           isCupReg?<img src={require('./CupIcon2.png')} style={{'position':'absolute', width:'75px', height:'75px', top:'988px', left:'483px', pointerEvents:'none'}}/>:
           <img src={require('./CupIcon1.png')} style={{'position':'absolute', width:'75px', height:'75px', top:'988px', left:'483px', pointerEvents:'none'}}/>
         )}
-        {(stage===3&&moveNext)?<img src={require('./TrialIcon2.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>:
+        {isTriReg?<img src={require('./TrialIcon2.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>:
         <img src={require('./TrialIcon1.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>
         }
         <img src={require('./NavMeasurementsSegment.png')} style={{'position':'absolute', top:'977px', left:'667px'}}/>

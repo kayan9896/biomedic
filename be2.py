@@ -77,6 +77,7 @@ class ImageProcessingController:
             states['angle'] = self.imu.angle
             states['rotation_angle'] = self.imu.rotation_angle
             states['active_side'] = self.imu.activeside()
+            states.update(self.imu.get_all(states['stage']))
 
         return states
 
@@ -211,7 +212,7 @@ class ImageProcessingController:
             
             if newscn == self.scn or newscn[-3:] == 'end':
                 continue
-            
+            self.imu.confirm_save()
             dataforsave, dataforvm, image = self.model.exec(newscn, frame, self.imu.angle, self.imu.rotation_angle)
             print(frame,image,dataforvm,newscn)
             self.scn = newscn[:-3] + 'end'

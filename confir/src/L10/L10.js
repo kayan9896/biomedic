@@ -16,7 +16,12 @@ function L10({
   targetTiltAngle,
   stage,
   isCupReg,
-  usedOB
+  usedOB,
+  showIcon,
+  tiltValid,
+  rotValid,
+  obl,
+  obr
 }) {
   const blue60 = '#3ca4e5';
   const blue80 = '#0260a0';
@@ -28,12 +33,8 @@ function L10({
   const red40 = '#E9C4BF';
 
   // Determine if the current rotation angle is valid for the current mode
-  const obl = obRotationAngle < -20 ? obRotationAngle : obRotationAngle2;
-  const obr = obRotationAngle < -20 ? obRotationAngle2 : obRotationAngle;
-  const isAPRotationValid = stage < 2 ? activeLeft : rotationAngle >= (obl+apRotationAngle)/2 && rotationAngle < (obr+apRotationAngle)/2;
-  const isOBRotationValid = stage < 2 ? activeRight :
-    (rotationAngle > -50 && rotationAngle <= (obl+apRotationAngle)/2) || 
-    (rotationAngle > (obr+apRotationAngle)/2 && rotationAngle <= 50);
+  const isAPRotationValid = rotValid
+  const isOBRotationValid = rotValid
   
   // Display value for rotation angle (saved or current)
   const getDisplayRotationValue = () => {
@@ -689,8 +690,7 @@ function L10({
         </div>
 
       </div>
-      {((isTiltSaved) && 
-      ((activeLeft && isAPRotationSaved) || (activeRight && isOBRotationSaved))) && 
+      {showIcon && 
       <img style={{position:'absolute', top:'671px', left:'900px', zIndex:11}} src={require('./CarmCheckmarks.png')} alt="box" />}
       
     </>
