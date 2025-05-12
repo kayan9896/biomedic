@@ -4,15 +4,11 @@ import GaugeComponent from 'react-gauge-component';
 function L10({
   angle, 
   rotationAngle, 
-  isTiltSaved, 
-  isRotationSaved,
   activeLeft,
   activeRight,
   apRotationAngle,
   obRotationAngle,
   obRotationAngle2,
-  isAPRotationSaved,
-  isOBRotationSaved,
   targetTiltAngle,
   stage,
   isCupReg,
@@ -31,15 +27,11 @@ function L10({
   const red10 = '#EFDACD';
   const red80 = '#cd5445';
   const red40 = '#E9C4BF';
-
-  // Determine if the current rotation angle is valid for the current mode
-  const isAPRotationValid = rotValid
-  const isOBRotationValid = rotValid
   
   // Display value for rotation angle (saved or current)
   const getDisplayRotationValue = () => {
-    if (stage !== 0 && isAPRotationValid) return `${rotationAngle - apRotationAngle}`
-    if (stage !== 0 && stage !== 1 && isOBRotationValid){
+    if (stage !== 0 && activeLeft) return `${rotationAngle - apRotationAngle}`
+    if (stage !== 0 && stage !== 1 && activeRight){
       if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? `${rotationAngle - obRotationAngle}` : `${rotationAngle - obRotationAngle2}`
       if(rotationAngle * usedOB > 0) return `${rotationAngle - usedOB}` 
     } 
@@ -48,7 +40,7 @@ function L10({
   
   // Color for rotation value display
   const getTiltColor = () => {
-    if (stage === 0 && activeLeft && -20 < angle && angle <= 20) return '#46a745'
+    if (stage === 0 && activeLeft && tiltValid) return '#46a745'
     if (angle === targetTiltAngle) return '#46a745'
     return '#FFFFFF'
   };

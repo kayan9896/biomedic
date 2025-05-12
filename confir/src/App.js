@@ -57,7 +57,6 @@ function App() {
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [keyboardLayout, setKeyboardLayout] = useState('default');
 
-  const [showCarmBox, setShowCarmBox] = useState(false);
   const [showCarm, setShowCarm] = useState(false);
   const [showIcon, setShowIcon] = useState(false)
   const [tiltValid, setTiltValid] = useState(false)
@@ -66,9 +65,7 @@ function App() {
   const [obr, setObr] = useState(null)
   const [isConnected, setIsConnected] = useState(false);
   const previousImgCountRef = useRef(0); 
-  const carmBoxTimerRef = useRef(null);
   const [rotationAngle, setRotationAngle] = useState(0);
-  const previousRotationAngleRef = useRef(rotationAngle);
 
   const [activeLeft, setActiveLeft] = useState(false);
   const [activeRight, setActiveRight] = useState(false)
@@ -112,27 +109,7 @@ function App() {
   const [obTaken, setObTaken] = useState(null)
   const [obTaken2, setObTaken2] = useState(null)
   
-  const [isTiltSaved, setIsTiltSaved] = useState(false);
-  
-  // Separate saved states for AP and OB rotation
-  const [isAPRotationSaved, setIsAPRotationSaved] = useState(false);
-  const [isOBRotationSaved, setIsOBRotationSaved] = useState(false);
-  
-  // Get the currently active rotation saved state based on mode
-  const isRotationSaved = activeLeft ? isAPRotationSaved : isOBRotationSaved;
-  
-  // References for the timers
-  const tiltSaveTimerRef = useRef(null);
-  const rotationSaveTimerRef = useRef(null);
-  const windowCloseTimerRef = useRef(null);
-  
-  // References to track the last angle values
-  const lastTiltAngleRef = useRef(angle);
-  const lastRotationAngleRef = useRef(rotationAngle);
-  const stageRef = useRef(stage);
 
-  // Flag to track if this is the first load of the component
-  const isFirstLoad = useRef(true);
   const [showReconnectionPage, setShowReconnectionPage] = useState(false);
   const handleReconnectionReturn = () => {
     setShowReconnectionPage(false);
@@ -226,244 +203,13 @@ function App() {
 
   useEffect(() => {
     if(!isConnected) return;
-    stageRef.current = stage;
     const fetchStates = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/states');
         const data = await response.json();
-        
-        // Get the current angles from the server
-        const currentTiltAngle = data.angle;
-        const currentRotationAngle = data.rotation_angle;
-        
-        // Check if this is the first load
-        if (isFirstLoad.current) {
-          isFirstLoad.current = false;
-          
-          // Set initial values
-          setAngle(currentTiltAngle);
-          setRotationAngle(currentRotationAngle);
-          lastTiltAngleRef.current = currentTiltAngle;
-          lastRotationAngleRef.current = currentRotationAngle;
-          
-          // If initial tilt angle is valid, mark it as saved
-          if (currentTiltAngle >= -20 && currentTiltAngle <= 20) {
-            setIsTiltSaved(true);
-            setTargetTiltAngle(currentTiltAngle)
-          }
-          
-          // If initial rotation angle is valid for its mode, mark it as saved
-          const isInInitialAPMode = currentRotationAngle >= -20 && currentRotationAngle <= 20;
-          
-          if (isInInitialAPMode) {
-            if (currentRotationAngle >= -20 && currentRotationAngle <= 20) {
-              if(stageRef.current === 0){
-              setIsAPRotationSaved(true);
-              setAPRotationAngle(currentRotationAngle);
-              console.log(1)
-            }else{
-              if (currentRotationAngle === apRotationAngle) setIsAPRotationSaved(true)
-            }
-            }
-          } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
-            const isInitialOBRotationValid = 
-              (currentRotationAngle >= -50 && currentRotationAngle <= -20) || 
-              (currentRotationAngle >= 20 && currentRotationAngle <= 50);
-            
-            if (isInitialOBRotationValid) {
-              setIsOBRotationSaved(true);
-              if(stage === 0){
-              setOBRotationAngle(currentRotationAngle);}
-              if(stage === 1){
-                setOBRotationAngle2(currentRotationAngle)
-              }
-            }
-          }
-          
-          return; // Skip the rest of the processing for the initial load
-        }
-        
-        // Track if any angle changed
-        let angleChanged = false;
-        
-        // Check if tilt angle has changed
-        if (currentTiltAngle !== lastTiltAngleRef.current) {
-          lastTiltAngleRef.current = currentTiltAngle;
-          setAngle(currentTiltAngle);
-          setIsTiltSaved(false);
-          angleChanged = true;
-          
-          // Clear any existing tilt timer
-          if (tiltSaveTimerRef.current) {
-            clearTimeout(tiltSaveTimerRef.current);
-          }
-          
-          // Set a new timer to mark tilt as saved after 3 seconds of no changes
-          tiltSaveTimerRef.current = setTimeout(() => {
-            const isTiltValid = currentTiltAngle >= -20 && currentTiltAngle <= 20;
-            if (isTiltValid) {
-              setIsTiltSaved(true);
-            } else {
-              // Force the carmbox to stay open by ensuring it's not saved
-              setIsTiltSaved(false);
-              
-              // Re-check after a second (keep checking until angle is valid)
-              setTimeout(() => {
-                // Re-check current tilt value
-                const currentIsTiltValid = angle >= -20 && angle <= 20;
-                if (!currentIsTiltValid) {
-                  // Force window to stay visible if tilt remains invalid
-                  setShowCarmBox(true);
-                }
-              }, 1000);
-            }
-          }, 3000);
-        } else if (!isTiltSaved && currentTiltAngle >= -20 && currentTiltAngle <= 20) {
-          // If tilt hasn't changed but is valid and not saved, start a timer to save it
-          if (!tiltSaveTimerRef.current) {
-            tiltSaveTimerRef.current = setTimeout(() => {
-              setIsTiltSaved(true);
-            }, 3000);
-          }
-        }
-        
-        // Check if rotation angle has changed
-        if (currentRotationAngle !== lastRotationAngleRef.current) {
-          lastRotationAngleRef.current = currentRotationAngle;
-          setRotationAngle(currentRotationAngle);
-          angleChanged = true;
-          
-          // Reset the appropriate saved state based on current sector
-          const isInAPMode = currentRotationAngle >= -20 && currentRotationAngle <= 20;
-          
-          if (isInAPMode) {
-            // In AP mode
-            setIsAPRotationSaved(false);
-          } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
-            // In OB mode
-            setIsOBRotationSaved(false);
-          }
-          
-          // Clear any existing rotation timer
-          if (rotationSaveTimerRef.current) {
-            clearTimeout(rotationSaveTimerRef.current);
-          }
-          
-          // Set a new timer to mark rotation as saved after 3 seconds of no changes
-          rotationSaveTimerRef.current = setTimeout(() => {
-            // Check if we're in AP mode (rotation angle between -20 and 20 degrees)
-            const isInCurrentAPMode = currentRotationAngle >= -20 && currentRotationAngle <= 20;
-            
-            if (isInCurrentAPMode) {
-              // AP mode: rotation angle must be between -20 and 20
-              const isAPRotationValid = currentRotationAngle >= -20 && currentRotationAngle <= 20;
-              
-              if (isAPRotationValid) {
-                if(stageRef.current === 0){
-                setIsAPRotationSaved(true);
-                setAPRotationAngle(currentRotationAngle);
-                console.log(stage, 2)
-              }else{
-                if (currentRotationAngle === apRotationAngle) setIsAPRotationSaved(true)
-              }
-              } else {
-                setIsAPRotationSaved(false);
-                
-                // Re-check after a second
-                setTimeout(() => {
-                  const currentIsInAPMode = rotationAngle >= -20 && rotationAngle <= 20;
-                  const currentIsAPRotationValid = rotationAngle >= -20 && rotationAngle <= 20;
-                  
-                  if (currentIsInAPMode && !currentIsAPRotationValid) {
-                    // Force window to stay visible if angle remains invalid
-                    setShowCarmBox(true);
-                  }
-                }, 1000);
-              }
-            } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
-              // OB mode: rotation angle must be between -50 and -20 OR between 20 and 50
-              const isOBRotationValid = stageRef.current === 0 ? (
-                (currentRotationAngle >= -50 && currentRotationAngle <= -20) || 
-                (currentRotationAngle >= 20 && currentRotationAngle <= 50)):
-                (stageRef.current === 1 ?
-                  (((currentRotationAngle >= -50 && currentRotationAngle <= -20) || 
-                  (currentRotationAngle >= 20 && currentRotationAngle <= 50)) 
-                  && currentRotationAngle * obRotationAngle < 0):
-                  (currentRotationAngle === obRotationAngle || currentRotationAngle === obRotationAngle2)
-                )
-                  
-              if (isOBRotationValid) {
-                setIsOBRotationSaved(true);
-                if(stageRef.current === 0){
-                  setOBRotationAngle(currentRotationAngle);
-                }
-                if(stageRef.current === 1){
-                  setOBRotationAngle2(currentRotationAngle);
-                }
-              } else {
-                setIsOBRotationSaved(false);
-                
-                // Re-check after a second
-                setTimeout(() => {
-                  const currentIsInOBMode = 
-                    rotationAngle >= -50 && rotationAngle <= 50 && 
-                    !(rotationAngle >= -20 && rotationAngle <= 20);
-                    
-                  const currentIsOBRotationValid = 
-                    (rotationAngle >= -50 && rotationAngle <= -20) || 
-                    (rotationAngle >= 20 && rotationAngle <= 50);
-                  
-                  if (currentIsInOBMode && !currentIsOBRotationValid) {
-                    // Force window to stay visible if angle remains invalid
-                    setShowCarmBox(true);
-                  }
-                }, 1000);
-              }
-            }
-          }, 3000);
-        } else {
-          // If rotation angle hasn't changed but is valid and not saved, set a timer to save it
-          const isInAPMode = currentRotationAngle >= -20 && currentRotationAngle <= 20;
-          
-          if (isInAPMode && !isAPRotationSaved) {
-            const isAPRotationValid = currentRotationAngle >= -20 && currentRotationAngle <= 20;
-            if (isAPRotationValid && !rotationSaveTimerRef.current) {
-              rotationSaveTimerRef.current = setTimeout(() => {
-                if(stageRef.current === 0){
-                setIsAPRotationSaved(true);
-                setAPRotationAngle(currentRotationAngle);
-                console.log(3)
-              }else{
-                if (currentRotationAngle === apRotationAngle) setIsAPRotationSaved(true)
-              }
-              }, 3000);
-            }
-          } else if (!isInAPMode && !isOBRotationSaved && currentRotationAngle >= -50 && currentRotationAngle <= 50) {
-            const isOBRotationValid = 
-              (currentRotationAngle >= -50 && currentRotationAngle <= -20) || 
-              (currentRotationAngle >= 20 && currentRotationAngle <= 50);
-            
-            if (isOBRotationValid && !rotationSaveTimerRef.current) {
-              rotationSaveTimerRef.current = setTimeout(() => {
-                setIsOBRotationSaved(true);
-                if(stageRef.current === 0){
-                setOBRotationAngle(currentRotationAngle);}
-                if(stageRef.current === 1){
-                  setOBRotationAngle2(currentRotationAngle);}
-              }, 3000);
-            }
-          }
-        }
-        
-        // If any angle changed, show the carmbox and clear timers
-        if (angleChanged || (currentTiltAngle > 20 || currentTiltAngle < -20) || (currentRotationAngle < -50 || currentRotationAngle > 50)) {
-          setShowCarmBox(true);
-          
-          if (carmBoxTimerRef.current) {
-            clearTimeout(carmBoxTimerRef.current);
-            carmBoxTimerRef.current = null;
-          }
-        }
+
+        setAngle(data.angle);
+        setRotationAngle(data.rotation_angle);
         
         setIsProcessing(data.is_processing);
         setProgress(data.progress);
@@ -476,7 +222,7 @@ function App() {
         setActiveRight(data.active_side === 'ob' ? true: false)
         setAPRotationAngle(data.aptarget)
         setOBRotationAngle(data.obtarget1)
-        setOBRotationAngle2(data.obtarget1)
+        setOBRotationAngle2(data.obtarget2)
         setTargetTiltAngle(data.tilttarget)
         setUsedOB(data.used_ob)
         setShowCarm(data.show_window)
@@ -486,17 +232,6 @@ function App() {
         setObl(data.ob_min)
         setObr(data.ob_max)
         
-        // Hide carmbox when processing is happening
-        if (data.is_processing) {
-          setShowCarmBox(false);
-          setError(null);
-          if (carmBoxTimerRef.current) {
-            clearTimeout(carmBoxTimerRef.current);
-          }
-          if (windowCloseTimerRef.current) {
-            clearTimeout(windowCloseTimerRef.current);
-          }
-        }
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
@@ -516,207 +251,12 @@ function App() {
     
     return () => {
       clearInterval(intervalId);
-      if (tiltSaveTimerRef.current) clearTimeout(tiltSaveTimerRef.current);
-      if (rotationSaveTimerRef.current) clearTimeout(rotationSaveTimerRef.current);
-      if (windowCloseTimerRef.current) clearTimeout(windowCloseTimerRef.current);
-      if (carmBoxTimerRef.current) clearTimeout(carmBoxTimerRef.current);
+
     };
-  }, [isConnected, stage, targetTiltAngle, apRotationAngle, obRotationAngle, obRotationAngle2]);
+  });
 
-  const validateTiltAngle = (angle, stage, targetAngle) => {
-    if (stage === 0) {
-      return angle > -20 && angle <= 20;
-    }
-    return angle === targetAngle;
-  };
   
-  const validateRotationAngle = (angle, stage, apRotation, obRotation, obRotation2, activeLeft, activeRight, isCupReg, usedOB) => {
-    if (stage === 0) {
-      return activeLeft || activeRight;
-    }
-    
-    if (stage === 1) {
-      if (activeLeft) {
-        return apRotation === angle;
-      }
-      return ((angle > -50 && angle <= -20) || (angle > 20 && angle <= 50)) && 
-             angle * obRotation < 0;
-    }
-    
-    if (isCupReg) {
-      return apRotation === angle || angle === usedOB;
-    }
-    
-    if (activeLeft) {
-      return apRotation === angle;
-    }
-    
-    return (angle === obRotation) || (angle === obRotation2);
-  };
-  
-  // Update the validation functions that use these helpers
-  const isTiltValid = () => validateTiltAngle(angle, stage, targetTiltAngle);
-  
-  const isRotationValid = () => validateRotationAngle(
-    rotationAngle, 
-    stage, 
-    apRotationAngle, 
-    obRotationAngle, 
-    obRotationAngle2, 
-    activeLeft, 
-    activeRight, 
-    isCupReg, 
-    usedOB
-  );
 
-  const isAPRotationValidForMode = (angle) => angle >= -20 && angle <= 20;
-const isOBRotationValidForMode = (angle) => 
-  (angle >= -50 && angle <= -20) || (angle >= 20 && angle <= 50);
-
-// Replace the duplicate checks with a helper function
-const updateRotationSavedState = (currentRotationAngle) => {
-  const isInAPMode = isAPRotationValidForMode(currentRotationAngle);
-  
-  if (isInAPMode) {
-    const isAPValid = isAPRotationValidForMode(currentRotationAngle);
-    
-    if (isAPValid) {
-      if (stageRef.current === 0) {
-        setIsAPRotationSaved(true);
-        setAPRotationAngle(currentRotationAngle);
-        console.log(stage, 2);
-      } else if (currentRotationAngle === apRotationAngle) {
-        setIsAPRotationSaved(true);
-      }
-    } else {
-      setIsAPRotationSaved(false);
-      // Re-check logic can be simplified too
-      setTimeout(() => {
-        const currentIsInAPMode = rotationAngle >= -20 && rotationAngle <= 20;
-        const currentIsAPRotationValid = rotationAngle >= -20 && rotationAngle <= 20;
-        
-        if (currentIsInAPMode && !currentIsAPRotationValid) {
-          setShowCarmBox(true);
-        }
-      }, 1000);
-    }
-  } else if (currentRotationAngle >= -50 && currentRotationAngle <= 50) {
-    const isOBValid = stageRef.current === 0 ? 
-      isOBRotationValidForMode(currentRotationAngle) :
-      stageRef.current === 1 ?
-        isOBRotationValidForMode(currentRotationAngle) && currentRotationAngle * obRotationAngle < 0 :
-        (currentRotationAngle === obRotationAngle || currentRotationAngle === obRotationAngle2);
-    
-    if (isOBValid) {
-      setIsOBRotationSaved(true);
-      if (stageRef.current === 0) {
-        setOBRotationAngle(currentRotationAngle);
-      }
-      if (stageRef.current === 1) {
-        setOBRotationAngle2(currentRotationAngle);
-      }
-    } else {
-      setIsOBRotationSaved(false);
-      // Similar re-check logic
-      setTimeout(() => {
-        const currentIsInOBMode = 
-          rotationAngle >= -50 && rotationAngle <= 50 && 
-          !(rotationAngle >= -20 && rotationAngle <= 20);
-        const currentIsOBRotationValid = isOBRotationValidForMode(rotationAngle);
-        
-        if (currentIsInOBMode && !currentIsOBRotationValid) {
-          setShowCarmBox(true);
-        }
-      }, 1000);
-    }
-  }
-};
-
-
-  // Effect to check if angles are valid and adjust saved status if they become invalid
-  useEffect(() => {
-    
-    // If tilt angle becomes invalid, reset its saved status
-    if (!isTiltValid() && isTiltSaved) {
-      setIsTiltSaved(false);
-    }
-    
-    // For AP rotation angle: must be within [-20, 20] when in AP mode
-    if (activeLeft) {
-      const isAPRotationValid = rotationAngle >= -20 && rotationAngle <= 20;
-      if (!isAPRotationValid && isAPRotationSaved) {
-        setIsAPRotationSaved(false);
-      }
-    }
-    
-    // For OB rotation angle: must be within [-50, -20] or [20, 50] when in OB mode
-    if (activeRight) {
-      const isOBRotationValid = 
-        (rotationAngle >= -50 && rotationAngle <= -20) || 
-        (rotationAngle >= 20 && rotationAngle <= 50);
-      if (!isOBRotationValid && isOBRotationSaved) {
-        setIsOBRotationSaved(false);
-      }
-    }
-  }, [angle, rotationAngle, activeLeft, activeRight, isTiltSaved, isAPRotationSaved, isOBRotationSaved]);
-
-  // Effect to handle window closing when angles are saved
-  useEffect(() => {
-    // Don't process if window isn't visible or we're processing
-    if (!showCarmBox || isProcessing) {
-      return;
-    }
-    
-    
-    // Get the appropriate saved state based on current mode
-    const isCurrentRotationSaved = activeLeft ? isAPRotationSaved : isOBRotationSaved;
-    
-    // Check if at least one of the angles has been saved (the other might already be valid)
-    const isAtLeastOneAngleSaved = isTiltSaved || isCurrentRotationSaved;
-    
-    // Check if the unchanged angle (if any) is valid
-    const isUnchangedTiltValid = !isTiltSaved && isTiltValid();
-    const isUnchangedRotationValid = !isCurrentRotationSaved && isRotationValid();
-    
-    // Only start close timer if at least one angle is explicitly saved 
-    // AND the other angle is either saved OR is in a valid range
-    const shouldCloseWindow = 
-      (isTiltSaved && (isCurrentRotationSaved || isUnchangedRotationValid)) || 
-      (isCurrentRotationSaved && (isTiltSaved || isUnchangedTiltValid));
-    
-    if (shouldCloseWindow) {
-      // Clear any existing window close timer
-      if (windowCloseTimerRef.current) {
-        clearTimeout(windowCloseTimerRef.current);
-      }
-      
-      // Set a new timer to close the window after 3 seconds
-      windowCloseTimerRef.current = setTimeout(() => {
-        setShowCarmBox(false);
-        
-        // Update target angles when window closes
-        setTargetTiltAngle(angle);
-        
-        // Update the appropriate target rotation angle based on current mode
-        if (activeLeft) {
-          if (stage === 0){
-          setAPRotationAngle(rotationAngle);
-          console.log(`Target angles saved - Tilt: ${angle}°, AP Rotation: ${rotationAngle}°`);}
-        } else {
-          if (stage === 0){
-          setOBRotationAngle(rotationAngle);
-          console.log(`Target angles saved - Tilt: ${angle}°, OB Rotation: ${rotationAngle}°`);}
-          if (stage === 1){
-            setOBRotationAngle2(rotationAngle);
-            console.log(`Target angles saved - Tilt: ${angle}°, OB Rotation 2: ${rotationAngle}°`);}
-        }
-      }, 3000);
-    } else if (windowCloseTimerRef.current && !shouldCloseWindow) {
-      // If conditions are no longer met and we have a close timer, clear it
-      clearTimeout(windowCloseTimerRef.current);
-      windowCloseTimerRef.current = null;
-    }
-  }, [isTiltSaved, isAPRotationSaved, isOBRotationSaved, angle, rotationAngle, activeLeft, activeRight, showCarm, isProcessing]);
 
   const updateImages = async (currentRotationAngle, active_side) => {
     try {
@@ -1171,15 +711,11 @@ const updateRotationSavedState = (currentRotationAngle) => {
           <L10 
           angle={angle} 
           rotationAngle={rotationAngle} 
-          isTiltSaved={isTiltSaved} 
-          isRotationSaved={isRotationSaved}
           activeLeft={activeLeft}
           activeRight={activeRight}
           apRotationAngle={apRotationAngle}
           obRotationAngle={obRotationAngle}
           obRotationAngle2={obRotationAngle2}
-          isAPRotationSaved={isAPRotationSaved}
-          isOBRotationSaved={isOBRotationSaved}
           targetTiltAngle={targetTiltAngle}
           stage={stage}
           isCupReg={isCupReg}

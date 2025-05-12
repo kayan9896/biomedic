@@ -76,7 +76,7 @@ class ImageProcessingController:
         if self.tracking:
             states['angle'] = self.imu.angle
             states['rotation_angle'] = self.imu.rotation_angle
-            states['active_side'] = self.imu.activeside()
+            states['active_side'] = self.imu.activeside(states['stage'])
             states.update(self.imu.get_all(states['stage']))
 
         return states
