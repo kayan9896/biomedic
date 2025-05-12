@@ -288,6 +288,9 @@ function App() {
         
         setMeasurements(data.measurements)
 
+        if(stage === 2){
+          if(data.measurements) setIsCupReg(true)
+        }
         if(stage === 3){
           if(data.measurements) setIsTriReg(true)
         }
