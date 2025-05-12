@@ -493,16 +493,10 @@ def next():
         return jsonify({"error": "Controller not initialized"}), 404
     state = request.json.get('uistates')
     stage = request.json.get('stage')
-    tiltTaken = request.json.get('tiltTaken')
-    apTaken = request.json.get('apTaken')
-    obTaken = request.json.get('obTaken')
-    obTaken2 = request.json.get('obTaken2')
+
     controller.uistates = state
     controller.viewmodel.states['stage'] = stage
-    controller.viewmodel.states['target_tilt_angle'] = tiltTaken
-    controller.viewmodel.states['ap_rotation_angle'] = apTaken
-    controller.viewmodel.states['ob_rotation_angle'] = obTaken
-    controller.viewmodel.states['ob_rotation_angle2'] = obTaken2
+
     return jsonify({"message": "uistates updated"})
 
 @app.route('/restart', methods=['POST'])

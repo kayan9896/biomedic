@@ -47,33 +47,21 @@ const scaleFactor = 960 / 1024;
 const leftTemplateData = scalePoints(leftTemplate, scaleFactor);
 const rightTemplateData = scalePoints(rightTemplate, scaleFactor);
 function App() {
-  const [angle, setAngle] = useState(0);
+  
   const [patient, setPatient] = useState('');
   const [ratio, setRatio] = useState('');
   const [comment, setComment] = useState('');
-  const [leftImage, setLeftImage] = useState(require('./AP.png'));
-  const [rightImage, setRightImage] = useState(require('./OB.png'));
-  const [error, setError] = useState(null);
+
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [keyboardLayout, setKeyboardLayout] = useState('default');
 
-  const [showCarm, setShowCarm] = useState(false);
-  const [showIcon, setShowIcon] = useState(false)
-  const [tiltValid, setTiltValid] = useState(false)
-  const [rotValid, setRotValid] = useState(false)
-  const [obl, setObl] = useState(null)
-  const [obr, setObr] = useState(null)
   const [isConnected, setIsConnected] = useState(false);
   const previousImgCountRef = useRef(0); 
-  const [rotationAngle, setRotationAngle] = useState(0);
 
-  const [activeLeft, setActiveLeft] = useState(false);
-  const [activeRight, setActiveRight] = useState(false)
-  const [imuon, setImuon] = useState(false);
-  const [video_on, setVideo_on] = useState(false);
-  const [ai_mode, setAi_mode] = useState(0);
-  const [autocollect, setAutocollect] = useState(true)
-  const [tracking, setTracking] = useState(true)
+  const [leftImage, setLeftImage] = useState(require('./AP.png'));
+  const [rightImage, setRightImage] = useState(require('./OB.png'));
+  const [error, setError] = useState(null);
+
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
@@ -81,6 +69,7 @@ function App() {
   const [recon, setRecon] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+
   const [editing, setEditing] = useState(false)
   const [report, setReport] = useState(false)
   const [pause, setPause] = useState(0)
@@ -93,22 +82,29 @@ function App() {
   const [pelvis, setPelvis] = useState([null, null])
   const frameRef = useRef(null);
 
-  // New state variables for the angle tracking feature
+  const [angle, setAngle] = useState(0);
+  const [rotationAngle, setRotationAngle] = useState(0);
+  const [activeLeft, setActiveLeft] = useState(false);
+  const [activeRight, setActiveRight] = useState(false)
+  const [imuon, setImuon] = useState(false);
+  const [video_on, setVideo_on] = useState(false);
+  const [ai_mode, setAi_mode] = useState(0);
+  const [autocollect, setAutocollect] = useState(true)
+  const [tracking, setTracking] = useState(true)
+  const [showCarm, setShowCarm] = useState(false);
+  const [showIcon, setShowIcon] = useState(false)
+  const [tiltValid, setTiltValid] = useState(false)
+  const [rotValid, setRotValid] = useState(false)
+  const [obl, setObl] = useState(null)
+  const [obr, setObr] = useState(null)
+
   const [targetTiltAngle, setTargetTiltAngle] = useState(null);
-  
-  // New separate rotation angle states for AP and OB modes
   const [apRotationAngle, setAPRotationAngle] = useState(null);
   const [obRotationAngle, setOBRotationAngle] = useState(null);
   const [obRotationAngle2, setOBRotationAngle2] = useState(null);
   const [isCupReg, setIsCupReg] = useState(null)
   const [isTriReg, setIsTriReg] = useState(null)
-  const [usedOB, setUsedOB] = useState(-12.3)
-
-  const [tiltTaken, setTiltTaken] = useState(null)
-  const [apTaken, setApTaken] = useState(null)
-  const [obTaken, setObTaken] = useState(null)
-  const [obTaken2, setObTaken2] = useState(null)
-  
+  const [usedOB, setUsedOB] = useState(null)
 
   const [showReconnectionPage, setShowReconnectionPage] = useState(false);
   const handleReconnectionReturn = () => {
@@ -235,7 +231,7 @@ function App() {
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
-          await updateImages(data.rotation_angle, data.active_side);
+          await updateImages(data.active_side);
         }
 
         if (data.measurements) {
@@ -257,8 +253,7 @@ function App() {
 
   
 
-
-  const updateImages = async (currentRotationAngle, active_side) => {
+  const updateImages = async (active_side) => {
     try {
         const response = await fetch('http://localhost:5000/api/image-with-metadata');
         const data = await response.json();
@@ -272,7 +267,6 @@ function App() {
               tmp[0] = data.side
               return tmp
             })
-            setApTaken(currentRotationAngle)
             console.log(data.metadata)
 
             setRightImage(require('./OB.png'));
@@ -287,22 +281,13 @@ function App() {
               tmp[1] = data.side
               return tmp
             })
-            if(stage===0){setObTaken(currentRotationAngle)}
-            if(stage===1){setObTaken2(currentRotationAngle)}
+
         }
         setRecon(data.recon)
         setError(data.error)
-        setTiltTaken(targetTiltAngle)
         
-        
-        console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2)
         setMeasurements(data.measurements)
-        if(stage === 2){
-          if(data.measurements) setIsCupReg(true)
-          if(currentRotationAngle === obRotationAngle) setUsedOB(obRotationAngle)
-          if(currentRotationAngle === obRotationAngle2) setUsedOB(obRotationAngle2)
-          console.log(usedOB,obRotationAngle,obRotationAngle2)
-        }
+
         if(stage === 3){
           if(data.measurements) setIsTriReg(true)
         }
@@ -350,11 +335,7 @@ function App() {
     if(!next) setStage(p => p - 1);
     setMoveNext(false);
     setMeasurements(null)
-    setTargetTiltAngle(tiltTaken)
-    setAPRotationAngle(apTaken)
-    setOBRotationAngle(obTaken)
-    setOBRotationAngle2(obTaken2)
-    console.log(tiltTaken,apTaken,obTaken,obTaken2,targetTiltAngle,apRotationAngle,obRotationAngle,obRotationAngle2,usedOB)
+
     try {
       await fetch('http://localhost:5000/next', {
         method: 'POST',
@@ -363,11 +344,7 @@ function App() {
         },
         body: JSON.stringify({
           'uistates': next ? next : 'prev',
-          'stage': st,
-          'tiltTaken': tiltTaken,
-          'apTaken': apTaken,
-          'obTaken': obTaken,
-          'obTaken2': obTaken2
+          'stage': st
         })
       });
     } catch (error) {
@@ -707,7 +684,7 @@ function App() {
       {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit}/>}
    
       {/*L10 Carmbox, render if backend angle changes*/}
-      {(showCarm && !isProcessing) && 
+      {(tracking && showCarm && !pause && !isProcessing) && 
           <L10 
           angle={angle} 
           rotationAngle={rotationAngle} 

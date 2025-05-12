@@ -15,8 +15,8 @@ class IMU2:
         self.apr = 20
         self.ranger = 50
 
-        self.tmp_tilttarget = None
-        self.tmp_aptarget = None
+        self.tmp_tilttarget = self.angle
+        self.tmp_aptarget = self.rotation_angle
         self.tmp_obtarget1 = None
         self.tmp_obtarget2 = None
         self.tmp_used_ob = None
