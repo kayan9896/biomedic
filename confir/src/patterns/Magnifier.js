@@ -8,7 +8,7 @@ const Magnifier = ({
   show, 
   imageUrl, 
   magnification = 2,
-  size = 300,
+  size = 380,
   position: { x, y } ,
   metadata,
   isLeftSquare,
