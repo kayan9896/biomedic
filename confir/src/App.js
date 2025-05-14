@@ -97,6 +97,13 @@ function App() {
   const [rotValid, setRotValid] = useState(false)
   const [obl, setObl] = useState(null)
   const [obr, setObr] = useState(null)
+  const [tiltl, setTiltl] = useState(null)
+  const [tiltr, setTiltr] = useState(null)
+  const [rangel, setRangel] = useState(null)
+  const [ranger, setRanger] = useState(null)
+  const [apl, setApl] = useState(null)
+  const [apr, setApr] = useState(null)
+  const [scale, setScale] = useState(1)
 
   const [targetTiltAngle, setTargetTiltAngle] = useState(null);
   const [apRotationAngle, setAPRotationAngle] = useState(null);
@@ -227,7 +234,13 @@ function App() {
         setRotValid(data.is_rot_valid)
         setObl(data.ob_min)
         setObr(data.ob_max)
-        
+        setTiltl(data.tiltl)
+        setTiltr(data.tiltr)
+        setRangel(data.rangel)
+        setRanger(data.ranger)
+        setApl(data.apl)
+        setApr(data.apr)
+        setScale(data.scale)
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
@@ -705,6 +718,13 @@ function App() {
           rotValid={rotValid}
           obl={obl}
           obr={obr}
+          tiltl={tiltl}
+          tiltr={tiltr}
+          apl={apl}
+          apr={apr}
+          rangel={rangel}
+          ranger={ranger}
+          scale={scale}
         />
       
         }

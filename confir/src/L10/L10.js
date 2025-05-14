@@ -17,7 +17,14 @@ function L10({
   tiltValid,
   rotValid,
   obl,
-  obr
+  obr,
+  tiltl,
+  tiltr,
+  apl,
+  apr,
+  rangel,
+  ranger,
+  scale
 }) {
   const blue60 = '#3ca4e5';
   const blue80 = '#0260a0';
@@ -91,13 +98,13 @@ function L10({
         value: targetTiltAngle!==null? targetTiltAngle: 0,
         valueConfig:{
           style: {
-          fontSize: (angle <= 20 && angle >=-20)? '50px' : '30px',
+          fontSize: (angle <= tiltr && angle >= -tiltl)? '50px' : '30px',
           fill:'white',
           fontFamily:'abel'
         }},
-        lineConfig:{width:(angle <= 20 && angle >= -20)? '5px' : '3px',
-          length:(angle <= 20 && angle >= -20)? 20 : 5,
-          distanceFromArc: (angle <= 20 && angle >=-20)? 3 : 5,color:'#ffffff'}
+        lineConfig:{width:(angle <= tiltr && angle >= -tiltl)? '5px' : '3px',
+          length:(angle <= tiltr && angle >= -tiltl)? 20 : 5,
+          distanceFromArc: (angle <= tiltr && angle >= -tiltl)? 3 : 5,color:'#ffffff'}
       },
       
     ]
@@ -107,58 +114,58 @@ function L10({
     if(stage === 0){
       return [
         {
-          value: -35,
+          value: -(apr + ranger)/2,
           valueConfig:{
             style: {
-            fontSize: (rotationAngle <= -20 && rotationAngle >=-50)? '50px' : '30px',
+            fontSize: (rotationAngle <= apl && rotationAngle > rangel)? '50px' : '30px',
             fill:'white',
             fontFamily:'abel'
           }},
-          lineConfig:{width:(rotationAngle <= -20 && rotationAngle >=-50)? '5px' : '3px',
-            length:(rotationAngle <= -20 && rotationAngle >=-50)? 20 : 5,
-            distanceFromArc: (rotationAngle <= -20 && rotationAngle >=-50)? 3 : 5,color:'#ffffff'}
+          lineConfig:{width:(rotationAngle <= apl && rotationAngle > rangel)? '5px' : '3px',
+            length:(rotationAngle <= apl && rotationAngle > rangel)? 20 : 5,
+            distanceFromArc: (rotationAngle <= apl && rotationAngle > rangel)? 3 : 5,color:'#ffffff'}
         },
         {
           value: 0,
           valueConfig:{
             style: {
-            fontSize: (rotationAngle <= 20 && rotationAngle >-20)? '50px' : '30px',
+            fontSize: (rotationAngle <= apr && rotationAngle > apl)? '50px' : '30px',
             fill:'white',
             fontFamily:'abel'
           }},
-          lineConfig:{width:(rotationAngle <= 20 && rotationAngle >-20)? '5px' : '3px',
-            length:(rotationAngle <= 20 && rotationAngle >-20)? 20 : 5,
-            distanceFromArc: (rotationAngle <= 20 && rotationAngle >-20)? 3 : 5,color:'#ffffff'}
+          lineConfig:{width:(rotationAngle <= apr && rotationAngle > apl)? '5px' : '3px',
+            length:(rotationAngle <= apr && rotationAngle > apl)? 20 : 5,
+            distanceFromArc: (rotationAngle <= apr && rotationAngle > apl)? 3 : 5,color:'#ffffff'}
         },
         {
-          value: 35,
+          value: (apr + ranger)/2,
           valueConfig:{
             style: {
-            fontSize: (rotationAngle <= 50 && rotationAngle >20) ? '50px' : '30px',
+            fontSize: (rotationAngle <= ranger && rotationAngle > apr) ? '50px' : '30px',
             fill:'white',
             fontFamily:'abel'
           }},
-          lineConfig:{width:(rotationAngle <= 50 && rotationAngle >20) ? '5px' : '3px',
-            length:(rotationAngle <= 50 && rotationAngle >20) ? 20 : 5,
-            distanceFromArc: (rotationAngle <= 50 && rotationAngle >20) ? 3 : 5,color:'#ffffff'}
+          lineConfig:{width:(rotationAngle <= ranger && rotationAngle > apr) ? '5px' : '3px',
+            length:(rotationAngle <= ranger && rotationAngle > apr) ? 20 : 5,
+            distanceFromArc: (rotationAngle <= ranger && rotationAngle > apr) ? 3 : 5,color:'#ffffff'}
         }
       ]
     }
     if(stage === 1){
       const array = []
-      if(obRotationAngle > 20)(
+      if(obRotationAngle > apr)(
         array.push(
           {
-            value: -35,
+            value: -(apr + ranger)/2,
             valueConfig:{
               style: {
-              fontSize: (rotationAngle <= -20 && rotationAngle >=-50)? '50px' : '30px',
+              fontSize: (rotationAngle <= apl && rotationAngle > rangel)? '50px' : '30px',
               fill:'white',
               fontFamily:'abel'
             }},
-            lineConfig:{width:(rotationAngle <= -20 && rotationAngle >=-50)? '5px' : '3px',
-              length:(rotationAngle <= -20 && rotationAngle >=-50)? 20 : 5,
-              distanceFromArc: (rotationAngle <= -20 && rotationAngle >=-50)? 3 : 5,color:'#ffffff'}
+            lineConfig:{width:(rotationAngle <= apl && rotationAngle > rangel)? '5px' : '3px',
+              length:(rotationAngle <= apl && rotationAngle > rangel)? 20 : 5,
+              distanceFromArc: (rotationAngle <= apl && rotationAngle > rangel)? 3 : 5,color:'#ffffff'}
           }
         )
       )
@@ -166,44 +173,44 @@ function L10({
         value: apRotationAngle!==null? apRotationAngle: 0,
         valueConfig:{
           style: {
-          fontSize: (rotationAngle <= 20 && rotationAngle >-20)? '50px' : '30px',
+          fontSize: (rotationAngle <= apr && rotationAngle > apl)? '50px' : '30px',
           fill:'white',
           fontFamily:'abel'
         }},
-        lineConfig:{width:(rotationAngle <= 20 && rotationAngle >-20)? '5px' : '3px',
-          length:(rotationAngle <= 20 && rotationAngle >-20)? 20 : 5,
-          distanceFromArc: (rotationAngle <= 20 && rotationAngle >-20)? 3 : 5,color:'#ffffff'}
+        lineConfig:{width:(rotationAngle <= apr && rotationAngle > apl)? '5px' : '3px',
+          length:(rotationAngle <= apr && rotationAngle > apl)? 20 : 5,
+          distanceFromArc: (rotationAngle <= apr && rotationAngle > apl)? 3 : 5,color:'#ffffff'}
       })
-      if(obRotationAngle < -20){
+      if(obRotationAngle < apl){
         array.push({
-          value: 35,
+          value: (apr + ranger)/2,
           valueConfig:{
             style: {
-            fontSize: (rotationAngle <= 50 && rotationAngle >20) ? '50px' : '30px',
+            fontSize: (rotationAngle <= ranger && rotationAngle > apr) ? '50px' : '30px',
             fill:'white',
             fontFamily:'abel'
           }},
-          lineConfig:{width:(rotationAngle <= 50 && rotationAngle >20) ? '5px' : '3px',
-            length:(rotationAngle <= 50 && rotationAngle >20) ? 20 : 5,
-            distanceFromArc: (rotationAngle <= 50 && rotationAngle >20) ? 3 : 5,color:'#ffffff'}
+          lineConfig:{width:(rotationAngle <= ranger && rotationAngle > apr) ? '5px' : '3px',
+            length:(rotationAngle <= ranger && rotationAngle > apr) ? 20 : 5,
+            distanceFromArc: (rotationAngle <= ranger && rotationAngle > apr) ? 3 : 5,color:'#ffffff'}
         }
       )}
       return array
     }
     const array = []
-    if(!isCupReg || (isCupReg && usedOB <= -20)){
+    if(!isCupReg || (isCupReg && usedOB <= apl)){
       array.push(
         {
           value: obl,
           valueConfig:{
             style: {
-            fontSize: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >=-50)? '50px' : '30px',
+            fontSize: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle > rangel)? '50px' : '30px',
             fill:'white',
             fontFamily:'abel'
           }},
-          lineConfig:{width:(rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >=-50)? '5px' : '3px',
-            length:(rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >=-50)? 20 : 5,
-            distanceFromArc: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >=-50)? 3 : 5,color:'#ffffff'}
+          lineConfig:{width:(rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle > rangel)? '5px' : '3px',
+            length:(rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle > rangel)? 20 : 5,
+            distanceFromArc: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle > rangel)? 3 : 5,color:'#ffffff'}
         }
       )
     }
@@ -219,18 +226,18 @@ function L10({
         length:(rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 20 : 5,
         distanceFromArc: (rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 3 : 5,color:'#ffffff'}
     })
-    if(!isCupReg || (isCupReg && usedOB > 20)){
+    if(!isCupReg || (isCupReg && usedOB > apr)){
       array.push({
         value: obr,
         valueConfig:{
           style: {
-          fontSize: (rotationAngle <= 50 && rotationAngle >(apRotationAngle + obr)/2) ? '50px' : '30px',
+          fontSize: (rotationAngle <= ranger && rotationAngle >(apRotationAngle + obr)/2) ? '50px' : '30px',
           fill:'white',
           fontFamily:'abel'
         }},
-        lineConfig:{width:(rotationAngle <= 50 && rotationAngle >(apRotationAngle + obr)/2) ? '5px' : '3px',
-          length:(rotationAngle <= 50 && rotationAngle >(apRotationAngle + obr)/2) ? 20 : 5,
-          distanceFromArc: (rotationAngle <= 50 && rotationAngle >(apRotationAngle + obr)/2) ? 3 : 5,color:'#ffffff'}
+        lineConfig:{width:(rotationAngle <= ranger && rotationAngle >(apRotationAngle + obr)/2) ? '5px' : '3px',
+          length:(rotationAngle <= ranger && rotationAngle >(apRotationAngle + obr)/2) ? 20 : 5,
+          distanceFromArc: (rotationAngle <= ranger && rotationAngle >(apRotationAngle + obr)/2) ? 3 : 5,color:'#ffffff'}
       })
     }
       return array
@@ -239,19 +246,19 @@ function L10({
   function getTiltArray(targetTiltAngle, angle) {
     if (stage === 0 && activeLeft) return [
       {
-        limit: -20,
+        limit: apl,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
       },
       {
-        limit: 20,
-        color: (angle <= 20 && angle >-20) ? red60 : red10,
+        limit: apr,
+        color: (angle <= tiltr && angle >apl) ? red60 : red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit: 90,
+        limit: 90*scale,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
@@ -261,31 +268,31 @@ function L10({
 
     return [
       {
-        limit: -20,
+        limit: apl,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
       },
       {
-        limit: Math.max(targetTiltAngle - 0.5, -19.99),
+        limit: Math.max(targetTiltAngle - 0.5*scale, -19.99),
         color: red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit: Math.min(targetTiltAngle + 0.5, 19.99),
-        color: angle <= 20 && angle > -20 ? red80 : red40,
+        limit: Math.min(targetTiltAngle + 0.5*scale, 19.99),
+        color: angle <= tiltr && angle > apl ? red80 : red40,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit: 20,
+        limit: apr,
         color: red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit: 90,
+        limit: 90*scale,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
@@ -297,33 +304,33 @@ function L10({
     if(stage === 0){
       const array = [
         {
-          limit: -50,
+          limit: rangel,
           color: 'grey',
           showTick: false,
           tooltip: { text: 'Out' }
         }]
         array.push({
-          limit: -20,
-          color: (rotationAngle <= -20 && rotationAngle >-50) ? blue60 : blue10,
+          limit: apl,
+          color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
           showTick: false,
           tooltip: { text: 'OB Range' }
         },)
   
         array.push({
-          limit: 20,
-          color: rotationAngle <= 20 && rotationAngle > -20 ? red60 : red10,
+          limit: apr,
+          color: rotationAngle <= apr && rotationAngle > apl ? red60 : red10,
           showTick: false,
           tooltip: { text: 'AP Range' }
         },)
 
         array.push({
-          limit: 50,
-          color: (rotationAngle <= 50 && rotationAngle > 20) ? blue60 : blue10,
+          limit: ranger,
+          color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
           showTick: false,
           tooltip: { text: 'OB Range' }
         },
         {
-          limit: 90,
+          limit: 90*scale,
           color: 'grey',
           showTick: false,
           tooltip: { text: 'Out' }
@@ -335,65 +342,65 @@ function L10({
     if(stage === 1){
       const array = [
         {
-          limit: -50,
+          limit: rangel,
           color: 'grey',
           showTick: false,
           tooltip: { text: 'Out' }
         }]
-        if (obRotationAngle < -20) {
+        if (obRotationAngle < apl) {
           array.push({
-            limit: -20,
+            limit: apl,
             color: 'grey',
             showTick: false,
             tooltip: { text: 'OB Range' }
           },)
         }else{
           array.push({
-            limit: -20,
-            color: (rotationAngle <= -20 && rotationAngle >-50) ? blue60 : blue10,
+            limit: apl,
+            color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
             showTick: false,
             tooltip: { text: 'OB Range' }
           },)
         }
         array.push(
           {
-            limit: Math.max(apRotationAngle - 0.5, -19.99),
+            limit: Math.max(apRotationAngle - 0.5*scale, -19.99),
             color: red10,
             showTick: false,
             tooltip: { text: 'AP Range' }
           },
           {
-            limit:Math.min(apRotationAngle + 0.5, 19.99),
-            color: rotationAngle <= 20 && rotationAngle > -20 ? red80 : red40,
+            limit:Math.min(apRotationAngle + 0.5*scale, 19.99),
+            color: rotationAngle <= apr && rotationAngle > apl ? red80 : red40,
             showTick: false,
             tooltip: { text: 'AP Range' }
           },
         )
         
         array.push({
-          limit: 20,
+          limit: apr,
           color: red10,
           showTick: false,
           tooltip: { text: 'AP Range' }
         },)
-        if (obRotationAngle > 20) {
+        if (obRotationAngle > apr) {
           array.push({
-            limit: 50,
+            limit: ranger,
             color: 'grey',
             showTick: false,
             tooltip: { text: 'OB Range' }
           },)
         }else{
           array.push({
-            limit: 50,
-            color: (rotationAngle <= 50 && rotationAngle > 20) ? blue60 : blue10,
+            limit: ranger,
+            color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
             showTick: false,
             tooltip: { text: 'OB Range' }
           },)
         }
         array.push(
         {
-          limit: 90,
+          limit: 90*scale,
           color: 'grey',
           showTick: false,
           tooltip: { text: 'Out' }
@@ -405,13 +412,13 @@ function L10({
 
     const array = [
       {
-        limit: -50,
+        limit: rangel,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
       }]
       
-    if(isCupReg && usedOB > 20){
+    if(isCupReg && usedOB > apr){
       array.push({
         limit: (obl + apRotationAngle)/2,
         color: 'grey',
@@ -422,14 +429,14 @@ function L10({
       console.log((obl + apRotationAngle)/2 - 0.01)
       array.push(
         {
-          limit: Math.max(obl - 0.5, -49.99),
+          limit: Math.max(obl - 0.5*scale, -49.99),
           color: blue10,
           showTick: false,
           tooltip: { text: 'OB Range' }
         },
         {
-          limit: Math.min(obl + 0.5, (obl + apRotationAngle)/2 - 0.01),
-          color: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle >-50) ? blue80 : blue40,
+          limit: Math.min(obl + 0.5*scale, (obl + apRotationAngle)/2 - 0.01),
+          color: (rotationAngle <= (obl + apRotationAngle)/2 && rotationAngle > rangel) ? blue80 : blue40,
           showTick: false,
           tooltip: { text: 'OB Range' }
         },)
@@ -443,13 +450,13 @@ function L10({
     
     array.push(
       {
-        limit: Math.max(apRotationAngle - 0.5, (obl + apRotationAngle)/2 + 0.01),
+        limit: Math.max(apRotationAngle - 0.5*scale, (obl + apRotationAngle)/2 + 0.01),
         color: red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit:Math.min(apRotationAngle + 0.5, (apRotationAngle + obr)/2 - 0.01),
+        limit:Math.min(apRotationAngle + 0.5*scale, (apRotationAngle + obr)/2 - 0.01),
         color: rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle > (obl + apRotationAngle)/2 ? red80 : red40,
         showTick: false,
         tooltip: { text: 'AP Range' }
@@ -463,9 +470,9 @@ function L10({
         tooltip: { text: 'AP Range' }
       },)
 
-      if(isCupReg && usedOB <= -20){
+      if(isCupReg && usedOB <= apl){
         array.push({
-          limit: 50,
+          limit: ranger,
           color: 'grey',
           showTick: false,
           tooltip: { text: 'OB Range' }
@@ -473,27 +480,27 @@ function L10({
       }else{
       array.push(
         {
-          limit: Math.max(obr - 0.5, (apRotationAngle + obr)/2 + 0.01),
+          limit: Math.max(obr - 0.5*scale, (apRotationAngle + obr)/2 + 0.01),
           color: blue10,
           showTick: false,
           tooltip: { text: 'OB Range' }
         },
         {
-          limit: Math.min(obr + 0.5, 49.99),
-          color: (rotationAngle <= 50 && rotationAngle > (apRotationAngle + obr)/2) ? blue80 : blue40,
+          limit: Math.min(obr + 0.5*scale, 49.99),
+          color: (rotationAngle <= ranger && rotationAngle > (apRotationAngle + obr)/2) ? blue80 : blue40,
           showTick: false,
           tooltip: { text: 'OB Range' }
         },
       )
     
       array.push({
-        limit: 50,
+        limit: ranger,
         color: blue10,
         showTick: false,
         tooltip: { text: 'OB Range' }
       },)}
       array.push({
-        limit: 90,
+        limit: 90*scale,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
@@ -560,8 +567,8 @@ function L10({
           
         }}
         value={angle}
-        minValue={-90}
-        maxValue={90}
+        minValue={-90*scale}
+        maxValue={90*scale}
       />
 
       <GaugeComponent
@@ -589,8 +596,8 @@ function L10({
             hideMinMax: true,
             defaultTickValueConfig: {
               formatTextValue: (value) => {
-                if ((value <= -20 && value >=-50) || (value <= 50 && value >20)) return 'Oblique';
-                if (value <= 20 && value >-20) return 'AP';
+                if ((value <= apl && value >=rangel) || (value <= ranger && value > apr)) return 'Oblique';
+                if (value <= apr && value >apl) return 'AP';
                 return value;
               },
             },
@@ -598,14 +605,14 @@ function L10({
           }
         }}
         value={rotationAngle}
-        minValue={-90}
-        maxValue={90}
+        minValue={-90*scale}
+        maxValue={90*scale}
       />
       </>}
 
 
       <div className="hand" style={{ 
-        transform: `rotate(${angle}deg)`,
+        transform: `rotate(${angle/scale}deg)`,
         position:'absolute', 
         top:'335px', 
         left:'263px', 
@@ -614,7 +621,7 @@ function L10({
         <img src={require('./CarmTilt.png')} alt="indicator" />
       </div>
       <div className="hand" style={{ 
-        transform: `rotate(${rotationAngle}deg)`,
+        transform: `rotate(${rotationAngle/scale}deg)`,
         position:'absolute', 
         top:'339px', 
         left:'1048px', 

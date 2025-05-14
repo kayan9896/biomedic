@@ -3,17 +3,18 @@ import time
 import keyboard  # You'll need to install this: pip install keyboard
 
 class IMU2:
-    def __init__(self, port):
+    def __init__(self, port, tiltl = -10, tiltr = 10, rangel = -25, ranger = 25, apl = -10, apr = 10, scale = 10/20):
         self.angle = 0
         self.rotation_angle = 0
         self.is_connected = False
         self.battery_level = 100
-        self.tiltl = -20
-        self.tiltr = 20
-        self.rangel = -50
-        self.apl = -20
-        self.apr = 20
-        self.ranger = 50
+        self.tiltl = tiltl
+        self.tiltr = tiltr
+        self.rangel = rangel
+        self.apl = apl
+        self.apr = apr
+        self.ranger = ranger
+        self.scale = scale #actual angle/UI angle
 
         self.tmp_tilttarget = self.angle
         self.tmp_aptarget = self.rotation_angle
@@ -183,4 +184,11 @@ class IMU2:
             'is_rot_valid': self.is_rot_valid(stage),  
             'show_icon': self.show_icon(stage),
             'show_window': self.show_window(stage),
+            'tiltl': self.tiltl,
+            'tiltr': self.tiltr,
+            'rangel': self.rangel,
+            'apl': self.apl,
+            'apr': self.apr,
+            'ranger': self.ranger,
+            'scale': self.scale
         }

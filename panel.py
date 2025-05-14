@@ -473,7 +473,7 @@ class Panel:
     def _adjust_angle(self, change):
         """Adjust the main angle value"""
         if not self._auto_mode:
-            new_angle = min(max(self.angle + change, -60), 60)
+            new_angle = min(max(self.angle + change, -100), 100)
             self.angle = new_angle
             self.controller.imu.set_tilt(self.angle)
             self.angle_value.config(text=str(self.angle))
@@ -482,7 +482,7 @@ class Panel:
     def _adjust_angle2(self, change):
         """Adjust the rotation angle value"""
         if not self._auto_mode:
-            new_angle = min(max(self.rotation_angle + change, -60), 60)
+            new_angle = min(max(self.rotation_angle + change, -100), 100)
             self.rotation_angle = new_angle
             self.controller.imu.set_rotation(self.rotation_angle)
             self.rotation_angle_value.config(text=str(self.rotation_angle))
@@ -502,13 +502,6 @@ class Panel:
         """Get the current angle value"""
         return self.angle
     
-    def imuonob(self):
-        """Check if IMU is on observation state"""
-        return (not self.imuonap()) and (-45 <= self.rotation_angle <= 45)
-    
-    def imuonap(self):
-        """Check if IMU is on AP state"""
-        return -15 <= self.rotation_angle <= 15
     
     def cleanup(self):
         """Clean up resources when the IMU is no longer needed"""
