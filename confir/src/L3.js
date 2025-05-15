@@ -39,7 +39,7 @@ function L3({
             ...getFilterStyle(brightness[0], contrast[0])
           }}
         />
-        {activeLeft && (
+        {activeLeft && !editing && (
           <img src={require('./L5/APViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {leftImageMetadata && Object.keys(leftImageMetadata).map((group, i) => (
@@ -69,7 +69,7 @@ function L3({
             ...getFilterStyle(brightness[1], contrast[1])
           }}
         />
-        {activeRight && (
+        {activeRight && !editing && (
           <img src={require('./L5/OBViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
         )}
         {rightImageMetadata && Object.keys(rightImageMetadata).map((group, i) => (

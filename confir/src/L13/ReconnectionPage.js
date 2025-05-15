@@ -210,20 +210,16 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 3 && imuStatus && !tiltSensorBatteryLow && (
-        <img src={require('./TiltSensorSucceedInstruction.png')} 
-             style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
-      )}
-      
-      {currentStep === 3 && imuStatus && tiltSensorBatteryLow && (
-        <img src={require('./TiltSensorLowBatteryInstruction.png')} 
-             style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
-      )}
-      
       {currentStep === 3 && !imuStatus && (
-        <img src={require('./VideoConnectionFailedInstruction.png')} 
+        <img src={require('./TiltSensorFailedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
+      
+      {currentStep === 3 && imuStatus && (
+        <img src={tiltSensorBatteryLow ? require('./TiltSensorLowBatteryInstruction.png') : require('./TiltSensorSucceedInstruction.png')} 
+             style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
+      )}
+      
       
       {/* Video frame */}
       {currentStep === 2 && videoStatus && videoFrame && (

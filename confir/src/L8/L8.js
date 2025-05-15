@@ -37,7 +37,7 @@ function L8({
       <img
         src={require('./EditToolbarBg.png')}
         alt="EditToolbarBg"
-        style={{ position: 'absolute', top: '223px', left: '920px', zIndex: 7 }}
+        style={{ position: 'absolute', top: '264px', left: '920px', zIndex: 7 }}
       />
 
       {/* Brightness icon and adjustment bar */}
@@ -55,7 +55,7 @@ function L8({
         alt="BrightnessIcon"
         style={{
           position: 'absolute',
-          top: '230px',
+          top: '272px',
           left: '927px',
           zIndex: 7,
           cursor: 'pointer',
@@ -79,7 +79,7 @@ function L8({
         alt="ContrastIcon"
         style={{
           position: 'absolute',
-          top: '311px',
+          top: '352px',
           left: '927px',
           zIndex: 7,
           cursor: 'pointer',
@@ -92,25 +92,17 @@ function L8({
           className="image-button" 
           src={require('./ResetIcon.png')} 
           alt="ResetIcon" 
-          style={{position:'absolute', top:'391px', left:'927px', zIndex:7, cursor:'pointer'}}
+          style={{position:'absolute', top:'457px', left:'927px', zIndex:7, cursor:'pointer'}}
           onClick={()=>onDelete(false)}
         />
         
-        {/* Delete button */}
-        <img 
-          className="image-button" 
-          src={require('./DeleteIcon.png')} 
-          alt="DeleteIcon" 
-          style={{position:'absolute', top:'472px', left:'927px', zIndex:7, cursor:'pointer'}}
-          onClick={()=>onDelete(true)}
-        />
         
         {/* Save button */}
         <img 
           src={require('./SaveIcon.png')}
           alt="SaveIcon" 
           className="image-button"
-          style={{position:'absolute', top:'582px', left:'927px', zIndex:7, cursor:'pointer'}}
+          style={{position:'absolute', top:'552px', left:'927px', zIndex:7, cursor:'pointer'}}
           onClick={onSave}
         />
         
@@ -119,7 +111,7 @@ function L8({
           src={require('./ExitIcon.png')} 
           alt="ExitIcon" 
           className="image-button"
-          style={{position:'absolute', top:'663px', left:'927px', zIndex:7, cursor:'pointer'}}
+          style={{position:'absolute', top:'633px', left:'927px', zIndex:7, cursor:'pointer'}}
           onClick={onExit}
         />
       </div>

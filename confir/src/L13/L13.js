@@ -258,13 +258,13 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 3 && !tiltSensorBatteryLow && (
-        <img src={require('./TiltSensorSucceedInstruction.png')} 
+      {currentStep === 3 && !tiltSensorConnected && (
+        <img src={require('./TiltSensorFailedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 3 && tiltSensorBatteryLow && (
-        <img src={require('./TiltSensorLowBatteryInstruction.png')} 
+      {currentStep === 3 && tiltSensorConnected && (
+        <img src={tiltSensorBatteryLow ? require('./TiltSensorLowBatteryInstruction.png') : require('./TiltSensorSucceedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
