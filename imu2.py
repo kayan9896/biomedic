@@ -31,6 +31,8 @@ class IMU2:
         self.ob_min = min(self.obtarget1, self.obtarget2) if self.obtarget1 is not None and self.obtarget2 is not None else None
         self.ob_max = max(self.obtarget1, self.obtarget2) if self.obtarget1 is not None and self.obtarget2 is not None else None
 
+        self.iscupreg = False
+
         # Timing and stability tracking
         self.last_stable_time = 0
         self.prev_angle = 0
@@ -61,13 +63,13 @@ class IMU2:
                 if self.obtarget1 is not None and self.rotation_angle * self.obtarget1 > 0:
                     return None
                 return 'ob'
-        if stage == 2:
+        if stage == 2 or (stage ==3 and not self.iscupreg):
             if self.rangel < self.rotation_angle < self.ranger:
                 if self.aptarget is not None and self.ob_min is not None and self.ob_max is not None:
                     if (self.ob_min + self.aptarget) / 2 < self.rotation_angle < (self.ob_max + self.aptarget) / 2:
                         return 'ap'
                 return 'ob'
-        if stage == 3:
+        if stage == 3 and self.iscupreg:
             if self.rangel < self.rotation_angle < self.ranger:
                 if self.aptarget is not None and self.ob_min is not None and self.ob_max is not None:
                     if (self.ob_min + self.aptarget) / 2 < self.rotation_angle < (self.ob_max + self.aptarget) / 2:
@@ -94,13 +96,13 @@ class IMU2:
                 return self.aptarget is not None and self.rotation_angle == self.aptarget
             if active == 'ob':
                 return self.obtarget1 is not None and self.rotation_angle * self.obtarget1 < 0
-        if stage == 2:
+        if stage == 2 or (stage ==3 and not self.iscupreg):
             if active == 'ap':
                 return self.aptarget is not None and self.rotation_angle == self.aptarget
             if active == 'ob':
                 return self.obtarget1 is not None and self.obtarget2 is not None and \
                        (self.rotation_angle == self.obtarget1 or self.rotation_angle == self.obtarget2)
-        if stage == 3:
+        if stage == 3 and self.iscupreg:
             if active == 'ap':
                 return self.aptarget is not None and self.rotation_angle == self.aptarget
             if active == 'ob':

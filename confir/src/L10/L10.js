@@ -98,13 +98,13 @@ function L10({
         value: targetTiltAngle!==null? targetTiltAngle: 0,
         valueConfig:{
           style: {
-          fontSize: (angle <= tiltr && angle >= -tiltl)? '50px' : '30px',
+          fontSize: (angle <= tiltr && angle >= tiltl)? '50px' : '30px',
           fill:'white',
           fontFamily:'abel'
         }},
-        lineConfig:{width:(angle <= tiltr && angle >= -tiltl)? '5px' : '3px',
-          length:(angle <= tiltr && angle >= -tiltl)? 20 : 5,
-          distanceFromArc: (angle <= tiltr && angle >= -tiltl)? 3 : 5,color:'#ffffff'}
+        lineConfig:{width:(angle <= tiltr && angle >= tiltl)? '5px' : '3px',
+          length:(angle <= tiltr && angle >= tiltl)? 20 : 5,
+          distanceFromArc: (angle <= tiltr && angle >= tiltl)? 3 : 5,color:'#ffffff'}
       },
       
     ]
