@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon}) {
+function L2({setShowKeyboard,pid,setting,setSetting,setExit,stage,setStage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon}) {
   const handleCapture = async () => {
     try {
       const response = await fetch('http://localhost:5000/cap', {
@@ -85,7 +85,7 @@ function L2({setShowKeyboard,pid,setSetting,setExit,stage,setStage,moveNext,hand
         <img src={require('./TrialIcon1.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>
         }
         <img src={require('./NavMeasurementsSegment.png')} style={{'position':'absolute', top:'977px', left:'667px'}}/>
-        <img src={require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px'}} onClick={()=>{setSetting(true)}}/>
+        <img src={setting ? require('./SettingIconOn.png') : require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px'}} onClick={()=>{setSetting(true)}}/>
         
         <input
         type="text"

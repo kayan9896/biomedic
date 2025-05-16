@@ -58,18 +58,6 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const previousImgCountRef = useRef(0); 
 
-  const [leftImage, setLeftImage] = useState(require('./AP.png'));
-  const [rightImage, setRightImage] = useState(require('./OB.png'));
-  const [error, setError] = useState(null);
-
-  const [leftImageMetadata, setLeftImageMetadata] = useState(null);
-  const [rightImageMetadata, setRightImageMetadata] = useState(null);
-  const [leftCheckMark, setLeftCheckMark] = useState(null);
-  const [rightCheckMark, setRightCheckMark] = useState(null);
-  const [recon, setRecon] = useState(null)
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-
   const [editing, setEditing] = useState(false)
   const [report, setReport] = useState(false)
   const [pause, setPause] = useState(0)
@@ -81,6 +69,18 @@ function App() {
   const [moveNext, setMoveNext] = useState(false)
   const [pelvis, setPelvis] = useState([null, null])
   const frameRef = useRef(null);
+
+  const [leftImage, setLeftImage] = useState(getInstruction(stage,'AP'));
+  const [rightImage, setRightImage] = useState(getInstruction(stage,'OB'));
+  const [error, setError] = useState(null);
+
+  const [leftImageMetadata, setLeftImageMetadata] = useState(null);
+  const [rightImageMetadata, setRightImageMetadata] = useState(null);
+  const [leftCheckMark, setLeftCheckMark] = useState(null);
+  const [rightCheckMark, setRightCheckMark] = useState(null);
+  const [recon, setRecon] = useState(null)
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const [angle, setAngle] = useState(0);
   const [rotationAngle, setRotationAngle] = useState(0);
@@ -118,6 +118,18 @@ function App() {
     setShowReconnectionPage(false);
   };
 
+  function getInstruction (stage, side) {
+    if (stage === 0 || stage === 1){
+      return side === 'AP' ? require('./Instruction/RefAPInstruction.png') : require('./Instruction/RefOBInstruction.png')
+    }
+    if (stage === 2){
+      return side === 'AP' ? require('./Instruction/CupAPInstruction.png') : require('./Instruction/CupOBInstruction.png')
+    }
+    if (stage === 3){
+      return side === 'AP' ? require('./Instruction/TrialAPInstruction.png') : require('./Instruction/TrialOBInstruction.png')
+    }
+  }
+
   useEffect(() => {
     const checkBackendState = async () => {
       try {
@@ -150,8 +162,8 @@ function App() {
           // IMPORTANT: Always reset both images to default first
           previousImgCountRef.current = data.states.img_count
 
-          setLeftImage(require('./AP.png'));
-          setRightImage(require('./OB.png'));
+          setLeftImage(getInstruction(stage,'AP'));
+          setRightImage(getInstruction(stage,'OB'));
           setLeftImageMetadata(null);
           setRightImageMetadata(null);
           setLeftCheckMark(null);
@@ -282,7 +294,7 @@ function App() {
             })
             console.log(data.metadata)
 
-            setRightImage(require('./OB.png'));
+            setRightImage(getInstruction(stage,'OB'));
             setRightImageMetadata(null)
             setRightCheckMark(null)
         } else if (active_side === 'ob') {
@@ -338,14 +350,14 @@ function App() {
   }
   const handlenext = async (next = 'next') => {
     setPause(false)
-    setLeftImage(require('./AP.png'));
-    setRightImage(require('./OB.png'));
+    
     setLeftImageMetadata(null)
     setRightImageMetadata(null)
     setLeftCheckMark(null)
     setRightCheckMark(null)
     let st = next === 'next' ? stage + 1 : next === 'skip' ? stage + 2 : stage - 1;
-
+    setLeftImage(getInstruction(st,'AP'));
+    setRightImage(getInstruction(st,'OB'));
     if(next === 'next') setStage(p => p + 1);
     if(next === 'skip') setStage(p => p + 2);
     if(!next) setStage(p => p - 1);
@@ -401,8 +413,8 @@ function App() {
 
   const handlerestart = async () => {
     setError(null)
-    setLeftImage(require('./AP.png'));
-    setRightImage(require('./OB.png'));
+    setLeftImage(getInstruction(stage,'AP'));
+    setRightImage(getInstruction(stage,'OB'));
     setLeftImageMetadata(null)
     setRightImageMetadata(null)
     setLeftCheckMark(null)
@@ -574,7 +586,7 @@ function App() {
     // Only run this logic when we have one side with pelvis and one without
     if (pelvis[0] == null && pelvis[1] !== null) {
       // If left side is active and has no metadata, apply the template
-      if (leftImage!==require('./AP.png')) {
+      if (leftImage!==getInstruction(stage,'AP')) {
         applyTemplate(pelvis[1], setLeftImageMetadata);
         setPelvis((prev) => {
           let tmp = [...prev]
@@ -585,7 +597,7 @@ function App() {
     }
     if (pelvis[0] !== null && pelvis[1] == null) {  
       // If right side is active and has no metadata, apply the template
-      if (rightImage!==require('./OB.png')) {
+      if (rightImage!==getInstruction(stage,'OB')) {
         applyTemplate(pelvis[0], setRightImageMetadata);
         setPelvis((prev) => {
           let tmp = [...prev]
@@ -642,7 +654,9 @@ function App() {
         {/*L2 Status bar*/}
         <L2 
           setShowKeyboard={setShowKeyboard} 
-          pid={patient} setSetting={setSetting} 
+          pid={patient} 
+          setting={setting}
+          setSetting={setSetting} 
           setExit={setExit}
           stage={stage} 
           setStage={setStage} 
@@ -679,7 +693,7 @@ function App() {
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&!(leftImage===require('./AP.png')&&rightImage===require('./OB.png')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon} setPause={setPause}/>}
+      {(!editing&&!(leftImage===getInstruction(stage,'AP')&&rightImage===getInstruction(stage,'OB')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon} setPause={setPause}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}
@@ -749,38 +763,15 @@ function App() {
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (
         <img 
-          src={require('./L7/IMUConnectionIcon.png')} 
-          style={{
-            position:'absolute', 
-            top:'863px', 
-            left:'1825px',
-            zIndex:14
-          }}
+          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:14}}
         />
       ):(<img 
-        src={require('./L7/IMUConnErrorNotice.png')} 
-        style={{
-          position:'absolute', 
-          top:'864px', 
-          left:'1772px',
-          animation: 'slideIn 0.5s ease-in-out',
-          zIndex:14
-        }}
-        onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:14}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
       {video_on ? (<img 
-        src={require('./L7/VideoConnectionIcon.png')} 
-        style={{position:'absolute', top:'765px', left:'1825px',zIndex:14}}
+        src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:14}}
       />):(<img 
-        src={require('./L7/VideoConnErrorNotice.png')} 
-        style={{
-          position:'absolute', 
-          top:'765px', 
-          left:'1772px',
-          animation: 'slideIn 0.5s ease-in-out',
-          zIndex:14
-        }}
-        onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/VideoConnErrorNotice.png')} style={{position:'absolute', top:'765px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:14}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
       
 
@@ -825,7 +816,7 @@ function App() {
       )}
       {/*L17 Exit, render when exit true*/}
       {exit&&<L17 setExit={setExit} handlerestart={handlerestart}/>}
-      <img src={require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>
+      <img src={exit ? require('./L2/ExitIconOn.png') : require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>
     </div>
   );
 }

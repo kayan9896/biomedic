@@ -5,7 +5,7 @@ a = Analysis(
     ['proto.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('carm', './carm')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
