@@ -4,9 +4,9 @@ import threading
 import io
 from PIL import Image
 import time
-from ab2 import AnalyzeBox
+from model import Model
 from fg import FrameGrabber
-from be2 import ImageProcessingController
+from controller import Controller
 from config_manager import ConfigManager
 from flask_cors import CORS
 import numpy as np
@@ -240,7 +240,7 @@ def check_running_state():
             "current_stage": controller.current_stage,  # 0-indexed for frontend
             "all_stage_data": all_stage_data,
             "move_next": move_next,
-            "tilt_angle": states.get('angle', 0),
+            "tilt_angle": states.get('tilt_angle', 0),
             "rotation_angle": states.get('rotation_angle', 0),
             "ap_rotation_angle": getattr(controller, 'ap_rotation_angle', None),
             "ob_rotation_angle": getattr(controller, 'ob_rotation_angle', None),
@@ -288,7 +288,7 @@ def check_video_connection():
     
     with server_lock:
         if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
+            controller = Controller(FrameGrabber(), Model(), config)
         
         # Get the connection result
         result = controller.connect_video()
@@ -332,7 +332,7 @@ def check_tilt_sensor():
     
     with server_lock:
         if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
+            controller = Controller(FrameGrabber(), Model(), config)
         
         # Get IMU connection status and battery level
         is_connected = False
@@ -365,7 +365,7 @@ def start_processing2():
     
     with server_lock:
         if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
+            controller = Controller(FrameGrabber(), Model(), config)
         
         if controller.is_running:
             return jsonify({"error": "Processing is already running"}), 400
@@ -381,7 +381,7 @@ def start_processing2():
 def get_states():
     global controller
     if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+            controller = Controller(FrameGrabber(), Model())
     
     return jsonify(controller.get_states())
 
@@ -389,7 +389,7 @@ def get_states():
 def set_ai_mode():
     global controller
     if controller is None:
-        controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
+        controller = Controller(FrameGrabber(), Model())
     
     try:
         data = request.get_json()

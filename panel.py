@@ -7,7 +7,7 @@ import cv2
 class Panel:
     def __init__(self, controller, config=None):
         self.controller = controller
-        self.angle = 0
+        self.tilt_angle = 0
         self.rotation_angle = 0
         self._auto_mode = False
         self._running = True
@@ -95,18 +95,18 @@ class Panel:
         self.battery_status = tk.Label(imu_frame, text="Battery Status: OK", fg="green")
         self.battery_status.pack(anchor=tk.W, padx=5, pady=(0, 5))
         
-        # Compressed angle display in the same frame
+        # Compressed tilt_angle display in the same frame
         angle_frame = tk.Frame(imu_frame)
         angle_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # First row: angle display and controls
-        tk.Label(angle_frame, text="Angle:").grid(row=0, column=0, sticky=tk.W)
-        self.angle_value = tk.Label(angle_frame, text=str(self.angle))
+        # First row: tilt_angle display and controls
+        tk.Label(angle_frame, text="tilt_angle:").grid(row=0, column=0, sticky=tk.W)
+        self.angle_value = tk.Label(angle_frame, text=str(self.tilt_angle))
         self.angle_value.grid(row=0, column=1, sticky=tk.W, padx=(5, 10))
         tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle(-5)).grid(row=0, column=2)
         tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle(5)).grid(row=0, column=3)
         
-        # Second row: rotation angle display and controls
+        # Second row: rotation tilt_angle display and controls
         tk.Label(angle_frame, text="Rotation:").grid(row=1, column=0, sticky=tk.W)
         self.rotation_angle_value = tk.Label(angle_frame, text=str(self.rotation_angle))
         self.rotation_angle_value.grid(row=1, column=1, sticky=tk.W, padx=(5, 10))
@@ -433,19 +433,19 @@ class Panel:
             return
             
         if self._auto_mode:
-            # Update angle in auto mode
+            # Update tilt_angle in auto mode
             if self.increasing:
-                self.angle += 1
-                if self.angle >= 60:
+                self.tilt_angle += 1
+                if self.tilt_angle >= 60:
                     self.increasing = False
             else:
-                self.angle -= 1
-                if self.angle <= -60:
+                self.tilt_angle -= 1
+                if self.tilt_angle <= -60:
                     self.increasing = True
                     
             # Update the viewmodel and UI
-            self.controller.viewmodel.update_state('angle', self.angle)
-            self.angle_value.config(text=str(self.angle))
+            self.controller.viewmodel.update_state('tilt_angle', self.tilt_angle)
+            self.angle_value.config(text=str(self.tilt_angle))
         
         # Schedule the next update if still running
         if self._running:
@@ -471,16 +471,16 @@ class Panel:
         self.root.geometry(f"+{x}+{y}")
     
     def _adjust_angle(self, change):
-        """Adjust the main angle value"""
+        """Adjust the main tilt_angle value"""
         if not self._auto_mode:
-            new_angle = min(max(self.angle + change, -100), 100)
-            self.angle = new_angle
-            self.controller.imu.set_tilt(self.angle)
-            self.angle_value.config(text=str(self.angle))
-            print(f"Current angle: {self.angle}")
+            new_angle = min(max(self.tilt_angle + change, -100), 100)
+            self.tilt_angle = new_angle
+            self.controller.imu.set_tilt(self.tilt_angle)
+            self.angle_value.config(text=str(self.tilt_angle))
+            print(f"Current tilt_angle: {self.tilt_angle}")
     
     def _adjust_angle2(self, change):
-        """Adjust the rotation angle value"""
+        """Adjust the rotation tilt_angle value"""
         if not self._auto_mode:
             new_angle = min(max(self.rotation_angle + change, -100), 100)
             self.rotation_angle = new_angle
@@ -499,8 +499,8 @@ class Panel:
         self.auto_button.config(text=f"Auto Mode: {'ON' if self._auto_mode else 'OFF'}")
     
     def get_angle(self):
-        """Get the current angle value"""
-        return self.angle
+        """Get the current tilt_angle value"""
+        return self.tilt_angle
     
     
     def cleanup(self):

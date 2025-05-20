@@ -2,7 +2,7 @@ import React from 'react';
 import GaugeComponent from 'react-gauge-component';
 
 function L10({
-  angle, 
+  tiltAngle, 
   rotationAngle, 
   activeLeft,
   activeRight,
@@ -35,7 +35,7 @@ function L10({
   const red80 = '#cd5445';
   const red40 = '#E9C4BF';
   
-  // Display value for rotation angle (saved or current)
+  // Display value for rotation tiltAngle (saved or current)
   const getDisplayRotationValue = () => {
     if (stage !== 0 && activeLeft) return `${rotationAngle - apRotationAngle}`
     if (stage !== 0 && stage !== 1 && activeRight){
@@ -48,7 +48,7 @@ function L10({
   // Color for rotation value display
   const getTiltColor = () => {
     if (stage === 0 && activeLeft && tiltValid) return '#46a745'
-    if (angle === targetTiltAngle) return '#46a745'
+    if (tiltAngle === targetTiltAngle) return '#46a745'
     return '#FFFFFF'
   };
   
@@ -98,13 +98,13 @@ function L10({
         value: targetTiltAngle!==null? targetTiltAngle: 0,
         valueConfig:{
           style: {
-          fontSize: (angle <= tiltr && angle >= tiltl)? '50px' : '30px',
+          fontSize: (tiltAngle <= tiltr && tiltAngle >= tiltl)? '50px' : '30px',
           fill:'white',
           fontFamily:'abel'
         }},
-        lineConfig:{width:(angle <= tiltr && angle >= tiltl)? '5px' : '3px',
-          length:(angle <= tiltr && angle >= tiltl)? 20 : 5,
-          distanceFromArc: (angle <= tiltr && angle >= tiltl)? 3 : 5,color:'#ffffff'}
+        lineConfig:{width:(tiltAngle <= tiltr && tiltAngle >= tiltl)? '5px' : '3px',
+          length:(tiltAngle <= tiltr && tiltAngle >= tiltl)? 20 : 5,
+          distanceFromArc: (tiltAngle <= tiltr && tiltAngle >= tiltl)? 3 : 5,color:'#ffffff'}
       },
       
     ]
@@ -243,7 +243,7 @@ function L10({
       return array
   }
 
-  function getTiltArray(targetTiltAngle, angle) {
+  function getTiltArray(targetTiltAngle, tiltAngle) {
     if (stage === 0 && activeLeft) return [
       {
         limit: apl,
@@ -253,7 +253,7 @@ function L10({
       },
       {
         limit: apr,
-        color: (angle <= tiltr && angle >apl) ? red60 : red10,
+        color: (tiltAngle <= tiltr && tiltAngle >apl) ? red60 : red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
@@ -281,7 +281,7 @@ function L10({
       },
       {
         limit: Math.min(targetTiltAngle + 0.5*scale, 19.99),
-        color: angle <= tiltr && angle > apl ? red80 : red40,
+        color: tiltAngle <= tiltr && tiltAngle > apl ? red80 : red40,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
@@ -541,7 +541,7 @@ function L10({
           width: 0.2,
           padding: 0,
           cornerRadius: 1,
-          subArcs: getTiltArray(targetTiltAngle, angle)
+          subArcs: getTiltArray(targetTiltAngle, tiltAngle)
         }}
         pointer={{
           color: '#ffffff',
@@ -566,7 +566,7 @@ function L10({
           },
           
         }}
-        value={angle}
+        value={tiltAngle}
         minValue={-90*scale}
         maxValue={90*scale}
       />
@@ -612,7 +612,7 @@ function L10({
 
 
       <div className="hand" style={{ 
-        transform: `rotate(${angle/scale}deg)`,
+        transform: `rotate(${tiltAngle/scale}deg)`,
         position:'absolute', 
         top:'335px', 
         left:'263px', 
@@ -630,7 +630,7 @@ function L10({
         <img src={require('./CarmRotation.png')} alt="indicator" />
       </div>
       
-      {/* Tilt angle display box */}
+      {/* Tilt tiltAngle display box */}
       <div style={{position:'absolute', alignItems:'center', top:'666px', left:'376px', zIndex:11}}>
         <img src={getBG(getTiltColor(),'tilt')} alt="box" />
         <div style={{
@@ -643,7 +643,7 @@ function L10({
           fontFamily:'abel', 
           fontSize:'80px'
         }}>
-          {displayValue(stage === 0 && activeLeft ? `${angle}` : `${angle - targetTiltAngle}`)[0]}
+          {displayValue(stage === 0 && activeLeft ? `${tiltAngle}` : `${tiltAngle - targetTiltAngle}`)[0]}
         </div>
         <div style={{
           position:'absolute', 
@@ -655,12 +655,12 @@ function L10({
           fontFamily:'abel', 
           fontSize:'80px'
         }}>
-          {displayValue(stage === 0 && activeLeft ? `${angle}` : `${angle - targetTiltAngle}`)[1]}
+          {displayValue(stage === 0 && activeLeft ? `${tiltAngle}` : `${tiltAngle - targetTiltAngle}`)[1]}
         </div>
 
       </div>
       
-      {/* Rotation angle display box */}
+      {/* Rotation tiltAngle display box */}
       <div style={{position:'absolute', top:'666px', left:'1157px', zIndex:11}}>
         <img src={getBG(getRotationColor(),'rot')} alt="box" />
         <div style={{

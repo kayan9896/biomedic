@@ -4,7 +4,7 @@ import keyboard  # You'll need to install this: pip install keyboard
 
 class IMU2:
     def __init__(self, port, tiltl = -10, tiltr = 10, rangel = -25, ranger = 25, apl = -10, apr = 10, scale = 10/20):
-        self.angle = 0
+        self.tilt_angle = 0
         self.rotation_angle = 0
         self.is_connected = False
         self.battery_level = 100
@@ -16,7 +16,7 @@ class IMU2:
         self.ranger = ranger
         self.scale = scale #actual angle/UI angle
 
-        self.tmp_tilttarget = self.angle
+        self.tmp_tilttarget = self.tilt_angle
         self.tmp_aptarget = self.rotation_angle
         self.tmp_obtarget1 = None
         self.tmp_obtarget2 = None
@@ -41,8 +41,8 @@ class IMU2:
         self.window_shown = False
 
     def set_tilt(self, a):
-        self.prev_angle = self.angle
-        self.angle = a
+        self.prev_angle = self.tilt_angle
+        self.tilt_angle = a
         self.last_stable_time = time.time()
 
     def set_rotation(self, a):
@@ -82,9 +82,9 @@ class IMU2:
     def is_tilt_valid(self, stage):
         active = self.activeside(stage)
         if stage == 0 and active == 'ap':
-            return self.tiltl < self.angle < self.tiltr
+            return self.tiltl < self.tilt_angle < self.tiltr
         if (stage == 0 and active == 'ob') or stage > 0:
-            return self.tilttarget is not None and self.angle == self.tilttarget
+            return self.tilttarget is not None and self.tilt_angle == self.tilttarget
         return False
 
     def is_rot_valid(self, stage):
@@ -113,7 +113,7 @@ class IMU2:
         current_time = time.time()
         is_tilt_valid = self.is_tilt_valid(stage)  # Assuming stage 0 for icon, adjust if needed
         is_rot_valid = self.is_rot_valid(stage)    # Assuming stage 0 for icon, adjust if needed
-        is_stable = self.prev_angle == self.angle and self.prev_rotation_angle == self.rotation_angle
+        is_stable = self.prev_angle == self.tilt_angle and self.prev_rotation_angle == self.rotation_angle
 
         if is_tilt_valid and is_rot_valid and is_stable:
             if current_time - self.last_stable_time >= 3:
@@ -128,8 +128,8 @@ class IMU2:
         current_time = time.time()
         is_tilt_valid = self.is_tilt_valid(stage)  # Assuming stage 0 for window, adjust if needed
         is_rot_valid = self.is_rot_valid(stage)    # Assuming stage 0 for window, adjust if needed
-        has_changed = self.prev_angle != self.angle or self.prev_rotation_angle != self.rotation_angle
-        is_stable = self.prev_angle == self.angle and self.prev_rotation_angle == self.rotation_angle
+        has_changed = self.prev_angle != self.tilt_angle or self.prev_rotation_angle != self.rotation_angle
+        is_stable = self.prev_angle == self.tilt_angle and self.prev_rotation_angle == self.rotation_angle
 
         if has_changed:
             self.window_shown = True
@@ -138,13 +138,13 @@ class IMU2:
                 self.window_shown = False
                 self.handle_window_close(stage)
 
-        self.prev_angle = self.angle
+        self.prev_angle = self.tilt_angle
         self.prev_rotation_angle = self.rotation_angle
         return self.window_shown
 
     def handle_window_close(self, stage):
         if stage == 0:
-            self.tmp_tilttarget = self.angle
+            self.tmp_tilttarget = self.tilt_angle
             if self.activeside(stage) == 'ap':
                 self.tmp_aptarget = self.rotation_angle
             if self.activeside(stage) == 'ob':

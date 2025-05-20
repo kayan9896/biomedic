@@ -3,11 +3,11 @@ from dataclasses import dataclass, field
 import numpy as np
 import cv2
 
-class ProcessingModel:
+class ViewModel:
     def __init__(self, config = None):
         self.states = {
             'ai_mode': config.get("mode", 0),
-            'angle': 0,
+            'tilt_angle': 0,
             'rotation_angle': 0,
             'img_count': 0,  
             'active_side': None,

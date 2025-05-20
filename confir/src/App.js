@@ -82,7 +82,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const [angle, setAngle] = useState(0);
+  const [tiltAngle, setAngle] = useState(0);
   const [rotationAngle, setRotationAngle] = useState(0);
   const [activeLeft, setActiveLeft] = useState(false);
   const [activeRight, setActiveRight] = useState(false)
@@ -142,7 +142,7 @@ function App() {
           
           // Restore basic states
           if (data.states) {
-            setAngle(data.states.angle);
+            setAngle(data.states.tilt_angle);
             setRotationAngle(data.states.rotation_angle);
             setImuon(data.states.imu_on);
             setVideo_on(data.states.video_on);
@@ -152,7 +152,7 @@ function App() {
           }
           
           
-          // Restore angle related states
+          // Restore tilt_angle related states
           if (data.target_tilt_angle !== null) setTargetTiltAngle(data.states.target_tilt_angle);
           if (data.ap_rotation_angle !== null) setAPRotationAngle(data.states.ap_rotation_angle);
           if (data.ob_rotation_angle !== null) setOBRotationAngle(data.states.ob_rotation_angle);
@@ -223,7 +223,7 @@ function App() {
         const response = await fetch('http://localhost:5000/api/states');
         const data = await response.json();
 
-        setAngle(data.angle);
+        setAngle(data.tilt_angle);
         setRotationAngle(data.rotation_angle);
         
         setIsProcessing(data.is_processing);
@@ -574,14 +574,17 @@ function App() {
       alert('Error saving image with overlays: ' + err.message);
     }
   };
-/*
-  useEffect(() => {
 
-    // Function to load the appropriate template based on pelvis side
     const applyTemplate = (side, targetSetter) => {
       const templateData = side === 'l' ? leftTemplateData : rightTemplateData;
       targetSetter(templateData);
     };
+
+    
+
+  // Need to determine if we should show L21
+  const shouldShowL21 = () => {
+    if (!editing) return false;
 
     // Only run this logic when we have one side with pelvis and one without
     if (pelvis[0] == null && pelvis[1] !== null) {
@@ -601,16 +604,11 @@ function App() {
         applyTemplate(pelvis[0], setRightImageMetadata);
         setPelvis((prev) => {
           let tmp = [...prev]
-          tmp[0] = pelvis[0]
+          tmp[1] = pelvis[0]
           return tmp
         })
       }
     }
-  }, [ pelvis, leftImage, rightImage]);
-*/
-  // Need to determine if we should show L21
-  const shouldShowL21 = () => {
-    if (!editing) return false;
     
     // If at least one side is active and has no template, show L21
     return (pelvis[0] === null) && 
@@ -713,10 +711,10 @@ function App() {
       {/*L9 Message box, render based on backend measurements or error*/}
       {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit}/>}
    
-      {/*L10 Carmbox, render if backend angle changes*/}
+      {/*L10 Carmbox, render if backend tilt_angle changes*/}
       {(tracking && showCarm && !pause && !isProcessing) && 
           <L10 
-          angle={angle} 
+          tiltAngle={tiltAngle} 
           rotationAngle={rotationAngle} 
           activeLeft={activeLeft}
           activeRight={activeRight}
