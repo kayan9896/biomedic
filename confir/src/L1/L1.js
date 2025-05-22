@@ -14,13 +14,13 @@ function L1({tracking, handlLabelClick}) {
         {tracking?(<img src={require('./APLabel.png')} style={{'position':'absolute', top: '0px', left:'0px', zIndex:1}}/>):(
             <>
             <img src={require('./ManualAPLabelBg.png')} style={{'position':'absolute', top: '0px', left:'0px', zIndex:1}}/>
-            <img className="image-button" src={require('./ManualAPLabel.png')} style={{'position':'absolute', top: '0px', left:'0px', zIndex:10}} onClick={()=>{handlLabelClick('ap')}}/>
+            <img className="image-button" src={require('./ManualAPLabel.png')} style={{'position':'absolute', top: '5px', left:'6px', zIndex:10}} onClick={()=>{handlLabelClick('ap')}}/>
             </>
         )}
-        {tracking?(<img src={require('./OBLabel.png')} style={{'position':'absolute', top:'0px', right:'0px', zIndex:1}}/>):(
+        {tracking?(<img src={require('./OBLabel.png')} style={{'position':'absolute', top:'0px', left:'1787px', zIndex:1}}/>):(
             <>
-            <img src={require('./ManualOBLabelBg.png')} style={{'position':'absolute', top: '0px', right:'0px', zIndex:1}}/>
-            <img className="image-button" src={require('./ManualOBLabel.png')} style={{'position':'absolute', top: '0px', right:'0px', zIndex:10}} onClick={()=>{handlLabelClick('ob')}}/>
+            <img src={require('./ManualOBLabelBg.png')} style={{'position':'absolute', top: '0px', left:'1787px', zIndex:1}}/>
+            <img className="image-button" src={require('./ManualOBLabel.png')} style={{'position':'absolute', top: '5px', left:'1793px', zIndex:10}} onClick={()=>{handlLabelClick('ob')}}/>
             </>
         )}
 

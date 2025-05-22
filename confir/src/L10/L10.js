@@ -690,7 +690,7 @@ function L10({
 
       </div>
       {showIcon && 
-      <img style={{position:'absolute', top:'671px', left:'900px', zIndex:11}} src={require('./CarmCheckmarks.png')} alt="box" />}
+      <img style={{position:'absolute', top:'652px', left:'862px', zIndex:11}} src={require('./CarmCheckmarks.png')} alt="box" />}
       
     </>
   );
