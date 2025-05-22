@@ -151,7 +151,7 @@ function KB({
             fontFamily:'abel',
             zIndex: 14
           }}
-          placeholder="no pid data"
+          placeholder="No Patient Data"
         />
         {/* Ratio Input */}
         <input

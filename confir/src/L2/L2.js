@@ -105,7 +105,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,setExit,stage,setStage,moveN
           padding: '8px',
           fontSize: '16px',
         }}
-        placeholder="no patient data"
+        placeholder="No Patient Data"
       />
         </>
     )
