@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 import CircularProgress from './CircularProgress';
 import L1 from './L1/L1';
@@ -465,6 +464,14 @@ function App() {
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
 
+  const setLeftTmp = (template) => { //Doing the same thing in the previous handleDelete
+    if(!leftImageMetadata) setLeftImageMetadata(template)
+    else Object.values(leftSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
+  }
+  const setRightTmp = (template) => {
+    if(!rightImageMetadata) setRightImageMetadata(template)
+    else Object.values(rightSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
+  }
   const handleSave = async () => {
     try {
       // Aggregate metadata from all groups
@@ -599,17 +606,17 @@ function App() {
 
     if (pelvis[0] !== null && leftImageMetadata == null) {
       if (leftImage!==getInstruction(stage,'AP')) {
-        applyTemplate(pelvis[0], setLeftImageMetadata);}
+        applyTemplate(pelvis[0], setLeftTmp);}
     }
     if (pelvis[1] !== null && rightImageMetadata == null) {
       if (rightImage!==getInstruction(stage,'OB')) {
-        applyTemplate(pelvis[0], setRightImageMetadata);}
+        applyTemplate(pelvis[0], setRightTmp);}
     }
     // Only run this logic when we have one side with pelvis and one without
     if (pelvis[0] == null && pelvis[1] !== null) {
       // If left side is active and has no metadata, apply the template
       if (leftImage!==getInstruction(stage,'AP')) {
-        applyTemplate(pelvis[1], setLeftImageMetadata);
+        applyTemplate(pelvis[1], setLeftTmp);
         setPelvis((prev) => {
           let tmp = [...prev]
           tmp[0] = pelvis[1]
@@ -620,7 +627,7 @@ function App() {
     if (pelvis[0] !== null && pelvis[1] == null) {  
       // If right side is active and has no metadata, apply the template
       if (rightImage!==getInstruction(stage,'OB')) {
-        applyTemplate(pelvis[0], setRightImageMetadata);
+        applyTemplate(pelvis[0], setRightTmp);
         setPelvis((prev) => {
           let tmp = [...prev]
           tmp[1] = pelvis[0]
@@ -775,12 +782,14 @@ function App() {
           setPelvis={setPelvis}
           hasAp={leftImage!==getInstruction(stage,'AP')}
           hasOb={rightImage!==getInstruction(stage,'OB')}
-          setLeftImageMetadata={setLeftImageMetadata}
-          setRightImageMetadata={setRightImageMetadata}
+          setLeftTmp={setLeftTmp}
+          setRightTmp={setRightTmp}
           editing={editing}
           resetTemplate={resetTemplate}
           setResetTemplate={setResetTemplate}
           setUseai={setUseai}
+          leftTemplateData={leftTemplateData}
+          rightTemplateData={rightTemplateData}
         />
       )}
 

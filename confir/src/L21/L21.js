@@ -10,39 +10,20 @@ import RightTemplate from './RightTemplate.png';
 import LeftTemplateSelected from '../L22/LeftTemplateSelected.png';
 import RightTemplateSelected from '../L22/RightTemplateSelected.png';
 
-import leftTemplate from './template-l.json';
-import rightTemplate from './template-r.json';
-function scalePoints(templateData, scaleFactor) {
-  const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
-
-  // Function to scale a single point
-  const scalePoint = (point) => point.map(coord => coord * scaleFactor);
-  console.log(Object.keys(scaledData))
-  // Loop through the groups and scale points
-  Object.keys(scaledData).forEach(groupKey => {
-      scaledData[groupKey].forEach(item => {
-          item.points = item.points.map(scalePoint); // Scale each point
-      });
-  });
-
-  return scaledData;
-}
-
-const scaleFactor = 960 / 1024;
-const leftTemplateData = scalePoints(leftTemplate, scaleFactor);
-const rightTemplateData = scalePoints(rightTemplate, scaleFactor);
 
 const L21 = ({ 
   pelvis,
   setPelvis, 
   hasAp,
   hasOb,
-  setLeftImageMetadata, 
-  setRightImageMetadata, 
+  setLeftTmp, 
+  setRightTmp, 
   editing,
   resetTemplate,
   setResetTemplate,
-  setUseai
+  setUseai,
+  leftTemplateData,
+  rightTemplateData
 }) => {
   // State to track which template is selected (if any)
   const [selectedTemplate, setSelectedTemplate] = useState(resetTemplate ? pelvis[0] : null);
@@ -65,7 +46,7 @@ const L21 = ({
         
         if(selectedTemplate !== pelvis[0]){
           if(hasAp){
-            setLeftImageMetadata(templateData);
+            setLeftTmp(templateData);
             setPelvis((prev) => {
               let tmp = [...prev]
               tmp[0] = selectedTemplate
@@ -73,7 +54,7 @@ const L21 = ({
             })
           }
           if(hasOb){
-            setRightImageMetadata(templateData);
+            setRightTmp(templateData);
             setPelvis((prev) => {
               let tmp = [...prev]
               tmp[1] = selectedTemplate
@@ -82,8 +63,8 @@ const L21 = ({
           }
           setUseai([false, false])
         }else{
-          if(editing === 'left') setLeftImageMetadata(templateData);
-          if(editing === 'right') setRightImageMetadata(templateData);
+          if(editing === 'left') setLeftTmp(templateData);
+          if(editing === 'right') setRightTmp(templateData);
         }
       } catch (error) {
         console.error('Error loading template:', error);

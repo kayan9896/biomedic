@@ -49,6 +49,11 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
           setCurrentMetadata([...originalMetadata]);
           setResetKey(prev => prev + 1);
         },
+        setTmp: (template) => {
+          console.log("setting template:", template, group, template[group]);
+          setCurrentMetadata(template[group]);
+          setResetKey(prev => prev + 1);
+        },
         clearAllPatterns: (template) => {
           console.log(template,currentMetadata,"tmp");
           setCurrentMetadata(template[group]);
@@ -211,7 +216,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
             editing&&<PatternGroupManager
               patterns={currentMetadata}
               onPatternsUpdate={handleMultiplePatternsUpdate}
-              handle={metadata[group][0]['handle']}
+              handle={currentMetadata[0]['handle']}
               group={group}
             />
           }
@@ -379,7 +384,7 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
             fontWeight: 'bold',
             textAlign: 'center'
           }}>
-            pelvis
+            {group}
           </div>
         </div>
       </div>
