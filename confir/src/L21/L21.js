@@ -33,14 +33,19 @@ const leftTemplateData = scalePoints(leftTemplate, scaleFactor);
 const rightTemplateData = scalePoints(rightTemplate, scaleFactor);
 
 const L21 = ({ 
+  pelvis,
   setPelvis, 
+  hasAp,
+  hasOb,
   setLeftImageMetadata, 
   setRightImageMetadata, 
-  activeLeft, 
-  activeRight 
+  editing,
+  resetTemplate,
+  setResetTemplate,
+  setUseai
 }) => {
   // State to track which template is selected (if any)
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(resetTemplate ? pelvis[0] : null);
 
   // Handle template selection
   const handleTemplateClick = (template) => {
@@ -52,23 +57,39 @@ const L21 = ({
     if (selectedTemplate) {
       try {
         // Get the correct template data based on selection
-        const templateData = selectedTemplate === 'left' 
+        const templateData = selectedTemplate === 'l' 
           ? leftTemplateData 
           : rightTemplateData;
         
         // Set pelvis value based on selection
         
-        
-        // Update the appropriate image metadata based on which side is active
-        if (activeLeft) {
-          setLeftImageMetadata(templateData);
-          setPelvis(selectedTemplate === 'left' ? ['l', null] : ['r', null]);
-        } else if (activeRight) {
-          setRightImageMetadata(templateData);
-          setPelvis(selectedTemplate === 'left' ? [null, 'l'] : [null, 'r']);
+        if(selectedTemplate !== pelvis[0]){
+          if(hasAp){
+            setLeftImageMetadata(templateData);
+            setPelvis((prev) => {
+              let tmp = [...prev]
+              tmp[0] = selectedTemplate
+              return tmp
+            })
+          }
+          if(hasOb){
+            setRightImageMetadata(templateData);
+            setPelvis((prev) => {
+              let tmp = [...prev]
+              tmp[1] = selectedTemplate
+              return tmp
+            })
+          }
+          setUseai([false, false])
+        }else{
+          if(editing === 'left') setLeftImageMetadata(templateData);
+          if(editing === 'right') setRightImageMetadata(templateData);
         }
       } catch (error) {
         console.error('Error loading template:', error);
+      }
+      if(resetTemplate){
+        setResetTemplate(false)
       }
     }
   };
@@ -85,30 +106,30 @@ const L21 = ({
 
       {/* Left Template */}
       <img 
-        src={selectedTemplate === 'left' ? LeftTemplateSelected : LeftTemplate} 
+        src={selectedTemplate === 'l' ? LeftTemplateSelected : LeftTemplate} 
         alt="Left Template" 
         className="left-template" 
         style={{ 
           position: 'absolute', 
-          left: selectedTemplate === 'left' ? '650px' : '655px', 
-          top: selectedTemplate === 'left' ? '359px' : '364px',
+          left: selectedTemplate === 'l' ? '650px' : '655px', 
+          top: selectedTemplate === 'l' ? '359px' : '364px',
           cursor: 'pointer' 
         }}
-        onClick={() => handleTemplateClick('left')}
+        onClick={() => handleTemplateClick('l')}
       />
 
       {/* Right Template */}
       <img 
-        src={selectedTemplate === 'right' ? RightTemplateSelected : RightTemplate} 
+        src={selectedTemplate === 'r' ? RightTemplateSelected : RightTemplate} 
         alt="Right Template" 
         className="right-template" 
         style={{ 
           position: 'absolute', 
-          left: selectedTemplate === 'right' ? '993px' : '998px', 
+          left: selectedTemplate === 'r' ? '993px' : '998px', 
           top: '364px',
           cursor: 'pointer' 
         }}
-        onClick={() => handleTemplateClick('right')}
+        onClick={() => handleTemplateClick('r')}
       />
 
       {/* Button (Enabled or Disabled based on selection) */}

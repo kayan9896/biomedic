@@ -88,27 +88,79 @@ class Controller:
         elif self.viewmodel.states['active_side'] == 'ob':
             return self.viewmodel.imgs[1]
 
-    def update_landmarks(self, l, r, stage):
+    def update_landmarks(self, l, r, limgside, rimgside, stage):
         
         if stage == 0:
-            self.model.data['hp1-ap']['metadata']['metadata'] = l
-            self.model.data['hp1-ob']['metadata']['metadata'] = r
-            print(stage,l,r)
+            if self.model.data['hp1-ap']['metadata']:
+                self.model.data['hp1-ap']['metadata']['metadata'] = l
+            else:
+                self.model.data['hp1-ap']['metadata']= {'metadata': l}
+            if self.model.data['hp1-ob']['metadata']:
+                self.model.data['hp1-ob']['metadata']['metadata'] = r
+            else:
+                self.model.data['hp1-ob']['metadata']= {'metadata': r}
+            
+            if limgside:
+                self.model.data['hp1-ap']['side'] = limgside
+            if rimgside:
+                self.model.data['hp1-ob']['side'] = rimgside
+        
         if stage == 1:
-            self.model.data['hp2-ap']['metadata']['metadata'] = l
-            self.model.data['hp2-ob']['metadata']['metadata'] = r
+            if self.model.data['hp2-ap']['metadata']:
+                self.model.data['hp2-ap']['metadata']['metadata'] = l
+            else:
+                self.model.data['hp2-ap']['metadata']= {'metadata': l}
+            if self.model.data['hp2-ob']['metadata']:
+                self.model.data['hp2-ob']['metadata']['metadata'] = r
+            else:
+                self.model.data['hp2-ob']['metadata']= {'metadata': r}
+            
+            if limgside:
+                self.model.data['hp2-ap']['side'] = limgside
+            if rimgside:
+                self.model.data['hp2-ob']['side'] = rimgside
+        
         if stage == 2:
-            self.model.data['cup-ap']['metadata']['metadata'] = l
-            self.model.data['cup-ob']['metadata']['metadata'] = r
+            if self.model.data['cup-ap']['metadata']:
+                self.model.data['cup-ap']['metadata']['metadata'] = l
+            else:
+                self.model.data['cup-ap']['metadata']= {'metadata': l}
+            if self.model.data['cup-ob']['metadata']:
+                self.model.data['cup-ob']['metadata']['metadata'] = r
+            else:
+                self.model.data['cup-ob']['metadata']= {'metadata': r}
+            
+            if limgside:
+                self.model.data['cup-ap']['side'] = limgside
+            if rimgside:
+                self.model.data['cup-ob']['side'] = rimgside
+        
         if stage == 3:
-            self.model.data['tri-ap']['metadata']['metadata'] = l
-            self.model.data['tri-ob']['metadata']['metadata'] = r
+            if self.model.data['tri-ap']['metadata']:
+                self.model.data['tri-ap']['metadata']['metadata'] = l
+            else:
+                self.model.data['tri-ap']['metadata']= {'metadata': l}
+            if self.model.data['tri-ob']['metadata']:
+                self.model.data['tri-ob']['metadata']['metadata'] = r
+            else:
+                self.model.data['tri-ob']['metadata']= {'metadata': r}
+            
+            if limgside:
+                self.model.data['tri-ap']['side'] = limgside
+            if rimgside:
+                self.model.data['tri-ob']['side'] = rimgside
         
         
         self.uistates = 'landmarks' if 'ap' not in self.scn else 'None'
         self.pause_states = None
         self.viewmodel.imgs[0]['metadata']['metadata'] = l
         self.viewmodel.imgs[1]['metadata']['metadata'] = r
+        self.viewmodel.imgs[0]['checkmark'] = 1
+        self.viewmodel.imgs[1]['checkmark'] = 1
+        if limgside:
+            self.viewmodel.imgs[0]['side'] = limgside
+        if rimgside:
+            self.viewmodel.imgs[1]['side'] = rimgside
         
 
     def connect_video(self):
@@ -281,6 +333,10 @@ class Controller:
                 return self.scn
             
             case 'frm:hp2-ap:end'| 'frm:hp2-ob:end':
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:hmplv2:bgn'
+
                 if self.model.data['hp2-ap']['success'] and self.model.data['hp2-ob']['success']:
                     return 'rcn:hmplv2:bgn'
                 else:

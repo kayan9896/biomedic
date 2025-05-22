@@ -67,7 +67,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,setExit,stage,setStage,moveN
         }
 
         <img src={require('./CurrentStageBg.png')} style={blueStage(stage)}/>
-        {showDash(stage)[0]!==null&&!showCarmBox&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
+        {showDash(stage)[0]!==null&&!showCarmBox&&!editing&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
 
         {(
           stage===0&&recon!==2?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>:

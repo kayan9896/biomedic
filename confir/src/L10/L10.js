@@ -641,7 +641,7 @@ function L10({
           textAlign:'right', 
           color: getTiltColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
           {displayValue(stage === 0 && activeLeft ? `${tiltAngle}` : `${tiltAngle - targetTiltAngle}`)[0]}
         </div>
@@ -653,7 +653,7 @@ function L10({
           textAlign:'left', 
           color: getTiltColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
           {displayValue(stage === 0 && activeLeft ? `${tiltAngle}` : `${tiltAngle - targetTiltAngle}`)[1]}
         </div>
@@ -671,7 +671,7 @@ function L10({
           textAlign:'right', 
           color: getRotationColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
           {displayValue(getDisplayRotationValue())[0]}
         </div>
@@ -683,7 +683,7 @@ function L10({
           textAlign:'left', 
           color: getRotationColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
           {displayValue(getDisplayRotationValue())[1]}
         </div>

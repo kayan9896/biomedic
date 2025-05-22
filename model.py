@@ -82,7 +82,9 @@ class Model:
             tmp = section[:-2] + 'ob'
             if section_type == 'ap': 
                 self.data[tmp] = {'image': None, 'metadata': None, 'success': False, 'side': None}
-                
+                self.data[tmp]['side'] = self.data[section]['side']
+            self.data[section]['image'] = frame
+            
             if self.on_simulation:
                 test_entry = self.test_data.get(section_type)
                 if test_entry and test_entry.get('json_path'):
@@ -115,13 +117,13 @@ class Model:
                     if side != self.data[section]['side']:
                         metadata['metadata'] = None
                         self.is_processing = False
-                        return {'metadata': metadata, 'checkmark': None, 'error': 'wrong side'}, frame
-                self.data[tmp]['side'] = side
+                        return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'wrong side'}, frame
+                
 
                 if error_code == ['003']:
                     metadata['metadata'] = None
                     self.is_processing = False
-                    return {'metadata': metadata, 'checkmark': None, 'error': 'wrong side'}, frame
+                    return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'wrong side'}, frame
 
                 if error_code == ['001']:
                     metadata['metadata'] = None
@@ -131,14 +133,15 @@ class Model:
                 if error_code == ['002']:
                     metadata['metadata'] = None
                     self.is_processing = False
-                    return {'metadata': metadata, 'checkmark': 0, 'recon': None, 'error': 'landmarks fail'}, frame
+                    print(self.data)
+                    return {'metadata': metadata, 'checkmark': 0, 'recon': None, 'error': 'landmarks fail', 'side': self.data[section]['side']}, frame
 
                 if not self.ai_mode:
                     metadata['metadata'] = None
                     self.is_processing = False
                     self.data[section]['image'] = frame
                     self.data[section]['metadata'] = metadata
-                    return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': None}, frame
+                    return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': None, 'side': self.data[section]['side']}, frame
 
                 
                 # Process frame and generate results
@@ -150,6 +153,7 @@ class Model:
                     'error': None
                 }
                 
+
                 k=0
                 for i in range(10000):
                     for j in range(3000):
@@ -284,7 +288,7 @@ class Model:
                 self.data[section]['stitch'] = res
                 return metadata, res
             #else: acutal function
-            
+
         except Exception as e:
             print(e)
             return {

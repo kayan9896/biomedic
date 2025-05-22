@@ -12,9 +12,12 @@ function L8({
   contrast,
   onBrightnessChange,
   onContrastChange,
+  useai,
+  setResetTemplate
 }) {
   const [showBrightnessBar, setShowBrightnessBar] = useState(false);
   const [showContrastBar, setShowContrastBar] = useState(false);
+  const [warning, setWarning] = useState(false);
 
   const handleBrightnessClick = () => {
     setShowBrightnessBar(!showBrightnessBar);
@@ -93,7 +96,7 @@ function L8({
           src={require('./ResetIcon.png')} 
           alt="ResetIcon" 
           style={{position:'absolute', top:'457px', left:'927px', zIndex:7, cursor:'pointer'}}
-          onClick={()=>onDelete(false)}
+          onClick={()=>setWarning(true)}
         />
         
         
@@ -114,6 +117,31 @@ function L8({
           style={{position:'absolute', top:'633px', left:'927px', zIndex:7, cursor:'pointer'}}
           onClick={onExit}
         />
+
+        {/* Reset button */}
+        {warning && <>
+          <img src={require('./EditResetWarningWindow.png')} style={{position:'absolute', top:'358px', left:'612px', zIndex:7}}/>
+          <img 
+            className="image-button"
+            src={require('./ResettoTemplateBtn.png')} style={{position:'absolute', top:'539px', left:'671px', zIndex:7}}
+            onClick={()=>{setResetTemplate(true); setWarning(false)}}
+          />
+          <img 
+            className="image-button"
+            src={((editing === 'left' && useai[0]) || ((editing === 'right' && useai[1]))) ? require('./ResettoAIBtn.png') : require('./ResettoAIBtnDisable.png')} style={{position:'absolute', top:'539px', left:'899px', zIndex:7}}
+            onClick={()=>{
+              if(((editing === 'left' && useai[0]) || ((editing === 'right' && useai[1])))){
+                onReset(); 
+                setWarning(false)
+              }}}
+          />
+          <img 
+            className="image-button"
+            src={require('./CancelBtn.png')} style={{position:'absolute', top:'539px', left:'1127px', zIndex:7}}
+            onClick={()=>setWarning(false)}
+          />
+        </>}
+        
       </div>
     )
 }

@@ -78,6 +78,7 @@ function App() {
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
   const [leftCheckMark, setLeftCheckMark] = useState(null);
   const [rightCheckMark, setRightCheckMark] = useState(null);
+  const [useai, setUseai] = useState([false, false])
   const [recon, setRecon] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -286,6 +287,7 @@ function App() {
         if (active_side === 'ap') {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata.metadata);
+            setUseai([data.metadata.metadata ? true : false, false])
             setLeftCheckMark(data.checkmark)
             setPelvis((prev) => {
               let tmp = [...prev]
@@ -301,6 +303,11 @@ function App() {
             setRightImage(data.image);  // This is now a data URL
             setRightImageMetadata(data.metadata.metadata);
             setRightCheckMark(data.checkmark)
+            setUseai(prev => {
+              let tmp = [...prev]
+              tmp[1] = data.metadata.metadata ? true : false
+              return tmp
+            })
             setPelvis((prev) => {
               let tmp = [...prev]
               tmp[1] = data.side
@@ -489,12 +496,16 @@ function App() {
           stage: stage,
           leftMetadata: leftData,
           rightMetadata: rightData,
+          limgside: pelvis[0],
+          rimgside: pelvis[1]
         }),
       });
 
       // Update saved metadata for all groups
       Object.values(leftSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
       Object.values(rightSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
+      if (leftImage!==getInstruction(stage,'AP')) setLeftCheckMark(1)
+      if (rightImage!==getInstruction(stage,'OB')) setRightCheckMark(1)
       setEditing(false);
     } catch (error) {
       console.error('Error saving landmarks:', error);
@@ -581,11 +592,19 @@ function App() {
     };
 
     
-
+    const [resetTemplate, setResetTemplate] = useState(false)
   // Need to determine if we should show L21
   const shouldShowL21 = () => {
     if (!editing) return false;
 
+    if (pelvis[0] !== null && leftImageMetadata == null) {
+      if (leftImage!==getInstruction(stage,'AP')) {
+        applyTemplate(pelvis[0], setLeftImageMetadata);}
+    }
+    if (pelvis[1] !== null && rightImageMetadata == null) {
+      if (rightImage!==getInstruction(stage,'OB')) {
+        applyTemplate(pelvis[0], setRightImageMetadata);}
+    }
     // Only run this logic when we have one side with pelvis and one without
     if (pelvis[0] == null && pelvis[1] !== null) {
       // If left side is active and has no metadata, apply the template
@@ -705,6 +724,8 @@ function App() {
             contrast={contrast[editing === 'left' ? 0 : 1]}
             onBrightnessChange={handleBrightnessChange}
             onContrastChange={handleContrastChange}
+            useai={useai}
+            setResetTemplate={setResetTemplate}
           />}
       
         
@@ -748,13 +769,18 @@ function App() {
       {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} setShowglyph={setShowglyph}/>}
 
       {/*L21 Template Selection, render when editing is true and pelvis is null*/}
-      {shouldShowL21() && (
+      {(resetTemplate || shouldShowL21()) && (
         <L21 
+          pelvis={pelvis}
           setPelvis={setPelvis}
+          hasAp={leftImage!==getInstruction(stage,'AP')}
+          hasOb={rightImage!==getInstruction(stage,'OB')}
           setLeftImageMetadata={setLeftImageMetadata}
           setRightImageMetadata={setRightImageMetadata}
-          activeLeft={activeLeft}
-          activeRight={activeRight}
+          editing={editing}
+          resetTemplate={resetTemplate}
+          setResetTemplate={setResetTemplate}
+          setUseai={setUseai}
         />
       )}
 
