@@ -68,6 +68,7 @@ function App() {
   const [moveNext, setMoveNext] = useState(false)
   const [pelvis, setPelvis] = useState([null, null])
   const frameRef = useRef(null);
+  const pelvisRef = useRef([]); 
 
   const [leftImage, setLeftImage] = useState(getInstruction(stage,'AP'));
   const [rightImage, setRightImage] = useState(getInstruction(stage,'OB'));
@@ -81,6 +82,7 @@ function App() {
   const [recon, setRecon] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const useaiRef = useRef([]); 
 
   const [tiltAngle, setAngle] = useState(0);
   const [rotationAngle, setRotationAngle] = useState(0);
@@ -403,6 +405,9 @@ function App() {
 
   const handledit = async () => {
     setEditing('left')
+    useaiRef.current = useai
+    pelvisRef.current = pelvis
+    console.log(pelvisRef)
     try {
       await fetch('http://localhost:5000/edit', {
         method: 'POST',
@@ -521,6 +526,8 @@ function App() {
   };
 
   const handleExit = async () => {
+    setUseai(useaiRef.current)
+    setPelvis(pelvisRef.current)
     try {
       await fetch('http://localhost:5000/edit', {
         method: 'POST',

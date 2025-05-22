@@ -153,8 +153,14 @@ class Controller:
         
         self.uistates = 'landmarks' if 'ap' not in self.scn else 'None'
         self.pause_states = None
-        self.viewmodel.imgs[0]['metadata']['metadata'] = l
-        self.viewmodel.imgs[1]['metadata']['metadata'] = r
+        if self.viewmodel.imgs[0]['metadata']:
+            self.viewmodel.imgs[0]['metadata']['metadata'] = l
+        else:
+            self.viewmodel.imgs[0]['metadata'] = {'metadata': l}
+        if self.viewmodel.imgs[0]['metadata']:
+            self.viewmodel.imgs[1]['metadata']['metadata'] = r
+        else:
+            self.viewmodel.imgs[1]['metadata'] = {'metadata': r}
         self.viewmodel.imgs[0]['checkmark'] = 1
         self.viewmodel.imgs[1]['checkmark'] = 1
         if limgside:
