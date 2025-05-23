@@ -425,6 +425,10 @@ class Controller:
                     self.model.data['tri-ob'] = self.model.data['cup-ob']
                     self.scn = 'frm:tri-ob:end'
                     return self.scn
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:acecup:bgn'
+
                 if self.model.data['cup-ap']['success'] and self.model.data['cup-ob']['success']:
                     return 'rcn:acecup:bgn'
                 else:
@@ -493,6 +497,10 @@ class Controller:
                     self.model.data['cup-ob'] = self.model.data['tri-ob'] 
                     self.scn = 'frm:cup-ob:end'
                     return self.scn
+                if self.uistates == 'landmarks':
+                    self.uistates = None
+                    return 'rcn:tothip:bgn'
+
                 if self.model.data['tri-ap']['success'] and self.model.data['tri-ob']['success']:
                     return 'rcn:tothip:bgn'
                 else:

@@ -7,7 +7,6 @@ function L8({
   onSave,
   onExit,
   onReset,
-  onDelete,
   brightness,
   contrast,
   onBrightnessChange,

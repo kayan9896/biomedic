@@ -23,28 +23,14 @@ import L21 from './L21/L21';
 
 import leftTemplate from './L21/template-l.json';
 import rightTemplate from './L21/template-r.json';
+import leftCupTemplate from './L21/cuptemplate-l.json';
+import rightCupTemplate from './L21/cuptemplate-r.json';
+import leftTriTemplate from './L21/tritemplate-l.json';
+import rightTriTemplate from './L21/tritemplate-r.json';
 import ReconnectionPage from './L13/ReconnectionPage';
 import L17 from './L17/L17';
 import KB from './KB';
-function scalePoints(templateData, scaleFactor) {
-  const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
 
-  // Function to scale a single point
-  const scalePoint = (point) => point.map(coord => coord * scaleFactor);
-  console.log(Object.keys(scaledData))
-  // Loop through the groups and scale points
-  Object.keys(scaledData).forEach(groupKey => {
-      scaledData[groupKey].forEach(item => {
-          item.points = item.points.map(scalePoint); // Scale each point
-      });
-  });
-
-  return scaledData;
-}
-
-const scaleFactor = 960 / 1024;
-const leftTemplateData = scalePoints(leftTemplate, scaleFactor);
-const rightTemplateData = scalePoints(rightTemplate, scaleFactor);
 function App() {
   
   const [patient, setPatient] = useState('');
@@ -130,6 +116,35 @@ function App() {
     if (stage === 3){
       return side === 'AP' ? require('./Instruction/TrialAPInstruction.png') : require('./Instruction/TrialOBInstruction.png')
     }
+  }
+
+  function scalePoints(templateData, scaleFactor) {
+    const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
+  
+    // Function to scale a single point
+    const scalePoint = (point) => point.map(coord => coord * scaleFactor);
+    console.log(Object.keys(scaledData))
+    // Loop through the groups and scale points
+    Object.keys(scaledData).forEach(groupKey => {
+        scaledData[groupKey].forEach(item => {
+            item.points = item.points.map(scalePoint); // Scale each point
+        });
+    });
+  
+    return scaledData;
+  }
+  
+  const getTemplate = (stage, pelvis, scaleFactor = 960 / 1024)=> {
+    if (stage === 0 || stage === 1){
+      return pelvis === 'l' ? scalePoints(leftTemplate, scaleFactor) : scalePoints(rightTemplate, scaleFactor);
+    }
+    if (stage === 2){
+      return pelvis === 'l' ? scalePoints(leftCupTemplate, scaleFactor) : scalePoints(rightCupTemplate, scaleFactor);
+    }
+    if (stage === 3){
+      return pelvis === 'l' ? scalePoints(leftTriTemplate, scaleFactor) : scalePoints(rightTriTemplate, scaleFactor);
+    }
+    return
   }
 
   useEffect(() => {
@@ -469,7 +484,7 @@ function App() {
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
 
-  const setLeftTmp = (template) => { //Doing the same thing in the previous handleDelete
+  const setLeftTmp = (template) => { 
     if(!leftImageMetadata) setLeftImageMetadata(template)
     else Object.values(leftSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
   }
@@ -550,20 +565,6 @@ function App() {
     Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
   };
 
-  const handleDelete = (both) => {
-    const p = editing === 'left'? pelvis[0] : pelvis[1]
-    if (both){
-      let template = p === 'r'? leftTemplateData: rightTemplateData;
-      Object.values(leftSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
-      Object.values(rightSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
-      setPelvis(p === 'l'? ['r','r']: ['l','l'])
-    }else{ 
-      let template = p === 'l'? leftTemplateData: rightTemplateData;
-      if (editing === 'left') Object.values(leftSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
-      if (editing === 'right') Object.values(rightSaveRefs.current).forEach(ref => ref?.clearAllPatterns?.(template));
-    }
-  };
-
   const captureAndSaveFrame = async () => {
     console.log(frameRef)
     if (!frameRef.current) return;
@@ -601,7 +602,7 @@ function App() {
   };
 
     const applyTemplate = (side, targetSetter) => {
-      const templateData = side === 'l' ? leftTemplateData : rightTemplateData;
+      const templateData = getTemplate(stage, side)
       targetSetter(templateData);
     };
 
@@ -733,7 +734,6 @@ function App() {
             onSave={handleSave}
             onExit={handleExit}
             onReset={handleReset}
-            onDelete={handleDelete}
             brightness={brightness[editing === 'left' ? 0 : 1]}
             contrast={contrast[editing === 'left' ? 0 : 1]}
             onBrightnessChange={handleBrightnessChange}
@@ -795,8 +795,8 @@ function App() {
           resetTemplate={resetTemplate}
           setResetTemplate={setResetTemplate}
           setUseai={setUseai}
-          leftTemplateData={leftTemplateData}
-          rightTemplateData={rightTemplateData}
+          leftTemplateData={getTemplate(stage, 'l')}
+          rightTemplateData={getTemplate(stage, 'r')}
         />
       )}
 
