@@ -18,7 +18,7 @@ function L7({handledit, setReport, leftCheckMark, rightCheckMark, recon, setPaus
         
         <>
         <img className="image-button" src={require('./PauseButtonBg.png')} alt="acquire icon" style={{position:'absolute', top:'659px', left:'921px', zIndex:7}}/>
-        <img className="image-button"  src={require('./PauseButton.png')} alt="acquire icon" style={{position:'absolute', top:'664px', left:'926px', zIndex:7}} onClick={()=>{setPause(1)}}/>
+        <img className="image-button"  src={require('./PauseButton.png')} alt="acquire icon" style={{position:'absolute', top:'664px', left:'926px', zIndex:7}} onClick={()=>{setPause(4)}}/>
         </>
         
 

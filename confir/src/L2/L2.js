@@ -41,12 +41,13 @@ function L2({setShowKeyboard,pid,setting,setSetting,setExit,stage,setStage,moveN
   }
   const showDash = (stage) => {
     if(stage === 0){
-      if(recon === 2) return [1, {'position':'absolute', top:'983px', left:'381px'}]
+      //if(recon === 2) return [1, {'position':'absolute', top:'983px', left:'381px'}]
       return [null, null]
     }
     if (stage === 1){
-      if(moveNext) return [null, null]
-      return [0, {'position':'absolute', top:'983px', left:'293px'}]
+      //if(moveNext) 
+      return [null, null]
+      //return [0, {'position':'absolute', top:'983px', left:'293px'}]
     }
     if(stage === 2){
       if(isCupReg) return [null, null]

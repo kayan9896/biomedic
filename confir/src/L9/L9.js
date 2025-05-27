@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriReg, setExit}) {
-    const shownext = (stage === 1 && moveNext) || (stage === 2 && isCupReg)
+    const shownext = (stage <= 1 && moveNext) || (stage === 2 && isCupReg)
     useEffect(() => {
       if (shownext) {
           // Trigger the function after 10 seconds
           const timer = setTimeout(() => {
               handlepause(stage + 1);
-          }, 10000); // 10000ms = 10 seconds
+          }, 60000); // 10000ms = 10 seconds
 
           // Cleanup timer if component unmounts or button disappears
           return () => clearTimeout(timer);

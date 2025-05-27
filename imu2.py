@@ -22,7 +22,7 @@ class IMU2:
         self.tmp_obtarget2 = None
         self.tmp_used_ob = None
         self.tilttarget = None
-        self.aptarget = None
+        self.aptarget = -5
         self.obtarget1 = None
         self.obtarget2 = None
         self.used_ob = None
@@ -82,6 +82,9 @@ class IMU2:
     def is_tilt_valid(self, stage):
         active = self.activeside(stage)
         if stage == 0 and active == 'ap':
+            if self.tilttarget is not None:
+                return self.tilt_angle == self.tilttarget
+            
             return self.tiltl < self.tilt_angle < self.tiltr
         if (stage == 0 and active == 'ob') or stage > 0:
             return self.tilttarget is not None and self.tilt_angle == self.tilttarget
@@ -90,11 +93,20 @@ class IMU2:
     def is_rot_valid(self, stage):
         active = self.activeside(stage)
         if stage == 0:
+            if active == 'ap'and self.aptarget is not None:
+                return self.rotation_angle == self.aptarget
+            if active == 'ob':
+                if self.obtarget1 is not None and self.rotation_angle * self.obtarget1 > 0:
+                    return self.rotation_angle == self.obtarget1
+                if self.obtarget2 is not None and self.rotation_angle * self.obtarget2 > 0:
+                    return self.rotation_angle == self.obtarget2
             return self.rangel < self.rotation_angle < self.ranger
         if stage == 1:
             if active == 'ap':
                 return self.aptarget is not None and self.rotation_angle == self.aptarget
             if active == 'ob':
+                if self.obtarget2 is not None:
+                    return self.rotation_angle == self.obtarget2
                 return self.obtarget1 is not None and self.rotation_angle * self.obtarget1 < 0
         if stage == 2 or (stage ==3 and not self.iscupreg):
             if active == 'ap':
@@ -136,7 +148,6 @@ class IMU2:
         elif self.window_shown and is_tilt_valid and is_rot_valid and is_stable:
             if current_time - self.last_stable_time >= 5:
                 self.window_shown = False
-                self.handle_window_close(stage)
 
         self.prev_angle = self.tilt_angle
         self.prev_rotation_angle = self.rotation_angle
@@ -145,12 +156,16 @@ class IMU2:
     def handle_window_close(self, stage):
         if stage == 0:
             self.tmp_tilttarget = self.tilt_angle
+            self.tilttarget = self.tilt_angle
             if self.activeside(stage) == 'ap':
                 self.tmp_aptarget = self.rotation_angle
             if self.activeside(stage) == 'ob':
+                if self.obtarget2 == self.rotation_angle:
+                    self.tmp_obtarget2 = self.obtarget1
                 self.tmp_obtarget1 = self.rotation_angle
         elif stage == 1:
-            self.tmp_obtarget2 = self.rotation_angle
+            if self.activeside(stage) == 'ob':
+                self.tmp_obtarget2 = self.rotation_angle
         elif stage == 2:
             if self.rotation_angle == self.tmp_obtarget1:
                 self.tmp_used_ob = self.tmp_obtarget1

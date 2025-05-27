@@ -57,6 +57,14 @@ class Controller:
             self.model.on_simulation = self.on_simulation
 
 
+    def restart(self):
+        self.uistates = 'restart'
+        self.model.resetdata()
+        self.scn = 'init'
+        self.viewmodel.states['stage'] = 0
+        if self.config.get("imu_on", True):
+            imu_port = self.config.get("imu_port", "COM3")
+            self.imu = IMU2(imu_port)
 
     def get_states(self):
         states = self.viewmodel.states
@@ -271,7 +279,7 @@ class Controller:
             
             if newscn == self.scn or newscn[-3:] == 'end':
                 continue
-            self.imu.confirm_save()
+            self.imu.handle_window_close(self.viewmodel.states['stage'])
             dataforsave, dataforvm, image = self.model.exec(newscn, frame, self.imu.tilt_angle, self.imu.rotation_angle)
             print(frame,image,dataforvm,newscn)
             self.scn = newscn[:-3] + 'end'

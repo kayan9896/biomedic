@@ -498,6 +498,7 @@ def next():
 
     controller.uistates = state
     controller.viewmodel.states['stage'] = stage
+    if controller.imu: controller.imu.confirm_save()
 
     return jsonify({"message": "uistates updated"})
 
@@ -506,9 +507,8 @@ def restart():
     global controller
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
-    controller.uistates = 'restart'
-    controller.model.resetdata()
-    controller.scn = 'init'
+    controller.restart()
+
     return jsonify({"message": "uistate restart"})
 
 @app.route('/screenshot/<int:stage>', methods=['POST'])

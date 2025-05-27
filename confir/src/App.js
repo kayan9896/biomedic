@@ -368,7 +368,8 @@ function App() {
     }
   };
   const handlepause = async (num) => {
-    setPause(num)
+    if(num === 1) handlenext('next')
+    else setPause(num)
     captureAndSaveFrame()
   }
   const handlenext = async (next = 'next') => {

@@ -327,6 +327,8 @@ class Model:
                     dataforvm = data
                     if 'metadata' in dataforvm:
                         dataforvm.pop('metadata')
+                    if data['recon'] == 2: 
+                        dataforvm['next'] = True
 
                     return dataforsave, dataforvm, processed_frame
                 

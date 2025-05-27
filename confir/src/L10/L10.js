@@ -42,27 +42,21 @@ function L10({
       if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? `${rotationAngle - obRotationAngle}` : `${rotationAngle - obRotationAngle2}`
       if(rotationAngle * usedOB > 0) return `${rotationAngle - usedOB}` 
     } 
+    if (activeLeft && apRotationAngle) return `${rotationAngle - apRotationAngle}`
+    if (activeRight && obRotationAngle && rotationAngle * obRotationAngle > 0) return `${rotationAngle - obRotationAngle}` 
+    if (activeRight && obRotationAngle2 && rotationAngle * obRotationAngle2 > 0) return `${rotationAngle - obRotationAngle2}` 
     return `${rotationAngle}`;
   };
   
   // Color for rotation value display
   const getTiltColor = () => {
-    if (stage === 0 && activeLeft && tiltValid) return '#46a745'
-    if (tiltAngle === targetTiltAngle) return '#46a745'
+    if (tiltValid) return '#46a745'
     return '#FFFFFF'
   };
   
 
   const getRotationColor = () => {
-    if (stage === 0 && (activeLeft || activeRight)) return '#46a745'
-    if (stage === 1 && ((activeLeft && rotationAngle === apRotationAngle) || (activeRight && rotationAngle * obRotationAngle < 0))) return '#46a745'
-    if(stage > 1){
-      if (!isCupReg){
-        if((rotationAngle === apRotationAngle) || ((rotationAngle === obRotationAngle || rotationAngle === obRotationAngle2))) return '#46a745'
-      }else{
-        if((rotationAngle === apRotationAngle) || (rotationAngle === usedOB)) return '#46a745'
-      }
-    }
+    if (rotValid) return '#46a745'
     return '#FFFFFF'
   };
 
@@ -244,7 +238,7 @@ function L10({
   }
 
   function getTiltArray(targetTiltAngle, tiltAngle) {
-    if (stage === 0 && activeLeft) return [
+    if (stage === 0 && activeLeft && targetTiltAngle == null) return [
       {
         limit: apl,
         color: 'grey',
@@ -309,27 +303,131 @@ function L10({
           showTick: false,
           tooltip: { text: 'Out' }
         }]
-        array.push({
-          limit: apl,
-          color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
-          showTick: false,
-          tooltip: { text: 'OB Range' }
-        },)
-  
+        if(obRotationAngle && obRotationAngle < 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle - 0.5*scale, -49.99),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle + 0.5*scale, apl - 0.01),
+              color: (rotationAngle <= apl && rotationAngle > rangel) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: apl,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else if(obRotationAngle2 && obRotationAngle2 < 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle2 - 0.5*scale, -49.99),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle2 + 0.5*scale, apl - 0.01),
+              color: (rotationAngle <= apl && rotationAngle > rangel) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: apl,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else{
+          array.push({
+            limit: apl,
+            color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)}
+        if(apRotationAngle){
+          array.push(
+            {
+              limit: Math.max(apRotationAngle - 0.5*scale, apl + 0.01),
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+            {
+              limit:Math.min(apRotationAngle + 0.5*scale, apr - 0.01),
+              color: rotationAngle <= apr && rotationAngle > apl ? red80 : red40,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+          )
+      
+            array.push({
+              limit: apr,
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },)
+        }else{
         array.push({
           limit: apr,
           color: rotationAngle <= apr && rotationAngle > apl ? red60 : red10,
           showTick: false,
           tooltip: { text: 'AP Range' }
-        },)
-
+        },)}
+        if(obRotationAngle && obRotationAngle > 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle - 0.5*scale, apr),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle + 0.5*scale, ranger - 0.01),
+              color: (rotationAngle <= ranger && rotationAngle > apr) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: ranger,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else if(obRotationAngle2 && obRotationAngle2 > 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle2 - 0.5*scale, apr),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle2 + 0.5*scale, ranger - 0.01),
+              color: (rotationAngle <= ranger && rotationAngle > apr) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: ranger,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else{
+          array.push({
+            limit: ranger,
+            color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          })}
+        
         array.push({
-          limit: ranger,
-          color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
-          showTick: false,
-          tooltip: { text: 'OB Range' }
-        },
-        {
           limit: 90*scale,
           color: 'grey',
           showTick: false,
@@ -355,12 +453,34 @@ function L10({
             tooltip: { text: 'OB Range' }
           },)
         }else{
-          array.push({
-            limit: apl,
-            color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
-            showTick: false,
-            tooltip: { text: 'OB Range' }
-          },)
+          if(obRotationAngle2){
+            array.push(
+              {
+                limit: Math.max(obRotationAngle2 - 0.5*scale, -49.99),
+                color: blue10,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },
+              {
+                limit: Math.min(obRotationAngle2 + 0.5*scale, apl - 0.01),
+                color: (rotationAngle <= apl && rotationAngle > rangel) ? blue80 : blue40,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },)
+            array.push({
+              limit: apl,
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          }else{
+            array.push({
+              limit: apl,
+              color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          }        
         }
         array.push(
           {
@@ -391,12 +511,34 @@ function L10({
             tooltip: { text: 'OB Range' }
           },)
         }else{
+          if(obRotationAngle2){
+            array.push(
+              {
+                limit: Math.max(obRotationAngle2 - 0.5*scale, apr),
+                color: blue10,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },
+              {
+                limit: Math.min(obRotationAngle2 + 0.5*scale, ranger - 0.01),
+                color: (rotationAngle <= ranger && rotationAngle > apr) ? blue80 : blue40,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },)
+            array.push({
+              limit: ranger,
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          }else{
           array.push({
             limit: ranger,
             color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
             showTick: false,
             tooltip: { text: 'OB Range' }
           },)
+          }
         }
         array.push(
         {

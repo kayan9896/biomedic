@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 function L12({pause, setPause, setReport, handlenext}) {
   const [next, setNext] = useState(null)
-  if(pause === 1)
+  if(pause === 4)
     return(
       <div>
         <img src={require('./PauseWindow.png')} alt="PauseWindow" style={{position:'absolute', top:'77px', left:'217px', zIndex:10}}/>
@@ -34,6 +34,8 @@ function L12({pause, setPause, setReport, handlenext}) {
         }}/>
       </div>
     )
+
+
   if(pause === 10)
     return(
       <div>
