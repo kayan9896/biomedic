@@ -101,6 +101,8 @@ function App() {
   const [isTriReg, setIsTriReg] = useState(null)
   const [usedOB, setUsedOB] = useState(null)
 
+  const [selectCup, setSelectCup] = useState(true)
+
   const [showReconnectionPage, setShowReconnectionPage] = useState(false);
   const handleReconnectionReturn = () => {
     setShowReconnectionPage(false);
@@ -273,7 +275,7 @@ function App() {
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
-          await updateImages(data.active_side);
+          await updateImages(data.active_side, data.stage);
         }
 
         if (data.measurements) {
@@ -295,7 +297,7 @@ function App() {
 
   
 
-  const updateImages = async (active_side) => {
+  const updateImages = async (active_side, stage) => {
     try {
         const response = await fetch('http://localhost:5000/api/image-with-metadata');
         const data = await response.json();
@@ -310,7 +312,7 @@ function App() {
               tmp[0] = data.side
               return tmp
             })
-            console.log(data.metadata)
+            console.log(stage, data.metadata)
 
             setRightImage(getInstruction(stage,'OB'));
             setRightImageMetadata(null)
@@ -368,20 +370,29 @@ function App() {
     }
   };
   const handlepause = async (num) => {
-    if(num === 1) handlenext('next')
-    else setPause(num)
+    setPause(num)
     captureAndSaveFrame()
   }
-  const handlenext = async (next = 'next') => {
+  const handlenext = async (next = 'next', keep = false) => {
     setPause(false)
     
     setLeftImageMetadata(null)
     setRightImageMetadata(null)
+    leftSaveRefs.current = {}
+    rightSaveRefs.current = {};
     setLeftCheckMark(null)
     setRightCheckMark(null)
+    setRecon(null)
+    setUseai([false, false])
+    setPelvis([null, null])
     let st = next === 'next' ? stage + 1 : next === 'skip' ? stage + 2 : stage - 1;
-    setLeftImage(getInstruction(st,'AP'));
-    setRightImage(getInstruction(st,'OB'));
+    if(!keep) {
+      setLeftImage(getInstruction(st,'AP'));
+      setRightImage(getInstruction(st,'OB'));
+    }else{
+      if(leftImage === getInstruction(stage,'AP')) setLeftImage(getInstruction(st,'AP'));
+      if(rightImage === getInstruction(stage,'OB')) setRightImage(getInstruction(st,'OB'));
+    }
     if(next === 'next') setStage(p => p + 1);
     if(next === 'skip') setStage(p => p + 2);
     if(!next) setStage(p => p - 1);
@@ -450,6 +461,9 @@ function App() {
     setIsCupReg(false)
     setIsTriReg(false)
     setStage(0);
+    setUseai([false, false])
+    setPelvis([null, null])
+    
     try {
       await fetch('http://localhost:5000/restart', {
         method: 'POST',
@@ -591,7 +605,7 @@ function App() {
         });
         
         if (response.ok) {
-          alert(`stage${stage} with overlays saved successfully!`);
+          console.log(`stage${stage} with overlays saved successfully!`);
         } else {
           throw new Error('Failed to save image with overlays');
         }
@@ -692,7 +706,6 @@ function App() {
           setSetting={setSetting} 
           setExit={setExit}
           stage={stage} 
-          setStage={setStage} 
           moveNext={moveNext} 
           handlerestart={handlerestart} 
           handlenext={handlenext} 
@@ -702,6 +715,16 @@ function App() {
           autocollect={autocollect}
           editing={editing}
           recon={recon}
+          handlepause={handlepause}
+          setSelectCup={setSelectCup}
+          isProcessing={isProcessing}
+          pause={pause}
+          leftImage={leftImage}
+          leftImageMetadata={leftImageMetadata}
+          leftSaveRefs={leftSaveRefs}
+          rightImage={rightImage}
+          rightImageMetadata={rightImageMetadata}
+          rightSaveRefs={rightSaveRefs}
         />
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
@@ -820,7 +843,7 @@ function App() {
       {report&&<L11 setReport={setReport} stage={stage} setError={setError}/>}
             
       {/*L12 Pause, render when next button clicked */}
-      {<L12 pause={pause} setPause={setPause} handlenext={handlenext}/>}
+      {<L12 key={Math.random()} pause={pause} setPause={setPause} handlenext={handlenext} selectCup={selectCup}/>}
 
       {/*L14 Setting, render when setting true*/}
       {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode} autocollect={autocollect} tracking={tracking}/>}

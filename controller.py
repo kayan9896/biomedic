@@ -429,9 +429,11 @@ class Controller:
             
             case 'frm:cup-ap:end'| 'frm:cup-ob:end':
                 if self.uistates == 'next':                        
-                    self.model.data['tri-ap'] = self.model.data['cup-ap']
-                    self.model.data['tri-ob'] = self.model.data['cup-ob']
-                    self.scn = 'frm:tri-ob:end'
+                    self.model.data['tri-ap'] = {'image': None, 'metadata': None, 'success': False, 'side': None}
+                    self.model.data['tri-ob'] = {'image': None, 'metadata': None, 'success': False, 'side': None}
+                    self.model.data['tri-ap']['image'] = self.model.data['cup-ap']['image']
+                    self.model.data['tri-ob']['image'] = self.model.data['cup-ob']['image']
+                    self.scn = 'frm:tri-ap:end'
                     return self.scn
                 if self.uistates == 'landmarks':
                     self.uistates = None
@@ -501,9 +503,11 @@ class Controller:
 
             case 'frm:tri-ap:end'| 'frm:tri-ob:end':
                 if self.uistates == 'prev':                        
-                    self.model.data['cup-ap'] = self.model.data['tri-ap'] 
-                    self.model.data['cup-ob'] = self.model.data['tri-ob'] 
-                    self.scn = 'frm:cup-ob:end'
+                    self.model.data['cup-ap'] = {'image': None, 'metadata': None, 'success': False, 'side': None}
+                    self.model.data['cup-ob'] = {'image': None, 'metadata': None, 'success': False, 'side': None}
+                    self.model.data['cup-ap']['image'] = self.model.data['tri-ap']['image']
+                    self.model.data['cup-ob']['image'] = self.model.data['tri-ob']['image']
+                    self.scn = 'frm:cup-ap:end'
                     return self.scn
                 if self.uistates == 'landmarks':
                     self.uistates = None

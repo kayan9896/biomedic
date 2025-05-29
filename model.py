@@ -113,7 +113,7 @@ class Model:
                 metadata['imuangles'] = [tilt_angle, rotation_angle]
 
                 side = metadata['side']
-                if section[:3] == 'hp2' or  section[:3] == 'tri':
+                if section[:3] == 'hp2' or (self.data['regcup'] and section[:3] == 'tri'):
                     if side != self.data[section]['side']:
                         metadata['metadata'] = None
                         self.is_processing = False

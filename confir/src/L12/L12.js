@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L12({pause, setPause, setReport, handlenext}) {
-  const [next, setNext] = useState(null)
+function L12({pause, setPause, setReport, handlenext, selectCup}) {
+  const [next, setNext] = useState(selectCup ? 'next' : 'skip')
+  useEffect(() => {setNext(selectCup ? 'next' : 'skip')},[selectCup])
   if(pause === 4)
     return(
       <div>
