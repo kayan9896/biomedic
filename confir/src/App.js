@@ -507,8 +507,32 @@ function App() {
     if(!rightImageMetadata) setRightImageMetadata(template)
     else Object.values(rightSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
   }
+  const checkTmp = () => {
+    const leftHasRed = Object.keys(leftSaveRefs.current).reduce((acc, group) => {
+        const ref = leftSaveRefs.current[group];
+        if (ref && typeof ref.checkTmp === 'function') {
+          const groupMoved = ref.checkTmp();
+          acc = acc || groupMoved; // Only include the group-specific data
+        }
+        return acc;
+      }, false);
+    const rightHasRed = Object.keys(rightSaveRefs.current).reduce((acc, group) => {
+        const ref = rightSaveRefs.current[group];
+        if (ref && typeof ref.checkTmp === 'function') {
+          const groupMoved = ref.checkTmp();
+          acc = acc || groupMoved; // Only include the group-specific data
+        }
+        return acc;
+      }, false);
+    return leftHasRed || rightHasRed
+  }
+  const rmRed = () => {
+    Object.values(leftSaveRefs.current).forEach(ref => ref?.removeRed?.())
+    Object.values(rightSaveRefs.current).forEach(ref => ref?.removeRed?.())
+  }
   const handleSave = async () => {
     try {
+      rmRed()
       // Aggregate metadata from all groups
       const leftData = Object.keys(leftSaveRefs.current).reduce((acc, group) => {
         const ref = leftSaveRefs.current[group];
@@ -764,6 +788,7 @@ function App() {
             onContrastChange={handleContrastChange}
             useai={useai}
             setResetTemplate={setResetTemplate}
+            checkTmp={checkTmp}
           />}
       
         

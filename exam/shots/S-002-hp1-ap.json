@@ -1,0 +1,13 @@
+{
+    "folder": "shots",
+    "type": "hp1-ap",
+    "side": "r",
+    "imuangles": [
+        -5,
+        -5
+    ],
+    "metadata": null,
+    "Calibration": {},
+    "Segmentation": null,
+    "ShotIndex": 2
+}

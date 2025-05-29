@@ -22,9 +22,9 @@ class IMU2:
         self.tmp_obtarget2 = None
         self.tmp_used_ob = None
         self.tilttarget = None
-        self.aptarget = -5
-        self.obtarget1 = None
-        self.obtarget2 = None
+        self.aptarget = None
+        self.obtarget1 = 15
+        self.obtarget2 = -20
         self.used_ob = None
 
         # Initialize ob_min and ob_max with None checks

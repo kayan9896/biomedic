@@ -12,11 +12,13 @@ function L8({
   onBrightnessChange,
   onContrastChange,
   useai,
-  setResetTemplate
+  setResetTemplate,
+  checkTmp
 }) {
   const [showBrightnessBar, setShowBrightnessBar] = useState(false);
   const [showContrastBar, setShowContrastBar] = useState(false);
   const [warning, setWarning] = useState(false);
+  const [confirmSave, setConfirmSave] = useState(false);
 
   const handleBrightnessClick = () => {
     setShowBrightnessBar(!showBrightnessBar);
@@ -105,7 +107,10 @@ function L8({
           alt="SaveIcon" 
           className="image-button"
           style={{position:'absolute', top:'552px', left:'927px', zIndex:7, cursor:'pointer'}}
-          onClick={onSave}
+          onClick={()=>{
+            if(checkTmp()) setConfirmSave(true)
+            else onSave()
+          }}
         />
         
         {/* Exit button */}
@@ -136,9 +141,15 @@ function L8({
           />
           <img 
             className="image-button"
-            src={require('./CancelBtn.png')} style={{position:'absolute', top:'539px', left:'1127px', zIndex:7}}
+            src={require('../L23/NoBtn.png')} style={{position:'absolute', top:'539px', left:'1127px', zIndex:7}}
             onClick={()=>setWarning(false)}
           />
+        </>}
+
+        {confirmSave&&<>
+          <img src={require('./ExitwithTemplateLandmarkWindow.png')} style={{'position':'absolute', top:'358px', left:'612px', zIndex:21}}/>
+          <img className="image-button" src={require('../L23/YesBtn.png')} style={{'position':'absolute', top:'539px', left:'761px', zIndex:21}} onClick={()=>{onSave();setConfirmSave(false)}}/>
+          <img className="image-button" src={require('../L23/NoBtn.png')} style={{'position':'absolute', top:'539px', left:'1035px', zIndex:21}} onClick={()=>{setConfirmSave(false)}}/>
         </>}
         
       </div>

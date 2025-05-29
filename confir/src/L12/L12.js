@@ -6,6 +6,7 @@ function L12({pause, setPause, setReport, handlenext, selectCup}) {
   if(pause === 4)
     return(
       <div>
+        <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
         <img src={require('./PauseWindow.png')} alt="PauseWindow" style={{position:'absolute', top:'77px', left:'217px', zIndex:10}}/>
         <img src={require('./ResumeButton.png')} alt="ResumeButton" style={{position:'absolute', top:'764px', left:'815px', zIndex:10, cursor:'pointer'}} onClick={()=>setPause(0)}/>
       </div>
@@ -13,6 +14,7 @@ function L12({pause, setPause, setReport, handlenext, selectCup}) {
   if(pause === 2)
     return(
       <div>
+        <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
         <img src={require('./SelectWindow.png')} alt="SelectWindow" style={{position:'absolute', top:'77px', left:'217px', zIndex:10}}/>
         <img src={require('./DeselectedCup.png')} alt="DeselectedCup" style={{position:'absolute', top:'368px', left:'536px', zIndex:10}} onClick={()=>setNext('next')}/>
         {next==='next'&&<img src={require('./SelectedCup.png')} alt="SelectedCup" style={{position:'absolute', top:'368px', left:'536px', zIndex:10}} />}
@@ -28,6 +30,7 @@ function L12({pause, setPause, setReport, handlenext, selectCup}) {
   if(pause === 3)
     return(
       <div>
+        <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
         <img src={require('./TrialPauseWindow.png')} alt="TrialPauseWindow" style={{position:'absolute', top:'77px', left:'217px', zIndex:10}}/>
         <img src={require('./GoBackButton.png')} alt="GoBackButton" style={{position:'absolute', top:'765px', left:'267px', zIndex:10}} onClick={()=>setPause(0)}/>
         <img src={require('./ContinueButton.png')} alt="ContinueButton" style={{position:'absolute', top:'765px', left:'1359px', zIndex:10, cursor:'pointer'}} onClick={() =>{
@@ -41,8 +44,9 @@ function L12({pause, setPause, setReport, handlenext, selectCup}) {
     return(
       <div>
         <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
+        <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
         <img src={require('./RefPauseWindow.png')} alt="RefPauseWindow" style={{position:'absolute', top:'77px', left:'217px', zIndex:10}}/>
-        <img src={require('./ContinueButton.png')} alt="ContinueButton" style={{position:'absolute', top:'765px', left:'1359px', zIndex:10, cursor:'pointer'}} onClick={()=>{
+        <img className="image-button" src={require('./ContinueButton.png')} alt="ContinueButton" style={{position:'absolute', top:'765px', left:'1359px', zIndex:10, cursor:'pointer'}} onClick={()=>{
           setPause(0)
         }}/>
       </div>

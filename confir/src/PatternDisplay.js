@@ -60,6 +60,16 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
           console.log(currentMetadata,'cur')
           setResetKey(prev => prev + 1);
         },
+        checkTmp: () => {
+          let allmoved = false;
+          currentMetadata.forEach((seg) => {
+            allmoved = allmoved || seg['template']
+          })
+          return allmoved
+        },
+        removeRed: () => {
+          handleMultiplePatternsUpdate(currentMetadata)
+        }
       });
     }
   }, [onSave, currentMetadata, lastSavedMetadata, originalMetadata, group, metadata]);
