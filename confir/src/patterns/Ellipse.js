@@ -132,7 +132,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
     const rect = ellipseRef.current.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    setShowMagnifier(true);
+    
     setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top });
     
     const controlPointIndex = ellipse.findIndex(point => 
@@ -144,6 +144,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
       setDraggedPointIndex(controlPointIndex);
       setDragStart([x, y]);
       setIsSelected(true);
+      setShowMagnifier(true);
     } else if (e.target.tagName === 'ellipse') {
       setIsDragging(true);
       setDraggedPointIndex(null);

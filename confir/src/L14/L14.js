@@ -92,7 +92,7 @@ function L14({setSetting, ai_mode, autocollect, tracking}) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 'tracking': newState ? true : false }),
+                body: JSON.stringify({ tracking: newState ? true : false }),
             });
 
             if (!response.ok) {

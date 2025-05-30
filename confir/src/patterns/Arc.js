@@ -102,8 +102,8 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     const rect = arcRef.current.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    setShowMagnifier(true);
-    setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+    
+    setCursorPosition({ x, y });
   
     const controlPointIndex = arc.findIndex(point => 
       Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 25
@@ -114,6 +114,7 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
       setDraggedPointIndex(controlPointIndex);
       setDragStart([x, y]);
       setIsSelected(true);
+      setShowMagnifier(true);
     } else if (e.target.tagName === 'path') {
       setIsDragging(true);
       setDraggedPointIndex(null);

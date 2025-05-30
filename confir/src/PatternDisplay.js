@@ -88,13 +88,6 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
   };
 
 
-  // Container styles
-  const containerStyle = {
-    position: 'absolute',
-    top: '0px',
-    zIndex: 5
-  };
-
   const renderDashedLines = (patterns) => {
     const lines = [];
   
@@ -128,7 +121,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
   return (
     <>
       {currentMetadata && currentMetadata.length > 0 && (
-        <div style={containerStyle} key={resetKey}>
+        <div key={resetKey}>
           <svg 
             width="960" 
             height="960" 

@@ -42,6 +42,7 @@ function L3({
         {activeLeft && !editing && (
           <img src={require('./L5/APViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
         )}
+        <div className="blue-box-overlay">
         {leftImageMetadata && Object.keys(leftImageMetadata).map((group, i) => (
           <PatternDisplay
           key={i}
@@ -53,6 +54,7 @@ function L3({
           editing={editing}
         />
         ))}
+        </div>
       </div>
 
       <div
@@ -72,6 +74,7 @@ function L3({
         {activeRight && !editing && (
           <img src={require('./L5/OBViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
         )}
+        <div className="blue-box-overlay">
         {rightImageMetadata && Object.keys(rightImageMetadata).map((group, i) => (
           <PatternDisplay
           key={i}
@@ -83,6 +86,7 @@ function L3({
           editing={editing}
         />
         ))}
+        </div>
       </div>
 
     </div>

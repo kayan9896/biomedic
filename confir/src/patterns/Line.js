@@ -43,13 +43,17 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
       const rect = lineRef.current.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const x = Math.min(Math.max(0, clientX - rect.left), squareSize);
-      const y = Math.min(Math.max(0, clientY - rect.top), squareSize);
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
       
       // Update cursor position for magnifier
       setCursorPosition({ x, y });
   
-      if (activeDotIndex !== null) {
+      const controlPointIndex = curvePoints.findIndex(point => 
+        Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 25
+      );
+      
+      if (controlPointIndex !== -1) {
         const newPoints = [...curvePoints];
         newPoints[activeDotIndex] = [x, y];
         setCurvePoints(newPoints);
@@ -61,9 +65,10 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
         const dy = y - dragLine.startY;
         
         const newPoints = dragLine.originalPoints.map(point => [
-          Math.min(Math.max(0, point[0] + dx), squareSize),
-          Math.min(Math.max(0, point[1] + dy), squareSize)
+          point[0] + dx,
+          point[1] + dy
         ]);
+        setActiveDotIndex(null)
         setCurvePoints(newPoints);
         if (onChange) {
           onChange(newPoints);
