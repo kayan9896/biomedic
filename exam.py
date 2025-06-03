@@ -1,14 +1,27 @@
 import cv2
 import os
 import json
+import shutil
 
 class Exam:
-    def __init__(self):
-        self.exam_folder = 'exam'
+    def __init__(self, calib_folder):
+        self.mx = self.checkmax()
+        self.exam_folder = f'exams/exam{self.mx}'
         self.shot_count = 0
         self.recon_count = 0
         self.reg_count = 0  
-        
+        self.copyfile(calib_folder)
+
+    def checkmax(self):
+        mx = 0
+        os.makedirs(os.path.join('./','exams'), exist_ok=True)
+        for folder in os.listdir('./exams'):
+            mx = max(mx, int(folder[4 :]) + 1)
+        return mx
+
+    def copyfile(self, calib_folder):
+        shutil.copytree(calib_folder,os.path.join(self.exam_folder, 'calib_arcs'))
+
     def save_json(self, data, filepath):
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'w') as f:
@@ -20,6 +33,22 @@ class Exam:
         return f"{prefix}-{count_str}-{data_type}"
 
     def save(self, dataforsave, image=None, rawframe=None):
+        if 'distortion' in dataforsave:
+            for k, v in dataforsave['distortion'].items():
+                t, r = int(k[0]*10), int(k[1]*10)
+                ts, rs = '+' if t >= 0 else '-', '+' if r >= 0 else '-'
+                fname = f"Dist_T{ts}{abs(t):04d}_R{rs}{abs(r):04d}.json"
+                self.save_json(v, os.path.join(self.exam_folder, 'calib_arcs', 'distortion', fname))
+            dataforsave.pop('distortion')
+        
+        if 'gantry' in dataforsave:
+            for k, v in dataforsave['gantry'].items():
+                t, r = int(k[0]*10), int(k[1]*10)
+                ts, rs = '+' if t >= 0 else '-', '+' if r >= 0 else '-'
+                fname = f"Gant_T{ts}{abs(t):04d}_R{rs}{abs(r):04d}.json"
+                self.save_json(v, os.path.join(self.exam_folder, 'calib_arcs', 'gantry', fname))
+            dataforsave.pop('gantry')
+
         data_type = dataforsave.get('type', 'unknown')  # Get type or default to 'unknown'
         
         if dataforsave['folder'] == 'shots':

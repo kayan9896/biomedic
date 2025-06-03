@@ -250,21 +250,16 @@ def check_running_state():
             "error": ap_error or ob_error
         })
         
-CARM_DATA_PATH = './carm.json'
-
+carm_folder = config.get("carm_folder", "./Calibration")
+carm_data = {}
+select = {}
 @app.route('/get-carms', methods=['GET'])
 def get_carms():
     """Endpoint to retrieve C-arm data from JSON file"""
     try:
-        with open(CARM_DATA_PATH, 'r') as file:
-            carm_data = json.load(file)
         
-        # Add full image URLs to the data
-        base_url = request.url_root
-        for carm_name, carm_info in carm_data.items():
-            # Update the image path to be a full URL
-            image_filename = os.path.basename(carm_info['image'])
-            carm_info['image'] = f"http://localhost:5000/carm-images/{image_filename}"
+        for name in os.listdir(carm_folder):
+            carm_data[name] = {'image': f"http://localhost:5000/carm-images/{name}"}
         
         return jsonify(carm_data)
     except Exception as e:
@@ -274,8 +269,30 @@ def get_carms():
 @app.route('/carm-images/<filename>', methods=['GET'])
 def serve_carm_image(filename):
     """Endpoint to serve C-arm images"""
+    global select
     try:
-        return send_from_directory(config.get("carm_folder", "./carm"), filename)
+        with open(f"{carm_folder}/{filename}/hardware.json", 'r') as file:
+            select = json.load(file)
+
+        distortion = {}
+        for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/distortion"):
+            with open(f"{carm_folder}/{filename}/calib_arcs/distortion/{fname}", 'r') as file:
+                t = int(fname[6 : 11]) / 10
+                r = int(fname[-10 : -5]) / 10
+                distortion[(t,r)] = json.load(file)
+
+        gantry = {}
+        for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/gantry"):
+            with open(f"{carm_folder}/{filename}/calib_arcs/gantry/{fname}", 'r') as file:
+                t = int(fname[6 : 11]) / 10
+                r = int(fname[-10 : -5]) / 10
+                gantry[(t,r)] = json.load(file)
+        
+        select.update({'distortion': distortion})
+        select.update({'gantry': gantry})
+        select.update({'folder': f"{carm_folder}/{filename}/calib_arcs"})
+
+        return send_from_directory(f"{carm_folder}/{filename}","carm_photo.png")
     except Exception as e:
         print(f"Error serving image {filename}: {str(e)}")
         return jsonify({"error": str(e)}), 404
@@ -285,10 +302,10 @@ def serve_carm_image(filename):
 def check_video_connection():
     """Endpoint to simulate checking video connection"""
     global controller
-    
+    global select
     with server_lock:
         if controller is None:
-            controller = Controller(FrameGrabber(), Model(), config)
+            controller = Controller(FrameGrabber(), Model(), config, select)
         
         # Get the connection result
         result = controller.connect_video()

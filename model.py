@@ -15,6 +15,10 @@ class Model:
         self.ai_mode = True
         self.on_simulation = False
         self.resetdata()
+        self.calib = None
+        self.distortion = None
+        self.gantry = None
+
         self.test_data = {
             'ap': None, 
             'ob': None, 
@@ -111,6 +115,10 @@ class Model:
                         metadata = json.load(f)
                 
                 metadata['imuangles'] = [tilt_angle, rotation_angle]
+                self.distortion.update({(5,20): {'data': {}}})
+                self.gantry.update({(1.5,0.2): {'data': {}}})
+                metadata['distortion'] = self.distortion
+                metadata['gantry'] = self.gantry
 
                 side = metadata['side']
                 if section[:3] == 'hp2' or (self.data['regcup'] and section[:3] == 'tri'):

@@ -3,17 +3,17 @@ import time
 import keyboard  # You'll need to install this: pip install keyboard
 
 class IMU2:
-    def __init__(self, port, tiltl = -10, tiltr = 10, rangel = -25, ranger = 25, apl = -10, apr = 10, scale = 10/20):
+    def __init__(self, port, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20):
         self.tilt_angle = 0
         self.rotation_angle = 0
         self.is_connected = False
         self.battery_level = 100
-        self.tiltl = tiltl
-        self.tiltr = tiltr
-        self.rangel = rangel
-        self.apl = apl
-        self.apr = apr
-        self.ranger = ranger
+        self.tiltl = CarmRangeTilt[0]
+        self.tiltr = CarmRangeTilt[1]
+        self.rangel = CarmRangeRotation[0]
+        self.apl = CarmRangeRotation[1]
+        self.apr = CarmRangeRotation[2]
+        self.ranger = CarmRangeRotation[3]
         self.scale = scale #actual angle/UI angle
 
         self.tmp_tilttarget = self.tilt_angle
@@ -21,10 +21,10 @@ class IMU2:
         self.tmp_obtarget1 = None
         self.tmp_obtarget2 = None
         self.tmp_used_ob = None
-        self.tilttarget = None
-        self.aptarget = None
-        self.obtarget1 = 15
-        self.obtarget2 = -20
+        self.tilttarget = CarmTargetTilt
+        self.aptarget = CarmTargetRot[0]
+        self.obtarget1 = CarmTargetRot[1]
+        self.obtarget2 = CarmTargetRot[2]
         self.used_ob = None
 
         # Initialize ob_min and ob_max with None checks

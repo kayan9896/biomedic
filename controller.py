@@ -16,7 +16,7 @@ from exam import Exam
 from panel import Panel
 
 class Controller:
-    def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'Model', config = None):
+    def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'Model', config = None, calib = None):
         self.frame_grabber = frame_grabber
         self.model = analyze_box
         self.current_stage = 1
@@ -26,6 +26,7 @@ class Controller:
         
         # Get configuration
         self.config = config
+        self.calib = calib
         
         self.panel = None
         # Initialize based on configuration
@@ -34,11 +35,15 @@ class Controller:
         self.ai_mode = self.config.get("ai_mode", True)
         self.model.on_simulation = self.on_simulation
         self.model.ai_mode = self.ai_mode
+        self.model.calib = self.calib['Model']
+        self.model.distortion = self.calib['distortion']
+        self.model.gantry = self.calib['gantry']
+        print(self.model.distortion, self.model.gantry)
         self.tracking = True
         self.video_connected = False
         
         self.viewmodel = ViewModel(config)
-        self.exam = Exam()
+        self.exam = Exam(self.calib['folder'])
         self.pause_states= None
         self.uistates = None
         self.do_capture = False
@@ -50,7 +55,7 @@ class Controller:
         
         if self.config.get("imu_on", True):
             imu_port = self.config.get("imu_port", "COM3")
-            self.imu = IMU2(imu_port)
+            self.imu = IMU2(imu_port, self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"])
             
         if self.on_simulation:
             self.panel = Panel(self, config=self.config)
@@ -64,7 +69,7 @@ class Controller:
         self.viewmodel.states['stage'] = 0
         if self.config.get("imu_on", True):
             imu_port = self.config.get("imu_port", "COM3")
-            self.imu = IMU2(imu_port)
+            self.imu = IMU2(imu_port, self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"])
 
     def get_states(self):
         states = self.viewmodel.states

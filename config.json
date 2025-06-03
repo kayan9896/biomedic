@@ -9,7 +9,7 @@
     "calibphantom_design": "abc'",
     "model_simdata_path": "./exam0",
     "template_path": "./",
-    "carm_folder": "./carm",
+    "carm_folder": "./Calibration",
     "backend_pixel": 1024,
     "ui_pixel": 960
 }
