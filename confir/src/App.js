@@ -93,6 +93,7 @@ function App() {
   const [apr, setApr] = useState(null)
   const [scale, setScale] = useState(1)
 
+  const [applyTarget, setApplyTarget] = useState(false)
   const [targetTiltAngle, setTargetTiltAngle] = useState(null);
   const [apRotationAngle, setAPRotationAngle] = useState(null);
   const [obRotationAngle, setOBRotationAngle] = useState(null);
@@ -254,6 +255,7 @@ function App() {
         setTracking(data.tracking)
         setActiveLeft(data.active_side === 'ap' ? true: false)
         setActiveRight(data.active_side === 'ob' ? true: false)
+        setApplyTarget(data.applytarget)
         setAPRotationAngle(data.aptarget)
         setOBRotationAngle(data.obtarget1)
         setOBRotationAngle2(data.obtarget2)
@@ -346,6 +348,7 @@ function App() {
         }
         if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
         setMoveNext(data.next)
+        if(data.next) captureAndSaveFrame()
 
     } catch (error) {
         console.error('Error fetching image:', error);
@@ -371,7 +374,7 @@ function App() {
   };
   const handlepause = async (num) => {
     setPause(num)
-    captureAndSaveFrame()
+    //captureAndSaveFrame()
   }
   const handlenext = async (next = 'next', keep = false) => {
     setPause(false)
@@ -821,6 +824,7 @@ function App() {
           rangel={rangel}
           ranger={ranger}
           scale={scale}
+          applyTarget={applyTarget}
         />
       
         }
@@ -852,15 +856,15 @@ function App() {
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (
         <img 
-          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:14}}
+          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:4}}
         />
       ):(<img 
-        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:14}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:4}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
       {video_on ? (<img 
-        src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:14}}
+        src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:4}}
       />):(<img 
-        src={require('./L7/VideoConnErrorNotice.png')} style={{position:'absolute', top:'765px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:14}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/VideoConnErrorNotice.png')} style={{position:'absolute', top:'765px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:4}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
       
 

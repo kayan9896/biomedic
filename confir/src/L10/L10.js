@@ -24,7 +24,8 @@ function L10({
   apr,
   rangel,
   ranger,
-  scale
+  scale,
+  applyTarget
 }) {
   const blue60 = '#3ca4e5';
   const blue80 = '#0260a0';
@@ -238,7 +239,7 @@ function L10({
   }
 
   function getTiltArray(targetTiltAngle, tiltAngle) {
-    if (stage === 0 && activeLeft && targetTiltAngle == null) return [
+    if (stage === 0 && activeLeft && (targetTiltAngle == null || (targetTiltAngle !== null && !applyTarget))) return [
       {
         limit: apl,
         color: 'grey',

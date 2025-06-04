@@ -3,7 +3,7 @@ import time
 import keyboard  # You'll need to install this: pip install keyboard
 
 class IMU2:
-    def __init__(self, port, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20):
+    def __init__(self, port, ApplyTarget, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20):
         self.tilt_angle = 0
         self.rotation_angle = 0
         self.is_connected = False
@@ -26,6 +26,7 @@ class IMU2:
         self.obtarget1 = CarmTargetRot[1]
         self.obtarget2 = CarmTargetRot[2]
         self.used_ob = None
+        self.applytarget = ApplyTarget
 
         # Initialize ob_min and ob_max with None checks
         self.ob_min = min(self.obtarget1, self.obtarget2) if self.obtarget1 is not None and self.obtarget2 is not None else None
@@ -82,7 +83,7 @@ class IMU2:
     def is_tilt_valid(self, stage):
         active = self.activeside(stage)
         if stage == 0 and active == 'ap':
-            if self.tilttarget is not None:
+            if self.tilttarget is not None and self.applytarget:
                 return self.tilt_angle == self.tilttarget
             
             return self.tiltl < self.tilt_angle < self.tiltr
@@ -190,6 +191,7 @@ class IMU2:
 
     def get_all(self, stage):
         return {
+            'applytarget': self.applytarget,
             'tilttarget': self.tilttarget,
             'aptarget': self.aptarget,
             'obtarget1': self.obtarget1,

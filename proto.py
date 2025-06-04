@@ -290,7 +290,7 @@ def serve_carm_image(filename):
         
         select.update({'distortion': distortion})
         select.update({'gantry': gantry})
-        select.update({'folder': f"{carm_folder}/{filename}/calib_arcs"})
+        select.update({'folder': f"{carm_folder}/{filename}"})
 
         return send_from_directory(f"{carm_folder}/{filename}","carm_photo.png")
     except Exception as e:
@@ -530,6 +530,10 @@ def restart():
 
 @app.route('/screenshot/<int:stage>', methods=['POST'])
 def save_screen(stage):
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+
     if 'image' not in request.files:
         return jsonify({"error": "No file part"}), 400
     
@@ -538,16 +542,14 @@ def save_screen(stage):
         return jsonify({"error": "No selected file"}), 400
     
     # Create directory if it doesn't exist
-    save_dir = f'exam/viewpairs'
+    save_dir = f'{controller.exam.exam_folder}/viewpairs'
     os.makedirs(save_dir, exist_ok=True)
     
     # Save the file
     filename = f'screenshot{stage}.png'
     file_path = os.path.join(save_dir, filename)
     file.save(file_path)
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
+    
     image = Image.open(file)
     image_array = np.array(image)
     controller.model.viewpairs[stage] = image_array
@@ -555,23 +557,46 @@ def save_screen(stage):
     
     return jsonify({"message": f"screenshot saved successfully"})
 
+@app.route('/screenshot/<int:stage>')
+def get_screen(stage):
+    global controller
+    if controller is None:
+        return jsonify({"error": "Controller not initialized"}), 404
+    
+    stitch = controller.model.viewpairs[stage]
+    
+    if stitch is None:
+        return jsonify({
+        'img': None,
+        })
+    
+    # Convert the image to base64 encoding
+    _, buffer = cv2.imencode('.jpg', stitch)
+    image_base64 = base64.b64encode(buffer).decode('utf-8')
+    
+    # Return both image and metadata in JSON
+    return jsonify({
+        'img': f'data:image/jpeg;base64,{image_base64}',
+    })
+
 @app.route('/stitch/<int:stage>')
 def get_stitch(stage):
     global controller
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     
-    if stage == 0:
-        return jsonify({
-        'img': None,
-        })
-    if stage == 1:
+    
+    if stage < 2:
         stitch = controller.model.data['pelvis']['stitch']
     if stage == 2:
         stitch = controller.model.data['regcup']['stitch']
     if stage == 3:
         stitch = controller.model.data['regtri']['stitch']
     
+    if stitch is None:
+        return jsonify({
+        'img': None,
+        })
     
     # Convert the image to base64 encoding
     _, buffer = cv2.imencode('.jpg', stitch)

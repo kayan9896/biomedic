@@ -335,7 +335,7 @@ class Model:
                     dataforvm = data
                     if 'metadata' in dataforvm:
                         dataforvm.pop('metadata')
-                    if data['recon'] == 2: 
+                    if data['recon'] == 2 and scn == 'rcn:hmplv1:bgn': 
                         dataforvm['next'] = True
 
                     return dataforsave, dataforvm, processed_frame

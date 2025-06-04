@@ -30,7 +30,7 @@
         "ResetRotation": 0.0,
         "ResetTilt": 0.0,
 
-        "ApplyTarget": false,
+        "ApplyTarget": true,
         "CarmRangeTilt": [-15, 15],
         "CarmRangeRotation": [-25, -10, 10, 25],
         "CarmTargetTilt": 5,

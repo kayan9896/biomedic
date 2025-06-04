@@ -10,6 +10,7 @@ class Exam:
         self.shot_count = 0
         self.recon_count = 0
         self.reg_count = 0  
+        self.carm = os.path.basename(calib_folder)
         self.copyfile(calib_folder)
 
     def checkmax(self):
@@ -20,7 +21,7 @@ class Exam:
         return mx
 
     def copyfile(self, calib_folder):
-        shutil.copytree(calib_folder,os.path.join(self.exam_folder, 'calib_arcs'))
+        shutil.copytree(calib_folder,os.path.join(self.exam_folder, self.carm))
 
     def save_json(self, data, filepath):
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -38,7 +39,7 @@ class Exam:
                 t, r = int(k[0]*10), int(k[1]*10)
                 ts, rs = '+' if t >= 0 else '-', '+' if r >= 0 else '-'
                 fname = f"Dist_T{ts}{abs(t):04d}_R{rs}{abs(r):04d}.json"
-                self.save_json(v, os.path.join(self.exam_folder, 'calib_arcs', 'distortion', fname))
+                self.save_json(v, os.path.join(self.exam_folder, self.carm, 'calib_arcs', 'distortion', fname))
             dataforsave.pop('distortion')
         
         if 'gantry' in dataforsave:
@@ -46,7 +47,7 @@ class Exam:
                 t, r = int(k[0]*10), int(k[1]*10)
                 ts, rs = '+' if t >= 0 else '-', '+' if r >= 0 else '-'
                 fname = f"Gant_T{ts}{abs(t):04d}_R{rs}{abs(r):04d}.json"
-                self.save_json(v, os.path.join(self.exam_folder, 'calib_arcs', 'gantry', fname))
+                self.save_json(v, os.path.join(self.exam_folder, self.carm, 'calib_arcs', 'gantry', fname))
             dataforsave.pop('gantry')
 
         data_type = dataforsave.get('type', 'unknown')  # Get type or default to 'unknown'
