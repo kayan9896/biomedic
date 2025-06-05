@@ -11,6 +11,7 @@ from config_manager import ConfigManager
 from flask_cors import CORS
 import numpy as np
 import json
+import base64
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -256,6 +257,7 @@ select = {}
 @app.route('/get-carms', methods=['GET'])
 def get_carms():
     """Endpoint to retrieve C-arm data from JSON file"""
+    
     try:
         
         for name in os.listdir(carm_folder):
@@ -270,6 +272,9 @@ def get_carms():
 def serve_carm_image(filename):
     """Endpoint to serve C-arm images"""
     global select
+    global controller
+    if controller and controller.panel: 
+        controller = None
     try:
         with open(f"{carm_folder}/{filename}/hardware.json", 'r') as file:
             select = json.load(file)
@@ -425,7 +430,7 @@ def set_ai_mode():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-import base64
+
 @app.route('/api/image-with-metadata')
 def get_image_with_metadata():
     global controller

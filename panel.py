@@ -510,6 +510,14 @@ class Panel:
         # Safely destroy the GUI if it exists
         if hasattr(self, 'root') and self.root.winfo_exists():
             try:
+                self.imu_connected_var = None
+                self.battery_var = None
+                self.is_connected_var = None
+                self.is_running_var = None
+                
+                # Destroy all widgets in tabs and main frame
+                for widget in self.root.winfo_children():
+                    widget.destroy()
                 self.root.quit()
                 self.root.destroy()
             except:

@@ -10,9 +10,11 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
   const [tiltSensorBatteryLow, setTiltSensorBatteryLow] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [allChecksComplete, setAllChecksComplete] = useState(false);
+  const [warning, setWarning] = useState(false)
   
   // Fetch C-arm data when component mounts
   useEffect(() => {
+    if(cArms.length > 0) return
     const fetchCArms = async () => {
       try {
         const response = await fetch('http://localhost:5000/get-carms');
@@ -28,7 +30,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
     };
 
     fetchCArms();
-  }, []);
+  });
 
   const handleCarmChange = (e) => {
     setSelectedCArm(e.target.value);
@@ -208,9 +210,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
         }} 
         onClick={isCurrentStepComplete() ? handleContinue : null} 
       />
-      <img src={require('./RestartBtn.png')} style={{position:'absolute', top:'839px', left:'284px', zIndex:13}} onClick={()=>setCurrentStep(1)} />
-      <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
-
+      
       {/* Check 1: C-ARM EQUIPMENT */}
       {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289,
         cArmSelected ? 'C-arm has been successfully selected.' : 'Please select the C-arm model.'
@@ -291,6 +291,15 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
           }}
         />
       )}
+
+      <img className="image-button" src={require('./RestartBtn.png')} style={{position:'absolute', top:'839px', left:'284px', zIndex:13}} onClick={()=>setWarning(true)} />
+      {warning&&<>
+        <img src={require('./RestartWarningWindow.png')} style={{position:'absolute', top:'358px', left:'612px', zIndex:13}} />
+        <img className="image-button" src={require('./RestartWarningWindowCancelBtn.png')} style={{position:'absolute', top:'539px', left:'761px', zIndex:13}} onClick={()=>setWarning(false)} />
+        <img className="image-button" src={require('./RestartWarningWindowYesBtn.png')} style={{position:'absolute', top:'539px', left:'1035px', zIndex:13}} onClick={()=>{setCurrentStep(1); setWarning(false)}} />
+      </>}
+      <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
+
     </div>
   );
 }
