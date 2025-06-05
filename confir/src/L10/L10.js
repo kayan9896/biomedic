@@ -38,15 +38,19 @@ function L10({
   
   // Display value for rotation tiltAngle (saved or current)
   const getDisplayRotationValue = () => {
-    if (stage !== 0 && activeLeft) return `${rotationAngle - apRotationAngle}`
+    if (stage !== 0 && activeLeft) return [`${rotationAngle - apRotationAngle}`, 1]
     if (stage !== 0 && stage !== 1 && activeRight){
-      if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? `${rotationAngle - obRotationAngle}` : `${rotationAngle - obRotationAngle2}`
-      if(rotationAngle * usedOB > 0) return `${rotationAngle - usedOB}` 
+      if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? [`${rotationAngle - obRotationAngle}`, 1] : [`${rotationAngle - obRotationAngle2}`, 1]
+      if(rotationAngle * usedOB > 0) return [`${rotationAngle - usedOB}`, 1]
     } 
-    if (activeLeft && apRotationAngle) return `${rotationAngle - apRotationAngle}`
-    if (activeRight && obRotationAngle && rotationAngle * obRotationAngle > 0) return `${rotationAngle - obRotationAngle}` 
-    if (activeRight && obRotationAngle2 && rotationAngle * obRotationAngle2 > 0) return `${rotationAngle - obRotationAngle2}` 
-    return `${rotationAngle}`;
+    if (activeLeft && apRotationAngle) return [`${rotationAngle - apRotationAngle}`, 1]
+    if (activeRight && obRotationAngle && rotationAngle * obRotationAngle > 0) return [`${rotationAngle - obRotationAngle}`, 1] 
+    if (activeRight && obRotationAngle2 && rotationAngle * obRotationAngle2 > 0) return [`${rotationAngle - obRotationAngle2}`, 1]
+    return [`${rotationAngle}`, 0];
+  };
+
+  const getDisplayTiltValue = () => {
+    return stage === 0 && activeLeft && !applyTarget ? [`${tiltAngle}`, 0] : [`${tiltAngle - targetTiltAngle}`, 1]
   };
   
   // Color for rotation value display
@@ -55,7 +59,6 @@ function L10({
     return '#FFFFFF'
   };
   
-
   const getRotationColor = () => {
     if (rotValid) return '#46a745'
     return '#FFFFFF'
@@ -69,22 +72,9 @@ function L10({
     return [str[0], str[1]]
   }
 
-  const getBG = (c, type) => {
-    if(type === 'tilt'){
-      if(stage === 0 && activeLeft) return c === '#46a745' ? require('./AngleDegreeBg.png') : require('./WhiteAngleDegreeBg.png')
-      return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
-    }else{
-      if (stage !== 0 && activeLeft) return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
-      if (stage !== 0 && stage !== 1 && activeRight){
-        if(isCupReg){
-          if((usedOB > 0 && rotationAngle < (obl+apRotationAngle)/2) || (usedOB <= 0 && rotationAngle > (obr+apRotationAngle)/2)){
-            return require('./WhiteAngleDegreeBg.png')
-          } 
-        }
-        return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
-      }
-      return c === '#46a745' ? require('./AngleDegreeBg.png') : require('./WhiteAngleDegreeBg.png')
-    }
+  const getBG = (c, delta) => {
+    if (!delta) return c === '#46a745' ? require('./AngleDegreeBg.png') : require('./WhiteAngleDegreeBg.png')
+    return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
   }
 
   const getTiltTick = () => {
@@ -107,9 +97,19 @@ function L10({
 
   const getRotaionTick = () => {
     if(stage === 0){
+      let targetl = null
+      let targetr = null
+      if (obRotationAngle !== null){
+        if(obRotationAngle < 0) targetl = obRotationAngle
+        else targetr = obRotationAngle
+      } 
+      if (obRotationAngle2 !== null){
+        if(obRotationAngle2 < 0) targetl = obRotationAngle2
+        else targetr = obRotationAngle2
+      } 
       return [
         {
-          value: -(apr + ranger)/2,
+          value: targetl === null ? -(apr + ranger)/2 : targetl,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= apl && rotationAngle > rangel)? '50px' : '30px',
@@ -121,7 +121,7 @@ function L10({
             distanceFromArc: (rotationAngle <= apl && rotationAngle > rangel)? 3 : 5,color:'#ffffff'}
         },
         {
-          value: 0,
+          value: apRotationAngle === null ? 0 : apRotationAngle,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= apr && rotationAngle > apl)? '50px' : '30px',
@@ -133,7 +133,7 @@ function L10({
             distanceFromArc: (rotationAngle <= apr && rotationAngle > apl)? 3 : 5,color:'#ffffff'}
         },
         {
-          value: (apr + ranger)/2,
+          value: targetr === null ? (apr + ranger)/2 : targetr,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= ranger && rotationAngle > apr) ? '50px' : '30px',
@@ -151,7 +151,7 @@ function L10({
       if(obRotationAngle > apr)(
         array.push(
           {
-            value: -(apr + ranger)/2,
+            value: obRotationAngle2 === null ? -(apr + ranger)/2 : obRotationAngle2,
             valueConfig:{
               style: {
               fontSize: (rotationAngle <= apl && rotationAngle > rangel)? '50px' : '30px',
@@ -178,7 +178,7 @@ function L10({
       })
       if(obRotationAngle < apl){
         array.push({
-          value: (apr + ranger)/2,
+          value: obRotationAngle2 === null ? (apr + ranger)/2 : obRotationAngle2,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= ranger && rotationAngle > apr) ? '50px' : '30px',
@@ -651,18 +651,6 @@ function L10({
   
     return array;
   }
-  console.log(getDynamicArray())
-  const deltaDecimal = ()=> {
-    if (stage !== 0 && activeLeft) return true
-    if (stage !== 0 && stage !== 1 && activeRight){
-      if(isCupReg){
-        if((usedOB > 0 && rotationAngle < (obl+apRotationAngle)/2) || (usedOB <= 0 && rotationAngle > (obr+apRotationAngle)/2)) return false
-      }
-      return true
-    } 
-    return false
-  }
-
 
 
   return(
@@ -775,60 +763,60 @@ function L10({
       
       {/* Tilt tiltAngle display box */}
       <div style={{position:'absolute', alignItems:'center', top:'666px', left:'376px', zIndex:11}}>
-        <img src={getBG(getTiltColor(),'tilt')} alt="box" />
+        <img src={getBG(getTiltColor(), getDisplayTiltValue()[1])} alt="box" />
         <div style={{
           position:'absolute', 
           top: 0, 
-          right:(stage === 0 && activeLeft)?'148px':'113px', 
+          right:getDisplayTiltValue()[1] ? '113px' : '148px', 
           width:'100%', 
           textAlign:'right', 
           color: getTiltColor(),
           fontFamily:'abel', 
           fontSize:'75px'
         }}>
-          {displayValue(stage === 0 && activeLeft ? `${tiltAngle}` : `${tiltAngle - targetTiltAngle}`)[0]}
+          {displayValue(getDisplayTiltValue()[0])[0]}
         </div>
         <div style={{
           position:'absolute', 
           top: 0, 
-          left: (stage === 0 && activeLeft)?'179px':'213px', 
+          left: getDisplayTiltValue()[1] ? '213px' : '179px', 
           width:'100%', 
           textAlign:'left', 
           color: getTiltColor(),
           fontFamily:'abel', 
           fontSize:'75px'
         }}>
-          {displayValue(stage === 0 && activeLeft ? `${tiltAngle}` : `${tiltAngle - targetTiltAngle}`)[1]}
+          {displayValue(getDisplayTiltValue()[0])[1]}
         </div>
 
       </div>
       
       {/* Rotation tiltAngle display box */}
       <div style={{position:'absolute', top:'666px', left:'1157px', zIndex:11}}>
-        <img src={getBG(getRotationColor(),'rot')} alt="box" />
+        <img src={getBG(getRotationColor(), getDisplayRotationValue()[1])} alt="box" />
         <div style={{
           position:'absolute', 
           top: 0, 
-          right: deltaDecimal()?'113px':'148px', 
+          right: getDisplayRotationValue()[1] ? '113px' : '148px', 
           width:'100%', 
           textAlign:'right', 
           color: getRotationColor(),
           fontFamily:'abel', 
           fontSize:'75px'
         }}>
-          {displayValue(getDisplayRotationValue())[0]}
+          {displayValue(getDisplayRotationValue()[0])[0]}
         </div>
         <div style={{
           position:'absolute', 
           top: 0, 
-          left: deltaDecimal()?'213px':'179px', 
+          left: getDisplayRotationValue()[1] ? '213px' : '179px', 
           width:'100%', 
           textAlign:'left', 
           color: getRotationColor(),
           fontFamily:'abel', 
           fontSize:'75px'
         }}>
-          {displayValue(getDisplayRotationValue())[1]}
+          {displayValue(getDisplayRotationValue()[0])[1]}
         </div>
 
       </div>

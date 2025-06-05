@@ -30,11 +30,11 @@
         "ResetRotation": 0.0,
         "ResetTilt": 0.0,
         
-        "ApplyTarget": false,
+        "ApplyTarget": true,
         "CarmRangeTilt": [-15, 15],
         "CarmRangeRotation": [-25, -10, 10, 25],
-        "CarmTargetTilt": null,
-        "CarmTargetRot": [null, null, null] 
+        "CarmTargetTilt": 5,
+        "CarmTargetRot": [-5, -15, 20] 
 
     },
     "Model":{

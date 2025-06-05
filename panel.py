@@ -5,8 +5,8 @@ import os
 import cv2
 
 class Panel:
-    def __init__(self, controller, config=None):
-        self.controller = controller
+    def __init__(self, config=None):
+        self.controller = None
         self.tilt_angle = 0
         self.rotation_angle = 0
         self._auto_mode = False

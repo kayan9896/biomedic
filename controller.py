@@ -13,10 +13,9 @@ from glob import glob
 import datetime
 from imu2 import IMU2
 from exam import Exam
-from panel import Panel
 
 class Controller:
-    def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'Model', config = None, calib = None):
+    def __init__(self, frame_grabber: 'FrameGrabber', analyze_box: 'Model',config = None, calib = None,  panel = None):
         self.frame_grabber = frame_grabber
         self.model = analyze_box
         self.current_stage = 1
@@ -59,7 +58,8 @@ class Controller:
 
             
         if self.on_simulation:
-            self.panel = Panel(self, config=self.config)
+            self.panel = panel
+            self.panel.controller = self
             self.model.on_simulation = self.on_simulation
 
 

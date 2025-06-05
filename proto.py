@@ -8,6 +8,7 @@ from model import Model
 from fg import FrameGrabber
 from controller import Controller
 from config_manager import ConfigManager
+from panel import Panel
 from flask_cors import CORS
 import numpy as np
 import json
@@ -56,6 +57,7 @@ CORS(app)
 frame_grabber = None
 analyze_box = None
 controller = None
+panel = None
 config = ConfigManager()
 server_lock = threading.Lock()
 
@@ -273,7 +275,7 @@ def serve_carm_image(filename):
     """Endpoint to serve C-arm images"""
     global select
     global controller
-    if controller and controller.panel: 
+    if controller: 
         controller = None
     try:
         with open(f"{carm_folder}/{filename}/hardware.json", 'r') as file:
@@ -308,9 +310,11 @@ def check_video_connection():
     """Endpoint to simulate checking video connection"""
     global controller
     global select
+    global panel
+    if panel is None: panel = Panel(config)
     with server_lock:
         if controller is None:
-            controller = Controller(FrameGrabber(), Model(), config, select)
+            controller = Controller(FrameGrabber(), Model(), config, select, panel)
         
         # Get the connection result
         result = controller.connect_video()

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
-  const [cArms, setCArms] = useState([]);
+  const [cArms, setCArms] = useState({});
   const [cArmSelected, setCarmSelected] = useState(false);
   const [videoConnected, setVideoConnected] = useState(false);
   const [videoFrame, setVideoFrame] = useState(null);
@@ -14,7 +14,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
   
   // Fetch C-arm data when component mounts
   useEffect(() => {
-    if(cArms.length > 0) return
+    if(Object.keys(cArms).length > 0) return
     const fetchCArms = async () => {
       try {
         const response = await fetch('http://localhost:5000/get-carms');
@@ -23,13 +23,18 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
         }
         const data = await response.json();
         setCArms(data);
+        setError(null)
       } catch (err) {
         setError('Error loading C-arm data: ' + err.message);
         console.error(err);
       }
     };
+    const intervalId = setInterval(fetchCArms, 100);
+    
+    return () => {
+      clearInterval(intervalId);
 
-    fetchCArms();
+    };
   });
 
   const handleCarmChange = (e) => {
