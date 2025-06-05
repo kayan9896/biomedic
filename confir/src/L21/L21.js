@@ -77,7 +77,7 @@ const L21 = ({
 
   return (
     <div className="template-dialogue-container">
-      <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px'}}/>
+      <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:21, aspectRatio:'1920/1080',height:'1080px'}}/>
       {/* Background */}
       <img 
         src={TemplateDialogueBoxBg} 

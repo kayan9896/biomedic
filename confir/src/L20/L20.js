@@ -3,8 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 function L20({image, setShowglyph}) {
     return(
       <div>
-        <img src={require('./FrameAnalysisError.png')} alt="FrameAnalysisError" style={{position:'absolute', top:'70px', left:'216px', zIndex:13}}/>
-        <img src={image} style={{position:'absolute', top:'150px', left:'1050px', width: '600px', height:'600px', zIndex:13}} onClick={()=>{setShowglyph(false)}}/>
+        <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:20, aspectRatio:'1920/1080',height:'1080px'}}/>
+        <img src={require('./C-armReferenceNotDetected.png')} alt="FrameAnalysisError" style={{position:'absolute', top:'70px', left:'216px', zIndex:20}}/>
+        <img src={image} style={{position:'absolute', top:'236px', left:'1101px', width: '500px', height:'500px', zIndex:20}}/>
+        <img src={require('./ReturnButton.png')} className="image-button" style={{position:'absolute', top:'765px', left:'1307px', zIndex:20}} onClick={()=>{setShowglyph(false)}}/>
       </div>
     )
 }
