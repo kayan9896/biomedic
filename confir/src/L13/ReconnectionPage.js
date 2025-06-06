@@ -146,6 +146,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
 
   return (
     <div>
+      <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:13}}/>
       <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'6px', left:'240px', zIndex:13}}/>
       
       {/* Try Again Button - always show but only enable for current active step that needs reconnection */}

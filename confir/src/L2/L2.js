@@ -125,7 +125,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
         />
         {switchWarning&&<>
           <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:21, aspectRatio:'1920/1080',height:'1080px'}}/>
-          <img src={require('../L21/SwitchTemplateSideWindow.png')} style={{'position':'absolute', top:'358px', left:'612px', zIndex:21}}/>
+          <img src={require('../L21/SwitchAnalysisWindow.png')} style={{'position':'absolute', top:'358px', left:'612px', zIndex:21}}/>
           <img className="image-button" src={require('../L23/YesBtn.png')} style={{'position':'absolute', top:'539px', left:'761px', zIndex:21}} onClick={()=>{handlenext(stage === 3 ? false : 'next', true);setSwitchWarning(false)}}/>
           <img className="image-button" src={require('../L23/NoBtn.png')} style={{'position':'absolute', top:'539px', left:'1035px', zIndex:21}} onClick={()=>{setSwitchWarning(false)}}/>
         </>}

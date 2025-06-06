@@ -856,15 +856,15 @@ function App() {
       {/*L1x IMU and video icons, render based on backend params */}
       {imuon ? (
         <img 
-          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:6}}
+          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:10}}
         />
       ):(<img 
-        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:6}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:10}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
       {video_on ? (<img 
-        src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:6}}
+        src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:10}}
       />):(<img 
-        src={require('./L7/VideoConnErrorNotice.png')} style={{position:'absolute', top:'765px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:6}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/VideoConnErrorNotice.png')} style={{position:'absolute', top:'765px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:10}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
       
 

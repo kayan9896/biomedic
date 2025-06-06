@@ -125,9 +125,9 @@ function L14({setSetting, ai_mode, autocollect, tracking}) {
   return(
     <>
       <style>{toggleStyle}</style>
-      <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:13, aspectRatio:'1920/1080',height:'1080px'}}/>
-      <img src={require('./SettingWindow.png')} alt="SettingWindow" style={{position:'absolute', top:'99px', left:'234px', zIndex:13}}/>
-      <img src={require('./SettingExitBtn.png')} alt="SettingExit" style={{position:'absolute', top:'121px', left:'1617px', zIndex:13}} onClick={()=>setSetting(false)}/>
+      <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:14, aspectRatio:'1920/1080',height:'1080px'}}/>
+      <img src={require('./SettingWindow.png')} alt="SettingWindow" style={{position:'absolute', top:'99px', left:'234px', zIndex:14}}/>
+      <img src={require('./SettingExitBtn.png')} alt="SettingExit" style={{position:'absolute', top:'121px', left:'1617px', zIndex:14}} onClick={()=>setSetting(false)}/>
       <div style={{
           position: 'absolute',
           color: 'white',
@@ -135,7 +135,7 @@ function L14({setSetting, ai_mode, autocollect, tracking}) {
           left: '305px',
           height: '222px',
           width: '1320px',
-          zIndex: 13,
+          zIndex: 14,
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gridTemplateRows: 'repeat(4, 1fr)',

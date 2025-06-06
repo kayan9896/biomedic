@@ -20,12 +20,12 @@ function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriR
         {/*isTriReg&&<img src={require('./ForwardNav Button.png')} alt="ForwardNav Button" style={{position:'absolute', top:'126px', left:'1622px', zIndex:9}} onClick={()=>setExit(true)}/>*/}
         {/*shownext&&<img src={require('./ForwardNav Button.png')} alt="ForwardNav Button" style={{position:'absolute', top:'126px', left:'1622px', zIndex:9}} onClick={()=>handlepause(stage+1)}/>*/}
         {(measurements || error)&&<>
-          <img src={require('./Message1.png')} alt="Message1" style={{position:'absolute', top:'33px', left:'336px', zIndex:19}}/>
+          <img src={require('./Message1.png')} alt="Message1" style={{position:'absolute', top:'33px', left:'336px', zIndex:9}}/>
           <div style={{position:'absolute', top:'53px', left:'636px', zIndex:20, fontSize:'40px', color:'white', fontFamily:'Abel'}}>{measurements?measurements:error}°</div>
         </>}
         {(measurements && error)&&<>
-          <img src={require('./Message2.png')} alt="Message2" style={{position:'absolute', top:'162px', left:'336px', zIndex:19}}/>
-          <div style={{position:'absolute', top:'162px', left:'336px', zIndex:20}}>{error}</div>
+          <img src={require('./Message2.png')} alt="Message2" style={{position:'absolute', top:'162px', left:'336px', zIndex:9}}/>
+          <div style={{position:'absolute', top:'162px', left:'336px', zIndex:9}}>{error}</div>
         </>}
       </div>
     )
