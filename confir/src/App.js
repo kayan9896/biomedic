@@ -488,7 +488,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({'uistates': showCarm || isProcessing || pause ? 'edit' : null})
+          body: JSON.stringify({'uistates': showCarm || isProcessing || pause || showglyph || report || showKeyboard ? 'edit' : null})
         });
       } catch (error) {
         console.error('Error setting edit UI state:', error);
@@ -497,7 +497,7 @@ function App() {
     };
   
     setEditUIState();
-  }, [showCarm, isProcessing, pause]);
+  }, [showCarm, isProcessing, pause, showglyph, report, showKeyboard]);
 
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
@@ -854,18 +854,20 @@ function App() {
       )}
 
       {/*L1x IMU and video icons, render based on backend params */}
-      {imuon ? (
+      {!report && !editing && <>
+      {imuon? (
         <img 
-          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:10}}
+          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:12}}
         />
       ):(<img 
-        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:10}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:12}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
       {video_on ? (<img 
-        src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:10}}
+        src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:12}}
       />):(<img 
-        src={require('./L7/VideoConnErrorNotice.png')} style={{position:'absolute', top:'765px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:10}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        src={require('./L7/VideoConnErrorNotice.png')} style={{position:'absolute', top:'765px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:12}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
       />)}
+      </>}
       
 
       {/*L11 Report, render when report button clicked*/}

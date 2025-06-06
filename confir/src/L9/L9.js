@@ -24,7 +24,7 @@ function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriR
           <div style={{position:'absolute', top:'53px', left:'636px', zIndex:20, fontSize:'40px', color:'white', fontFamily:'Abel'}}>{measurements?measurements:error}°</div>
         </>}
         {(measurements && error)&&<>
-          <img src={require('./Message2.png')} alt="Message2" style={{position:'absolute', top:'162px', left:'336px', zIndex:9}}/>
+          <img src={require('./Message2.png')} alt="Message2" style={{position:'absolute', top:'133px', left:'336px', zIndex:9}}/>
           <div style={{position:'absolute', top:'162px', left:'336px', zIndex:9}}>{error}</div>
         </>}
       </div>

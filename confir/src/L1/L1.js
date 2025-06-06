@@ -4,8 +4,8 @@ function L1({tracking, handlLabelClick}) {
     return(
         <>
         <img src={require('./NavBarBg.png')} style={{'position':'absolute', top:'962px', left:'0px'}}/>
-        <img src={require('./ProgressBarBg.png')} style={{'position':'absolute', top:'971px', left:'281px'}}/>
-        <img src={require('./NavMeasurementsBG.png')} style={{'position':'absolute', top:'977px', left:'667px'}}/>
+        <img src={require('./ProgressBarBg.png')} style={{'position':'absolute', top:'970px', left:'432px'}}/>
+        <img src={require('./NavMeasurementsBG.png')} style={{'position':'absolute', top:'970px', left:'960px'}}/>
         
         <img src={require('./Logo.png')} style={{'position':'absolute', top:'1041px', left:'13px'}}/>
         <img src={require('./PatientDataBg.png')} style={{'position':'absolute', top:'980px', left:'13px'}}/>

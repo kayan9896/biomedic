@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 
 function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs}) {
   const [switchWarning, setSwitchWarning] = useState(false)
+  const [data, setData] = useState({
+    'Inclination' : '41°',
+    'Anteversion' : '31°',
+    'LLD': '3mm',
+    'Offset': '5mm',
+  })
   const handleCapture = async () => {
     try {
       const response = await fetch('http://localhost:5000/cap', {
@@ -49,28 +55,28 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
   }
 
   const blueStage = (stage) =>{
-    if(stage === 0) return {'position':'absolute', top:'983px', left:'293px'}
-    if(stage === 1) return {'position':'absolute', top:'983px', left:'381px'}
-    if(stage === 2) return {'position':'absolute', top:'983px', left:'476px'}
-    if(stage === 3) return {'position':'absolute', top:'983px', left:'571px'}
+    if(stage === 0) return {'position':'absolute', top:'974px', left:'438px'}
+    if(stage === 1) return {'position':'absolute', top:'974px', left:'560px'}
+    if(stage === 2) return {'position':'absolute', top:'974px', left:'683px'}
+    if(stage === 3) return {'position':'absolute', top:'974px', left:'805px'}
   }
   const showDash = (stage) => {
     if(stage === 0){
-      if(recon === 2) return [1, {'position':'absolute', top:'983px', left:'381px'}]
+      if(recon === 2) return [1, {'position':'absolute', top:'974px', left:'560px'}]
       return [null, null]
     }
     if (stage === 1){
-      if(moveNext)  return [2, {'position':'absolute', top:'983px', left:'476px'}]
+      if(moveNext)  return [2, {'position':'absolute', top:'974px', left:'683px'}]
       //return [0, {'position':'absolute', top:'983px', left:'293px'}]
       return [null, null]
     }
     if(stage === 2){
       //if(isCupReg) return [null, null]
-      return [3, {'position':'absolute', top:'983px', left:'571px'}]
+      return [3, {'position':'absolute', top:'974px', left:'805px'}]
     }
     if(stage === 3){
       if(isTriReg) return [null, null]
-      return [2, {'position':'absolute', top:'983px', left:'476px'}]
+      return [2, {'position':'absolute', top:'974px', left:'683px'}]
     }
   }
     return(
@@ -84,23 +90,38 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
 
         <img src={require('./CurrentStageBg.png')} style={blueStage(stage)}/>
         {showDash(stage)[0]!==null&&!showCarmBox&&!editing&&!isProcessing&&!pause&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
-        {showDash(stage)[0]===2&&!showCarmBox&&!editing&&!isProcessing&&!pause&&<img src={require('./PossibleStageBg.png')} style={{'position':'absolute', top:'983px', left:'571px'}} onClick={clickTriDash}/>}
+        {showDash(stage)[0]===2&&!showCarmBox&&!editing&&!isProcessing&&!pause&&<img src={require('./PossibleStageBg.png')} style={{'position':'absolute', top:'974px', left:'805px'}} onClick={clickTriDash}/>}
         {(
-          stage===0&&recon!==2?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>:
-          <img src={require('./HipIcon2.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'319px', pointerEvents:'none'}}/>
+          stage===0&&recon!==2?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>:
+          <img src={require('./HipIcon2.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>
         )}
         {(
-          stage===0||(stage===1&&!moveNext)?<img src={require('./HipIcon3.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'385px', pointerEvents:'none'}}/>:
-          <img src={require('./HipIcon4.png')} style={{'position':'absolute', width:'54px', height:'75px', top:'988px', left:'385px', pointerEvents:'none'}}/>
+          stage===0||(stage===1&&!moveNext)?<img src={require('./HipIcon3.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'582px', pointerEvents:'none'}}/>:
+          <img src={require('./HipIcon4.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'582px', pointerEvents:'none'}}/>
         )}
         {(
-          isCupReg?<img src={require('./CupIcon2.png')} style={{'position':'absolute', width:'75px', height:'75px', top:'988px', left:'483px', pointerEvents:'none'}}/>:
-          <img src={require('./CupIcon1.png')} style={{'position':'absolute', width:'75px', height:'75px', top:'988px', left:'483px', pointerEvents:'none'}}/>
+          isCupReg?<img src={require('./CupIcon2.png')} style={{'position':'absolute', width:'87px', height:'89px', top:'974px', left:'690px', pointerEvents:'none'}}/>:
+          <img src={require('./CupIcon1.png')} style={{'position':'absolute', width:'87px', height:'89px', top:'974px', left:'690px', pointerEvents:'none'}}/>
         )}
-        {isTriReg?<img src={require('./TrialIcon2.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>:
-        <img src={require('./TrialIcon1.png')} style={{'position':'absolute', width:'63px', height:'67px', top:'992px', left:'584px', pointerEvents:'none'}}/>
+        {isTriReg?<img src={require('./TrialIcon2.png')} style={{'position':'absolute', width:'60px', height:'65px', top:'987px', left:'826px', pointerEvents:'none'}}/>:
+        <img src={require('./TrialIcon1.png')} style={{'position':'absolute', width:'60px', height:'65px', top:'987px', left:'826px', pointerEvents:'none'}}/>
         }
-        <img src={require('./NavMeasurementsSegment.png')} style={{'position':'absolute', top:'977px', left:'667px'}}/>
+        <div style={{position: 'absolute', display: 'flex', flexDirection: 'row', justifyContent:'space-evenly', top:'973px', left: '988px', width: '719px', height: '98px'}}>
+          {Object.keys(data).map((column, i) => {
+            return (
+              <div key={i} style={{display: 'flex', flexDirection: 'column', textAlign:'center', color: 'white', fontFamily:'abel'}}>
+                <u style={{fontSize: '38px'}}>{column}</u>
+                {data[column].includes('mm') ? (
+                  <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <text style={{fontSize: '36px'}}>{data[column].split('mm')[0]}</text>
+                    <div style={{fontSize: '25px'}}>mm</div>
+                  </div>
+             ) : 
+                <text style={{fontSize: '36px'}}>{data[column]}</text>}
+              </div>
+            )
+          })}
+        </div>
         <img src={setting ? require('./SettingIconOn.png') : require('./SettingIcon.png')} style={{'position':'absolute', top:'1016px', left:'1786px'}} onClick={()=>{setSetting(true)}}/>
         
         <input
