@@ -110,9 +110,9 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
           {Object.keys(data).map((column, i) => {
             return (
               <div key={i} style={{display: 'flex', flexDirection: 'column', textAlign:'center', color: 'white', fontFamily:'abel'}}>
-                <u style={{fontSize: '38px'}}>{column}</u>
+                <u style={{fontSize: '38px', color:'#A3A3A3'}}>{column}</u>
                 {data[column].includes('mm') ? (
-                  <div style={{display: 'flex', flexDirection: 'row'}}>
+                  <div style={{display: 'flex', flexDirection: 'row', justifyContent:'center'}}>
                     <text style={{fontSize: '36px'}}>{data[column].split('mm')[0]}</text>
                     <div style={{fontSize: '25px'}}>mm</div>
                   </div>
