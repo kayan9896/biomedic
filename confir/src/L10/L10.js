@@ -65,10 +65,7 @@ function L10({
   };
 
   const displayValue = (i) => {
-    if(i % 1 === 0){
-      return [i, 0]
-    }
-    const str = i.toString().split('.')
+    const str = parseFloat(i).toFixed(1).split('.')
     return [str[0], str[1]]
   }
 

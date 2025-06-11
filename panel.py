@@ -23,6 +23,7 @@ class Panel:
             'recons': None, 
             'regs': None
         }
+        self.step = 5
         
         # Get the exam folder path from config
         self.sim_data_path = config.get("model_simdata_path", "exam") if config else "exam"
@@ -103,16 +104,22 @@ class Panel:
         tk.Label(angle_frame, text="tilt_angle:").grid(row=0, column=0, sticky=tk.W)
         self.angle_value = tk.Label(angle_frame, text=str(self.tilt_angle))
         self.angle_value.grid(row=0, column=1, sticky=tk.W, padx=(5, 10))
-        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle(-5)).grid(row=0, column=2)
-        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle(5)).grid(row=0, column=3)
+        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle(-self.step)).grid(row=0, column=2)
+        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle(self.step)).grid(row=0, column=3)
         
         # Second row: rotation tilt_angle display and controls
         tk.Label(angle_frame, text="Rotation:").grid(row=1, column=0, sticky=tk.W)
         self.rotation_angle_value = tk.Label(angle_frame, text=str(self.rotation_angle))
         self.rotation_angle_value.grid(row=1, column=1, sticky=tk.W, padx=(5, 10))
-        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle2(-5)).grid(row=1, column=2)
-        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle2(5)).grid(row=1, column=3)
+        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle2(-self.step)).grid(row=1, column=2)
+        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle2(self.step)).grid(row=1, column=3)
         
+        self.stepvar = tk.StringVar(value="5")
+        step_entry = tk.Entry(angle_frame, textvariable=self.stepvar, width=5)
+        step_entry.grid(row=2, column=1, sticky=tk.W, padx=(5, 10))
+        step_entry.bind("<FocusOut>", self._update_step)
+        step_entry.bind("<Return>", self._update_step)
+
         # Right column - Framegrabber frame
         framegrabber_frame = tk.LabelFrame(controls_container, text="Framegrabber Control")
         framegrabber_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
@@ -398,6 +405,13 @@ class Panel:
         
         print(f"Framegrabber updated: connected={is_connected}, running={is_running}, video_on={video_on}")
 
+    def _update_step(self, event=None):
+        """Update the IMU properties based on UI settings"""
+        
+        self.step = round(float(self.stepvar.get()), 1)
+        self.stepvar.set(str(self.step))
+
+    
     def _update_imu_state(self, event=None):
         """Update the IMU properties based on UI settings"""
         is_connected = self.imu_connected_var.get()
@@ -474,7 +488,7 @@ class Panel:
         """Adjust the main tilt_angle value"""
         if not self._auto_mode:
             new_angle = min(max(self.tilt_angle + change, -100), 100)
-            self.tilt_angle = new_angle
+            self.tilt_angle = round(new_angle, 2)
             self.controller.imu.set_tilt(self.tilt_angle)
             self.angle_value.config(text=str(self.tilt_angle))
             print(f"Current tilt_angle: {self.tilt_angle}")
@@ -483,7 +497,7 @@ class Panel:
         """Adjust the rotation tilt_angle value"""
         if not self._auto_mode:
             new_angle = min(max(self.rotation_angle + change, -100), 100)
-            self.rotation_angle = new_angle
+            self.rotation_angle = round(new_angle, 2)
             self.controller.imu.set_rotation(self.rotation_angle)
             self.rotation_angle_value.config(text=str(self.rotation_angle))
             print(f"Current rotation_angle: {self.rotation_angle}")

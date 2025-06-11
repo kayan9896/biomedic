@@ -33,7 +33,7 @@
         "ApplyTarget": true,
         "CarmRangeTilt": [-15, 15],
         "CarmRangeRotation": [-25, -10, 10, 25],
-        "CarmTargetTilt": 5,
+        "CarmTargetTilt": 5.4,
         "CarmTargetRot": [null, -15, 20] 
 
     },

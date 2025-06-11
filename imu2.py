@@ -3,7 +3,7 @@ import time
 import keyboard  # You'll need to install this: pip install keyboard
 
 class IMU2:
-    def __init__(self, port, ApplyTarget, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20):
+    def __init__(self, port, ApplyTarget, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20, tol = 0.2):
         self.tilt_angle = 0
         self.rotation_angle = 0
         self.is_connected = False
@@ -15,6 +15,8 @@ class IMU2:
         self.apr = CarmRangeRotation[2]
         self.ranger = CarmRangeRotation[3]
         self.scale = scale #actual angle/UI angle
+        self.tol = tol
+        self.EPSILON = 1e-9
 
         self.tmp_tilttarget = self.tilt_angle
         self.tmp_aptarget = self.rotation_angle
@@ -84,49 +86,49 @@ class IMU2:
         active = self.activeside(stage)
         if stage == 0 and active == 'ap':
             if self.tilttarget is not None and self.applytarget:
-                return self.tilt_angle == self.tilttarget
+                return abs(self.tilt_angle - self.tilttarget) < self.tol + self.EPSILON
             
             return self.tiltl < self.tilt_angle < self.tiltr
         if (stage == 0 and active == 'ob') or stage > 0:
-            return self.tilttarget is not None and self.tilt_angle == self.tilttarget
+            return self.tilttarget is not None and abs(self.tilt_angle - self.tilttarget) < self.tol + self.EPSILON
         return False
 
     def is_rot_valid(self, stage):
         active = self.activeside(stage)
         if stage == 0:
             if active == 'ap'and self.aptarget is not None:
-                return self.rotation_angle == self.aptarget
+                return abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON
             if active == 'ob':
                 if self.obtarget1 is not None and self.rotation_angle * self.obtarget1 > 0:
-                    return self.rotation_angle == self.obtarget1
+                    return abs(self.rotation_angle - self.obtarget1) < self.tol + self.EPSILON
                 if self.obtarget2 is not None and self.rotation_angle * self.obtarget2 > 0:
-                    return self.rotation_angle == self.obtarget2
+                    return abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON
             return self.rangel < self.rotation_angle < self.ranger
         if stage == 1:
             if active == 'ap':
-                return self.aptarget is not None and self.rotation_angle == self.aptarget
+                return self.aptarget is not None and abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON
             if active == 'ob':
                 if self.obtarget2 is not None:
-                    return self.rotation_angle == self.obtarget2
+                    return abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON
                 return self.obtarget1 is not None and self.rotation_angle * self.obtarget1 < 0
         if stage == 2 or (stage ==3 and not self.iscupreg):
             if active == 'ap':
-                return self.aptarget is not None and self.rotation_angle == self.aptarget
+                return self.aptarget is not None and abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON
             if active == 'ob':
                 return self.obtarget1 is not None and self.obtarget2 is not None and \
-                       (self.rotation_angle == self.obtarget1 or self.rotation_angle == self.obtarget2)
+                       (abs(self.rotation_angle - self.obtarget1) < self.tol + self.EPSILON or abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON)
         if stage == 3 and self.iscupreg:
             if active == 'ap':
-                return self.aptarget is not None and self.rotation_angle == self.aptarget
+                return self.aptarget is not None and abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON
             if active == 'ob':
-                return self.used_ob is not None and self.rotation_angle == self.used_ob
+                return self.used_ob is not None and abs(self.rotation_angle - self.used_ob) < self.tol + self.EPSILON
         return False
 
     def show_icon(self, stage):
         current_time = time.time()
         is_tilt_valid = self.is_tilt_valid(stage)  # Assuming stage 0 for icon, adjust if needed
         is_rot_valid = self.is_rot_valid(stage)    # Assuming stage 0 for icon, adjust if needed
-        is_stable = self.prev_angle == self.tilt_angle and self.prev_rotation_angle == self.rotation_angle
+        is_stable = abs(self.prev_angle - self.tilt_angle) < self.tol + self.EPSILON and abs(self.prev_rotation_angle - self.rotation_angle) < self.tol + self.EPSILON
 
         if is_tilt_valid and is_rot_valid and is_stable:
             if current_time - self.last_stable_time >= 3:
@@ -141,8 +143,8 @@ class IMU2:
         current_time = time.time()
         is_tilt_valid = self.is_tilt_valid(stage)  # Assuming stage 0 for window, adjust if needed
         is_rot_valid = self.is_rot_valid(stage)    # Assuming stage 0 for window, adjust if needed
-        has_changed = self.prev_angle != self.tilt_angle or self.prev_rotation_angle != self.rotation_angle
-        is_stable = self.prev_angle == self.tilt_angle and self.prev_rotation_angle == self.rotation_angle
+        has_changed = abs(self.prev_angle - self.tilt_angle) > self.tol + self.EPSILON or abs(self.prev_rotation_angle - self.rotation_angle) > self.tol + self.EPSILON
+        is_stable = abs(self.prev_angle - self.tilt_angle) < self.tol + self.EPSILON and abs(self.prev_rotation_angle - self.rotation_angle) < self.tol + self.EPSILON
 
         if has_changed:
             self.window_shown = True
@@ -161,16 +163,16 @@ class IMU2:
             if self.activeside(stage) == 'ap':
                 self.tmp_aptarget = self.rotation_angle
             if self.activeside(stage) == 'ob':
-                if self.obtarget2 == self.rotation_angle:
+                if abs(self.obtarget2 - self.rotation_angle) < self.tol + self.EPSILON:
                     self.tmp_obtarget2 = self.obtarget1
                 self.tmp_obtarget1 = self.rotation_angle
         elif stage == 1:
             if self.activeside(stage) == 'ob':
                 self.tmp_obtarget2 = self.rotation_angle
         elif stage == 2:
-            if self.rotation_angle == self.tmp_obtarget1:
+            if abs(self.rotation_angle - self.tmp_obtarget1) < self.tol + self.EPSILON:
                 self.tmp_used_ob = self.tmp_obtarget1
-            elif self.rotation_angle == self.tmp_obtarget2:
+            elif abs(self.rotation_angle - self.tmp_obtarget2) < self.tol + self.EPSILON:
                 self.tmp_used_ob = self.tmp_obtarget2
 
     def confirm_save(self):
