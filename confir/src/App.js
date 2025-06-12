@@ -490,6 +490,7 @@ function App() {
           },
           body: JSON.stringify({'uistates': showCarm || isProcessing || pause || showglyph || report || showKeyboard ? 'edit' : null})
         });
+        setError(null)
       } catch (error) {
         console.error('Error setting edit UI state:', error);
         setError("Failed to set UIState");
@@ -752,6 +753,7 @@ function App() {
           rightImage={rightImage}
           rightImageMetadata={rightImageMetadata}
           rightSaveRefs={rightSaveRefs}
+          measurements={measurements}
         />
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}

@@ -1,13 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs}) {
+function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements}) {
   const [switchWarning, setSwitchWarning] = useState(false)
   const [data, setData] = useState({
-    'Inclination' : '41°',
-    'Anteversion' : '31°',
-    'LLD': '3mm',
-    'Offset': '5mm',
+    'Inclination' : '-',
+    'Anteversion' : '-',
+    'LLD': '-mm',
+    'Offset': '-mm',
   })
+  useEffect(() => {
+    setData((prev) => {
+      const newMetadata = {...prev};
+      if(measurements){
+      Object.keys(measurements).forEach((pattern, i) => {
+        newMetadata[pattern] = measurements[pattern];
+      });}
+      console.log(newMetadata)
+      return newMetadata;
+    })
+  }, [measurements]);
   const handleCapture = async () => {
     try {
       const response = await fetch('http://localhost:5000/cap', {
@@ -106,7 +117,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
         {isTriReg?<img src={require('./TrialIcon2.png')} style={{'position':'absolute', width:'60px', height:'65px', top:'987px', left:'826px', pointerEvents:'none'}}/>:
         <img src={require('./TrialIcon1.png')} style={{'position':'absolute', width:'60px', height:'65px', top:'987px', left:'826px', pointerEvents:'none'}}/>
         }
-        <div style={{position: 'absolute', display: 'flex', flexDirection: 'row', justifyContent:'space-evenly', top:'973px', left: '988px', width: '719px', height: '98px'}}>
+        <div key={Math.random()} style={{position: 'absolute', display: 'flex', flexDirection: 'row', justifyContent:'space-evenly', top:'973px', left: '988px', width: '719px', height: '98px'}}>
           {Object.keys(data).map((column, i) => {
             return (
               <div key={i} style={{display: 'flex', flexDirection: 'column', textAlign:'center', color: 'white', fontFamily:'abel'}}>
@@ -117,7 +128,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
                     <div style={{fontSize: '25px'}}>mm</div>
                   </div>
              ) : 
-                <text style={{fontSize: '36px'}}>{data[column]}</text>}
+                <text style={{fontSize: '36px'}}>{data[column]}°</text>}
               </div>
             )
           })}
@@ -139,8 +150,9 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             border: '0px solid',
-            padding: '8px',
-            fontSize: '16px',
+            padding: '1px',
+            fontSize: '25px',
+            fontFamily: 'abel'
           }}
           placeholder="No Patient Data"
         />

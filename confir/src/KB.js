@@ -92,6 +92,8 @@ function KB({
       insertAtCursor(' ');
     } else if (button === "{shift}" || button === "{lock}") {
       setKeyboardLayout(keyboardLayout === "default" ? "shift" : "default");
+    } else if (button === "{tab}") {
+      setActiveInput(activeInput === 'pid' ? 'ratio' : activeInput === 'ratio' ? 'comment' : 'pid')
     } else if (!button.includes("{")) {
       insertAtCursor(button);
     }

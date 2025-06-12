@@ -171,7 +171,7 @@ class Controller:
             self.viewmodel.imgs[0]['metadata']['metadata'] = l
         else:
             self.viewmodel.imgs[0]['metadata'] = {'metadata': l}
-        if self.viewmodel.imgs[0]['metadata']:
+        if self.viewmodel.imgs[1]['metadata']:
             self.viewmodel.imgs[1]['metadata']['metadata'] = r
         else:
             self.viewmodel.imgs[1]['metadata'] = {'metadata': r}

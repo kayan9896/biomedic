@@ -163,7 +163,7 @@ class IMU2:
             if self.activeside(stage) == 'ap':
                 self.tmp_aptarget = self.rotation_angle
             if self.activeside(stage) == 'ob':
-                if abs(self.obtarget2 - self.rotation_angle) < self.tol + self.EPSILON:
+                if self.obtarget2 and abs(self.obtarget2 - self.rotation_angle) < self.tol + self.EPSILON:
                     self.tmp_obtarget2 = self.obtarget1
                 self.tmp_obtarget1 = self.rotation_angle
         elif stage == 1:
