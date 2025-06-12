@@ -23,6 +23,7 @@ function KB({
 
   useEffect(() => {
     // Focus the active input when component mounts or active input changes
+    console.log(localCursorPosition)
     if (activeInput === 'pid' && pidInputRef.current) {
       pidInputRef.current.focus();
       pidInputRef.current.setSelectionRange(localCursorPosition, localCursorPosition);
@@ -72,7 +73,7 @@ function KB({
     }
 
     if (button === "{enter}") {
-      setShowKeyboard(false);
+      insertAtCursor('\n');
     } else if (button === "{bksp}") {
       const beforeCursor = currentValue.substring(0, currentCursorPos - 1);
       const afterCursor = currentValue.substring(currentCursorPos);
@@ -126,8 +127,8 @@ function KB({
 
   return (
       <div>
-        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
-        <img src={require('./PatientIDBg.png')} alt="PatientIDBg" style={{position:'absolute', top:'245px', left:'0px', zIndex:13}}/>
+        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}} onClick={() => setShowKeyboard(false)}/>
+        <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'327px', left:'0px', zIndex:13}}/>
         <input
           ref={pidInputRef}
           type="text"
@@ -137,18 +138,21 @@ function KB({
           onClick={() => setActiveInput('pid')}
           style={{
             position: 'absolute',
-            left: '374px',
-            top: '271px',
-            width: '348px',
-            height: '71px',
-            background: activeInput === 'pid' ? '#fff' : '#eee',
+            left: '432px',
+            top: '456px',
+            width: '302px',
+            height: '49px',
+            border: activeInput === 'pid' ? '2px solid #fff' : '0px solid',
+            backgroundColor: 'transparent',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            border: activeInput === 'pid' ? '2px solid #4a90e2' : '0px solid',
-            borderRadius: '21px',
-            fontSize: '51px',
+            borderRadius: '20px',
+            fontSize: '40px',
             fontFamily:'abel',
+            color:'white',
+            paddingLeft: '20px',
+            paddingRight: '20px',
             zIndex: 14
           }}
           placeholder="No Patient Data"
@@ -163,55 +167,73 @@ function KB({
           onClick={() => setActiveInput('ratio')}
           style={{
             position: 'absolute',
-            left: '1457px',
-            top: '271px',
-            width: '348px',
-            height: '71px',
-            background: activeInput === 'ratio' ? '#fff' : '#eee',
+            left: '568px',
+            top: '571px',
+            width: '164px',
+            height: '49px',
+            backgroundColor: 'transparent',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            border: activeInput === 'ratio' ? '2px solid #4a90e2' : '0px solid',
-            borderRadius: '21px',
-            fontSize: '51px',
+            border: activeInput === 'ratio' ? '2px solid #fff' : '0px solid',
+            borderRadius: '20px',
+            fontSize: '40px',
             fontFamily:'abel',
+            color:'white',
+            paddingLeft: '20px',
+            paddingRight: '20px',
             zIndex: 14
           }}
           placeholder="Ratio"
         />
         
         {/* Comment Input */}
-        <input
+        <div 
+          
+          style={{
+            position: 'absolute',
+            left: '1055px',
+            top: '456px',
+            width: '694px',
+            height: '156px',
+            border: activeInput === 'comment' ? '2px solid #fff' : '0px solid',
+            borderRadius: '20px',
+            backgroundColor: 'transparent',
+            padding: '4px 20px',
+
+            zIndex: 14
+        }}>
+        <textarea
           ref={commentInputRef}
           value={comment}
           onChange={handleCommentChange}
           onSelect={handleSelect}
           onClick={() => setActiveInput('comment')}
           style={{
-            position: 'absolute',
-            left: '1154px',
-            top: '409px',
-            width: '651px',
-            height: '71px',
-            background: activeInput === 'comment' ? '#fff' : '#eee',
             overflow: 'auto',
-            border: activeInput === 'comment' ? '2px solid #4a90e2' : '1px solid #ccc',
-            borderRadius: '21px',
-            fontSize: '55px',
+            width: '698px',
+            height: '156px',
+            fontSize: '40px',
             fontFamily:'abel',
-            zIndex: 14
+            resize: 'none',
+            border: 'none',
+            backgroundColor: 'transparent',
+            color: 'white',
+
+            
           }}
           placeholder="Add comment here..."
         />
+        </div>
       
       
       <div 
         ref={keyboardRef}
         style={{
           position: 'absolute',
-          left: '0px',
-          top: '540px',
-          width: '1920px',
+          left: '178px',
+          top: '669px',
+          width: '1568px',
           zIndex: 1000
         }}
       >
@@ -238,21 +260,26 @@ function KB({
             {
               class: "hg-black",
               buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shift} z x c v b n m , . / {shift} {space}"
+            },
+            {
+              class: "hg-space",
+              buttons: "{space}"
             }
           ]}
           onKeyPress={handleKeyboardButtonPress}
           physicalKeyboardHighlight={true}
           mergeDisplay={true}
+          newLineOnEnter={true}
         />
       </div>
 
       <img
-        src={require('./L13/CrossWhite.png')}
+        src={require('./ExitButton.png')}
         onClick={() => setShowKeyboard(false)} 
         style={{
           position: 'absolute',
-          top: '280px',
-          right: '20px',
+          top: '346px',
+          left: '1841px',
           zIndex: 1001
         }}
       />

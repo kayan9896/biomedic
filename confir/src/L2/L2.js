@@ -132,7 +132,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
             position: 'absolute',
             left: '66px',
             top: '988px',
-            width: '170px',
+            width: '293px',
             background: 'transparent',
             color: 'white',
             whiteSpace: 'nowrap',

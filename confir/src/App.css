@@ -130,20 +130,25 @@ body{
   transition: transform 0.5s ease-in-out;
 }
 
+
 .myTheme .hg-button.hg-black {
   background: rgb(0, 0, 0, 0.7);
   color: white;
 }
-
+.myTheme .hg-button.hg-space {
+  background: rgb(0, 0, 0, 0.7);
+  color: white;
+  margin: 0 20% !important;
+}
 
 .myTheme {
-  width: 100%;
-  
+  width: 80%;
+  background-color: #323232 !important;
   margin: 0 auto;
 }
 
 .myTheme .hg-button {
-  height: 102px !important;
+  height: 76px !important;
   font-size: 32px !important;
   display: flex;
   justify-content: center;
@@ -198,3 +203,26 @@ select {
   background: url('./L13/DropdownListBg.png') no-repeat center; /* Custom arrow */
   padding-right: 30px; /* Adjust padding to make space for the arrow */
 }
+
+[contenteditable] {
+  outline: 0px solid transparent;
+}
+
+input {border:0;outline:0;}
+
+
+textarea {
+       overflow: overlay;
+       outline: none;
+       padding: 0;
+    }
+
+textarea::-webkit-scrollbar {
+       width: 10px;
+       background: transparent;
+    }
+
+textarea::-webkit-scrollbar-thumb {
+       background: white;
+       border-radius: 20px;
+    }
