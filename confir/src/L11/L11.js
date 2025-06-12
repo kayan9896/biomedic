@@ -66,8 +66,6 @@ function L11({setReport, stage, setError}) {
         <img className="image-button" src={require('./ReportNextBtn.png')} alt="ReportNextBtn" style={{position:'absolute', top:'896px', left:'1036px', zIndex:11}} onClick={handleNext}/>
         <img className="image-button" src={require('./ReportPrevBtn.png')} alt="ReportPrevBtn" style={{position:'absolute', top:'896px', left:'843px', zIndex:11}} onClick={handlePrev}/>
         
-        <img src={require('../L1/Logo.png')} alt="logo" style={{position:'absolute', top:'1041px', left:'13px', zIndex:11}}/>
-        
       </div>
     )
 }

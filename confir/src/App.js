@@ -104,6 +104,7 @@ function App() {
 
   const [selectCup, setSelectCup] = useState(true)
 
+  const [resetWarning, setResetWarning] = useState(false);
   const [showReconnectionPage, setShowReconnectionPage] = useState(false);
   const handleReconnectionReturn = () => {
     setShowReconnectionPage(false);
@@ -794,6 +795,8 @@ function App() {
             useai={useai}
             setResetTemplate={setResetTemplate}
             checkTmp={checkTmp}
+            resetWarning={resetWarning}
+            setResetWarning={setResetWarning}
           />}
       
         
@@ -852,6 +855,7 @@ function App() {
           setUseai={setUseai}
           leftTemplateData={getTemplate(stage, 'l')}
           rightTemplateData={getTemplate(stage, 'r')}
+          setResetWarning={setResetWarning}
         />
       )}
 

@@ -13,11 +13,12 @@ function L8({
   onContrastChange,
   useai,
   setResetTemplate,
-  checkTmp
+  checkTmp,
+  resetWarning,
+  setResetWarning
 }) {
   const [showBrightnessBar, setShowBrightnessBar] = useState(false);
   const [showContrastBar, setShowContrastBar] = useState(false);
-  const [warning, setWarning] = useState(false);
   const [confirmSave, setConfirmSave] = useState(false);
 
   const handleBrightnessClick = () => {
@@ -97,7 +98,7 @@ function L8({
           src={require('./ResetIcon.png')} 
           alt="ResetIcon" 
           style={{position:'absolute', top:'457px', left:'927px', zIndex:7, cursor:'pointer'}}
-          onClick={()=>setWarning(true)}
+          onClick={()=>setResetWarning(true)}
         />
         
         
@@ -122,31 +123,33 @@ function L8({
           onClick={onExit}
         />
 
-        {/* Reset button */}
-        {warning && <>
-          <img src={require('./EditResetWarningWindow.png')} style={{position:'absolute', top:'358px', left:'612px', zIndex:7}}/>
+        {/* Reset warning */}
+        {resetWarning && <>
+          <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex: 21, aspectRatio:'1920/1080',height:'1080px'}}/>  
+          <img src={require('./EditResetWarningWindow.png')} style={{position:'absolute', top:'358px', left:'612px', zIndex: 21}}/>
           <img 
             className="image-button"
-            src={require('./ResettoTemplateBtn.png')} style={{position:'absolute', top:'539px', left:'671px', zIndex:7}}
-            onClick={()=>{setResetTemplate(true); setWarning(false)}}
+            src={require('./ResettoTemplateBtn.png')} style={{position:'absolute', top:'539px', left:'671px', zIndex: 21}}
+            onClick={()=>{setResetTemplate(true)}}
           />
           <img 
             className="image-button"
-            src={((editing === 'left' && useai[0]) || ((editing === 'right' && useai[1]))) ? require('./ResettoAIBtn.png') : require('./ResettoAIBtnDisable.png')} style={{position:'absolute', top:'539px', left:'899px', zIndex:7}}
+            src={((editing === 'left' && useai[0]) || ((editing === 'right' && useai[1]))) ? require('./ResettoAIBtn.png') : require('./ResettoAIBtnDisable.png')} style={{position:'absolute', top:'539px', left:'899px', zIndex:21}}
             onClick={()=>{
               if(((editing === 'left' && useai[0]) || ((editing === 'right' && useai[1])))){
                 onReset(); 
-                setWarning(false)
+                setResetWarning(false)
               }}}
           />
           <img 
             className="image-button"
-            src={require('../L23/NoBtn.png')} style={{position:'absolute', top:'539px', left:'1127px', zIndex:7}}
-            onClick={()=>setWarning(false)}
+            src={require('../L23/NoBtn.png')} style={{position:'absolute', top:'539px', left:'1127px', zIndex:21}}
+            onClick={()=>setResetWarning(false)}
           />
         </>}
 
         {confirmSave&&<>
+          <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:21, aspectRatio:'1920/1080',height:'1080px'}}/>
           <img src={require('./ExitwithTemplateLandmarkWindow.png')} style={{'position':'absolute', top:'358px', left:'612px', zIndex:21}}/>
           <img className="image-button" src={require('../L23/YesBtn.png')} style={{'position':'absolute', top:'539px', left:'761px', zIndex:21}} onClick={()=>{onSave();setConfirmSave(false)}}/>
           <img className="image-button" src={require('../L23/NoBtn.png')} style={{'position':'absolute', top:'539px', left:'1035px', zIndex:21}} onClick={()=>{setConfirmSave(false)}}/>

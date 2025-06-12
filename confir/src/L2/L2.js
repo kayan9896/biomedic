@@ -152,7 +152,8 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
             border: '0px solid',
             padding: '1px',
             fontSize: '25px',
-            fontFamily: 'abel'
+            fontFamily: 'abel',
+            zIndex: 12
           }}
           placeholder="No Patient Data"
         />

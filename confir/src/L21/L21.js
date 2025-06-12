@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './L21.css';
 
 // Import all the required images
-import TemplateDialogueBoxBg from './TemplateDialogueBoxBg.png';
+import TemplateDialogueBoxBg from './SelectTemplateWindow.png';
 import TemplateDialogueBtnDis from './TemplateDialogueBtnDis.png';
 import TemplateDialogueBtn from '../L22/TemplateDialogueBtn.png';
 import LeftTemplate from './LeftTemplate.png';
@@ -23,10 +23,12 @@ const L21 = ({
   setResetTemplate,
   setUseai,
   leftTemplateData,
-  rightTemplateData
+  rightTemplateData,
+  setResetWarning
 }) => {
   // State to track which template is selected (if any)
   const [selectedTemplate, setSelectedTemplate] = useState(resetTemplate ? pelvis[0] : null);
+  const [switchWarning, setSwitchWarning] = useState(false)
 
   // Handle template selection
   const handleTemplateClick = (template) => {
@@ -70,7 +72,8 @@ const L21 = ({
         console.error('Error loading template:', error);
       }
       if(resetTemplate){
-        setResetTemplate(false)
+        setResetTemplate(false); 
+        setResetWarning(false)
       }
     }
   };
@@ -83,7 +86,7 @@ const L21 = ({
         src={TemplateDialogueBoxBg} 
         alt="Dialog Background" 
         className="dialogue-bg" 
-        style={{ position: 'absolute', left: '536px', top: '223px' }}
+        style={{ position: 'absolute', left: '612px', top: '233px', zIndex: 21 }}
       />
 
       {/* Left Template */}
@@ -93,9 +96,10 @@ const L21 = ({
         className="left-template" 
         style={{ 
           position: 'absolute', 
-          left: selectedTemplate === 'l' ? '650px' : '655px', 
-          top: selectedTemplate === 'l' ? '359px' : '364px',
-          cursor: 'pointer' 
+          left: '669px', 
+          top: '361px',
+          cursor: 'pointer',
+          zIndex: 21
         }}
         onClick={() => handleTemplateClick('l')}
       />
@@ -107,26 +111,27 @@ const L21 = ({
         className="right-template" 
         style={{ 
           position: 'absolute', 
-          left: selectedTemplate === 'r' ? '993px' : '998px', 
-          top: '364px',
-          cursor: 'pointer' 
+          left: '985px', 
+          top: '361px',
+          cursor: 'pointer',
+          zIndex: 21 
         }}
         onClick={() => handleTemplateClick('r')}
       />
 
       {/* Button (Enabled or Disabled based on selection) */}
-      <img 
-        src={selectedTemplate ? TemplateDialogueBtn : TemplateDialogueBtnDis} 
-        alt="Continue Button" 
-        className="dialogue-btn" 
-        style={{ 
-          position: 'absolute', 
-          left: '868px', 
-          top: '656px',
-          cursor: selectedTemplate ? 'pointer' : 'not-allowed'
-        }}
-        onClick={selectedTemplate ? handleContinueClick : undefined}
-      />
+      {selectedTemplate ? <img className="image-button" src={require('../L23/YesBtn.png')} style={{'position':'absolute', top:'663px', left:'761px', zIndex:21}} onClick={(resetTemplate && selectedTemplate !== pelvis[0] ? () => {setSwitchWarning(true)} : handleContinueClick)}/> :
+      <img className="image-button" src={require('../L23/YesBtnDis.png')} style={{'position':'absolute', top:'663px', left:'761px', zIndex:21}}/>
+      }
+      <img className="image-button" src={require('../L23/NoBtn.png')} style={{'position':'absolute', top:'663px', left:'1035px', zIndex:21}} onClick={()=>{setResetTemplate(false)}}/>
+        
+      
+      {switchWarning&&<>
+          <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:21, aspectRatio:'1920/1080',height:'1080px'}}/>
+          <img src={require('../L21/SwitchTemplateSideWindow.png')} style={{'position':'absolute', top:'358px', left:'612px', zIndex:21}}/>
+          <img className="image-button" src={require('../L23/YesBtn.png')} style={{'position':'absolute', top:'539px', left:'761px', zIndex:21}} onClick={()=>{handleContinueClick()}}/>
+          <img className="image-button" src={require('../L23/NoBtn.png')} style={{'position':'absolute', top:'539px', left:'1035px', zIndex:21}} onClick={()=>{setResetTemplate(false)}}/>
+        </>}
     </div>
   );
 };

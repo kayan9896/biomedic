@@ -129,7 +129,7 @@ function KB({
 
   return (
       <div>
-        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}} onClick={() => setShowKeyboard(false)}/>
+        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:13}} onClick={() => setShowKeyboard(false)}/>
         <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'327px', left:'0px', zIndex:13}}/>
         <input
           ref={pidInputRef}
@@ -140,12 +140,12 @@ function KB({
           onClick={() => setActiveInput('pid')}
           style={{
             position: 'absolute',
-            left: '432px',
+            left: '335px',
             top: '456px',
-            width: '302px',
+            width: '401px',
             height: '49px',
             border: activeInput === 'pid' ? '2px solid #fff' : '0px solid',
-            backgroundColor: 'transparent',
+            backgroundColor: '#131313',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -173,7 +173,7 @@ function KB({
             top: '571px',
             width: '164px',
             height: '49px',
-            backgroundColor: 'transparent',
+            backgroundColor: '#131313',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -196,11 +196,11 @@ function KB({
             position: 'absolute',
             left: '1055px',
             top: '456px',
-            width: '694px',
+            width: '687px',
             height: '156px',
             border: activeInput === 'comment' ? '2px solid #fff' : '0px solid',
             borderRadius: '20px',
-            backgroundColor: 'transparent',
+            backgroundColor: '#131313',
             padding: '4px 20px',
 
             zIndex: 14
@@ -213,7 +213,7 @@ function KB({
           onClick={() => setActiveInput('comment')}
           style={{
             overflow: 'auto',
-            width: '698px',
+            width: '683px',
             height: '156px',
             fontSize: '40px',
             fontFamily:'abel',
