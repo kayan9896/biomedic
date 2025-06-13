@@ -54,7 +54,7 @@ class Controller:
         
         if self.config.get("imu_on", True):
             imu_port = self.config.get("imu_port", "COM3")
-            self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"])
+            self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
 
             
         if self.on_simulation:
@@ -70,7 +70,7 @@ class Controller:
         self.viewmodel.states['stage'] = 0
         if self.config.get("imu_on", True):
             imu_port = self.config.get("imu_port", "COM3")
-            self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"])
+            self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
 
     def get_states(self):
         states = self.viewmodel.states

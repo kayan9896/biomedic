@@ -178,7 +178,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
       />
 
       {/* Check 1: C-ARM EQUIPMENT - Always shown as completed */}
-      {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289, 'C-arm has been successfully selected.')}
+      {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289, 'C-arm model is confirmed.')}
       
       {/* Disabled dropdown showing selected C-arm */}
       <select 

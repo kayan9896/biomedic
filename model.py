@@ -138,6 +138,11 @@ class Model:
                     self.is_processing = False
                     return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'glyph'}, frame
 
+                if error_code == ['004']:
+                    metadata['metadata'] = None
+                    self.is_processing = False
+                    return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'ref'}, frame
+
                 if error_code == ['002']:
                     metadata['metadata'] = None
                     self.is_processing = False

@@ -261,7 +261,6 @@ def get_carms():
     """Endpoint to retrieve C-arm data from JSON file"""
     
     try:
-        
         for name in os.listdir(carm_folder):
             carm_data[name] = {'image': f"http://localhost:5000/carm-images/{name}"}
         
@@ -299,7 +298,12 @@ def serve_carm_image(filename):
         select.update({'gantry': gantry})
         select.update({'folder': f"{carm_folder}/{filename}"})
 
-        return send_from_directory(f"{carm_folder}/{filename}","carm_photo.png")
+        image = cv2.imread(f"{carm_folder}/{filename}/carm_photo.png")
+        _, buffer = cv2.imencode('.jpg', image)
+        image_base64 = base64.b64encode(buffer).decode('utf-8')
+        return jsonify({
+            'image': f'data:image/jpeg;base64,{image_base64}'
+        })
     except Exception as e:
         print(f"Error serving image {filename}: {str(e)}")
         return jsonify({"error": str(e)}), 404

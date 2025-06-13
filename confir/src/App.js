@@ -347,7 +347,7 @@ function App() {
         if(stage === 3){
           if(data.measurements) setIsTriReg(true)
         }
-        if(data.error==='glyph') {console.log(data.error,error); setShowglyph(true)}
+        if(data.error==='glyph' || data.error === 'ref') {setShowglyph(data.error)}
         setMoveNext(data.next)
         if(data.next) captureAndSaveFrame()
 
@@ -838,7 +838,7 @@ function App() {
       {(error==='reg fails' && stage===1) && <L19 handlerestart={handlerestart}/>}
 
       {/*L20 Glyph error*/}
-      {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} setShowglyph={setShowglyph}/>}
+      {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} showglyph={showglyph} setShowglyph={setShowglyph}/>}
 
       {/*L21 Template Selection, render when editing is true and pelvis is null*/}
       {(resetTemplate || shouldShowL21()) && (
@@ -850,6 +850,7 @@ function App() {
           setLeftTmp={setLeftTmp}
           setRightTmp={setRightTmp}
           editing={editing}
+          setEditing={setEditing}
           resetTemplate={resetTemplate}
           setResetTemplate={setResetTemplate}
           setUseai={setUseai}

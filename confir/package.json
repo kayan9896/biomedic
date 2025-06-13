@@ -44,8 +44,8 @@
         "to": "proto.exe"
       },
       {
-        "from": "../carm",
-        "to": "../carm"
+        "from": "../Calibration",
+        "to": "../Calibration"
       },
       {
         "from": "../exam0",
@@ -54,10 +54,6 @@
       {
         "from": "../config.json",
         "to": "../config.json"
-      },
-      {
-        "from": "../carm.json",
-        "to": "../carm.json"
       }
     ],
     "directories": {

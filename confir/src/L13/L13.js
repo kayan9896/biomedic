@@ -11,6 +11,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [allChecksComplete, setAllChecksComplete] = useState(false);
   const [warning, setWarning] = useState(false)
+  const [carmimg, setCarmimg] = useState(false)
   
   // Fetch C-arm data when component mounts
   useEffect(() => {
@@ -36,6 +37,24 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
 
     };
   });
+
+  useEffect(() => {
+    const fetchCArmimg = async () => {
+      try {
+        const response = await fetch(cArms[selectedCArm].image);
+        if (!response.ok) {
+          throw new Error('Failed to fetch C-arm img');
+        }
+        const data = await response.json();
+        setCarmimg(data.image);
+        setError(null)
+      } catch (err) {
+        setError('Error loading C-arm img: ' + err.message);
+        console.error(err);
+      }
+    };
+    fetchCArmimg()
+  }, [selectedCArm]);
 
   const handleCarmChange = (e) => {
     setSelectedCArm(e.target.value);
@@ -111,7 +130,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
     
     return (
       <img 
-        src={cArms[selectedCArm].image}
+        src={carmimg}
         alt={`${selectedCArm} preview`} 
         style={{
           position: 'absolute', 
@@ -218,7 +237,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
       
       {/* Check 1: C-ARM EQUIPMENT */}
       {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289,
-        cArmSelected ? 'C-arm has been successfully selected.' : 'Please select the C-arm model.'
+        cArmSelected ? 'C-arm model is confirmed.' : 'Please select the C-arm model.'
       )}
       
       {(

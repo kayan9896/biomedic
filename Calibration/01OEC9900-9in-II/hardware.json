@@ -34,7 +34,8 @@
         "CarmRangeTilt": [-15, 15],
         "CarmRangeRotation": [-25, -10, 10, 25],
         "CarmTargetTilt": 5.4,
-        "CarmTargetRot": [null, -15, 20] 
+        "CarmTargetRot": [null, -15, 20],
+        "tol": 0.2
 
     },
     "Model":{
