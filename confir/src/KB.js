@@ -25,14 +25,24 @@ function KB({
     // Focus the active input when component mounts or active input changes
     console.log(localCursorPosition)
     if (activeInput === 'pid' && pidInputRef.current) {
+      pidInputRef.current.selectionStart = localCursorPosition
+      pidInputRef.current.selectionEnd = localCursorPosition
+      pidInputRef.current.blur();
       pidInputRef.current.focus();
-      pidInputRef.current.setSelectionRange(localCursorPosition, localCursorPosition);
+      
+      
     } else if (activeInput === 'ratio' && ratioInputRef.current) {
+      ratioInputRef.current.selectionStart = localCursorPosition
+      ratioInputRef.current.selectionEnd = localCursorPosition
+      ratioInputRef.current.blur();
       ratioInputRef.current.focus();
-      ratioInputRef.current.setSelectionRange(localCursorPosition, localCursorPosition);
+      
     } else if (activeInput === 'comment' && commentInputRef.current) {
+      commentInputRef.current.selectionStart = localCursorPosition
+      commentInputRef.current.selectionEnd = localCursorPosition
+      commentInputRef.current.blur();
       commentInputRef.current.focus();
-      commentInputRef.current.setSelectionRange(localCursorPosition, localCursorPosition);
+      
     }
   }, [activeInput, localCursorPosition]);
 
@@ -51,7 +61,7 @@ function KB({
   // Handle PID input changes but use the local cursor position
   const handlePidChange = (e) => {
     setPatient(e.target.value)
-    setLocalCursorPosition(e.target.selectionStart);
+    //setLocalCursorPosition(e.target.selectionStart);
   };
 
   // Handle cursor position updates for any input
@@ -60,7 +70,8 @@ function KB({
   };
 
   // Customized keyboard button press handler
-  const handleKeyboardButtonPress = (button) => {
+  const handleKeyboardButtonPress = (button, event) => {
+    if(event) event.preventDefault()
     let currentValue = '';
     let currentCursorPos = localCursorPosition;
     
@@ -90,10 +101,14 @@ function KB({
       setLocalCursorPosition(currentCursorPos - 1);
     } else if (button === "{space}") {
       insertAtCursor(' ');
-    } else if (button === "{shift}" || button === "{lock}") {
+    } else if (button === "{lock}") {
       setKeyboardLayout(keyboardLayout === "default" ? "shift" : "default");
     } else if (button === "{tab}") {
       setActiveInput(activeInput === 'pid' ? 'ratio' : activeInput === 'ratio' ? 'comment' : 'pid')
+    } else if (button === "{shiftleft}"){
+      setLocalCursorPosition(Math.max(0, currentCursorPos - 1));
+    } else if (button === "{shiftright}"){
+      setLocalCursorPosition(Math.min(currentValue.length, currentCursorPos + 1));
     } else if (!button.includes("{")) {
       insertAtCursor(button);
     }
@@ -246,7 +261,7 @@ function KB({
               "` 1 2 3 4 5 6 7 8 9 0 - = {bksp}",
               "{tab} q w e r t y u i o p [ ] \\",
               "{lock} a s d f g h j k l ; ' {enter}",
-              "{shift} z x c v b n m , . / {shift}",
+              "{shiftleft} z x c v b n m , . / {shiftright}",
               "{space}"
             ],
             shift: [
@@ -261,13 +276,18 @@ function KB({
           buttonTheme={[
             {
               class: "hg-black",
-              buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shift} z x c v b n m , . / {shift} {space}"
+              buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shiftleft} z x c v b n m , . / {shiftright} {space}"
             },
             {
               class: "hg-space",
               buttons: "{space}"
             }
           ]}
+          display={{
+          '{enter}': 'enter',
+          '{shiftleft}': '←',
+          '{shiftright}': 'right >',
+          }}
           onKeyPress={handleKeyboardButtonPress}
           physicalKeyboardHighlight={true}
           mergeDisplay={true}

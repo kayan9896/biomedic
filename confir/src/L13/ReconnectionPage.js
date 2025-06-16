@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected }) {
+function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected, setShowReconnectionPage }) {
   // Start with video step if disconnected, otherwise IMU step
   const [currentStep, setCurrentStep] = useState(videoConnected ? 3 : 2);
   const [videoStatus, setVideoStatus] = useState(videoConnected);
@@ -237,6 +237,17 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
           }}
         />
       )}
+
+      <img
+        src={require('../ExitButton.png')}
+        onClick={() => setShowReconnectionPage(false)} 
+        style={{
+          position: 'absolute',
+          top: '59px',
+          left: '1568px',
+          zIndex: 14
+        }}
+      />
     </div>
   );
 }

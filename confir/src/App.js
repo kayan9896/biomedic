@@ -897,6 +897,7 @@ function App() {
             onClose={handleReconnectionReturn} 
             videoConnected={video_on} 
             imuConnected={imuon} 
+            setShowReconnectionPage={setShowReconnectionPage}
           />}
       
       {/*L1x Keyboard, render when showKeyboard true*/}

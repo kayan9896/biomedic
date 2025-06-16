@@ -126,7 +126,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
   };
 
   const getSelectedCArmImage = () => {
-    if (!selectedCArm || !cArms[selectedCArm]) return null;
+    if (!selectedCArm || !cArms[selectedCArm] || !carmimg) return null;
     
     return (
       <img 
@@ -318,9 +318,10 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
 
       <img className="image-button" src={require('./RestartBtn.png')} style={{position:'absolute', top:'839px', left:'284px', zIndex:13}} onClick={()=>setWarning(true)} />
       {warning&&<>
-        <img src={require('./RestartWarningWindow.png')} style={{position:'absolute', top:'358px', left:'612px', zIndex:13}} />
-        <img className="image-button" src={require('./RestartWarningWindowCancelBtn.png')} style={{position:'absolute', top:'539px', left:'761px', zIndex:13}} onClick={()=>setWarning(false)} />
-        <img className="image-button" src={require('./RestartWarningWindowYesBtn.png')} style={{position:'absolute', top:'539px', left:'1035px', zIndex:13}} onClick={()=>{setCurrentStep(1); setWarning(false)}} />
+        <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:15, aspectRatio:'1920/1080',height:'1080px'}}/>
+        <img src={require('./RestartWarningWindow.png')} style={{position:'absolute', top:'358px', left:'612px', zIndex:15}} />
+        <img className="image-button" src={require('../L23/YesBtn.png')} style={{position:'absolute', top:'539px', left:'761px', zIndex:15}} onClick={()=>{setCurrentStep(1); setWarning(false)}}/>
+        <img className="image-button" src={require('../L23/NoBtn.png')} style={{position:'absolute', top:'539px', left:'1035px', zIndex:15}} onClick={()=>setWarning(false)}/>
       </>}
       <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
 
