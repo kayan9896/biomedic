@@ -105,10 +105,24 @@ function KB({
       setKeyboardLayout(keyboardLayout === "default" ? "shift" : "default");
     } else if (button === "{tab}") {
       setActiveInput(activeInput === 'pid' ? 'ratio' : activeInput === 'ratio' ? 'comment' : 'pid')
-    } else if (button === "{shiftleft}"){
+    } else if (button === "←"){
       setLocalCursorPosition(Math.max(0, currentCursorPos - 1));
-    } else if (button === "{shiftright}"){
+    } else if (button === "→"){
       setLocalCursorPosition(Math.min(currentValue.length, currentCursorPos + 1));
+    } else if (button === "↑"){
+      let i = localCursorPosition - 1
+      while (i > 0){
+        if (currentValue[i] === '\n') break
+        i--
+      }
+      setLocalCursorPosition(i);
+    } else if (button === "↓"){
+      let i = localCursorPosition + 1
+      while (i < currentValue.length){
+        if (currentValue[i] === '\n') break
+        i++
+      }
+      setLocalCursorPosition(i);
     } else if (!button.includes("{")) {
       insertAtCursor(button);
     }
@@ -261,8 +275,8 @@ function KB({
               "` 1 2 3 4 5 6 7 8 9 0 - = {bksp}",
               "{tab} q w e r t y u i o p [ ] \\",
               "{lock} a s d f g h j k l ; ' {enter}",
-              "{shiftleft} z x c v b n m , . / {shiftright}",
-              "{space}"
+              "{shift} z x c v b n m , . / {shift}",
+              "← → {space} ↑ ↓"
             ],
             shift: [
               "~ ! @ # $ % ^ & * ( ) _ + {bksp}",
@@ -276,18 +290,13 @@ function KB({
           buttonTheme={[
             {
               class: "hg-black",
-              buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shiftleft} z x c v b n m , . / {shiftright} {space}"
+              buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shift} z x c v b n m , . / {shift} ← → {space} ↑ ↓"
             },
             {
               class: "hg-space",
               buttons: "{space}"
             }
           ]}
-          display={{
-          '{enter}': 'enter',
-          '{shiftleft}': '←',
-          '{shiftright}': 'right >',
-          }}
           onKeyPress={handleKeyboardButtonPress}
           physicalKeyboardHighlight={true}
           mergeDisplay={true}

@@ -1,0 +1,103 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`L1 Component when tracking prop is false matches snapshot when tracking is false 1`] = `
+<DocumentFragment>
+  <img
+    alt="NavBarBg"
+    src="mock-image-path"
+    style="position: absolute; top: 962px; left: 0px;"
+  />
+  <img
+    alt="ProgressBarBg"
+    src="mock-image-path"
+    style="position: absolute; top: 970px; left: 432px;"
+  />
+  <img
+    alt="NavMeasurementsBG"
+    src="mock-image-path"
+    style="position: absolute; top: 970px; left: 960px;"
+  />
+  <img
+    alt="Logo"
+    src="mock-image-path"
+    style="position: absolute; top: 1041px; left: 13px; z-index: 12;"
+  />
+  <img
+    alt="PatientDataBg"
+    src="mock-image-path"
+    style="position: absolute; top: 980px; left: 13px; z-index: 12;"
+  />
+  <img
+    alt="PatientIcon"
+    src="mock-image-path"
+    style="position: absolute; top: 989px; left: 27px; z-index: 12;"
+  />
+  <img
+    alt="ManualAPLabelBg"
+    src="mock-image-path"
+    style="position: absolute; top: 0px; left: 0px; z-index: 1;"
+  />
+  <img
+    alt="ManualAPLabel"
+    class="image-button"
+    src="mock-image-path"
+    style="position: absolute; top: 5px; left: 6px; z-index: 10;"
+  />
+  <img
+    alt="ManualOBLabelBg"
+    src="mock-image-path"
+    style="position: absolute; top: 0px; left: 1787px; z-index: 1;"
+  />
+  <img
+    alt="ManualOBLabel"
+    class="image-button"
+    src="mock-image-path"
+    style="position: absolute; top: 5px; left: 1793px; z-index: 10;"
+  />
+</DocumentFragment>
+`;
+
+exports[`L1 Component when tracking prop is true matches snapshot when tracking is true 1`] = `
+<DocumentFragment>
+  <img
+    alt="NavBarBg"
+    src="mock-image-path"
+    style="position: absolute; top: 962px; left: 0px;"
+  />
+  <img
+    alt="ProgressBarBg"
+    src="mock-image-path"
+    style="position: absolute; top: 970px; left: 432px;"
+  />
+  <img
+    alt="NavMeasurementsBG"
+    src="mock-image-path"
+    style="position: absolute; top: 970px; left: 960px;"
+  />
+  <img
+    alt="Logo"
+    src="mock-image-path"
+    style="position: absolute; top: 1041px; left: 13px; z-index: 12;"
+  />
+  <img
+    alt="PatientDataBg"
+    src="mock-image-path"
+    style="position: absolute; top: 980px; left: 13px; z-index: 12;"
+  />
+  <img
+    alt="PatientIcon"
+    src="mock-image-path"
+    style="position: absolute; top: 989px; left: 27px; z-index: 12;"
+  />
+  <img
+    alt="APLabel"
+    src="mock-image-path"
+    style="position: absolute; top: 0px; left: 0px; z-index: 1;"
+  />
+  <img
+    alt="OBLabel"
+    src="mock-image-path"
+    style="position: absolute; top: 0px; left: 1787px; z-index: 1;"
+  />
+</DocumentFragment>
+`;

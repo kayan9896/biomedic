@@ -138,7 +138,7 @@ body{
 .myTheme .hg-button.hg-space {
   background: rgb(0, 0, 0, 0.7);
   color: white;
-  margin: 0 20% !important;
+  width: 50% !important;
 }
 
 .myTheme {
