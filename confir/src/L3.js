@@ -14,6 +14,8 @@ function L3({
   editing,
   brightness,
   contrast,
+  getInstruction,
+  stage
 }) {
 
   const leftWrapperRef = useRef(null);
@@ -36,7 +38,7 @@ function L3({
           style={{ 
             width: '100%', 
             height: 'auto', 
-            ...getFilterStyle(brightness[0], contrast[0])
+            ...(leftImage !== getInstruction(stage, 'AP') ? getFilterStyle(brightness[0], contrast[0]) : {})
           }}
         />
         {activeLeft && !editing && (
@@ -68,7 +70,7 @@ function L3({
           style={{ 
             width: '100%', 
             height: 'auto', 
-            ...getFilterStyle(brightness[1], contrast[1])
+            ...(leftImage !== getInstruction(stage, 'OB') ? getFilterStyle(brightness[1], contrast[1]) : {})
           }}
         />
         {activeRight && !editing && (

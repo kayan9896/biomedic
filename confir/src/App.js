@@ -390,6 +390,10 @@ function App() {
     setUseai([false, false])
     setPelvis([null, null])
     let st = next === 'next' ? stage + 1 : next === 'skip' ? stage + 2 : stage - 1;
+    if(stage === 1 || stage === 2){
+      setBrightness([100, 100])
+      setContrast([100, 100])
+    }
     if(!keep) {
       setLeftImage(getInstruction(st,'AP'));
       setRightImage(getInstruction(st,'OB'));
@@ -771,6 +775,8 @@ function App() {
           editing={editing}
           brightness={brightness}
           contrast={contrast}
+          getInstruction={getInstruction}
+          stage={stage}
         />
 
       

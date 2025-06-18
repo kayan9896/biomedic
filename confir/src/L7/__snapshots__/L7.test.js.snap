@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`L7 Component - Static Elements matches snapshot for default rendering (all dynamic icons null) 1`] = `
+<DocumentFragment>
+  <div>
+    <img
+      alt="Imaging Mode Toolbar"
+      class="image-button"
+      src="mock-image-path"
+      style="position: absolute; top: 458px; left: 921px; z-index: 7;"
+    />
+    <img
+      alt="edit icon"
+      class="image-button"
+      src="mock-image-path"
+      style="position: absolute; top: 466px; left: 928px; z-index: 7;"
+    />
+    <img
+      alt="Report Icon"
+      class="image-button"
+      src="mock-image-path"
+      style="position: absolute; top: 547px; left: 928px; z-index: 7;"
+    />
+    <img
+      alt="acquire icon"
+      class="image-button"
+      src="mock-image-path"
+      style="position: absolute; top: 659px; left: 921px; z-index: 7;"
+    />
+    <img
+      alt="acquire icon"
+      class="image-button"
+      src="mock-image-path"
+      style="position: absolute; top: 664px; left: 926px; z-index: 7;"
+    />
+  </div>
+</DocumentFragment>
+`;

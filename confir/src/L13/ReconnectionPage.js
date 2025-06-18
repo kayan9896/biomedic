@@ -126,8 +126,8 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
   };
 
   // Determine if current step is completed
-  const isCurrentStepComplete = () => {
-    switch (currentStep) {
+  const isStepComplete = (step) => {
+    switch (step) {
       case 2: return videoStatus;
       case 3: return imuStatus && !tiltSensorBatteryLow;
       default: return false;
@@ -165,16 +165,19 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
       
       {/* Continue/Return Button */}
       <img 
-        src={allIssuesResolved() ? require('./ReturnBtn.png') : (isCurrentStepComplete() ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png'))}
+        src={allIssuesResolved() ? require('./ReturnBtn.png') : 
+          (currentStep === 2 && !isStepComplete(3) ? (isStepComplete(2) ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png')) : 
+          require('./SetupReturnBtnDisable.png'))
+        }
         alt={allIssuesResolved() ? "Return" : "Continue"} 
         style={{
           position:'absolute', 
           top:'839px', 
           left:'1327px', 
           zIndex:13, 
-          cursor: isCurrentStepComplete() ? 'pointer' : 'default'
+          cursor: isStepComplete(currentStep) ? 'pointer' : 'default'
         }} 
-        onClick={isCurrentStepComplete() ? handleContinue : null} 
+        onClick={isStepComplete(currentStep) ? handleContinue : null} 
       />
 
       {/* Check 1: C-ARM EQUIPMENT - Always shown as completed */}

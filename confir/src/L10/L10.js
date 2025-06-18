@@ -238,14 +238,14 @@ function L10({
   function getTiltArray(targetTiltAngle, tiltAngle) {
     if (stage === 0 && activeLeft && (targetTiltAngle == null || (targetTiltAngle !== null && !applyTarget))) return [
       {
-        limit: apl,
+        limit: tiltl,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
       },
       {
-        limit: apr,
-        color: (tiltAngle <= tiltr && tiltAngle >apl) ? red60 : red10,
+        limit: tiltr,
+        color: (tiltAngle <= tiltr && tiltAngle >tiltl) ? red60 : red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
@@ -260,7 +260,7 @@ function L10({
 
     return [
       {
-        limit: apl,
+        limit: tiltl,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
@@ -273,12 +273,12 @@ function L10({
       },
       {
         limit: Math.min(targetTiltAngle + 0.5*scale, 19.99),
-        color: tiltAngle <= tiltr && tiltAngle > apl ? red80 : red40,
+        color: tiltAngle <= tiltr && tiltAngle > tiltl ? red80 : red40,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit: apr,
+        limit: tiltr,
         color: red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
