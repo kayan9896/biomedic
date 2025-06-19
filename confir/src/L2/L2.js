@@ -9,7 +9,13 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
     'Offset': '-mm',
   })
   useEffect(() => {
-    setData((prev) => {
+    if(stage === 0) setData({
+      'Inclination' : '-',
+      'Anteversion' : '-',
+      'LLD': '-mm',
+      'Offset': '-mm',
+    })
+    else{ setData((prev) => {
       const newMetadata = {...prev};
       if(measurements){
       Object.keys(measurements).forEach((pattern, i) => {
@@ -17,8 +23,8 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
       });}
       console.log(newMetadata)
       return newMetadata;
-    })
-  }, [measurements]);
+    })}
+  }, [measurements, stage]);
   const handleCapture = async () => {
     try {
       const response = await fetch('http://localhost:5000/cap', {

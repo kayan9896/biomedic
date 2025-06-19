@@ -471,6 +471,8 @@ function App() {
     setStage(0);
     setUseai([false, false])
     setPelvis([null, null])
+    setMeasurements(null)
+    setPatient('')
     
     try {
       await fetch('http://localhost:5000/restart', {
@@ -507,13 +509,19 @@ function App() {
 
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
-
+  const clearFlag = useRef(0)
   const setLeftTmp = (template) => { 
-    if(!leftImageMetadata) setLeftImageMetadata(template)
+    if(!leftImageMetadata) {
+      setLeftImageMetadata(template)
+      clearFlag.current = 1
+    }
     else Object.values(leftSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
   }
   const setRightTmp = (template) => {
-    if(!rightImageMetadata) setRightImageMetadata(template)
+    if(!rightImageMetadata) {
+      setRightImageMetadata(template)
+      clearFlag.current = 1
+    }
     else Object.values(rightSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
   }
   const checkTmp = () => {
@@ -581,6 +589,7 @@ function App() {
       Object.values(rightSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
       if (leftImage!==getInstruction(stage,'AP')) setLeftCheckMark(1)
       if (rightImage!==getInstruction(stage,'OB')) setRightCheckMark(1)
+      clearFlag.current = 0
       setEditing(false);
     } catch (error) {
       console.error('Error saving landmarks:', error);
@@ -601,6 +610,10 @@ function App() {
       });
       Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
       Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
+      if(clearFlag.current){
+        setLeftImageMetadata(null)
+        setRightImageMetadata(null)
+      }
       setEditing(false);
     } catch (error) {
       console.error('Error going next:', error);

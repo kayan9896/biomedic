@@ -50,7 +50,7 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
       setCursorPosition({ x, y });
   
       const controlPointIndex = curvePoints.findIndex(point => 
-        Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 25
+        Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 18
       );
       
       if (controlPointIndex !== -1) {
