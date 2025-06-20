@@ -295,6 +295,10 @@ function KB({
             {
               class: "hg-space",
               buttons: "{space}"
+            },
+            {
+              class: "hg-shift",
+              buttons: "{shift}"
             }
           ]}
           onKeyPress={handleKeyboardButtonPress}

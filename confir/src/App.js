@@ -509,18 +509,19 @@ function App() {
 
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
-  const clearFlag = useRef(0)
+  const clearFlagl = useRef(0)
+  const clearFlagr = useRef(0)
   const setLeftTmp = (template) => { 
     if(!leftImageMetadata) {
       setLeftImageMetadata(template)
-      clearFlag.current = 1
+      clearFlagl.current = 1
     }
     else Object.values(leftSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
   }
   const setRightTmp = (template) => {
     if(!rightImageMetadata) {
       setRightImageMetadata(template)
-      clearFlag.current = 1
+      clearFlagr.current = 1
     }
     else Object.values(rightSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
   }
@@ -589,7 +590,8 @@ function App() {
       Object.values(rightSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
       if (leftImage!==getInstruction(stage,'AP')) setLeftCheckMark(1)
       if (rightImage!==getInstruction(stage,'OB')) setRightCheckMark(1)
-      clearFlag.current = 0
+      clearFlagl.current = 0
+      clearFlagr.current = 0
       setEditing(false);
     } catch (error) {
       console.error('Error saving landmarks:', error);
@@ -610,8 +612,10 @@ function App() {
       });
       Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
       Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
-      if(clearFlag.current){
+      if(clearFlagl.current){
         setLeftImageMetadata(null)
+      }
+      if(clearFlagr.current){
         setRightImageMetadata(null)
       }
       setEditing(false);

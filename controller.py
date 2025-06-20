@@ -285,7 +285,7 @@ class Controller:
             
             if newscn == self.scn or newscn[-3:] == 'end':
                 continue
-            self.imu.handle_window_close(self.viewmodel.states['stage'])
+            if self.tracking: self.imu.handle_window_close(self.viewmodel.states['stage'])
             dataforsave, dataforvm, image = self.model.exec(newscn, frame, self.imu.tilt_angle, self.imu.rotation_angle)
             print(frame,image,dataforvm,newscn)
             self.scn = newscn[:-3] + 'end'

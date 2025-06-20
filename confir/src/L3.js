@@ -70,7 +70,7 @@ function L3({
           style={{ 
             width: '100%', 
             height: 'auto', 
-            ...(leftImage !== getInstruction(stage, 'OB') ? getFilterStyle(brightness[1], contrast[1]) : {})
+            ...((rightImage !== getInstruction(stage, 'OB')) ? getFilterStyle(brightness[1], contrast[1]) : {})
           }}
         />
         {activeRight && !editing && (
@@ -90,6 +90,7 @@ function L3({
         ))}
         </div>
       </div>
+      <img src={require('./L5/PartingLine.png')} style={{position:'absolute', left: '958px', top: '0px'}}/>
 
     </div>
   );

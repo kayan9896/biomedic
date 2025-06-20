@@ -140,7 +140,11 @@ body{
   color: white;
   width: 50% !important;
 }
-
+.myTheme .hg-button.hg-shift {
+  background: rgb(0, 0, 0, 0.7);
+  color: white;
+  width: 145.5px !important;
+}
 .myTheme {
   width: 80%;
   background-color: #323232 !important;
