@@ -18,6 +18,10 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 
+class Filter(logging.Filter):
+    def filter(self, record):  
+        return "api/states" not in record.getMessage()
+
 # Configure logging
 def setup_logging():
     # Create logs directory if it doesn't exist
@@ -25,8 +29,9 @@ def setup_logging():
         os.makedirs('logs')
     
     # Set up the logger
-    logger = logging.getLogger()
+    logger = logging.getLogger('werkzeug')
     logger.setLevel(logging.DEBUG)  # Set the logging level
+    logger.addFilter(Filter())
     
     # Create a file handler
     file_handler = RotatingFileHandler('logs/app.log', maxBytes=10000000, backupCount=5)

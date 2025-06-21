@@ -20,6 +20,8 @@ function L8({
   const [showBrightnessBar, setShowBrightnessBar] = useState(false);
   const [showContrastBar, setShowContrastBar] = useState(false);
   const [confirmSave, setConfirmSave] = useState(false);
+  const brightRef = useRef(null)
+  const contraRef = useRef(null)
 
   const handleBrightnessClick = () => {
     setShowBrightnessBar(!showBrightnessBar);
@@ -30,6 +32,22 @@ function L8({
     setShowContrastBar(!showContrastBar);
     if (!showContrastBar) setShowBrightnessBar(false); // Close brightness bar if open
   };
+
+  useEffect(() => {
+      console.log(brightRef,contraRef)
+      const handleClickOutside = (e) => {
+        
+        if (brightRef.current && !brightRef.current.contains(e.target)) {
+          setShowBrightnessBar(false)
+        }
+        if (contraRef.current && !contraRef.current.contains(e.target)) {
+          setShowContrastBar(false)
+        }
+      };
+  
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
   return (
     <div>
@@ -52,6 +70,7 @@ function L8({
           editing={editing}
           value={brightness}
           onChange={onBrightnessChange}
+          ref={brightRef}
         />
       )}
       <img
@@ -76,6 +95,7 @@ function L8({
           editing={editing}
           value={contrast}
           onChange={onContrastChange}
+          ref={contraRef}
         />
       )}
       <img

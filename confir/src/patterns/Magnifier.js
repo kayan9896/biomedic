@@ -12,7 +12,8 @@ const Magnifier = ({
   position: { x, y } ,
   metadata,
   isLeftSquare,
-  idx
+  idx,
+  filter
 }) => {
     const [magnifierPosition, setMagnifierPosition] = useState('');
     const proximityThreshold = size; // Distance in pixels to trigger position change
@@ -105,7 +106,7 @@ const Magnifier = ({
               top: `${-y * (magnificationLevel - 1) - (y - magnifierSize/2)}px`
             }}
           >
-            <img src={imageUrl} alt="Image 1" style={{ width: '100%', height: 'auto' }} />
+            <img src={imageUrl} alt="Image 1" style={{ width: '100%', height: 'auto', ...filter }} />
         
             {metadata&&metadata.map((pattern, index) => {
             const key = `${pattern.type}-${index}-${Math.random()}`;

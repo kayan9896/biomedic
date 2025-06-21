@@ -54,6 +54,7 @@ function L3({
           isLeftSquare={true}
           imageUrl={leftImage}
           editing={editing}
+          filter = {getFilterStyle(brightness[0], contrast[0])}
         />
         ))}
         </div>
@@ -86,6 +87,7 @@ function L3({
           isLeftSquare={false}
           imageUrl={rightImage}
           editing={editing}
+          filter = {getFilterStyle(brightness[1], contrast[1])}
         />
         ))}
         </div>

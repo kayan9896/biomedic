@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Magnifier from './Magnifier';
 
-const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange, imageUrl }) => {
+const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange, imageUrl, filter }) => {
   const [center,setcCenter]=useState(ori)
   const [edgePoint,setEdgePoint]=useState(edge)
   const [isDraggingCenter, setIsDraggingCenter] = useState(false);
@@ -181,6 +181,7 @@ const Circle = ({ center:ori, edgePoint:edge, onCenterChange, onEdgePointChange,
       imageUrl={imageUrl}
       magnification={2}
       size={150}
+      filter={filter}
     />
     </>
   );

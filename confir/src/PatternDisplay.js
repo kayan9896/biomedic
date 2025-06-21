@@ -4,7 +4,7 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing }) => {
+const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing, filter }) => {
   // Keep metadata in array format
   const [originalMetadata, setOriginalMetadata] = useState(metadata[group] || []);
   const [lastSavedMetadata, setLastSavedMetadata] = useState(metadata[group] || []);
@@ -160,6 +160,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     }
                     imageUrl={imageUrl}
                     metadata={currentMetadata}
+                    filter={filter}
                   />
                 );
                 
@@ -175,6 +176,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     metadata={currentMetadata}
                     idx={null}
                     editing={editing}
+                    filter={filter}
                   />
                 );
                 
@@ -190,6 +192,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     metadata={currentMetadata}
                     idx={null}
                     editing={editing}
+                    filter={filter}
                   />
                 );
                 
@@ -206,6 +209,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     metadata={currentMetadata}
                     idx={null}
                     editing={editing}
+                    filter={filter}
                   />
                 );
                 
