@@ -34,9 +34,8 @@ function L8({
   };
 
   useEffect(() => {
-      console.log(brightRef,contraRef)
       const handleClickOutside = (e) => {
-        
+        console.log(brightRef,contraRef)
         if (brightRef.current && !brightRef.current.contains(e.target)) {
           setShowBrightnessBar(false)
         }
@@ -65,13 +64,14 @@ function L8({
 
       {/* Brightness icon and adjustment bar */}
       {showBrightnessBar && (
+        <div ref={brightRef}>
         <AdjustmentBar
           type="brightness"
           editing={editing}
           value={brightness}
           onChange={onBrightnessChange}
-          ref={brightRef}
-        />
+          
+        /></div>
       )}
       <img
         className="image-button"
@@ -90,13 +90,13 @@ function L8({
 
       {/* Contrast icon and adjustment bar */}
       {showContrastBar && (
+        <div ref={contraRef}>
         <AdjustmentBar
           type="contrast"
           editing={editing}
           value={contrast}
           onChange={onContrastChange}
-          ref={contraRef}
-        />
+        /></div>
       )}
       <img
         className="image-button"
