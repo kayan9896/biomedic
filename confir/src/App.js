@@ -58,6 +58,7 @@ function App() {
 
   const [leftImage, setLeftImage] = useState(getInstruction(stage,'AP'));
   const [rightImage, setRightImage] = useState(getInstruction(stage,'OB'));
+  const [errImage, setErrImage] = useState(null);
   const [error, setError] = useState(null);
 
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
@@ -305,6 +306,14 @@ function App() {
         const response = await fetch('http://localhost:5000/api/image-with-metadata');
         const data = await response.json();
         
+        setRecon(data.recon)
+        setError(data.error)
+        if(data.error==='glyph' || data.error === 'ref') {
+          setShowglyph(data.error)
+          setErrImage(data.image)
+          return
+        }
+
         if (active_side === 'ap') {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata.metadata);
@@ -336,8 +345,7 @@ function App() {
             })
 
         }
-        setRecon(data.recon)
-        setError(data.error)
+        
         
         setMeasurements(data.measurements)
 
@@ -347,7 +355,7 @@ function App() {
         if(stage === 3){
           if(data.measurements) setIsTriReg(true)
         }
-        if(data.error==='glyph' || data.error === 'ref') {setShowglyph(data.error)}
+        
         setMoveNext(data.next)
         if(data.next) captureAndSaveFrame()
 
@@ -592,6 +600,7 @@ function App() {
       if (rightImage!==getInstruction(stage,'OB')) setRightCheckMark(1)
       clearFlagl.current = 0
       clearFlagr.current = 0
+      setError(null)
       setEditing(false);
     } catch (error) {
       console.error('Error saving landmarks:', error);
@@ -769,6 +778,7 @@ function App() {
           setSelectCup={setSelectCup}
           isProcessing={isProcessing}
           pause={pause}
+          showReconnectionPage={showReconnectionPage}
           leftImage={leftImage}
           leftImageMetadata={leftImageMetadata}
           leftSaveRefs={leftSaveRefs}
@@ -802,7 +812,7 @@ function App() {
       <L6 editableSide={editing} setEditing={setEditing}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
-      {(!editing&&!(leftImage===getInstruction(stage,'AP')&&rightImage===getInstruction(stage,'OB')))&&<L7 handledit={handledit} setReport={setReport} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon} setPause={setPause}/>}
+      {!editing&&<L7 handledit={handledit} setReport={setReport} editable={!(leftImage===getInstruction(stage,'AP')&&rightImage===getInstruction(stage,'OB'))} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon} setPause={setPause}/>}
 
 
       {/*L8 Edit bar, render when editing true*/}
@@ -861,7 +871,7 @@ function App() {
       {(error==='reg fails' && stage===1) && <L19 handlerestart={handlerestart}/>}
 
       {/*L20 Glyph error*/}
-      {showglyph && <L20 image={activeLeft? leftImage : (activeRight? rightImage :null)} showglyph={showglyph} setShowglyph={setShowglyph}/>}
+      {showglyph && <L20 image={errImage} showglyph={showglyph} setShowglyph={setShowglyph}/>}
 
       {/*L21 Template Selection, render when editing is true and pelvis is null*/}
       {(resetTemplate || shouldShowL21()) && (

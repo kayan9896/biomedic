@@ -310,8 +310,9 @@ class Controller:
             case 'frm:hp1-ap:end'| 'frm:hp1-ob:end':
                 
                 if self.uistates == 'landmarks':
-                    self.uistates = None
-                    return 'rcn:hmplv1:bgn'
+                    if self.model.data['hp1-ap']['image'] is not None and self.model.data['hp1-ob']['image'] is not None:
+                        self.uistates = None
+                        return 'rcn:hmplv1:bgn'
 
                 if self.model.data['hp1-ap']['success'] and self.model.data['hp1-ob']['success']:
                     return 'rcn:hmplv1:bgn'
@@ -354,8 +355,9 @@ class Controller:
             
             case 'frm:hp2-ap:end'| 'frm:hp2-ob:end':
                 if self.uistates == 'landmarks':
-                    self.uistates = None
-                    return 'rcn:hmplv2:bgn'
+                    if self.model.data['hp2-ap']['image'] is not None and self.model.data['hp2-ob']['image'] is not None:
+                        self.uistates = None
+                        return 'rcn:hmplv2:bgn'
 
                 if self.model.data['hp2-ap']['success'] and self.model.data['hp2-ob']['success']:
                     return 'rcn:hmplv2:bgn'
@@ -442,8 +444,9 @@ class Controller:
                     self.scn = 'frm:tri-ap:end'
                     return self.scn
                 if self.uistates == 'landmarks':
-                    self.uistates = None
-                    return 'rcn:acecup:bgn'
+                    if self.model.data['cup-ap']['image'] is not None and self.model.data['cup-ob']['image'] is not None:
+                        self.uistates = None
+                        return 'rcn:acecup:bgn'
 
                 if self.model.data['cup-ap']['success'] and self.model.data['cup-ob']['success']:
                     return 'rcn:acecup:bgn'
@@ -516,8 +519,9 @@ class Controller:
                     self.scn = 'frm:cup-ap:end'
                     return self.scn
                 if self.uistates == 'landmarks':
-                    self.uistates = None
-                    return 'rcn:tothip:bgn'
+                    if self.model.data['tri-ap']['image'] is not None and self.model.data['tri-ob']['image'] is not None:
+                        self.uistates = None
+                        return 'rcn:tothip:bgn'
 
                 if self.model.data['tri-ap']['success'] and self.model.data['tri-ob']['success']:
                     return 'rcn:tothip:bgn'

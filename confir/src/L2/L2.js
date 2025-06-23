@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements}) {
+function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,showReconnectionPage,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements}) {
   const [switchWarning, setSwitchWarning] = useState(false)
   const [data, setData] = useState({
     'Inclination' : '-',
@@ -78,6 +78,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
     if(stage === 3) return {'position':'absolute', top:'974px', left:'805px'}
   }
   const showDash = (stage) => {
+    if(showCarmBox || editing || isProcessing || pause || showReconnectionPage) return [null, null]
     if(stage === 0){
       if(recon === 2) return [1, {'position':'absolute', top:'974px', left:'560px'}]
       return [null, null]
@@ -106,8 +107,8 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
         }
 
         <img src={require('./CurrentStageBg.png')} style={blueStage(stage)}/>
-        {showDash(stage)[0]!==null&&!showCarmBox&&!editing&&!isProcessing&&!pause&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
-        {showDash(stage)[0]===2&&!showCarmBox&&!editing&&!isProcessing&&!pause&&<img src={require('./PossibleStageBg.png')} style={{'position':'absolute', top:'974px', left:'805px'}} onClick={clickTriDash}/>}
+        {showDash(stage)[0]!==null&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
+        {showDash(stage)[0]===2&&<img src={require('./PossibleStageBg.png')} style={{'position':'absolute', top:'974px', left:'805px'}} onClick={clickTriDash}/>}
         {(
           stage===0&&recon!==2?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>:
           <img src={require('./HipIcon2.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>

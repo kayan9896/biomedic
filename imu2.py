@@ -90,7 +90,7 @@ class IMU2:
             
             return self.tiltl < self.tilt_angle < self.tiltr
         if (stage == 0 and active == 'ob') or stage > 0:
-            return self.tilttarget is not None and abs(self.tilt_angle - self.tilttarget) < self.tol + self.EPSILON
+            return abs(self.tilt_angle - self.tilttarget) < self.tol + self.EPSILON if self.tilttarget is not None else abs(self.tilt_angle - self.tmp_tilttarget) < self.tol + self.EPSILON
         return False
 
     def is_rot_valid(self, stage):
@@ -182,6 +182,8 @@ class IMU2:
             self.aptarget = self.tmp_aptarget
         if self.tmp_obtarget1 is not None and self.obtarget1 is None:
             self.obtarget1 = self.tmp_obtarget1
+        if self.tmp_obtarget2 == self.obtarget1:
+            self.obtarget1, self.obtarget2 = self.obtarget2, self.obtarget1
         if self.tmp_obtarget2 is not None and self.obtarget2 is None:
             self.obtarget2 = self.tmp_obtarget2
         if self.tmp_used_ob is not None:

@@ -740,7 +740,7 @@ function L10({
 
 
       <div className="hand" style={{ 
-        transform: `rotate(${tiltAngle/scale}deg)`,
+        transform: `rotate(${tiltAngle > 0? Math.min(87, tiltAngle/scale) : Math.max(-87, tiltAngle/scale)}deg)`,
         position:'absolute', 
         top:'335px', 
         left:'263px', 
@@ -749,7 +749,7 @@ function L10({
         <img src={require('./CarmTilt.png')} alt="indicator" />
       </div>
       <div className="hand" style={{ 
-        transform: `rotate(${rotationAngle/scale}deg)`,
+        transform: `rotate(${rotationAngle > 0 ? Math.min(87, rotationAngle/scale) : Math.max(-87, rotationAngle/scale)}deg)`,
         position:'absolute', 
         top:'339px', 
         left:'1048px', 
