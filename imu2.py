@@ -55,27 +55,27 @@ class IMU2:
 
     def activeside(self, stage=0):
         if stage == 0:
-            if self.rangel < self.rotation_angle < self.ranger:
-                if self.apl < self.rotation_angle < self.apr:
+            if self.rangel < self.rotation_angle <= self.ranger:
+                if self.apl < self.rotation_angle <= self.apr:
                     return 'ap'
                 return 'ob'
         if stage == 1:
-            if self.rangel < self.rotation_angle < self.ranger:
-                if self.apl < self.rotation_angle < self.apr:
+            if self.rangel < self.rotation_angle <= self.ranger:
+                if self.apl < self.rotation_angle <= self.apr:
                     return 'ap'
                 if self.obtarget1 is not None and self.rotation_angle * self.obtarget1 > 0:
                     return None
                 return 'ob'
         if stage == 2 or (stage ==3 and not self.iscupreg):
-            if self.rangel < self.rotation_angle < self.ranger:
+            if self.rangel < self.rotation_angle <= self.ranger:
                 if self.aptarget is not None and self.ob_min is not None and self.ob_max is not None:
-                    if (self.ob_min + self.aptarget) / 2 < self.rotation_angle < (self.ob_max + self.aptarget) / 2:
+                    if (self.ob_min + self.aptarget) / 2 < self.rotation_angle <= (self.ob_max + self.aptarget) / 2:
                         return 'ap'
                 return 'ob'
         if stage == 3 and self.iscupreg:
             if self.rangel < self.rotation_angle < self.ranger:
                 if self.aptarget is not None and self.ob_min is not None and self.ob_max is not None:
-                    if (self.ob_min + self.aptarget) / 2 < self.rotation_angle < (self.ob_max + self.aptarget) / 2:
+                    if (self.ob_min + self.aptarget) / 2 < self.rotation_angle <= (self.ob_max + self.aptarget) / 2:
                         return 'ap'
                 if self.used_ob is not None and self.rotation_angle * self.used_ob < 0:
                     return None
@@ -88,7 +88,7 @@ class IMU2:
             if self.tilttarget is not None and self.applytarget:
                 return abs(self.tilt_angle - self.tilttarget) < self.tol + self.EPSILON
             
-            return self.tiltl < self.tilt_angle < self.tiltr
+            return self.tiltl < self.tilt_angle <= self.tiltr
         if (stage == 0 and active == 'ob') or stage > 0:
             return abs(self.tilt_angle - self.tilttarget) < self.tol + self.EPSILON if self.tilttarget is not None else abs(self.tilt_angle - self.tmp_tilttarget) < self.tol + self.EPSILON
         return False
@@ -103,7 +103,7 @@ class IMU2:
                     return abs(self.rotation_angle - self.obtarget1) < self.tol + self.EPSILON
                 if self.obtarget2 is not None and self.rotation_angle * self.obtarget2 > 0:
                     return abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON
-            return self.rangel < self.rotation_angle < self.ranger
+            return self.rangel < self.rotation_angle <= self.ranger
         if stage == 1:
             if active == 'ap':
                 return self.aptarget is not None and abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON

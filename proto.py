@@ -62,8 +62,9 @@ CORS(app)
 frame_grabber = None
 analyze_box = None
 controller = None
-panel = None
+
 config = ConfigManager()
+panel = Panel(config)
 server_lock = threading.Lock()
 
 
@@ -320,7 +321,7 @@ def check_video_connection():
     global controller
     global select
     global panel
-    if panel is None: panel = Panel(config)
+
     with server_lock:
         if controller is None:
             controller = Controller(FrameGrabber(), Model(), config, select, panel)

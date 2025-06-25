@@ -19,12 +19,7 @@ class Model:
         self.distortion = None
         self.gantry = None
 
-        self.test_data = {
-            'ap': None, 
-            'ob': None, 
-            'recons': None, 
-            'regs': None
-        }
+        self.test_data = None
 
     def resetdata(self):
         self.data = {
@@ -77,6 +72,8 @@ class Model:
 
     def settest(self, testdata):
         self.test_data = testdata
+        print(testdata)
+
     def analyzeframe(self, section, frame, tilt_angle=None, rotation_angle=None):
         try:
             self.data[section]['success'] = None
@@ -90,7 +87,7 @@ class Model:
             self.data[section]['image'] = frame
             
             if self.on_simulation:
-                test_entry = self.test_data.get(section_type)
+                test_entry = self.test_data.get(section[:-3]).get(section_type)
                 if test_entry and test_entry.get('json_path'):
                     try:
                         error_code = test_entry['errors']
@@ -128,22 +125,22 @@ class Model:
                         return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'wrong side'}, frame
                 
 
-                if error_code == ['003']:
+                if error_code == '110':
                     metadata['metadata'] = None
                     self.is_processing = False
                     return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'wrong side'}, frame
 
-                if error_code == ['001']:
+                if error_code == '111':
                     metadata['metadata'] = None
                     self.is_processing = False
                     return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'glyph'}, frame
 
-                if error_code == ['004']:
+                if error_code == '112':
                     metadata['metadata'] = None
                     self.is_processing = False
                     return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'ref'}, frame
 
-                if error_code == ['002']:
+                if error_code == '113':
                     metadata['metadata'] = None
                     self.is_processing = False
                     print(self.data)
@@ -197,7 +194,7 @@ class Model:
             
             #self.is_processing = True
             if self.on_simulation:
-                test_entry = self.test_data.get('recons')
+                test_entry = self.test_data.get(curap[:-3]).get('recons')
                 if test_entry and test_entry.get('json_path'):
                     try:
                         error_code = test_entry['errors']
@@ -217,7 +214,7 @@ class Model:
                     self.is_processing = False
                     return {'metadata': metadata, 'recon': 3, 'error': 'recon fails, unmatched side'}, None
 
-                if error_code == ['004']: 
+                if error_code == '120': 
                     metadata['shot_1'] = None
                     metadata['shot_2'] = None
                     metadata['ReconResult'] = 'recon fails'
@@ -264,7 +261,7 @@ class Model:
             self.is_processing = True
 
             if self.on_simulation:
-                test_entry = self.test_data.get('regs')
+                test_entry = self.test_data.get(curap[:-3]).get('regs')
                 if test_entry and test_entry.get('json_path'):
                     try:
                         error_code = test_entry['errors']
@@ -279,7 +276,7 @@ class Model:
                     metadata = None
 
 
-                if error_code == ['005']:
+                if error_code == '130':
                     metadata['Pelvis_Recon'] = None
                     metadata['Implant_Recon'] = None
                     metadata['RegsResult'] = 'reg fails'

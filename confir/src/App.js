@@ -481,6 +481,9 @@ function App() {
     setPelvis([null, null])
     setMeasurements(null)
     setPatient('')
+    setComment('')
+    setRatio('')
+    setPause(0)
     
     try {
       await fetch('http://localhost:5000/restart', {

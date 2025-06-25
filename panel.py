@@ -37,7 +37,7 @@ class Panel:
     def _run_gui(self):
         """Run the GUI in its own thread"""
         self.root = tk.Tk()
-        self.root.title("IMU Control")
+        self.root.title("Test Panel")
         self.root.protocol("WM_DELETE_WINDOW", self.cleanup)
         
         # Set window attributes
@@ -114,10 +114,11 @@ class Panel:
         tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle2(-self.step)).grid(row=1, column=2)
         tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle2(self.step)).grid(row=1, column=3)
         
+        tk.Label(angle_frame, text="Increment:").grid(row=2, column=0, sticky=tk.W)
         self.stepvar = tk.StringVar(value="5")
+        self.stepvar.trace_add("write", lambda *args: self._update_step())
         step_entry = tk.Entry(angle_frame, textvariable=self.stepvar, width=5)
         step_entry.grid(row=2, column=1, sticky=tk.W, padx=(5, 10))
-        step_entry.bind("<FocusOut>", self._update_step)
         step_entry.bind("<Return>", self._update_step)
 
         # Right column - Framegrabber frame
@@ -200,13 +201,6 @@ class Panel:
         self.current_tab = tab_names[selected_tab_index]
         print(f"Current tab changed to: {self.current_tab}")
         
-        # Clear test data on tab change
-        self.test_data = {
-            'ap': None, 
-            'ob': None, 
-            'recons': None, 
-            'regs': None
-        }
 
     def _create_tab_content(self, tab_frame, tab_type):
         """Create the content for a tab with four dropdowns and error lists"""
@@ -216,6 +210,20 @@ class Panel:
         tab_widgets = {
             'dropdowns': {},
             'error_lists': {}
+        }
+
+        errs = {
+            'ap': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks','115'],
+            'ob': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks','115'],
+            'recons': ['120, Failed hemi-pelvis reconstruction', '121', '122'],
+            'regs': ['130, Failed hemi-pelvis registration (Cup Analysis)', '131']
+        }
+
+        self.errlist = {
+            'hp1': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
+            'hp2': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
+            'cup': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
+            'tri': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
         }
         
         # Create four sections: ap, ob, recons, and regs
@@ -242,6 +250,10 @@ class Panel:
             
             tk.Label(error_frame, text="Errors:").pack(side=tk.LEFT)
             
+            tk.Radiobutton(error_frame, text="No", value = False, command = self._clear_err(tab_type, section),
+                    variable=self.errlist[tab_type][section]).pack(side=tk.LEFT, padx=(5, 2))
+            tk.Radiobutton(error_frame, text="Yes", value = True, command = self._update_err(tab_type, section),
+                    variable=self.errlist[tab_type][section]).pack(side=tk.LEFT)
             # Create a frame to contain the listbox and scrollbar
             error_list_frame = tk.Frame(error_frame)
             error_list_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
@@ -259,8 +271,8 @@ class Panel:
             scrollbar.config(command=error_listbox.yview)
             
             # Add default error codes
-            for i in range(1, 6):
-                error_listbox.insert(tk.END, f"{i:03d}")
+            for i in errs[section]:
+                error_listbox.insert(tk.END, i)
             
             # Store widgets
             tab_widgets['dropdowns'][section] = dropdown
@@ -272,49 +284,49 @@ class Panel:
         """Collect selected files and error codes for the current tab"""
         # Clear previous test data
         self.test_data = {
-            'ap': None, 
-            'ob': None, 
-            'recons': None, 
-            'regs': None
+            'hp1': {}, 
+            'hp2': {}, 
+            'cup': {}, 
+            'tri': {}
         }
         
         # Get selected files from current tab only
         tab_type = self.current_tab  # hp1, hp2, cup, tri
-        
-        for section in ['ap', 'ob', 'recons', 'regs']:
-            # Get selected file
-            dropdown = self.tab_widgets[tab_type]['dropdowns'][section]
-            selected_base_name = dropdown.get()
-            
-            # Get selected errors
-            error_listbox = self.tab_widgets[tab_type]['error_lists'][section]
-            selected_indices = error_listbox.curselection()
-            selected_errors = [error_listbox.get(i) for i in selected_indices]
-            
-            if selected_base_name:
-                # Determine the folder
-                if section in ['ap', 'ob']:
-                    folder = 'shots'
-                else:
-                    folder = section
+        for t in ['hp1', 'hp2', 'cup', 'tri']:
+            for section in ['ap', 'ob', 'recons', 'regs']:
+                # Get selected file
+                dropdown = self.tab_widgets[t]['dropdowns'][section]
+                selected_base_name = dropdown.get()
                 
-                # Construct full paths for both PNG and JSON files
-                image_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.png")
-                json_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.json")
+                # Get selected errors
+                error_listbox = self.tab_widgets[t]['error_lists'][section]
+                selected_indices = error_listbox.curselection()
+                selected_errors = [error_listbox.get(i) for i in selected_indices][0][:3] if selected_indices and not self.errlist[t][section].get() else None
+                
+                if selected_base_name:
+                    # Determine the folder
+                    if section in ['ap', 'ob']:
+                        folder = 'shots'
+                    else:
+                        folder = section
+                    
+                    # Construct full paths for both PNG and JSON files
+                    image_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.png")
+                    json_path = os.path.join(self.sim_data_path, folder, f"{selected_base_name}.json")
 
-                self.test_data[section] = {
-                    'image_path': image_path if os.path.exists(image_path) else None,
-                    'json_path': json_path if os.path.exists(json_path) else None,
-                    'file_name': selected_base_name,
-                    'errors': selected_errors
-                }
-                self.controller.model.settest(self.test_data)
-        self.image_path = self.test_data['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data['ob']['image_path']
+                    self.test_data[t][section] = {
+                        'image_path': image_path if os.path.exists(image_path) else None,
+                        'json_path': json_path if os.path.exists(json_path) else None,
+                        'file_name': selected_base_name,
+                        'errors': selected_errors
+                    }
+        self.controller.model.settest(self.test_data)
+        self.image_path = self.test_data[tab_type]['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data[tab_type]['ob']['image_path']
         self.controller.frame_grabber.last_frame = cv2.imread(self.image_path)
         
     def _test(self):
         # Trigger the test 
-        self.image_path = self.test_data['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data['ob']['image_path']
+        self.image_path = self.test_data[self.current_tab]['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data[self.current_tab]['ob']['image_path']
         self.controller.frame_grabber.last_frame = cv2.imread(self.image_path)
         self.controller.frame_grabber._is_new_frame_available = True
         
@@ -411,7 +423,12 @@ class Panel:
         self.step = round(float(self.stepvar.get()), 1)
         self.stepvar.set(str(self.step))
 
+    def _clear_err(self, tab_type, section):
+        pass
     
+    def _update_err(self, tab_type, section):
+        pass
+
     def _update_imu_state(self, event=None):
         """Update the IMU properties based on UI settings"""
         is_connected = self.imu_connected_var.get()

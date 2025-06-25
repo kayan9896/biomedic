@@ -1,5 +1,6 @@
 {
     "on_simulation": true,
+    "jump": true,
     "ai_mode": true, 
     "imu_on": true,
     "imu_port": "COM3",
