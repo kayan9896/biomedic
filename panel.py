@@ -170,6 +170,13 @@ class Panel:
         
         tab_control.pack(fill=tk.BOTH, expand=True)
         
+        self.errlist = {
+            'hp1': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
+            'hp2': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
+            'cup': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
+            'tri': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
+        }
+
         # Create content for each tab
         self.tab_widgets = {
             'hp1': self._create_tab_content(self.hp1_tab, 'hp1'),
@@ -213,19 +220,12 @@ class Panel:
         }
 
         errs = {
-            'ap': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks','115'],
-            'ob': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks','115'],
+            'ap': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks'],
+            'ob': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks'],
             'recons': ['120, Failed hemi-pelvis reconstruction', '121', '122'],
             'regs': ['130, Failed hemi-pelvis registration (Cup Analysis)', '131']
         }
 
-        self.errlist = {
-            'hp1': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
-            'hp2': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
-            'cup': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
-            'tri': {'ap': tk.BooleanVar(value=False), 'ob': tk.BooleanVar(value=False), 'recons': tk.BooleanVar(value=False), 'regs': tk.BooleanVar(value=False)},
-        }
-        
         # Create four sections: ap, ob, recons, and regs
         for section in ['ap', 'ob', 'recons', 'regs']:
             section_frame = tk.LabelFrame(content_frame, text=section.upper(), padx=5, pady=5)
@@ -250,9 +250,9 @@ class Panel:
             
             tk.Label(error_frame, text="Errors:").pack(side=tk.LEFT)
             
-            tk.Radiobutton(error_frame, text="No", value = False, command = self._clear_err(tab_type, section),
+            tk.Radiobutton(error_frame, text="No", value = False, command = lambda t=tab_type, s=section: self._clear_err(t, s),
                     variable=self.errlist[tab_type][section]).pack(side=tk.LEFT, padx=(5, 2))
-            tk.Radiobutton(error_frame, text="Yes", value = True, command = self._update_err(tab_type, section),
+            tk.Radiobutton(error_frame, text="Yes", value = True, command = lambda t=tab_type, s=section: self._update_err(t, s),
                     variable=self.errlist[tab_type][section]).pack(side=tk.LEFT)
             # Create a frame to contain the listbox and scrollbar
             error_list_frame = tk.Frame(error_frame)
@@ -264,7 +264,7 @@ class Panel:
             
             # Create the listbox with scrollbar
             error_listbox = tk.Listbox(error_list_frame, height=3, width=15, 
-                                    yscrollcommand=scrollbar.set, selectmode=tk.EXTENDED)
+                                    yscrollcommand=scrollbar.set, selectmode=tk.EXTENDED, exportselection=False)
             error_listbox.pack(side=tk.LEFT, fill=tk.X, expand=True)
             
             # Configure the scrollbar
@@ -274,6 +274,7 @@ class Panel:
             for i in errs[section]:
                 error_listbox.insert(tk.END, i)
             
+            error_listbox.config(state='disabled')
             # Store widgets
             tab_widgets['dropdowns'][section] = dropdown
             tab_widgets['error_lists'][section] = error_listbox
@@ -301,7 +302,8 @@ class Panel:
                 # Get selected errors
                 error_listbox = self.tab_widgets[t]['error_lists'][section]
                 selected_indices = error_listbox.curselection()
-                selected_errors = [error_listbox.get(i) for i in selected_indices][0][:3] if selected_indices and not self.errlist[t][section].get() else None
+                print(self.errlist[t][section].get())
+                selected_errors = [error_listbox.get(i) for i in selected_indices][0][:3] if selected_indices and self.errlist[t][section].get() else None
                 
                 if selected_base_name:
                     # Determine the folder
@@ -424,10 +426,12 @@ class Panel:
         self.stepvar.set(str(self.step))
 
     def _clear_err(self, tab_type, section):
-        pass
+        self.tab_widgets[tab_type]['error_lists'][section].selection_clear(0,tk.END)
+        self.tab_widgets[tab_type]['error_lists'][section].config(state='disabled')
     
     def _update_err(self, tab_type, section):
-        pass
+        self.tab_widgets[tab_type]['error_lists'][section].config(state='normal')
+        self.tab_widgets[tab_type]['error_lists'][section].select_set(0)
 
     def _update_imu_state(self, event=None):
         """Update the IMU properties based on UI settings"""

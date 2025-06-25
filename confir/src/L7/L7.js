@@ -10,7 +10,7 @@ function L7({handledit, setReport, editable, leftCheckMark, rightCheckMark, reco
   
     return(
       <div>
-        <img className="image-button" src={require('./ImagingModeToolbar.png')} alt="Imaging Mode Toolbar" style={{position:'absolute', top:'458px', left:'921px', zIndex:7}}/>
+        <img src={require('./ImagingModeToolbar.png')} alt="Imaging Mode Toolbar" style={{position:'absolute', top:'458px', left:'921px', zIndex:7}}/>
         
         <img className="image-button"  src={require('./EditIcon.png')} alt="edit icon" style={{position:'absolute', top:'466px', left:'928px', zIndex:7}} onClick={handledit}/> 
         {!editable && <img src={require('./EditIconDis.png')} alt="edit icon dis" style={{position:'absolute', top:'466px', left:'928px', zIndex:7}}/>}

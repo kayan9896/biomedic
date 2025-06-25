@@ -101,7 +101,7 @@ function KB({
       setLocalCursorPosition(currentCursorPos - 1);
     } else if (button === "{space}") {
       insertAtCursor(' ');
-    } else if (button === "{lock}") {
+    } else if (button === "{lock}" || button === "{shift}") {
       setKeyboardLayout(keyboardLayout === "default" ? "shift" : "default");
     } else if (button === "{tab}") {
       setActiveInput(activeInput === 'pid' ? 'ratio' : activeInput === 'ratio' ? 'comment' : 'pid')
@@ -159,7 +159,7 @@ function KB({
   return (
       <div>
         <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:13}} onClick={() => setShowKeyboard(false)}/>
-        <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'327px', left:'0px', zIndex:13}}/>
+        <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'310px', left:'0px', zIndex:13}}/>
         <input
           ref={pidInputRef}
           type="text"
@@ -283,7 +283,7 @@ function KB({
               "{tab} Q W E R T Y U I O P { } |",
               '{lock} A S D F G H J K L : " {enter}',
               "{shift} Z X C V B N M < > ? {shift}",
-              "{space}"
+              "← → {space} ↑ ↓"
             ]
           }}
           theme={"hg-theme-default myTheme"}
