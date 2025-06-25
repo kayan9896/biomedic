@@ -26,6 +26,7 @@ function L3({
   });
 
   return(
+    <div>
     <div className="image-container" ref={frameRef}>
       <div
         className="image-wrapper"
@@ -41,9 +42,7 @@ function L3({
             ...(leftImage !== getInstruction(stage, 'AP') ? getFilterStyle(brightness[0], contrast[0]) : {})
           }}
         />
-        {activeLeft && !editing && (
-          <img src={require('./L5/APViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
-        )}
+        
         <div className="blue-box-overlay">
         {leftImageMetadata && Object.keys(leftImageMetadata).map((group, i) => (
           <PatternDisplay
@@ -74,9 +73,7 @@ function L3({
             ...((rightImage !== getInstruction(stage, 'OB')) ? getFilterStyle(brightness[1], contrast[1]) : {})
           }}
         />
-        {activeRight && !editing && (
-          <img src={require('./L5/OBViewportBlueBorder.png')} alt="blue box" className="blue-box-overlay" />
-        )}
+        
         <div className="blue-box-overlay">
         {rightImageMetadata && Object.keys(rightImageMetadata).map((group, i) => (
           <PatternDisplay
@@ -94,6 +91,13 @@ function L3({
       </div>
       <img src={require('./L5/PartingLine.png')} style={{position:'absolute', left: '958px', top: '0px'}}/>
 
+    </div>
+        {activeLeft && !editing && (
+              <img src={require('./L5/APViewportBlueBorder.png')} alt="blue box" style={{position: 'absolute', top: '0px', left: '0px', zIndex : 4}}/>
+            )}
+        {activeRight && !editing && (
+          <img src={require('./L5/OBViewportBlueBorder.png')} alt="blue box" style={{position: 'absolute', top: '0px', left: '960px', zIndex : 4}}/>
+        )}
     </div>
   );
 }
