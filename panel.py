@@ -195,10 +195,7 @@ class Panel:
         test_button = tk.Button(main_frame, text="TRIGGER", command=self._test)
         test_button.pack(fill=tk.X, pady=(10, 5))
         
-        # Auto mode toggle
-        auto_button = tk.Button(main_frame, text="Auto Mode: OFF", command=self._toggle_auto_mode_gui)
-        self.auto_button = auto_button
-        auto_button.pack(fill=tk.X)
+        
     
     def _on_tab_changed(self, event):
         """Handle tab change event to update current tab"""
@@ -239,6 +236,7 @@ class Panel:
             file_var = tk.StringVar()
             dropdown = ttk.Combobox(dropdown_frame, textvariable=file_var, state="readonly", width=30)
             dropdown.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+            dropdown.bind('<<ComboboxSelected>>', self._test_with_selected_files)
             
             # Refresh button
             tk.Button(dropdown_frame, text="↻", width=3, 
@@ -266,7 +264,8 @@ class Panel:
             error_listbox = tk.Listbox(error_list_frame, height=3, width=15, 
                                     yscrollcommand=scrollbar.set, selectmode=tk.EXTENDED, exportselection=False)
             error_listbox.pack(side=tk.LEFT, fill=tk.X, expand=True)
-            
+            error_listbox.bind('<<ListboxSelect>>', self._test_with_selected_files)
+
             # Configure the scrollbar
             scrollbar.config(command=error_listbox.yview)
             
@@ -281,7 +280,7 @@ class Panel:
         
         return tab_widgets
     
-    def _test_with_selected_files(self):
+    def _test_with_selected_files(self, e=None):
         """Collect selected files and error codes for the current tab"""
         # Clear previous test data
         self.test_data = {
@@ -302,7 +301,6 @@ class Panel:
                 # Get selected errors
                 error_listbox = self.tab_widgets[t]['error_lists'][section]
                 selected_indices = error_listbox.curselection()
-                print(self.errlist[t][section].get())
                 selected_errors = [error_listbox.get(i) for i in selected_indices][0][:3] if selected_indices and self.errlist[t][section].get() else None
                 
                 if selected_base_name:
@@ -428,10 +426,12 @@ class Panel:
     def _clear_err(self, tab_type, section):
         self.tab_widgets[tab_type]['error_lists'][section].selection_clear(0,tk.END)
         self.tab_widgets[tab_type]['error_lists'][section].config(state='disabled')
+        self._test_with_selected_files()
     
     def _update_err(self, tab_type, section):
         self.tab_widgets[tab_type]['error_lists'][section].config(state='normal')
         self.tab_widgets[tab_type]['error_lists'][section].select_set(0)
+        self._test_with_selected_files()
 
     def _update_imu_state(self, event=None):
         """Update the IMU properties based on UI settings"""

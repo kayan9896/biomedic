@@ -38,7 +38,7 @@
     ],
     "extraResources": [
       {
-        "from": "../proto.exe",
+        "from": "../dist/proto.exe",
         "to": "proto.exe"
       },
       {
