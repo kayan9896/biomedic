@@ -170,10 +170,10 @@ class IMU2:
             if self.activeside(stage) == 'ob':
                 self.tmp_obtarget2 = self.rotation_angle
         elif stage == 2:
-            if abs(self.rotation_angle - self.tmp_obtarget1) < self.tol + self.EPSILON:
-                self.tmp_used_ob = self.tmp_obtarget1
-            elif abs(self.rotation_angle - self.tmp_obtarget2) < self.tol + self.EPSILON:
-                self.tmp_used_ob = self.tmp_obtarget2
+            if abs(self.rotation_angle - self.obtarget1) < self.tol + self.EPSILON:
+                self.tmp_used_ob = self.obtarget1
+            elif abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON:
+                self.tmp_used_ob = self.obtarget2
 
     def confirm_save(self):
         if self.tmp_tilttarget is not None and self.tilttarget is None:

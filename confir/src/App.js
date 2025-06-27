@@ -276,6 +276,8 @@ function App() {
         setApl(data.apl)
         setApr(data.apr)
         setScale(data.scale)
+
+        if(data.jump) setStage(data.stage)
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;

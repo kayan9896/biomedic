@@ -195,8 +195,21 @@ class Panel:
         test_button = tk.Button(main_frame, text="TRIGGER", command=self._test)
         test_button.pack(fill=tk.X, pady=(10, 5))
         
-        
-    
+        tk.Label(main_frame, text="Jump to:").pack(side=tk.LEFT)
+        jump_var = tk.StringVar()
+        dropdown = ttk.Combobox(main_frame, textvariable=jump_var, state="readonly", width=30)
+        dropdown.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        dropdown.bind('<<ComboboxSelected>>', lambda e: self.jump(jump_var.get(), e))
+        dropdown['value'] = ['init', 'rcn:hmplv1:end', 'frm:hp2-ap:end', 'reg:pelvis:end', 'frm:cup-ap:end', 'reg:regcup:end', 'frm:tri-ap:end', 'reg:regtri:end']
+
+    def jump(self, scn, e=None):
+        self.controller.scn = scn
+        m = {'init' : 0, 'frm:hp2-ap:end': 1, 'frm:cup-ap:end': 2, 'frm:tri-ap:end': 3}
+        self.controller.viewmodel.states['jump'] = True
+        self.controller.viewmodel.states['stage'] = m[scn]
+        self.controller.model.filldata(m[scn])
+        print('scn', self.controller.scn)
+
     def _on_tab_changed(self, event):
         """Handle tab change event to update current tab"""
         tab_control = event.widget
