@@ -3,6 +3,10 @@ from tkinter import ttk
 import threading
 import os
 import cv2
+from model import Model
+from fg import FrameGrabber
+from controller import Controller
+import json
 
 class Panel:
     def __init__(self, config=None):
@@ -13,6 +17,9 @@ class Panel:
         self._running = True
         self.increasing = True
         
+        self.jumpped = False
+        self.config = config
+
         self.test_image_ready = False
         self.test_image_path = None
 
@@ -200,15 +207,45 @@ class Panel:
         dropdown = ttk.Combobox(main_frame, textvariable=jump_var, state="readonly", width=30)
         dropdown.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
         dropdown.bind('<<ComboboxSelected>>', lambda e: self.jump(jump_var.get(), e))
-        dropdown['value'] = ['init', 'rcn:hmplv1:end', 'frm:hp2-ap:end', 'reg:pelvis:end', 'frm:cup-ap:end', 'reg:regcup:end', 'frm:tri-ap:end', 'reg:regtri:end']
+        dropdown['value'] = ['init(hp1 bgn)', 'rcn:hmplv1:end(hp1 end)', 'frm:hp2-ap:end(hp2 bgn)', 'reg:pelvis:end(hp2 end)', 'frm:cup-ap:end(cup bgn)', 'reg:regcup:end(cup end)', 'frm:tri-ap:end(tri bgn)', 'frm:tri-ap:end(skip cup)', 'reg:regtri:end(tri end)']
 
     def jump(self, scn, e=None):
-        self.controller.scn = scn
-        m = {'init' : 0, 'frm:hp2-ap:end': 1, 'frm:cup-ap:end': 2, 'frm:tri-ap:end': 3}
-        self.controller.viewmodel.states['jump'] = True
-        self.controller.viewmodel.states['stage'] = m[scn]
+        if self.controller is None:
+            self.jumpped = True
+            select={}
+            try:
+                with open(f"{self.config.get("sim_carm_folder")}/hardware.json", 'r') as file:
+                    select = json.load(file)
+
+                distortion = {}
+                for fname in os.listdir(f"{self.config.get("sim_carm_folder")}/calib_arcs/distortion"):
+                    with open(f"{self.config.get("sim_carm_folder")}/calib_arcs/distortion/{fname}", 'r') as file:
+                        t = int(fname[6 : 11]) / 10
+                        r = int(fname[-10 : -5]) / 10
+                        distortion[(t,r)] = json.load(file)
+
+                gantry = {}
+                for fname in os.listdir(f"{self.config.get("sim_carm_folder")}/calib_arcs/gantry"):
+                    with open(f"{self.config.get("sim_carm_folder")}/calib_arcs/gantry/{fname}", 'r') as file:
+                        t = int(fname[6 : 11]) / 10
+                        r = int(fname[-10 : -5]) / 10
+                        gantry[(t,r)] = json.load(file)
+        
+                select.update({'distortion': distortion})
+                select.update({'gantry': gantry})
+                select.update({'folder': f"{self.config.get("sim_carm_folder")}"})
+            except Exception as e:
+                print(f"Fail to bypass: {str(e)}")
+                
+            self.controller = Controller(FrameGrabber(), Model(), self.config, select, self)
+            self.controller.run2()
+
+        self.controller.scn = scn.split('(')[0]
+        m = {'init(hp1 bgn)': 0, 'rcn:hmplv1:end(hp1 end)': 1, 'frm:hp2-ap:end(hp2 bgn)': 2, 'reg:pelvis:end(hp2 end)': 3, 'frm:cup-ap:end(cup bgn)': 4, 'reg:regcup:end(cup end)': 5, 'frm:tri-ap:end(tri bgn)': 6, 'frm:tri-ap:end(skip cup)': 7, 'reg:regtri:end(tri end)': 8}
+        self.controller.viewmodel.states['stage'] = m[scn]//2 if m[scn] < 6 else (m[scn] - 1) // 2
         self.controller.model.filldata(m[scn])
-        print('scn', self.controller.scn)
+        self.controller.viewmodel.jump(m[scn], self.controller.model.data)
+        print('scn', self.controller.scn, self.controller.viewmodel.states['stage'])
 
     def _on_tab_changed(self, event):
         """Handle tab change event to update current tab"""

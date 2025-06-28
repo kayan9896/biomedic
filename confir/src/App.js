@@ -276,8 +276,6 @@ function App() {
         setApl(data.apl)
         setApr(data.apr)
         setScale(data.scale)
-
-        if(data.jump) setStage(data.stage)
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
@@ -307,6 +305,22 @@ function App() {
     try {
         const response = await fetch('http://localhost:5000/api/image-with-metadata');
         const data = await response.json();
+
+        if(data.jump){
+          setStage(data.jump.stage)
+          setLeftImage(data.jump.apimage === 'default' ? getInstruction(data.jump.stage, 'AP') : data.jump.apimage)
+          setRightImage(data.jump.obimage === 'default' ? getInstruction(data.jump.stage, 'OB') : data.jump.obimage)
+          setLeftImageMetadata(data.jump.apmetadata)
+          setRightImageMetadata(data.jump.obmetadata)
+          setLeftCheckMark(data.jump.checkmark)
+          setRightCheckMark(data.jump.checkmark)
+          setMeasurements(data.jump.measurements)
+          setRecon(data.jump.recon)
+          setMoveNext(data.jump.next)
+          setIsCupReg(data.jump.stage >= 2 && data.jump.next ? true : false)
+          setIsTriReg(data.jump.stage === 3 && data.jump.next === 4 ? true : false)
+          return
+        }
         
         setRecon(data.recon)
         setError(data.error)
@@ -328,9 +342,11 @@ function App() {
             })
             console.log(stage, data.metadata)
 
-            setRightImage(getInstruction(stage,'OB'));
-            setRightImageMetadata(null)
-            setRightCheckMark(null)
+            if(!data.recon) {
+              setRightImage(getInstruction(stage,'OB'));
+              setRightImageMetadata(null)
+              setRightCheckMark(null)
+            }
         } else if (active_side === 'ob') {
             setRightImage(data.image);  // This is now a data URL
             setRightImageMetadata(data.metadata.metadata);
@@ -453,24 +469,12 @@ function App() {
     useaiRef.current = useai
     pelvisRef.current = pelvis
     console.log(pelvisRef)
-    try {
-      await fetch('http://localhost:5000/edit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({'uistates': 'edit'})
-      });
-    } catch (error) {
-      console.error('Error going next:', error);
-      setError("Failed to change backend uistate edit");
-    }
   };
 
   const handlerestart = async () => {
     setError(null)
-    setLeftImage(getInstruction(stage,'AP'));
-    setRightImage(getInstruction(stage,'OB'));
+    setLeftImage(getInstruction(0,'AP'));
+    setRightImage(getInstruction(0,'OB'));
     setLeftImageMetadata(null)
     setRightImageMetadata(null)
     setLeftCheckMark(null)
@@ -486,6 +490,8 @@ function App() {
     setComment('')
     setRatio('')
     setPause(0)
+    setBrightness([100, 100])
+    setContrast([100, 100])
     
     try {
       await fetch('http://localhost:5000/restart', {
@@ -508,7 +514,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({'uistates': showCarm || isProcessing || pause || showglyph || report || showKeyboard ? 'edit' : null})
+          body: JSON.stringify({'uistates': editing || showCarm || isProcessing || pause || showglyph || report || showKeyboard ? 'edit' : null})
         });
         setError(null)
       } catch (error) {
@@ -518,7 +524,7 @@ function App() {
     };
   
     setEditUIState();
-  }, [showCarm, isProcessing, pause, showglyph, report, showKeyboard]);
+  }, [editing, showCarm, isProcessing, pause, showglyph, report, showKeyboard]);
 
   const leftSaveRefs = useRef({}); // Object to store refs by group for left side
   const rightSaveRefs = useRef({}); // Object to store refs by group for right side
@@ -755,7 +761,7 @@ function App() {
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect}/>
+          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected}/>
         </div>
       ) : (
         <>
@@ -842,7 +848,7 @@ function App() {
       {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit}/>}
    
       {/*L10 Carmbox, render if backend tilt_angle changes*/}
-      {(tracking && showCarm && !pause && !isProcessing) && 
+      {(tracking && showCarm && !pause && !isProcessing && !editing) && 
           <L10 
           tiltAngle={tiltAngle} 
           rotationAngle={rotationAngle} 

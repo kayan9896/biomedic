@@ -11,6 +11,7 @@
     "model_simdata_path": "./exam0",
     "template_path": "./",
     "carm_folder": "./Calibration",
+    "sim_carm_folder": "./Calibration/03OEC9900-9in-II",
     "backend_pixel": 1024,
     "ui_pixel": 960
 }

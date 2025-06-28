@@ -64,7 +64,7 @@ analyze_box = None
 controller = None
 
 config = ConfigManager()
-panel = Panel(config)
+panel = Panel(config) if config.get('on_simulation') else None
 server_lock = threading.Lock()
 
 
@@ -265,7 +265,11 @@ select = {}
 @app.route('/get-carms', methods=['GET'])
 def get_carms():
     """Endpoint to retrieve C-arm data from JSON file"""
-    
+    global panel
+    global controller
+    if panel and panel.jumpped:
+        controller = panel.controller
+        return jsonify({'jump': True})
     try:
         for name in os.listdir(carm_folder):
             carm_data[name] = {'image': f"http://localhost:5000/carm-images/{name}"}
@@ -416,10 +420,10 @@ def start_processing2():
 @app.route('/api/states')
 def get_states():
     global controller
-    if controller is None:
-            controller = Controller(FrameGrabber(), Model())
-    
-    return jsonify(controller.get_states())
+    try:
+        return jsonify(controller.get_states())
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/setting', methods=['POST'])
 def set_ai_mode():
@@ -472,7 +476,8 @@ def get_image_with_metadata():
         'error': image_data['error'],
         'next': image_data['next'],
         'measurements': image_data['measurements'],
-        'side': image_data['side']
+        'side': image_data['side'],
+        'jump': image_data['jump'] if 'jump' in image_data else None
     })
 
 @app.route('/landmarks', methods=['POST'])

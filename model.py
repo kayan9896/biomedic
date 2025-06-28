@@ -42,6 +42,8 @@ class Model:
             'tothip': {'success': False},
             'regtri': {'stitch': None, 'success': False}
         }
+        self.viewpairs = [None]*4
+
     def getfrmcase(self, c):
         match c:
             case 'hmplv1': return ['hp1-ap', 'hp1-ob']
@@ -74,6 +76,7 @@ class Model:
         self.test_data = testdata
 
     def filldata(self, stage):
+        self.resetdata()
         if stage >= 1:
             hp1apimage = cv2.imread(self.test_data['hp1']['ap']['image_path'])
             with open(self.test_data['hp1']['ap']['json_path'], 'r') as f:
@@ -88,7 +91,7 @@ class Model:
             self.data['hmplv1'] = {'success': True, 'metadata': hmplv1}
             vp0 = cv2.imread(f'{self.test_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot0.png')
             self.viewpairs[0] = vp0
-        if stage >= 2:
+        if stage >= 3:
             hp2apimage = cv2.imread(self.test_data['hp2']['ap']['image_path'])
             with open(self.test_data['hp2']['ap']['json_path'], 'r') as f:
                 hp2apdata = json.load(f)
@@ -104,7 +107,7 @@ class Model:
             self.data['pelvis'] = {'success': True, 'stitch': stitch}
             vp1 = cv2.imread(f'{self.test_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot1.png')
             self.viewpairs[1] = vp1
-        if stage >= 3:
+        if stage >= 5:
             cupapimage = cv2.imread(self.test_data['cup']['ap']['image_path'])
             with open(self.test_data['cup']['ap']['json_path'], 'r') as f:
                 cupapdata = json.load(f)
@@ -117,9 +120,29 @@ class Model:
                 acecup = json.load(f)
             self.data['acecup'] = {'success': True, 'metadata': acecup}
             stitch = cv2.imread(f'{self.test_data['cup']['regs']['json_path'][:-4]}png')
-            self.data['regcup'] = {'success': True, 'stitch': stitch}
+            with open(self.test_data['cup']['regs']['json_path'], 'r') as f:
+                cupdata = json.load(f)
+            self.data['regcup'] = {'success': True, 'stitch': stitch, 'metadata': cupdata}
             vp2 = cv2.imread(f'{self.test_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot2.png')
             self.viewpairs[2] = vp2
+        if stage == 8:
+            triapimage = cv2.imread(self.test_data['tri']['ap']['image_path'])
+            with open(self.test_data['tri']['ap']['json_path'], 'r') as f:
+                triapdata = json.load(f)
+            self.data['tri-ap'] = {'image': triapimage, 'metadata': triapdata, 'success': True, 'side': triapdata['side']}
+            triobimage = cv2.imread(self.test_data['tri']['ob']['image_path'])
+            with open(self.test_data['tri']['ob']['json_path'], 'r') as f:
+                triobdata = json.load(f)
+            self.data['tri-ob'] = {'image': triobimage, 'metadata': triobdata, 'success': True, 'side': triobdata['side']}
+            with open(self.test_data['tri']['recons']['json_path'], 'r') as f:
+                acetri = json.load(f)
+            self.data['acecup'] = {'success': True, 'metadata': acetri}
+            stitch = cv2.imread(f'{self.test_data['tri']['regs']['json_path'][:-4]}png')
+            with open(self.test_data['tri']['regs']['json_path'], 'r') as f:
+                tridata = json.load(f)
+            self.data['regtri'] = {'success': True, 'stitch': stitch, 'metadata': tridata}
+            vp3 = cv2.imread(f'{self.test_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot2.png')
+            self.viewpairs[3] = vp3
 
 
     def analyzeframe(self, section, frame, tilt_angle=None, rotation_angle=None):

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
+function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected }) {
   const [cArms, setCArms] = useState({});
   const [cArmSelected, setCarmSelected] = useState(false);
   const [videoConnected, setVideoConnected] = useState(false);
@@ -15,7 +15,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
   
   // Fetch C-arm data when component mounts
   useEffect(() => {
-    if(Object.keys(cArms).length > 0) return
+    //if(Object.keys(cArms).length > 0) return
     const fetchCArms = async () => {
       try {
         const response = await fetch('http://localhost:5000/get-carms');
@@ -23,6 +23,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect }) {
           throw new Error('Failed to fetch C-arm data');
         }
         const data = await response.json();
+        if(data.jump) setIsConnected(true)
         setCArms(data);
         setError(null)
       } catch (err) {

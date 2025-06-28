@@ -2,6 +2,7 @@ from typing import List, Optional
 from dataclasses import dataclass, field
 import numpy as np
 import cv2
+import base64
 
 class ViewModel:
     def __init__(self, config = None):
@@ -30,12 +31,14 @@ class ViewModel:
             self.imgs[0]['error'] = None
             self.imgs[0]['measurements'] = None
             if image is not None: self.imgs[0]['image'] = image
+            if 'jump' in self.imgs[0]: self.imgs[0].pop('jump')
             for i in dataforvm:
                 self.imgs[0][i] = dataforvm[i]
         elif self.states['active_side'] == 'ob':
             self.imgs[1]['error'] = None
             self.imgs[1]['measurements'] = None
             if image is not None: self.imgs[1]['image'] = image
+            if 'jump' in self.imgs[1]: self.imgs[1].pop('jump')
             for i in dataforvm:
                 self.imgs[1][i] = dataforvm[i]
         
@@ -45,6 +48,42 @@ class ViewModel:
         """Update img_count cycling from 0 to 4"""
         current_count = self.states['img_count']
         self.states['img_count'] = (current_count + 1) % 5
+    
+    def encode(self, image):
+        _, buffer = cv2.imencode('.jpg', image)
+        image_base64 = base64.b64encode(buffer).decode('utf-8')
+        return f'data:image/jpeg;base64,{image_base64}'
+
+    def jump(self, stage, data):
+        if stage == 0 or 2 or 4:
+            self.imgs[0]['image'] = cv2.imread('./1.png')
+            self.imgs[1]['image'] = cv2.imread('./1.png')
+            self.imgs[0]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
+            self.imgs[1]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
+        if stage == 1:
+            self.imgs[0]['jump'] = {'stage': 0, 'apimage': self.encode(data['hp1-ap']['image']), 'obimage': self.encode(data['hp1-ob']['image']), 
+            'apmetadata': data['hp1-ap']['metadata']['metadata'], 'obmetadata': data['hp1-ob']['metadata']['metadata'], 
+            'checkmark': 1, 'recon': 2, 'next': True}
+        if stage == 3:
+            self.imgs[0]['jump'] = {'stage': 1, 'apimage': self.encode(data['hp2-ap']['image']), 'obimage': self.encode(data['hp2-ob']['image']), 
+            'apmetadata': data['hp2-ap']['metadata']['metadata'], 'obmetadata': data['hp2-ob']['metadata']['metadata'], 
+            'checkmark': 1, 'recon': 2, 'next': True}
+        if stage == 5:
+            self.imgs[0]['jump'] = {'stage': 2, 'apimage': self.encode(data['cup-ap']['image']), 'obimage': self.encode(data['cup-ob']['image']), 
+            'apmetadata': data['cup-ap']['metadata']['metadata'], 'obmetadata': data['cup-ob']['metadata']['metadata'], 
+            'measurements': data['regcup']['metadata']['RegsResult'], 
+            'checkmark': 1, 'recon': 2, 'next': True}
+        if stage == 6:
+            self.imgs[0]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'measurements': data['regcup']['metadata']['RegsResult'], 'checkmark': None, 'recon': None, 'next': True}
+        if stage == 7:
+            self.imgs[0]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
+        if stage == 8:
+            self.imgs[0]['jump'] = {'stage': 3, 'apimage': self.encode(data['tri-ap']['image']), 'obimage': self.encode(data['tri-ob']['image']), 
+            'apmetadata': data['tri-ap']['metadata']['metadata'], 'obmetadata': data['tri-ob']['metadata']['metadata'], 
+            'measurements': data['regtri']['metadata']['RegsResult'], 
+            'checkmark': 1, 'recon': 2, 'next': 4}
+        
+        self.update_img_count()
 
     def update_state(self, key: str, value: any):
         """Update a specific state value"""
