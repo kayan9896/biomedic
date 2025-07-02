@@ -16,7 +16,7 @@ const CircularProgress = ({ percentage }) => {
 
   return (
     <div className="circular-progress">
-      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
+      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:15, aspectRatio:'1920/1080', height:'1080px'}}/>
       <img src={backgroundImage} alt="window background" className="background-image" />
       <svg width="1920" height="960" viewBox="0 0 1920 960">
         <defs>

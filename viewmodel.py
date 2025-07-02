@@ -55,34 +55,33 @@ class ViewModel:
         return f'data:image/jpeg;base64,{image_base64}'
 
     def jump(self, stage, data):
-        if stage == 0 or 2 or 4:
-            self.imgs[0]['image'] = cv2.imread('./1.png')
-            self.imgs[1]['image'] = cv2.imread('./1.png')
-            self.imgs[0]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
-            self.imgs[1]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
+        if stage == 0 or stage == 2 or stage == 4:
+            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
         if stage == 1:
-            self.imgs[0]['jump'] = {'stage': 0, 'apimage': self.encode(data['hp1-ap']['image']), 'obimage': self.encode(data['hp1-ob']['image']), 
+            jump = {'stage': 0, 'apimage': self.encode(data['hp1-ap']['image']), 'obimage': self.encode(data['hp1-ob']['image']), 
             'apmetadata': data['hp1-ap']['metadata']['metadata'], 'obmetadata': data['hp1-ob']['metadata']['metadata'], 
             'checkmark': 1, 'recon': 2, 'next': True}
         if stage == 3:
-            self.imgs[0]['jump'] = {'stage': 1, 'apimage': self.encode(data['hp2-ap']['image']), 'obimage': self.encode(data['hp2-ob']['image']), 
+            jump = {'stage': 1, 'apimage': self.encode(data['hp2-ap']['image']), 'obimage': self.encode(data['hp2-ob']['image']), 
             'apmetadata': data['hp2-ap']['metadata']['metadata'], 'obmetadata': data['hp2-ob']['metadata']['metadata'], 
             'checkmark': 1, 'recon': 2, 'next': True}
         if stage == 5:
-            self.imgs[0]['jump'] = {'stage': 2, 'apimage': self.encode(data['cup-ap']['image']), 'obimage': self.encode(data['cup-ob']['image']), 
+            jump = {'stage': 2, 'apimage': self.encode(data['cup-ap']['image']), 'obimage': self.encode(data['cup-ob']['image']), 
             'apmetadata': data['cup-ap']['metadata']['metadata'], 'obmetadata': data['cup-ob']['metadata']['metadata'], 
             'measurements': data['regcup']['metadata']['RegsResult'], 
             'checkmark': 1, 'recon': 2, 'next': True}
         if stage == 6:
-            self.imgs[0]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'measurements': data['regcup']['metadata']['RegsResult'], 'checkmark': None, 'recon': None, 'next': True}
+            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': True}
         if stage == 7:
-            self.imgs[0]['jump'] = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
+            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
         if stage == 8:
-            self.imgs[0]['jump'] = {'stage': 3, 'apimage': self.encode(data['tri-ap']['image']), 'obimage': self.encode(data['tri-ob']['image']), 
+            jump = {'stage': 3, 'apimage': self.encode(data['tri-ap']['image']), 'obimage': self.encode(data['tri-ob']['image']), 
             'apmetadata': data['tri-ap']['metadata']['metadata'], 'obmetadata': data['tri-ob']['metadata']['metadata'], 
             'measurements': data['regtri']['metadata']['RegsResult'], 
             'checkmark': 1, 'recon': 2, 'next': 4}
-        
+
+        self.imgs[0]['jump'], self.imgs[1]['jump'] = jump, jump
+        self.imgs[0]['image'], self.imgs[1]['image'] = cv2.imread('./1.png'), cv2.imread('./1.png')
         self.update_img_count()
 
     def update_state(self, key: str, value: any):

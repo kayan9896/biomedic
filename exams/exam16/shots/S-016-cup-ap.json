@@ -1,0 +1,13 @@
+{
+    "folder": "shots",
+    "type": "cup-ap",
+    "side": "l",
+    "imuangles": [
+        5,
+        -5
+    ],
+    "metadata": null,
+    "Calibration": {},
+    "Segmentation": null,
+    "ShotIndex": 16
+}

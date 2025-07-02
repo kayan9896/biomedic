@@ -451,34 +451,37 @@ def set_ai_mode():
 
 @app.route('/api/image-with-metadata')
 def get_image_with_metadata():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    
-    image_data = controller.get_image_with_metadata()
-    
-    if image_data['image'] is None:
-        return jsonify({"error": "No image available"}), 404
-    
-    # Convert the image to base64 encoding
-    _, buffer = cv2.imencode('.jpg', image_data['image'])
-    image_base64 = base64.b64encode(buffer).decode('utf-8')
-    
-    # Convert metadata coordinates from backend to frontend scale
-    converted_metadata = backend_to_frontend_coords(image_data['metadata'])
-    
-    # Return both image and converted metadata in JSON
-    return jsonify({
-        'image': f'data:image/jpeg;base64,{image_base64}',
-        'metadata': converted_metadata,
-        'checkmark': image_data['checkmark'],
-        'recon': image_data['recon'],
-        'error': image_data['error'],
-        'next': image_data['next'],
-        'measurements': image_data['measurements'],
-        'side': image_data['side'],
-        'jump': image_data['jump'] if 'jump' in image_data else None
-    })
+    try:
+        global controller
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        image_data = controller.get_image_with_metadata()
+        
+        if image_data['image'] is None:
+            return jsonify({"error": "No image available"}), 404
+        
+        # Convert the image to base64 encoding
+        _, buffer = cv2.imencode('.jpg', image_data['image'])
+        image_base64 = base64.b64encode(buffer).decode('utf-8')
+        
+        # Convert metadata coordinates from backend to frontend scale
+        converted_metadata = backend_to_frontend_coords(image_data['metadata'])
+        
+        # Return both image and converted metadata in JSON
+        return jsonify({
+            'image': f'data:image/jpeg;base64,{image_base64}',
+            'metadata': converted_metadata,
+            'checkmark': image_data['checkmark'],
+            'recon': image_data['recon'],
+            'error': image_data['error'],
+            'next': image_data['next'],
+            'measurements': image_data['measurements'],
+            'side': image_data['side'],
+            'jump': image_data['jump'] if 'jump' in image_data else None
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/landmarks', methods=['POST'])
 def landmarks():

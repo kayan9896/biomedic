@@ -239,6 +239,7 @@ class Panel:
                 
             self.controller = Controller(FrameGrabber(), Model(), self.config, select, self)
             self.controller.run2()
+            self._test_with_selected_files()
 
         self.controller.scn = scn.split('(')[0]
         m = {'init(hp1 bgn)': 0, 'rcn:hmplv1:end(hp1 end)': 1, 'frm:hp2-ap:end(hp2 bgn)': 2, 'reg:pelvis:end(hp2 end)': 3, 'frm:cup-ap:end(cup bgn)': 4, 'reg:regcup:end(cup end)': 5, 'frm:tri-ap:end(tri bgn)': 6, 'frm:tri-ap:end(skip cup)': 7, 'reg:regtri:end(tri end)': 8}
