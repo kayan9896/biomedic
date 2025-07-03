@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,showReconnectionPage,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements}) {
+function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,showReconnectionPage,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements,testmeas}) {
   const [switchWarning, setSwitchWarning] = useState(false)
   const [data, setData] = useState({
     'Inclination' : '-',
@@ -9,6 +9,12 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
     'Offset': '-mm',
   })
   useEffect(() => {
+    console.log(testmeas)
+    if(testmeas){
+      setData(testmeas)
+      
+      return
+    }
     if(stage === 0) setData({
       'Inclination' : '-',
       'Anteversion' : '-',
@@ -24,7 +30,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
       console.log(newMetadata)
       return newMetadata;
     })}
-  }, [measurements, stage]);
+  }, [measurements, stage, testmeas]);
   const handleCapture = async () => {
     try {
       const response = await fetch('http://localhost:5000/cap', {

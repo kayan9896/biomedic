@@ -300,7 +300,7 @@ function App() {
   });
 
   
-
+  const [testmeas, setTestmeas] = useState(null)
   const updateImages = async (active_side, stage) => {
     try {
         const response = await fetch('http://localhost:5000/api/image-with-metadata');
@@ -317,11 +317,14 @@ function App() {
           setMeasurements(data.jump.measurements)
           setRecon(data.jump.recon)
           setMoveNext(data.jump.next)
+          setPelvis([data.jump.side, data.jump.side])
+          setUseai(data.jump.recon ? [true, true] : [false, false])
           setIsCupReg(data.jump.stage >= 2 && data.jump.next ? true : false)
           setIsTriReg(data.jump.stage === 3 && data.jump.next === 4 ? true : false)
+          setTestmeas(data.jump.testmeas)
           return
         }
-        
+        setTestmeas(null)
         setRecon(data.recon)
         setError(data.error)
         if(data.error==='glyph' || data.error === 'ref') {
@@ -333,7 +336,7 @@ function App() {
         if (active_side === 'ap') {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata.metadata);
-            setUseai([data.metadata.metadata ? true : false, false])
+            setUseai([data.metadata.metadata && !data.recon ? true : false, false])
             setLeftCheckMark(data.checkmark)
             setPelvis((prev) => {
               let tmp = [...prev]
@@ -353,7 +356,7 @@ function App() {
             setRightCheckMark(data.checkmark)
             setUseai(prev => {
               let tmp = [...prev]
-              tmp[1] = data.metadata.metadata ? true : false
+              tmp[1] = data.metadata.metadata && !data.recon? true : false
               return tmp
             })
             setPelvis((prev) => {
@@ -361,7 +364,6 @@ function App() {
               tmp[1] = data.side
               return tmp
             })
-
         }
         
         
@@ -797,6 +799,7 @@ function App() {
           rightImageMetadata={rightImageMetadata}
           rightSaveRefs={rightSaveRefs}
           measurements={measurements}
+          testmeas={testmeas}
         />
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}

@@ -74,6 +74,7 @@ class Model:
 
     def settest(self, testdata):
         self.test_data = testdata
+        print(testdata)
 
     def filldata(self, stage):
         self.resetdata()
@@ -107,7 +108,7 @@ class Model:
             self.data['pelvis'] = {'success': True, 'stitch': stitch}
             vp1 = cv2.imread(f'{self.test_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot1.png')
             self.viewpairs[1] = vp1
-        if stage >= 5:
+        if stage >= 5 and stage != 7:
             cupapimage = cv2.imread(self.test_data['cup']['ap']['image_path'])
             with open(self.test_data['cup']['ap']['json_path'], 'r') as f:
                 cupapdata = json.load(f)

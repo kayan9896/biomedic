@@ -235,7 +235,6 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
             top: `${point[1]-2 - (activeDotIndex === index ? 20 : 10)}px`,
             touchAction: 'none',
             pointerEvents: "auto",
-            zIndex: 10
           }}
           onMouseDown={(e) => handleDotMouseDown(e, index)}
           onTouchStart={(e) => handleDotTouchStart(e, index)}

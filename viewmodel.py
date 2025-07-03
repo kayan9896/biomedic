@@ -55,29 +55,41 @@ class ViewModel:
         return f'data:image/jpeg;base64,{image_base64}'
 
     def jump(self, stage, data):
+        testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
         if stage == 0 or stage == 2 or stage == 4:
-            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
+            testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
+            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None, 'testmeas': testmeas, 'side': 'l' if data['hp1-ap']['side'] == 'r' else 'l' if stage == 2 else None}
         if stage == 1:
+            testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
             jump = {'stage': 0, 'apimage': self.encode(data['hp1-ap']['image']), 'obimage': self.encode(data['hp1-ob']['image']), 
-            'apmetadata': data['hp1-ap']['metadata']['metadata'], 'obmetadata': data['hp1-ob']['metadata']['metadata'], 
-            'checkmark': 1, 'recon': 2, 'next': True}
+            'apmetadata': data['hp1-ap']['metadata']['metadata'], 'obmetadata': data['hp1-ob']['metadata']['metadata'], 'side': data['hp1-ap']['side'],
+            'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas}
         if stage == 3:
+            testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
             jump = {'stage': 1, 'apimage': self.encode(data['hp2-ap']['image']), 'obimage': self.encode(data['hp2-ob']['image']), 
-            'apmetadata': data['hp2-ap']['metadata']['metadata'], 'obmetadata': data['hp2-ob']['metadata']['metadata'], 
-            'checkmark': 1, 'recon': 2, 'next': True}
+            'apmetadata': data['hp2-ap']['metadata']['metadata'], 'obmetadata': data['hp2-ob']['metadata']['metadata'], 'side': data['hp2-ap']['side'],
+            'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas}
         if stage == 5:
+            testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
+            testmeas.update(data['regcup']['metadata']['RegsResult'])
             jump = {'stage': 2, 'apimage': self.encode(data['cup-ap']['image']), 'obimage': self.encode(data['cup-ob']['image']), 
-            'apmetadata': data['cup-ap']['metadata']['metadata'], 'obmetadata': data['cup-ob']['metadata']['metadata'], 
-            'measurements': data['regcup']['metadata']['RegsResult'], 
+            'apmetadata': data['cup-ap']['metadata']['metadata'], 'obmetadata': data['cup-ob']['metadata']['metadata'], 'side': data['cup-ap']['side'],
+            'measurements': data['regcup']['metadata']['RegsResult'], 'testmeas': testmeas,
             'checkmark': 1, 'recon': 2, 'next': True}
         if stage == 6:
-            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': True}
+            testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
+            testmeas.update(data['regcup']['metadata']['RegsResult'])
+            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'side': data['cup-ap']['side'], 'recon': None, 'next': True, 'testmeas': testmeas, 'side': data['cup-ap']['side']}
         if stage == 7:
-            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None}
+            testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
+            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None, 'testmeas': testmeas, 'side': None}
         if stage == 8:
+            testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
+            testmeas.update(data['regcup']['metadata']['RegsResult'])
+            testmeas.update(data['regtri']['metadata']['RegsResult'])
             jump = {'stage': 3, 'apimage': self.encode(data['tri-ap']['image']), 'obimage': self.encode(data['tri-ob']['image']), 
-            'apmetadata': data['tri-ap']['metadata']['metadata'], 'obmetadata': data['tri-ob']['metadata']['metadata'], 
-            'measurements': data['regtri']['metadata']['RegsResult'], 
+            'apmetadata': data['tri-ap']['metadata']['metadata'], 'obmetadata': data['tri-ob']['metadata']['metadata'], 'side': data['tri-ap']['side'],
+            'measurements': data['regtri']['metadata']['RegsResult'], 'testmeas': testmeas,
             'checkmark': 1, 'recon': 2, 'next': 4}
 
         self.imgs[0]['jump'], self.imgs[1]['jump'] = jump, jump
