@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Toggle from 'react-toggle';
 import 'react-toggle/style.css';
 
-function L14({setSetting, ai_mode, autocollect, tracking}) {
+function L14({setSetting, ai_mode, autocollect}) {
   // Data structure for placeholder texts
   const [items] = useState([
       { id: 1, text: 'AI Mode', isActive: ai_mode },
       { id: 2, text: 'Auto capture', isActive: autocollect },
-      { id: 3, text: 'Tracking IMU', isActive: tracking },
+      { id: 3, text: 'Placeholder 3', isActive: false },
       { id: 4, text: 'Placeholder 4', isActive: false },
       { id: 5, text: 'Placeholder 5', isActive: false },
       { id: 6, text: 'Placeholder 6', isActive: false },
@@ -71,28 +71,6 @@ function L14({setSetting, ai_mode, autocollect, tracking}) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ autocollect: newState ? true : false }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update AI mode');
-            }
-        } catch (error) {
-            console.error('Error updating AI mode:', error);
-            // Revert the toggle state if the update failed
-            setToggleStates(prev => ({
-                ...prev,
-                [id]: !newState
-            }));
-        }
-    }
-    if (id === 3) {
-        try {
-            const response = await fetch('http://localhost:5000/api/setting', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ tracking: newState ? true : false }),
             });
 
             if (!response.ok) {

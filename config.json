@@ -1,9 +1,6 @@
 {
     "on_simulation": true,
-    "jump": true,
     "ai_mode": true, 
-    "imu_on": true,
-    "imu_port": "COM3",
     "glyph_on": true,
     "framegrabber_device": "OBS Virtual Camera",
     "framegrabber_autocollect": true,

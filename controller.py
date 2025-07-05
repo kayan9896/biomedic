@@ -37,8 +37,8 @@ class Controller:
         self.model.calib = self.calib['Model']
         self.model.distortion = self.calib['distortion']
         self.model.gantry = self.calib['gantry']
-        print(self.model.distortion, self.model.gantry)
-        self.tracking = True
+        
+        
         self.video_connected = False
         
         self.viewmodel = ViewModel(config)
@@ -51,9 +51,9 @@ class Controller:
         self.logger = frame_grabber.logger
         
         # Initialize IMU if enabled in config
-        
-        if self.config.get("imu_on", True):
-            imu_port = self.config.get("imu_port", "COM3")
+        self.tracking = self.calib['IMU'].get("imu_on", True)
+        if self.tracking:
+            imu_port = self.calib['IMU'].get("imu_port", "COM3")
             self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
 
             
@@ -68,7 +68,7 @@ class Controller:
         self.model.resetdata()
         self.scn = 'init'
         self.viewmodel.states['stage'] = 0
-        if self.config.get("imu_on", True):
+        if self.tracking:
             imu_port = self.config.get("imu_port", "COM3")
             self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
 
@@ -78,7 +78,6 @@ class Controller:
         states['progress'] = self.model.progress
         states['ai_mode'] = self.ai_mode
         states['autocollect'] = self.autocollect 
-        states['tracking'] = self.tracking 
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
             is_connected = getattr(self.frame_grabber, 'is_connected', False)
@@ -86,7 +85,7 @@ class Controller:
             states['video_on'] = is_connected and is_running
         
         # Update imu_on based on IMU is_connected
-        states['imu_on'] = getattr(self.imu, 'is_connected', True)  # Default to True if property not found
+        states['imu_on'] = False if not hasattr(self, 'imu') else getattr(self.imu, 'is_connected', True)  # Default to True if property not found
 
         if self.tracking:
             states['tilt_angle'] = self.imu.tilt_angle
@@ -285,8 +284,11 @@ class Controller:
             
             if newscn == self.scn or newscn[-3:] == 'end':
                 continue
-            if self.tracking: self.imu.handle_window_close(self.viewmodel.states['stage'])
-            dataforsave, dataforvm, image = self.model.exec(newscn, frame, self.imu.tilt_angle, self.imu.rotation_angle)
+            if self.tracking: 
+                self.imu.handle_window_close(self.viewmodel.states['stage'])
+                dataforsave, dataforvm, image = self.model.exec(newscn, frame, self.imu.tilt_angle, self.imu.rotation_angle)
+            else: 
+                dataforsave, dataforvm, image = self.model.exec(newscn, frame)
             print(frame,image,dataforvm,newscn)
             self.scn = newscn[:-3] + 'end'
             self.viewmodel.update(dataforvm, image)

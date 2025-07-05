@@ -254,7 +254,6 @@ function App() {
         setImuon(data.imu_on)
         setAi_mode(data.ai_mode)
         setAutocollect(data.autocollect)
-        setTracking(data.tracking)
         setActiveLeft(data.active_side === 'ap' ? true: false)
         setActiveRight(data.active_side === 'ob' ? true: false)
         setApplyTarget(data.applytarget)
@@ -763,7 +762,7 @@ function App() {
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
-          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected}/>
+          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected} tracking={tracking} setTracking={setTracking}/>
         </div>
       ) : (
         <>
@@ -909,13 +908,17 @@ function App() {
 
       {/*L1x IMU and video icons, render based on backend params */}
       {!report && !editing && <>
-      {imuon? (
-        <img 
-          src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:12}}
-        />
-      ):(<img 
-        src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:12}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
-      />)}
+      {tracking && 
+        <>
+        {imuon? (
+          <img 
+            src={require('./L7/IMUConnectionIcon.png')} style={{position:'absolute', top:'863px', left:'1825px', zIndex:12}}
+          />
+        ):(<img 
+          src={require('./L7/IMUConnErrorNotice.png')} style={{position:'absolute', top:'864px', left:'1772px', animation: 'slideIn 0.5s ease-in-out', zIndex:12}} onClick={()=>setShowReconnectionPage(!showReconnectionPage)}
+        />)}
+        </>
+      }
       {video_on ? (<img 
         src={require('./L7/VideoConnectionIcon.png')} style={{position:'absolute', top:'765px', left:'1825px',zIndex:12}}
       />):(<img 
@@ -931,7 +934,7 @@ function App() {
       {<L12 key={Math.random()} pause={pause} setPause={setPause} handlenext={handlenext} selectCup={selectCup}/>}
 
       {/*L14 Setting, render when setting true*/}
-      {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode} autocollect={autocollect} tracking={tracking}/>}
+      {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode} autocollect={autocollect} />}
 
       
 

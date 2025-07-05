@@ -312,7 +312,8 @@ def serve_carm_image(filename):
         _, buffer = cv2.imencode('.jpg', image)
         image_base64 = base64.b64encode(buffer).decode('utf-8')
         return jsonify({
-            'image': f'data:image/jpeg;base64,{image_base64}'
+            'image': f'data:image/jpeg;base64,{image_base64}',
+            'imu_on': select['IMU']['imu_on']
         })
     except Exception as e:
         print(f"Error serving image {filename}: {str(e)}")
@@ -440,9 +441,6 @@ def set_ai_mode():
         if 'autocollect' in data:
             autocollect = data.get('autocollect', True)
             controller.autocollect = autocollect
-        if 'tracking' in data:
-            tracking = data.get('tracking', True)
-            controller.tracking = tracking
 
         return jsonify({'success': True})
     except Exception as e:

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected }) {
+function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected, tracking, setTracking }) {
   const [cArms, setCArms] = useState({});
   const [cArmSelected, setCarmSelected] = useState(false);
   const [videoConnected, setVideoConnected] = useState(false);
@@ -13,9 +13,10 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   const [warning, setWarning] = useState(false)
   const [carmimg, setCarmimg] = useState(false)
   
+  
   // Fetch C-arm data when component mounts
   useEffect(() => {
-    //if(Object.keys(cArms).length > 0) return
+    if(currentStep > 1) return
     const fetchCArms = async () => {
       try {
         const response = await fetch('http://localhost:5000/get-carms');
@@ -48,6 +49,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
         }
         const data = await response.json();
         setCarmimg(data.image);
+        setTracking(data.imu_on)
         setError(null)
       } catch (err) {
         setError('Error loading C-arm img: ' + err.message);
@@ -104,12 +106,11 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       setCurrentStep(2);
       checkVideoConnection(); // Automatically check video when advancing to step 2
     } else if (currentStep === 2 && videoConnected) {
-      setCurrentStep(3);
+      setCurrentStep(!tracking ? 4 : 3);
       checkTiltSensor(); // Automatically check tilt sensor when advancing to step 3
-    } else if (currentStep === 3 && tiltSensorConnected) {
+    } else if (currentStep === 3 && isCurrentStepComplete()) {
       setCurrentStep(4);
-      setAllChecksComplete(true); // Final step
-    } else if (currentStep === 4 && allChecksComplete) {
+    } else if (currentStep === 4) {
       handleConnect()
       setPause(10); // When all checks complete, proceed to next screen
     }
@@ -120,7 +121,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
     switch (currentStep) {
       case 1: return cArmSelected;
       case 2: return videoConnected;
-      case 3: return tiltSensorConnected && !tiltSensorBatteryLow; // Only complete if connected AND battery OK
+      case 3: return (tiltSensorConnected && !tiltSensorBatteryLow); // Only complete if connected AND battery OK
       case 4: return true; // For the reference bodies step
       default: return false;
     }
@@ -153,7 +154,12 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       // Completed step
       background = '';
       textColor = '#00B0F0';
-      if ((step === 1 && cArmSelected) || 
+      if (step === 3 && !tracking){
+        background = '';
+        textColor = '#686868';
+        icon = 'CrossGray.png';
+      }
+      else if ((step === 1 && cArmSelected) || 
           (step === 2 && videoConnected) || 
           (step === 3 && tiltSensorConnected)) {
         icon = 'CheckmarkBlue.png';

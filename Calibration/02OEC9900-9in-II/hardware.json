@@ -35,7 +35,8 @@
         "CarmRangeRotation": [-25, -10, 10, 25],
         "CarmTargetTilt": null,
         "CarmTargetRot": [null, null, null],
-        "tol": 0.2
+        "tol": 0.2,
+        "imu_on": true
 
     },
     "Model":{

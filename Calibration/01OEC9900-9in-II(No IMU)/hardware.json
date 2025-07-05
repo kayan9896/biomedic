@@ -34,9 +34,9 @@
         "CarmRangeTilt": [-15, 15],
         "CarmRangeRotation": [-25, -10, 10, 25],
         "CarmTargetTilt": 5.4,
-        "CarmTargetRot": [null, -15, 20],
-        "tol": 0.2
-
+        "CarmTargetRot": [-5, -15, 20],
+        "tol": 0.2,
+        "imu_on": false
     },
     "Model":{
         "ExtractDistortion": false,
