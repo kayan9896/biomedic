@@ -78,6 +78,7 @@ class Controller:
         states['progress'] = self.model.progress
         states['ai_mode'] = self.ai_mode
         states['autocollect'] = self.autocollect 
+        states['scn'] = self.scn
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
             is_connected = getattr(self.frame_grabber, 'is_connected', False)
@@ -397,19 +398,19 @@ class Controller:
                 if self.model.data['pelvis']['success']:
                     #user goes next
                     if self.uistates == 'next':                        
-                        if frame is not None:
-                            self.uistates = None
-                            if self.viewmodel.states['active_side'] == 'ap':
-                                return 'frm:cup-ap:bgn'
-                            if self.viewmodel.states['active_side'] == 'ob':
-                                return 'frm:cup-ob:bgn'
+                        self.uistates = None
+                        if self.viewmodel.states['active_side'] == 'ap':
+                            self.scn = 'frm:cup-ap:end'
+                        if self.viewmodel.states['active_side'] == 'ob':
+                            self.scn = 'frm:cup-ob:end'
+                        return self.scn
                     if self.uistates == 'skip':                        
-                        if frame is not None:
-                            self.uistates = None
-                            if self.viewmodel.states['active_side'] == 'ap':
-                                return 'frm:tri-ap:bgn'
-                            if self.viewmodel.states['active_side'] == 'ob':
-                                return 'frm:tri-ob:bgn'
+                        self.uistates = None
+                        if self.viewmodel.states['active_side'] == 'ap':
+                            self.scn = 'frm:tri-ap:end'
+                        if self.viewmodel.states['active_side'] == 'ob':
+                            self.scn = 'frm:tri-ob:end'
+                        return self.scn
 
                     #reg succeeds, user can still edit landmarks changes, redo recon
                     if self.uistates == 'landmarks':

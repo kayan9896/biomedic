@@ -41,7 +41,7 @@ class IMU2:
         self.prev_angle = 0
         self.prev_rotation_angle = 0
         self.icon_shown = False
-        self.window_shown = False
+        self.window_shown = not (self.is_rot_valid(0) and self.is_tilt_valid(0))
 
     def set_tilt(self, a):
         self.prev_angle = self.tilt_angle

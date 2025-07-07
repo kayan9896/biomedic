@@ -71,6 +71,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const useaiRef = useRef([]); 
 
+  const [scn, setScn] = useState(0);
   const [tiltAngle, setAngle] = useState(0);
   const [rotationAngle, setRotationAngle] = useState(0);
   const [activeLeft, setActiveLeft] = useState(false);
@@ -275,6 +276,7 @@ function App() {
         setApl(data.apl)
         setApr(data.apr)
         setScale(data.scale)
+        setScn(data.scn)
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
@@ -758,7 +760,7 @@ function App() {
 
   return (
     <div className="app">
-      
+      <div style={{position:'absolute',zIndex:2000,top:'0px',color:'white'}}>{scn}</div>
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
