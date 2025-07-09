@@ -16,7 +16,7 @@ const Magnifier = ({
   filter
 }) => {
     const [magnifierPosition, setMagnifierPosition] = useState('');
-    const proximityThreshold = size; // Distance in pixels to trigger position change
+    const proximityThreshold = 270; // Distance in pixels to trigger position change
     
     // Calculate magnifier's absolute position
     const getMagnifierCoordinates = () => {

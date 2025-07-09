@@ -485,7 +485,7 @@ class Controller:
 
             case 'reg:regcup:end':
                 if self.model.data['regcup']['success']:
-                    self.imu.iscupreg = True
+                    if self.tracking: self.imu.iscupreg = True
 
                     #user goes next
                     if self.uistates == 'next':                        

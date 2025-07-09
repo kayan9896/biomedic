@@ -323,6 +323,7 @@ function App() {
           setIsCupReg(data.jump.stage >= 2 && data.jump.next ? true : false)
           setIsTriReg(data.jump.stage === 3 && data.jump.next === 4 ? true : false)
           setTestmeas(data.jump.testmeas)
+          setError(null)
           return
         }
         setTestmeas(null)

@@ -205,12 +205,12 @@ class Model:
                 if error_code == '111':
                     metadata['metadata'] = None
                     self.is_processing = False
-                    return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'glyph'}, frame
+                    return {'metadata': metadata, 'checkmark': None, 'error': 'glyph'}, frame
 
                 if error_code == '112':
                     metadata['metadata'] = None
                     self.is_processing = False
-                    return {'metadata': metadata, 'checkmark': None, 'recon': None, 'error': 'ref'}, frame
+                    return {'metadata': metadata, 'checkmark': None, 'error': 'ref'}, frame
 
                 if error_code == '113':
                     metadata['metadata'] = None
