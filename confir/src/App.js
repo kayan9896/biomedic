@@ -195,8 +195,8 @@ function App() {
           
           if (currentStageData.ap_has_data && currentStageData.ap_image) {
             setLeftImage(currentStageData.ap_image);
-            if (currentStageData.ap_metadata.metadata) {
-              setLeftImageMetadata(currentStageData.ap_metadata.metadata);
+            if (currentStageData.ap_metadata) {
+              setLeftImageMetadata(currentStageData.ap_metadata);
             }
             setLeftCheckMark(currentStageData.ap_checkmark);
             
@@ -214,8 +214,8 @@ function App() {
           // Only update right (OB) image if the current stage has valid OB data
           if (currentStageData.ob_has_data && currentStageData.ob_image) {
             setRightImage(currentStageData.ob_image);
-            if (currentStageData.ob_metadata.metadata) {
-              setRightImageMetadata(currentStageData.ob_metadata.metadata);
+            if (currentStageData.ob_metadata) {
+              setRightImageMetadata(currentStageData.ob_metadata);
             }
             setRightCheckMark(currentStageData.ob_checkmark);
             
@@ -337,8 +337,8 @@ function App() {
 
         if (active_side === 'ap') {
             setLeftImage(data.image);  // This is now a data URL
-            setLeftImageMetadata(data.metadata.metadata);
-            setUseai([data.metadata.metadata && !data.recon ? true : false, false])
+            setLeftImageMetadata(data.metadata);
+            setUseai([data.metadata && !data.recon ? true : false, false])
             setLeftCheckMark(data.checkmark)
             setPelvis((prev) => {
               let tmp = [...prev]
@@ -354,11 +354,11 @@ function App() {
             }
         } else if (active_side === 'ob') {
             setRightImage(data.image);  // This is now a data URL
-            setRightImageMetadata(data.metadata.metadata);
+            setRightImageMetadata(data.metadata);
             setRightCheckMark(data.checkmark)
             setUseai(prev => {
               let tmp = [...prev]
-              tmp[1] = data.metadata.metadata && !data.recon? true : false
+              tmp[1] = data.metadata && !data.recon? true : false
               return tmp
             })
             setPelvis((prev) => {

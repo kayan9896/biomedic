@@ -237,7 +237,7 @@ class Panel:
             except Exception as e:
                 print(f"Fail to bypass: {str(e)}")
                 
-            self.controller = Controller(FrameGrabber(), Model(), self.config, select, self)
+            self.controller = Controller(self.config, select, self)
             self.controller.run2()
             self._test_with_selected_files()
 

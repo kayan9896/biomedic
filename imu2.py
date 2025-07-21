@@ -215,3 +215,19 @@ class IMU2:
             'ranger': self.ranger,
             'scale': self.scale
         }
+
+    def check_tilt_sensor(self):        
+        if not self.is_connected:
+            message = "Tilt sensor disconnected. Please check the connection."
+        elif self.battery_level < 30:
+            message = "Tilt sensor connected but battery is low. Consider replacing batteries soon."
+        else:
+            message = "Tilt sensor connected successfully."
+        return {
+            "connected": self.is_connected,
+            "battery_low": self.battery_level < 30,
+            "message": message
+        }
+
+    def set_cupreg(self):
+        self.iscupreg = True

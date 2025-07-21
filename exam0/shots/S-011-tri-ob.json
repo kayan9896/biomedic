@@ -1,9 +1,10 @@
 {
-    "folder": "shots",
-    "type": "tri-ob",
+    "section": "tri-ob",
+    "analysis_success": true,
+    "analysis_error_code": null,
     "side": "l",
     "imuangles": [0, 0],
-    "metadata": {
+    "landmarks": {
         "pelvis": [
             {
                 "handle": [
@@ -68,7 +69,7 @@
                 "colour": "CC79A7"
             }
         ],
-        "group2": [
+        "femur": [
             {
                 "handle": [
                     477,
@@ -133,6 +134,17 @@
             }
         ]
     },
-    "Calibration": {},
-    "Segmentation": null
+    "analysis_parameters": {
+        "extract_distortion": false,
+        "correct_distortion": false,
+        "extract_glyph": false,
+        "extract_tracking": false,
+        "extract_camcalib": false,
+        "ai_mode": true
+    },
+    "framecalib": {
+        "glyph": null,
+        "tracking": null,
+        "camcalib": null
+    }
 }

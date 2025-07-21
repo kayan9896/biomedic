@@ -9,7 +9,7 @@ from datetime import datetime
 import pythoncom
 
 class FrameGrabber:
-    def __init__(self):
+    def __init__(self, calib = None):
         self.device_name: str = ""
         self.device_index: int = -1
         self.capture = None
@@ -310,6 +310,41 @@ class FrameGrabber:
         except Exception as e:
             self.logger.error(f"Error restarting video: {str(e)}")
             return f"Error restarting video: {str(e)}"
+
+    def connect(self, device, frequency = 30):
+        if self.is_running:
+            return {
+                "connected": True,
+                "message": f"Successfully connected to {device}"
+            }
+        try: 
+            # Initiate video connection
+            result = self.frame_grabber.initiateVideo(device)
+            if isinstance(result, str):
+                return {
+                    "connected": False,
+                    "message": f"Failed to connect to video device: {result}"
+                }
+            
+            # Start video capture
+            start_result = self.frame_grabber.startVideo(frequency)
+            if isinstance(start_result, str):
+                return {
+                    "connected": False,
+                    "message": f"Failed to start video capture: {start_result}"
+                }
+            
+            return {
+                "connected": True,
+                "message": f"Successfully connected to {device}"
+            }
+        
+        except Exception as e:
+            self.logger.error(f"Error connecting to video: {str(e)}")
+            return {
+                "connected": False,
+                "message": f"Error connecting to video: {str(e)}"
+            }
 
 if __name__=="__main__":
     frame_grabber = FrameGrabber()

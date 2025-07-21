@@ -1,431 +1,430 @@
 {
-    "folder": "recons",
-    "type": "hp2",
+    "section": "hmplv2",
     "shot_1": {
-        "folder": "shots",
-        "type": "hp2-ap",
-        "side": "r",
-        "imuangles": [
-            -5,
-            -5
-        ],
-        "metadata": {
-            "group2": [
-                {
-                    "colour": "0072B2",
-                    "handle": [
-                        480,
-                        786
-                    ],
-                    "points": [
-                        [
-                            950,
-                            582
-                        ],
-                        [
-                            951,
-                            549
-                        ],
-                        [
-                            954,
-                            515
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "009E73",
-                    "points": [
-                        [
-                            920,
-                            115
-                        ],
-                        [
-                            885,
-                            158
-                        ],
-                        [
-                            835,
-                            147
-                        ],
-                        [
-                            817,
-                            102
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "F0E442",
-                    "points": [
-                        [
-                            795,
-                            51
-                        ],
-                        [
-                            673,
-                            35
-                        ],
-                        [
-                            647,
-                            227
-                        ]
-                    ],
-                    "type": "arc",
-                    "template": 0
-                },
-                {
-                    "colour": "725DEF",
-                    "points": [
-                        [
-                            666,
-                            247
-                        ],
-                        [
-                            698,
-                            261
-                        ],
-                        [
-                            724,
-                            279
-                        ],
-                        [
-                            743,
-                            323
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "DD217D",
-                    "points": [
-                        [
-                            746,
-                            387
-                        ],
-                        [
-                            728,
-                            421
-                        ],
-                        [
-                            731,
-                            471
-                        ],
-                        [
-                            775,
-                            502
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "E69F00",
-                    "points": [
-                        [
-                            810,
-                            566
-                        ],
-                        [
-                            812,
-                            599
-                        ],
-                        [
-                            810,
-                            635
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                }
-            ],
+        "section": "hp2-ap",
+        "analysis_success": true,
+        "analysis_error_code": null,
+        "side": "l",
+        "imuangles": [0, 0],
+        "landmarks": {
             "pelvis": [
                 {
-                    "colour": "D55E00",
                     "handle": [
-                        248,
-                        525
+                        776,
+                        528
                     ],
                     "points": [
                         [
-                            265,
-                            39
+                            672,
+                            249
                         ],
                         [
-                            270,
-                            133
+                            667,
+                            343
                         ],
                         [
-                            233,
-                            247
-                        ],
-                        [
-                            162,
-                            358
-                        ],
-                        [
-                            57,
-                            439
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "56B4E9",
-                    "points": [
-                        [
-                            153,
-                            537
-                        ],
-                        [
-                            217,
-                            566
-                        ],
-                        [
-                            281,
-                            545
-                        ],
-                        [
-                            288,
+                            704,
                             457
+                        ],
+                        [
+                            776,
+                            568
+                        ],
+                        [
+                            882,
+                            649
                         ]
                     ],
                     "type": "lines",
-                    "template": 0
+                    "colour": "D55E00"
                 },
                 {
-                    "colour": "CC79A7",
                     "points": [
                         [
-                            258,
-                            310
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                }
-            ]
-        },
-        "Calibration": {},
-        "Segmentation": null,
-        "index": 0
-    },
-    "shot_2": {
-        "folder": "shots",
-        "type": "hp2-ob",
-        "side": "r",
-        "imuangles": [
-            -5,
-            -25
-        ],
-        "metadata": {
-            "group2": [
-                {
-                    "colour": "0072B2",
-                    "handle": [
-                        480,
-                        786
-                    ],
-                    "points": [
-                        [
-                            788,
-                            933
+                            784,
+                            747
                         ],
                         [
-                            789,
-                            900
+                            721,
+                            776
                         ],
                         [
-                            792,
-                            866
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "009E73",
-                    "points": [
-                        [
-                            758,
-                            466
-                        ],
-                        [
-                            723,
-                            509
-                        ],
-                        [
-                            673,
-                            498
-                        ],
-                        [
-                            654,
-                            453
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "F0E442",
-                    "points": [
-                        [
-                            633,
-                            402
-                        ],
-                        [
-                            510,
-                            386
-                        ],
-                        [
-                            485,
-                            578
-                        ]
-                    ],
-                    "type": "arc",
-                    "template": 0
-                },
-                {
-                    "colour": "725DEF",
-                    "points": [
-                        [
-                            504,
-                            598
-                        ],
-                        [
-                            536,
-                            612
-                        ],
-                        [
-                            562,
-                            630
-                        ],
-                        [
-                            581,
-                            674
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "DD217D",
-                    "points": [
-                        [
-                            584,
-                            738
-                        ],
-                        [
-                            566,
-                            772
-                        ],
-                        [
-                            569,
-                            822
-                        ],
-                        [
-                            613,
-                            853
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
-                },
-                {
-                    "colour": "E69F00",
-                    "points": [
-                        [
-                            648,
-                            917
+                            658,
+                            752
                         ],
                         [
                             650,
+                            667
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "56B4E9"
+                },
+                {
+                    "points": [
+                        [
+                            680,
+                            520
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "CC79A7"
+                }
+            ],
+            "femur": [
+                {
+                    "handle": [
+                        545,
+                        789
+                    ],
+                    "points": [
+                        [
+                            283,
                             950
                         ],
                         [
-                            648,
-                            986
+                            282,
+                            917
+                        ],
+                        [
+                            279,
+                            880
                         ]
                     ],
                     "type": "lines",
-                    "template": 0
-                }
-            ],
-            "pelvis": [
-                {
-                    "colour": "D55E00",
-                    "handle": [
-                        248,
-                        525
-                    ],
-                    "points": [
-                        [
-                            325,
-                            333
-                        ],
-                        [
-                            330,
-                            427
-                        ],
-                        [
-                            293,
-                            541
-                        ],
-                        [
-                            221,
-                            652
-                        ],
-                        [
-                            117,
-                            733
-                        ]
-                    ],
-                    "type": "lines",
-                    "template": 0
+                    "colour": "0072B2"
                 },
                 {
-                    "colour": "56B4E9",
                     "points": [
                         [
-                            213,
-                            832
+                            313,
+                            483
                         ],
                         [
-                            277,
-                            860
+                            348,
+                            526
                         ],
                         [
-                            341,
+                            398,
+                            515
+                        ],
+                        [
+                            418,
+                            470
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "009E73"
+                },
+                {
+                    "points": [
+                        [
+                            438,
+                            416
+                        ],
+                        [
+                            562,
+                            402
+                        ],
+                        [
+                            586,
+                            593
+                        ]
+                    ],
+                    "type": "arc",
+                    "colour": "F0E442"
+                },
+                {
+                    "points": [
+                        [
+                            567,
+                            615
+                        ],
+                        [
+                            535,
+                            629
+                        ],
+                        [
+                            509,
+                            647
+                        ],
+                        [
+                            490,
+                            691
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "725DEF"
+                },
+                {
+                    "points": [
+                        [
+                            487,
+                            754
+                        ],
+                        [
+                            505,
+                            789
+                        ],
+                        [
+                            502,
                             839
                         ],
                         [
-                            347,
-                            752
+                            458,
+                            870
                         ]
                     ],
                     "type": "lines",
-                    "template": 0
+                    "colour": "DD217D"
                 },
                 {
-                    "colour": "CC79A7",
                     "points": [
                         [
-                            317,
-                            604
+                            423,
+                            934
+                        ],
+                        [
+                            421,
+                            967
+                        ],
+                        [
+                            423,
+                            1003
                         ]
                     ],
                     "type": "lines",
-                    "template": 0
+                    "colour": "E69F00"
                 }
             ]
         },
-        "Calibration": {},
-        "Segmentation": null,
-        "index": 1
+        "analysis_parameters": {
+            "extract_distortion": false,
+            "correct_distortion": false,
+            "extract_glyph": false,
+            "extract_tracking": false,
+            "extract_camcalib": false,
+            "ai_mode": true
+        },
+        "framecalib": {
+            "glyph": null,
+            "tracking": null,
+            "camcalib": null
+        }
     },
-    "ReconResult": 1
+    "shot_2": {
+        "section": "hp2-ob",
+        "analysis_success": true,
+        "analysis_error_code": null,
+        "side": "l",
+        "imuangles": [0, 0],
+        "landmarks": {
+            "pelvis": [
+                {
+                    "handle": [
+                        776,
+                        528
+                    ],
+                    "points": [
+                        [
+                            672,
+                            249
+                        ],
+                        [
+                            667,
+                            343
+                        ],
+                        [
+                            704,
+                            457
+                        ],
+                        [
+                            776,
+                            568
+                        ],
+                        [
+                            882,
+                            649
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "D55E00"
+                },
+                {
+                    "points": [
+                        [
+                            784,
+                            747
+                        ],
+                        [
+                            721,
+                            776
+                        ],
+                        [
+                            658,
+                            752
+                        ],
+                        [
+                            650,
+                            667
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "56B4E9"
+                },
+                {
+                    "points": [
+                        [
+                            680,
+                            520
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "CC79A7"
+                }
+            ],
+            "femur": [
+                {
+                    "handle": [
+                        545,
+                        789
+                    ],
+                    "points": [
+                        [
+                            283,
+                            950
+                        ],
+                        [
+                            282,
+                            917
+                        ],
+                        [
+                            279,
+                            880
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "0072B2"
+                },
+                {
+                    "points": [
+                        [
+                            313,
+                            483
+                        ],
+                        [
+                            348,
+                            526
+                        ],
+                        [
+                            398,
+                            515
+                        ],
+                        [
+                            418,
+                            470
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "009E73"
+                },
+                {
+                    "points": [
+                        [
+                            438,
+                            416
+                        ],
+                        [
+                            562,
+                            402
+                        ],
+                        [
+                            586,
+                            593
+                        ]
+                    ],
+                    "type": "arc",
+                    "colour": "F0E442"
+                },
+                {
+                    "points": [
+                        [
+                            567,
+                            615
+                        ],
+                        [
+                            535,
+                            629
+                        ],
+                        [
+                            509,
+                            647
+                        ],
+                        [
+                            490,
+                            691
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "725DEF"
+                },
+                {
+                    "points": [
+                        [
+                            487,
+                            754
+                        ],
+                        [
+                            505,
+                            789
+                        ],
+                        [
+                            502,
+                            839
+                        ],
+                        [
+                            458,
+                            870
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "DD217D"
+                },
+                {
+                    "points": [
+                        [
+                            423,
+                            934
+                        ],
+                        [
+                            421,
+                            967
+                        ],
+                        [
+                            423,
+                            1003
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "E69F00"
+                }
+            ]
+        },
+        "analysis_parameters": {
+            "extract_distortion": false,
+            "correct_distortion": false,
+            "extract_glyph": false,
+            "extract_tracking": false,
+            "extract_camcalib": false,
+            "ai_mode": true
+        },
+        "framecalib": {
+            "glyph": null,
+            "tracking": null,
+            "camcalib": null
+        }
+    },
+    "analysis_success": true,
+    "analysis_error_code": null,
+    "recondata": 1
 }
