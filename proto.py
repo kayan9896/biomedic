@@ -286,6 +286,19 @@ def get_stitch(stage):
     
     return jsonify(controller.get_stitch(stage))
 
+@app.route('/patient', methods=['POST'])
+def patient():
+    try:
+        global controller
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+
+        controller.patient(request.get_json())
+
+        return jsonify({"message": f"patient saved successfully"})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 '''
 @app.route('/check-running-state', methods=['GET'])
 def check_running_state():

@@ -46,6 +46,25 @@ function KB({
     }
   }, [activeInput, localCursorPosition]);
 
+  const handleClose = async () => {
+    try{
+        await fetch(`http://localhost:5000/patient`,{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body:JSON.stringify({
+            pid,
+            ratio,
+            comment
+          })
+        })
+        setShowKeyboard(false)
+    }catch (err) {
+      console.log('Error to save patient: ' + err.message);
+    }
+  }
+
   // Handle input changes for the ratio field
   const handleRatioChange = (e) => {
     setRatio(e.target.value);
@@ -158,7 +177,7 @@ function KB({
 
   return (
       <div>
-        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:13}} onClick={() => setShowKeyboard(false)}/>
+        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:13}} onClick={handleClose}/>
         <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'310px', left:'0px', zIndex:13}}/>
         <input
           ref={pidInputRef}
@@ -310,7 +329,7 @@ function KB({
 
       <img
         src={require('./ExitButton.png')}
-        onClick={() => setShowKeyboard(false)} 
+        onClick={handleClose} 
         style={{
           position: 'absolute',
           top: '346px',

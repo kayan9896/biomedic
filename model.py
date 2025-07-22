@@ -57,7 +57,7 @@ class Model:
         self.data = None
         self._resetdata()
         self.sim_data = None
-
+        self.patient_data = None
 
         self._lock = threading.Lock()
         self._stitch_thread = None
