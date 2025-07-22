@@ -7,18 +7,40 @@ import base64
 class ViewModel:
     def __init__(self, calib = None):
         self.states = {
-            'ai_mode': 0,
-            'tilt_angle': 0,
-            'rotation_angle': 0,
-            'img_count': 0,  
-            'active_side': None,
-            'is_processing': False,
-            'progress': 0,
-            'imu_on': True,
-            'video_on':True,
-            'stage': 0,
-
+            "C-arm Model": "ATEC>OEC9902 E9-0284",
+            "active_side": None,
+            "ai_mode": True,
+            "apl": None,
+            "applytarget": False,
+            "apr": None,
+            "aptarget": None,
+            "autocollect": True,
+            "img_count": 0,
+            "imu_on": None,
+            "is_processing": False,
+            "is_rot_valid": False,
+            "is_tilt_valid": False,
+            "ob_max": None,
+            "ob_min": None,
+            "obtarget1": None,
+            "obtarget2": None,
+            "progress": 0,
+            "rangel": None,
+            "ranger": None,
+            "rotation_angle": None,
+            "scale": None,
+            "scn": "init",
+            "show_icon": False,
+            "show_window": False,
+            "stage": 0,
+            "tilt_angle": None,
+            "tiltl": None,
+            "tiltr": None,
+            "tilttarget": None,
+            "used_ob": None,
+            "video_on": None
         }
+        
         self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'recon': None, 'error': None, 'next': False, 'measurements': None, 'side': None} for i in range(2)]
 
     def update(self, analysis_type, data_for_model):
@@ -118,49 +140,49 @@ class ViewModel:
             apimage, obimage = data['hp1-ap']['image'], data['hp1-ob']['image']
             self.imgs[0]['image'], self.imgs[1]['image'] = apimage, obimage
             jump = {'stage': 0, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
-            'apmetadata': data['hp1-ap']['metadata']['metadata'], 'obmetadata': data['hp1-ob']['metadata']['metadata'], 'side': data['hp1-ap']['side'],
+            'apmetadata': data['hp1-ap']['framedata']['landmarks'], 'obmetadata': data['hp1-ob']['framedata']['landmarks'], 'side': data['hp1-ap']['side'],
             'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas}
         if stage == 3:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
             apimage, obimage = data['hp2-ap']['image'], data['hp2-ob']['image']
             self.imgs[0]['image'], self.imgs[1]['image'] = apimage, obimage
             jump = {'stage': 1, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
-            'apmetadata': data['hp2-ap']['metadata']['metadata'], 'obmetadata': data['hp2-ob']['metadata']['metadata'], 'side': data['hp2-ap']['side'],
+            'apmetadata': data['hp2-ap']['framedata']['landmarks'], 'obmetadata': data['hp2-ob']['framedata']['landmarks'], 'side': data['hp2-ap']['side'],
             'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas}
         if stage == 5:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
-            testmeas.update(data['regcup']['metadata']['RegsResult'])
+            testmeas.update(data['regcup']['metadata']['measurements'])
             apimage, obimage = data['cup-ap']['image'], data['cup-ob']['image']
             self.imgs[0]['image'], self.imgs[1]['image'] = apimage, obimage
             jump = {'stage': 2, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
-            'apmetadata': data['cup-ap']['metadata']['metadata'], 'obmetadata': data['cup-ob']['metadata']['metadata'], 'side': data['cup-ap']['side'],
-            'measurements': data['regcup']['metadata']['RegsResult'], 'testmeas': testmeas,
+            'apmetadata': data['cup-ap']['framedata']['landmarks'], 'obmetadata': data['cup-ob']['framedata']['landmarks'], 'side': data['cup-ap']['side'],
+            'measurements': data['regcup']['metadata']['measurements'], 'testmeas': testmeas,
             'checkmark': 1, 'recon': 2, 'next': True}
         if stage == 6:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
-            testmeas.update(data['regcup']['metadata']['RegsResult'])
+            testmeas.update(data['regcup']['metadata']['measurements'])
             jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'side': data['cup-ap']['side'], 'recon': None, 'next': True, 'testmeas': testmeas, 'side': data['cup-ap']['side']}
         if stage == 7:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
             jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None, 'testmeas': testmeas, 'side': None}
         if stage == 8:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
-            testmeas.update(data['regcup']['metadata']['RegsResult'])
-            testmeas.update(data['regtri']['metadata']['RegsResult'])
+            testmeas.update(data['regcup']['metadata']['measurements'])
+            testmeas.update(data['regtri']['metadata']['measurements'])
             apimage, obimage = data['tri-ap']['image'], data['tri-ob']['image']
             self.imgs[0]['image'], self.imgs[1]['image'] = apimage, obimage
             jump = {'stage': 3, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
-            'apmetadata': data['tri-ap']['metadata']['metadata'], 'obmetadata': data['tri-ob']['metadata']['metadata'], 'side': data['tri-ap']['side'],
-            'measurements': data['regtri']['metadata']['RegsResult'], 'testmeas': testmeas,
+            'apmetadata': data['tri-ap']['framedata']['landmarks'], 'obmetadata': data['tri-ob']['framedata']['landmarks'], 'side': data['tri-ap']['side'],
+            'measurements': data['regtri']['metadata']['measurements'], 'testmeas': testmeas,
             'checkmark': 1, 'recon': 2, 'next': 4}
 
         self.imgs[0]['jump'], self.imgs[1]['jump'] = jump, jump
         
         self.update_img_count()
 
-    def update_state(self, key: str, value: any):
+    def update_state(self, value):
         """Update a specific state value"""
-        self.states[key] = value
+        self.states.update(value)
 
     def get_states(self):
         """Get all states"""

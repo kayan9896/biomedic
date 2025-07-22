@@ -238,7 +238,7 @@ class Panel:
                 print(f"Fail to bypass: {str(e)}")
                 
             self.controller = Controller(self.config, select, self)
-            self.controller.run2()
+            self.controller.start_processing()
             self._test_with_selected_files()
 
         self.controller.scn = scn.split('(')[0]
@@ -499,9 +499,9 @@ class Panel:
             self.battery_var.set(str(battery_level))
         
         # Update IMU properties if available
-        if hasattr(self.controller, 'imu'):
-            self.controller.imu.is_connected = is_connected
-            self.controller.imu.battery_level = battery_level
+        if hasattr(self.controller, 'imu_sensor'):
+            self.controller.imu_sensor.is_connected = is_connected
+            self.controller.imu_sensor.battery_level = battery_level
         
         # Update battery status display
         if battery_level <= 20:
@@ -561,7 +561,7 @@ class Panel:
         if not self._auto_mode:
             new_angle = min(max(self.tilt_angle + change, -100), 100)
             self.tilt_angle = round(new_angle, 2)
-            self.controller.imu.set_tilt(self.tilt_angle)
+            self.controller.imu_sensor.set_tilt(self.tilt_angle)
             self.angle_value.config(text=str(self.tilt_angle))
             print(f"Current tilt_angle: {self.tilt_angle}")
     
@@ -570,7 +570,7 @@ class Panel:
         if not self._auto_mode:
             new_angle = min(max(self.rotation_angle + change, -100), 100)
             self.rotation_angle = round(new_angle, 2)
-            self.controller.imu.set_rotation(self.rotation_angle)
+            self.controller.imu_sensor.set_rotation(self.rotation_angle)
             self.rotation_angle_value.config(text=str(self.rotation_angle))
             print(f"Current rotation_angle: {self.rotation_angle}")
     

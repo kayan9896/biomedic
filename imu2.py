@@ -2,12 +2,10 @@ import threading
 import time
 import keyboard  # You'll need to install this: pip install keyboard
 
-class IMU2:
-    def __init__(self, port, ApplyTarget, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20, tol = 0.2):
+class IMU_handler:
+    def __init__(self, ApplyTarget, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20, tol = 0.2):
         self.tilt_angle = 0
         self.rotation_angle = 0
-        self.is_connected = False
-        self.battery_level = 100
         self.tiltl = CarmRangeTilt[0]
         self.tiltr = CarmRangeTilt[1]
         self.rangel = CarmRangeRotation[0]
@@ -195,6 +193,9 @@ class IMU2:
 
     def get_all(self, stage):
         return {
+            'tilt_angle': self.tilt_angle,
+            'rotation_angle': self.rotation_angle,
+            'active_side': self.activeside(stage),
             'applytarget': self.applytarget,
             'tilttarget': self.tilttarget,
             'aptarget': self.aptarget,
@@ -216,18 +217,6 @@ class IMU2:
             'scale': self.scale
         }
 
-    def check_tilt_sensor(self):        
-        if not self.is_connected:
-            message = "Tilt sensor disconnected. Please check the connection."
-        elif self.battery_level < 30:
-            message = "Tilt sensor connected but battery is low. Consider replacing batteries soon."
-        else:
-            message = "Tilt sensor connected successfully."
-        return {
-            "connected": self.is_connected,
-            "battery_low": self.battery_level < 30,
-            "message": message
-        }
 
     def set_cupreg(self):
         self.iscupreg = True

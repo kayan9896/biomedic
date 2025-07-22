@@ -132,7 +132,7 @@ def check_tilt_sensor():
         if controller is None:
             controller = Controller(config)
         
-        return jsonify(controller.imu.check_tilt_sensor())
+        return jsonify(controller.imu_sensor.check_tilt_sensor())
         
 @app.route('/run2', methods=['POST'])
 def start_processing():
@@ -222,7 +222,7 @@ def switch_side():
     if controller is None:
         return jsonify({"error": "Controller not initialized"}), 404
     label = request.json.get('label')
-    controller.viewmodel.states['active_side'] = label
+    controller.active_side = label
     return jsonify({"message": "click label switch active side"})
     
 @app.route('/edit', methods=['POST'])

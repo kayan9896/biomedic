@@ -50,7 +50,6 @@ class Model:
         self.ai_mode = ai_mode
         self.on_simulation = on_simulation
 
-        self.is_processing = False
         self.progress = 0
 
         self.viewpairs = [None]*4
@@ -92,6 +91,76 @@ class Model:
             'regtri': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None}
         }
 
+    def filldata(self, stage):
+        self._resetdata()
+        if stage >= 1:
+            hp1apimage = cv2.imread(self.sim_data['hp1']['ap']['image_path'])
+            with open(self.sim_data['hp1']['ap']['json_path'], 'r') as f:
+                hp1apdata = json.load(f)
+            self.data['hp1-ap'] = {'image': hp1apimage, 'framedata': hp1apdata, 'success': True, 'side': hp1apdata['side']}
+            hp1obimage = cv2.imread(self.sim_data['hp1']['ob']['image_path'])
+            with open(self.sim_data['hp1']['ob']['json_path'], 'r') as f:
+                hp1obdata = json.load(f)
+            self.data['hp1-ob'] = {'image': hp1obimage, 'framedata': hp1obdata, 'success': True, 'side': hp1obdata['side']}
+            with open(self.sim_data['hp1']['recons']['json_path'], 'r') as f:
+                hmplv1 = json.load(f)
+            self.data['hmplv1'] = {'success': True, 'metadata': hmplv1}
+            vp0 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot0.png')
+            self.viewpairs[0] = vp0
+        if stage >= 3:
+            hp2apimage = cv2.imread(self.sim_data['hp2']['ap']['image_path'])
+            with open(self.sim_data['hp2']['ap']['json_path'], 'r') as f:
+                hp2apdata = json.load(f)
+            self.data['hp2-ap'] = {'image': hp2apimage, 'framedata': hp2apdata, 'success': True, 'side': hp2apdata['side']}
+            hp2obimage = cv2.imread(self.sim_data['hp2']['ob']['image_path'])
+            with open(self.sim_data['hp2']['ob']['json_path'], 'r') as f:
+                hp2obdata = json.load(f)
+            self.data['hp2-ob'] = {'image': hp2obimage, 'framedata': hp2obdata, 'success': True, 'side': hp2obdata['side']}
+            with open(self.sim_data['hp2']['recons']['json_path'], 'r') as f:
+                hmplv2 = json.load(f)
+            self.data['hmplv2'] = {'success': True, 'metadata': hmplv2}
+            stitch = cv2.imread(f'{self.sim_data['hp2']['regs']['json_path'][:-4]}png')
+            self.data['pelvis'] = {'success': True, 'stitch': stitch}
+            vp1 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot1.png')
+            self.viewpairs[1] = vp1
+        if stage >= 5 and stage != 7:
+            cupapimage = cv2.imread(self.sim_data['cup']['ap']['image_path'])
+            with open(self.sim_data['cup']['ap']['json_path'], 'r') as f:
+                cupapdata = json.load(f)
+            self.data['cup-ap'] = {'image': cupapimage, 'framedata': cupapdata, 'success': True, 'side': cupapdata['side']}
+            cupobimage = cv2.imread(self.sim_data['cup']['ob']['image_path'])
+            with open(self.sim_data['cup']['ob']['json_path'], 'r') as f:
+                cupobdata = json.load(f)
+            self.data['cup-ob'] = {'image': cupobimage, 'framedata': cupobdata, 'success': True, 'side': cupobdata['side']}
+            with open(self.sim_data['cup']['recons']['json_path'], 'r') as f:
+                acecup = json.load(f)
+            self.data['acecup'] = {'success': True, 'metadata': acecup}
+            stitch = cv2.imread(f'{self.sim_data['cup']['regs']['json_path'][:-4]}png')
+            with open(self.sim_data['cup']['regs']['json_path'], 'r') as f:
+                cupdata = json.load(f)
+            self.data['regcup'] = {'success': True, 'stitch': stitch, 'metadata': cupdata}
+            vp2 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot2.png')
+            self.viewpairs[2] = vp2
+        if stage == 8:
+            triapimage = cv2.imread(self.sim_data['tri']['ap']['image_path'])
+            with open(self.sim_data['tri']['ap']['json_path'], 'r') as f:
+                triapdata = json.load(f)
+            self.data['tri-ap'] = {'image': triapimage, 'framedata': triapdata, 'success': True, 'side': triapdata['side']}
+            triobimage = cv2.imread(self.sim_data['tri']['ob']['image_path'])
+            with open(self.sim_data['tri']['ob']['json_path'], 'r') as f:
+                triobdata = json.load(f)
+            self.data['tri-ob'] = {'image': triobimage, 'framedata': triobdata, 'success': True, 'side': triobdata['side']}
+            with open(self.sim_data['tri']['recons']['json_path'], 'r') as f:
+                acetri = json.load(f)
+            self.data['acecup'] = {'success': True, 'metadata': acetri}
+            stitch = cv2.imread(f'{self.sim_data['tri']['regs']['json_path'][:-4]}png')
+            with open(self.sim_data['tri']['regs']['json_path'], 'r') as f:
+                tridata = json.load(f)
+            self.data['regtri'] = {'success': True, 'stitch': stitch, 'metadata': tridata}
+            vp3 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot2.png')
+            self.viewpairs[3] = vp3
+
+
     def getfrmcase(self, c):
         match c:
             case 'hmplv1': return ['hp1-ap', 'hp1-ob']
@@ -121,6 +190,7 @@ class Model:
                     k+=1
         # Stitch the images
         result = np.hstack((frame1_resized, frame2_resized))
+        return result
 
     def stitch_act(self,section):
         # return image array
@@ -605,7 +675,8 @@ class Model:
 
         return scn, uistates, action
 
-
+    def get_model_states(self):
+        return {'progress': self.progress}
 
     # controller
     #>> keep active_side as a controller parameter

@@ -12,9 +12,9 @@ import json
 import shutil
 from glob import glob
 import datetime
-from imu2 import IMU2
+from imu import IMU_sensor
+from imu2 import IMU_handler
 from exam import Exam
-from flask import jsonify
 
 class Controller:
     def __init__(self, config = None, calib = None,  panel = None):
@@ -33,8 +33,12 @@ class Controller:
         self.on_simulation = self.config.get("on_simulation", False) 
         self.autocollect = self.config.get('framegrabber_autocollect', True)
         self.ai_mode = self.config.get("ai_mode", True)
-        self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"])
         self.is_processing = False
+        self.active_side = None
+        self.stage = 0
+
+        self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"])
+        
         
         self.viewmodel = ViewModel(config)
         self.exam = Exam(self.calib['folder'])
@@ -47,10 +51,10 @@ class Controller:
         
         # Initialize IMU if enabled in config
         self.tracking = self.calib['IMU'].get("imu_on", True)
-        if self.tracking:
-            imu_port = self.calib['IMU'].get("imu_port", "COM3")
-            self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
-  
+        if self.tracking: 
+            self.imu_handler = IMU_handler(self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
+            self.imu_sensor = IMU_sensor(self.calib['IMU'].get("imu_port", "COM3"), self.imu_handler)
+
         if self.on_simulation:
             self.panel = panel
             self.panel.controller = self
@@ -59,34 +63,39 @@ class Controller:
         self.uistates = 'restart'
         self.model._resetdata()
         self.scn = 'init'
-        self.viewmodel.states['stage'] = 0
+        self.stage = 0
         if self.tracking:
-            imu_port = self.config.get("imu_port", "COM3")
-            self.imu = IMU2(imu_port, self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
+            self.imu_handler = IMU_handler(self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
+    
+    def get_controller_states(self):
+        return{
+            'is_processing': self.is_processing,
+            'ai_mode' : self.ai_mode,
+            'autocollect': self.autocollect,
+            'active_side': self.active_side,
+            'stage': self.stage,
+            'scn': self.scn
+        }
 
     def get_states(self):
-        states = self.viewmodel.states
-        states['is_processing'] = self.is_processing
-        states['progress'] = self.model.progress
-        states['ai_mode'] = self.ai_mode
-        states['autocollect'] = self.autocollect 
-        states['scn'] = self.scn
+        self.viewmodel.update_state(self.get_controller_states())
+        self.viewmodel.update_state({"C-arm Model": self.calib['Carm'].get("C-arm Model", None)})
+        self.viewmodel.update_state(self.model.get_model_states())
+
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
-            is_connected = getattr(self.frame_grabber, 'is_connected', False)
-            is_running = getattr(self.frame_grabber, 'is_running', False)
-            states['video_on'] = is_connected and is_running
+            self.viewmodel.update_state(self.frame_grabber.get_fg_states())
         
         # Update imu_on based on IMU is_connected
-        states['imu_on'] = False if not hasattr(self, 'imu') else getattr(self.imu, 'is_connected', True)  # Default to True if property not found
-
+        
         if self.tracking:
-            states['tilt_angle'] = self.imu.tilt_angle
-            states['rotation_angle'] = self.imu.rotation_angle
-            states['active_side'] = self.imu.activeside(states['stage'])
-            states.update(self.imu.get_all(states['stage']))
+            imu_states = self.imu_handler.get_all(self.stage)
+            imu_states['imu_on'] = False if not hasattr(self, 'imu_sensor') else getattr(self.imu_sensor, 'is_connected', True)  # Default to True if property not found
 
-        return states
+            self.active_side = imu_states['active_side']
+            self.viewmodel.update_state(imu_states)
+
+        return self.viewmodel.states
     
     def backend_to_frontend_coords(self, coords, backend_size=1024, frontend_size=960, btof = True, flip_horizontal=False):
         """
@@ -128,9 +137,9 @@ class Controller:
             return coords
 
     def get_image_with_metadata(self):
-        if self.viewmodel.states['active_side'] == 'ap':
+        if self.active_side == 'ap':
             image_data = self.viewmodel.imgs[0]
-        elif self.viewmodel.states['active_side'] == 'ob':
+        elif self.active_side == 'ob':
             image_data = self.viewmodel.imgs[1]
 
         if image_data['image'] is not None:
@@ -297,8 +306,8 @@ class Controller:
 
     def next(self, state, stage):
         self.uistates = state
-        self.viewmodel.states['stage'] = stage
-        if self.imu: self.imu.confirm_save()
+        self.stage = stage
+        if hasattr(self, 'imu_handler'): self.imu_handler.confirm_save()
 
     def save_screen(self, stage, file):
         save_dir = f'{self.exam.exam_folder}/viewpairs'
@@ -316,7 +325,7 @@ class Controller:
     def get_screen(self, stage):
         global controller
         if controller is None:
-            return jsonify({"error": "Controller not initialized"}), 404
+            return {"error": "Controller not initialized"}
         
         vp = controller.model.viewpairs[stage]
         
@@ -329,7 +338,7 @@ class Controller:
         image_base64 = self.viewmodel.encode(vp)
         # Return both image and metadata in JSON
         return {
-            'img': f'data:image/jpeg;base64,{image_base64}',
+            'img': image_base64,
         }
 
     def get_stitch(self, stage):
@@ -341,17 +350,17 @@ class Controller:
             stitch = self.model.data['regtri']['stitch']
         
         if stitch is None:
-            return jsonify({
+            return {
             'img': None,
-            })
+            }
         
         # Convert the image to base64 encoding
         image_base64 = self.viewmodel.encode(stitch)
         
         # Return both image and metadata in JSON
-        return jsonify({
-            'img': f'data:image/jpeg;base64,{image_base64}',
-        })
+        return {
+            'img': image_base64,
+        }
 
 
     def start_processing(self):
@@ -380,7 +389,7 @@ class Controller:
                 time.sleep(1)
                 continue
             if frame is not None: print (self.scn,self.uistates)
-            newscn, uistates, action = self.model.eval_modelscnario(frame, self.scn, self.viewmodel.states['active_side'], self.uistates)
+            newscn, uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
             if action is not None:
                 match action[0]:
                     case 'copy_stage_data':
@@ -390,15 +399,15 @@ class Controller:
                         self.model.copy_stage_data(action[1])
 
                     case 'set_cupreg':
-                        self.imu.setcupreg()
+                        self.imu_handler.setcupreg()
 
             if newscn == self.scn or newscn[-3:] == 'end':
                 continue
             self.uistates = uistates
             self.is_processing = True
             if self.tracking: 
-                self.imu.handle_window_close(self.viewmodel.states['stage'])
-                analysis_type, data_for_model, data_for_calib, data_for_exam = self.model.exec(newscn, frame, self.imu.tilt_angle, self.imu.rotation_angle)
+                self.imu_handler.handle_window_close(self.stage)
+                analysis_type, data_for_model, data_for_calib, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle)
             else: 
                 analysis_type, data_for_model, data_for_calib, data_for_exam = self.model.exec(newscn, frame)
             
@@ -413,7 +422,7 @@ class Controller:
             #self.exam.save(analysis_type, data_for_exam, frame)
 
     def update_backendstates(self):
-        if not self.frame_grabber._is_new_frame_available or self.model.is_processing:
+        if not self.frame_grabber._is_new_frame_available:
             return None
         return self.frame_grabber.fetchFrame()
 
@@ -421,9 +430,9 @@ class Controller:
         match self.scn:
             case 'init':
                 if frame is not None:
-                    if self.viewmodel.states['active_side'] == 'ap':
+                    if self.active_side == 'ap':
                         return 'frm:hp1-ap:bgn'
-                    if self.viewmodel.states['active_side'] == 'ob':
+                    if self.active_side == 'ob':
                         return 'frm:hp1-ob:bgn' 
                 return self.scn
 
@@ -438,9 +447,9 @@ class Controller:
                     return 'rcn:hmplv1:bgn'
                 else:
                     if frame is not None:
-                        if self.viewmodel.states['active_side'] == 'ap':
+                        if self.active_side == 'ap':
                             return 'frm:hp1-ap:bgn'
-                        if self.viewmodel.states['active_side'] == 'ob':
+                        if self.active_side == 'ob':
                             return 'frm:hp1-ob:bgn'
                     return self.scn
             
@@ -450,9 +459,9 @@ class Controller:
                     if self.uistates == 'next':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.viewmodel.states['active_side'] == 'ap':
+                            if self.active_side == 'ap':
                                 return 'frm:hp2-ap:bgn'
-                            if self.viewmodel.states['active_side'] == 'ob':
+                            if self.active_side == 'ob':
                                 return 'frm:hp2-ob:bgn'
                     
                 #sucess or not, user can either edit landmarks changes, redo recon
@@ -463,10 +472,10 @@ class Controller:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.viewmodel.states['active_side'] == 'ap':
+                    if self.active_side == 'ap':
                         self.model.data['hp1-ap']['success'] = None
                         return 'frm:hp1-ap:bgn'
-                    if self.viewmodel.states['active_side'] == 'ob':
+                    if self.active_side == 'ob':
                         self.model.data['hp1-ob']['success'] = None
                         return 'frm:hp1-ob:bgn'
 
@@ -483,9 +492,9 @@ class Controller:
                     return 'rcn:hmplv2:bgn'
                 else:
                     if frame is not None:
-                        if self.viewmodel.states['active_side'] == 'ap':
+                        if self.active_side == 'ap':
                             return 'frm:hp2-ap:bgn'
-                        if self.viewmodel.states['active_side'] == 'ob':
+                        if self.active_side == 'ob':
                             return 'frm:hp2-ob:bgn'
                     return self.scn
                 
@@ -501,10 +510,10 @@ class Controller:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.viewmodel.states['active_side'] == 'ap':
+                    if self.active_side == 'ap':
                         self.model.data['hp2-ap']['success'] = None
                         return 'frm:hp2-ap:bgn'
-                    if self.viewmodel.states['active_side'] == 'ob':
+                    if self.active_side == 'ob':
                         self.model.data['hp2-ob']['success'] = None
                         return 'frm:hp2-ob:bgn'
 
@@ -516,16 +525,16 @@ class Controller:
                     #user goes next
                     if self.uistates == 'next':                        
                         self.uistates = None
-                        if self.viewmodel.states['active_side'] == 'ap':
+                        if self.active_side == 'ap':
                             self.scn = 'frm:cup-ap:end'
-                        if self.viewmodel.states['active_side'] == 'ob':
+                        if self.active_side == 'ob':
                             self.scn = 'frm:cup-ob:end'
                         return self.scn
                     if self.uistates == 'skip':                        
                         self.uistates = None
-                        if self.viewmodel.states['active_side'] == 'ap':
+                        if self.active_side == 'ap':
                             self.scn = 'frm:tri-ap:end'
-                        if self.viewmodel.states['active_side'] == 'ob':
+                        if self.active_side == 'ob':
                             self.scn = 'frm:tri-ob:end'
                         return self.scn
 
@@ -537,10 +546,10 @@ class Controller:
                     #user does nothing/ editing
                     #they can retake
                     if frame is not None:
-                        if self.viewmodel.states['active_side'] == 'ap':
+                        if self.active_side == 'ap':
                             self.model.data['hp2-ap']['success'] = None
                             return 'frm:hp2-ap:bgn'
-                        if self.viewmodel.states['active_side'] == 'ob':
+                        if self.active_side == 'ob':
                             self.model.data['hp2-ob']['success'] = None
                             return 'frm:hp2-ob:bgn'
                             
@@ -549,9 +558,9 @@ class Controller:
                     if self.uistates == 'restart':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.viewmodel.states['active_side'] == 'ap':
+                            if self.active_side == 'ap':
                                 return 'frm:hp1-ap:bgn'
-                            if self.viewmodel.states['active_side'] == 'ob':
+                            if self.active_side == 'ob':
                                 return 'frm:hp1-ob:bgn'
                 return self.scn
             
@@ -572,9 +581,9 @@ class Controller:
                     return 'rcn:acecup:bgn'
                 else:
                     if frame is not None:
-                        if self.viewmodel.states['active_side'] == 'ap':
+                        if self.active_side == 'ap':
                             return 'frm:cup-ap:bgn'
-                        if self.viewmodel.states['active_side'] == 'ob':
+                        if self.active_side == 'ob':
                             return 'frm:cup-ob:bgn'
                     return self.scn
 
@@ -590,10 +599,10 @@ class Controller:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.viewmodel.states['active_side'] == 'ap':
+                    if self.active_side == 'ap':
                         self.model.data['cup-ap']['success'] = None
                         return 'frm:cup-ap:bgn'
-                    if self.viewmodel.states['active_side'] == 'ob':
+                    if self.active_side == 'ob':
                         self.model.data['cup-ob']['success'] = None
                         return 'frm:cup-ob:bgn'
 
@@ -602,15 +611,15 @@ class Controller:
 
             case 'reg:regcup:end':
                 if self.model.data['regcup']['success']:
-                    if self.tracking: self.imu.iscupreg = True
+                    if self.tracking: self.imu_handler.iscupreg = True
 
                     #user goes next
                     if self.uistates == 'next':                        
                         if frame is not None:
                             self.uistates = None
-                            if self.viewmodel.states['active_side'] == 'ap':
+                            if self.active_side == 'ap':
                                 return 'frm:tri-ap:bgn'
-                            if self.viewmodel.states['active_side'] == 'ob':
+                            if self.active_side == 'ob':
                                 return 'frm:tri-ob:bgn'
 
                 #reg succeeds or not, user can still edit landmarks changes, redo recon
@@ -621,10 +630,10 @@ class Controller:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.viewmodel.states['active_side'] == 'ap':
+                    if self.active_side == 'ap':
                         self.model.data['cup-ap']['success'] = None
                         return 'frm:cup-ap:bgn'
-                    if self.viewmodel.states['active_side'] == 'ob':
+                    if self.active_side == 'ob':
                         self.model.data['cup-ob']['success'] = None
                         return 'frm:cup-ob:bgn'
                             
@@ -647,9 +656,9 @@ class Controller:
                     return 'rcn:tothip:bgn'
                 else:
                     if frame is not None:
-                        if self.viewmodel.states['active_side'] == 'ap':
+                        if self.active_side == 'ap':
                             return 'frm:tri-ap:bgn'
-                        if self.viewmodel.states['active_side'] == 'ob':
+                        if self.active_side == 'ob':
                             return 'frm:tri-ob:bgn'
                     return self.scn
 
@@ -665,10 +674,10 @@ class Controller:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.viewmodel.states['active_side'] == 'ap':
+                    if self.active_side == 'ap':
                         self.model.data['tri-ap']['success'] = None
                         return 'frm:tri-ap:bgn'
-                    if self.viewmodel.states['active_side'] == 'ob':
+                    if self.active_side == 'ob':
                         self.model.data['tri-ob']['success'] = None
                         return 'frm:tri-ob:bgn'
 
@@ -684,10 +693,10 @@ class Controller:
                 #user does nothing/ editing
                 #they can retake
                 if frame is not None:
-                    if self.viewmodel.states['active_side'] == 'ap':
+                    if self.active_side == 'ap':
                         self.model.data['tri-ap']['success'] = None
                         return 'frm:tri-ap:bgn'
-                    if self.viewmodel.states['active_side'] == 'ob':
+                    if self.active_side == 'ob':
                         self.model.data['tri-ob']['success'] = None
                         return 'frm:tri-ob:bgn'
                             

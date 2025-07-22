@@ -346,6 +346,11 @@ class FrameGrabber:
                 "message": f"Error connecting to video: {str(e)}"
             }
 
+    def get_fg_states(self):
+        is_connected = getattr(self, 'is_connected', False)
+        is_running = getattr(self, 'is_running', False)
+        return {'video_on': is_connected and is_running}
+
 if __name__=="__main__":
     frame_grabber = FrameGrabber()
 
