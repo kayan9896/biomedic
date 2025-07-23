@@ -220,3 +220,7 @@ class IMU_handler:
 
     def set_cupreg(self):
         self.iscupreg = True
+
+    def jump(self, stage, data):
+        pass
+        

@@ -323,11 +323,7 @@ class Controller:
         self.model.viewpairs[stage] = image_array
 
     def get_screen(self, stage):
-        global controller
-        if controller is None:
-            return {"error": "Controller not initialized"}
-        
-        vp = controller.model.viewpairs[stage]
+        vp = self.model.viewpairs[stage]
         
         if vp is None:
             return {
