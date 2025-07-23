@@ -404,7 +404,7 @@ class Model:
                         'framecalib': framecalib
                     }
 
-                    return "frame", data_for_model, data_for_calib, data_for_exam
+                    return "frame", data_for_model, data_for_exam
                 
                 except Exception as error:
                     return "exception", {'type':'frame', 'success': False, 'error': str(error)}, None, None
@@ -419,7 +419,7 @@ class Model:
                     data_for_calib = None
                     data_for_exam = recon_result
                     
-                    return 'recon', data_for_model, data_for_calib, data_for_exam
+                    return 'recon', data_for_model, data_for_exam
                 
                 except Exception as error:
                     return 'exception', {'type': 'recon', 'success': False, 'error': str(error)}, None, None
@@ -434,7 +434,7 @@ class Model:
                     data_for_calib = None
                     data_for_exam = reg_result
 
-                    return 'reg', data_for_model, data_for_calib, data_for_exam
+                    return 'reg', data_for_model, data_for_exam
 
                 except Exception as error:
                     return 'exception', {'type': 'reg', 'success': False, 'error': str(error)}, None, None
@@ -528,7 +528,7 @@ class Model:
         self.data[target_ob]['image'] = self.data[source_ob]['image']
         return
 
-    def __set_success_to_none__(self, stage):
+    def set_success_to_none(self, stage):
         self.data[stage]['success'] = None
 
 
@@ -540,8 +540,8 @@ class Model:
             match (uistates):
                 case 'prev':
                     #self.__copy_stage_data__('prev')  # check logic!
-                    action = ('copy_stage_data','tri', 'cup')
-                    scn = ('frm:' + frm.prev_ap + ':end')
+                    action = ('copy_stage_data', 'tri', 'cup')
+                    scn = ('frm:' + 'cup-ap' + ':end')
                 case 'next':
                     if frm.rcn == 'acecup':
                         action = ('copy_stage_data', 'cup', 'tri')
@@ -574,26 +574,28 @@ class Model:
                         uistates = None
                         if active_side == 'ap' or active_side =='ob':
                             scn = ('frm:hp2-' + active_side + ':bgn')
+                            return uistates, scn, action
             else:
                 scn = ('reg:' + rcn.reg + ':bgn')
+                return uistates, scn, action
+            
+
+        if uistates == 'landmarks':
+            uistates = None
+            scn = ('rcn:' + rcn.rcn + 'bgn')
         else:
-            # fail, user can either edit landmarks changes, redo recon
-            if uistates == 'landmarks':
-                uistates = None
-                scn = ('rcn:' + rcn.rcn + 'bgn')
-            else:
-                # user does nothing/ editing
-                # they can retake
-                if frame_not_none:
-                    if active_side == 'ap':
-                        #self.__set_success_to_none__(rcn.ap)
-                        action = ('set_success_to_none', rcn.ap)
-                        scn = ('frm:' + rcn.ap + ':bgn')
-                    if active_side == 'ob':
-                        #self.__set_success_to_none__(rcn.ob)
-                        action = ('set_success_to_none', rcn.ob)
-                        scn = ('frm:' + rcn.ob + ':bgn')
-        # otherwise, stay at the end stage
+            # user does nothing/ editing
+            # they can retake
+            if frame_not_none:
+                if active_side == 'ap':
+                    #self.__set_success_to_none__(rcn.ap)
+                    action = ('set_success_to_none', rcn.ap)
+                    scn = ('frm:' + rcn.ap + ':bgn')
+                if active_side == 'ob':
+                    #self.__set_success_to_none__(rcn.ob)
+                    action = ('set_success_to_none', rcn.ob)
+                    scn = ('frm:' + rcn.ob + ':bgn')
+
         return uistates, scn, action
 
 

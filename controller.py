@@ -24,6 +24,7 @@ class Controller:
 
         self.is_running = False
         self.process_thread = None
+        self.lock = threading.Lock()
         
         # Get configuration
         
@@ -60,7 +61,8 @@ class Controller:
             self.panel.controller = self
 
     def restart(self):
-        self.uistates = 'restart'
+        with self.lock:
+            self.uistates = 'restart'
         self.model._resetdata()
         self.scn = 'init'
         self.stage = 0
@@ -226,7 +228,8 @@ class Controller:
                 self.model.data['tri-ob']['side'] = rimgside
         
         
-        self.uistates = 'landmarks' if 'ap' not in self.scn else 'None'
+        with self.lock:
+            self.uistates = 'landmarks' if 'ap' not in self.scn else 'None'
         self.pause_states = None
         self.viewmodel.imgs[0]['metadata'] = l
         self.viewmodel.imgs[1]['metadata'] = r
@@ -306,7 +309,8 @@ class Controller:
             self.autocollect = autocollect
 
     def next(self, state, stage):
-        self.uistates = state
+        with self.lock:
+            self.uistates = state
         self.stage = stage
         if hasattr(self, 'imu_handler'): self.imu_handler.confirm_save()
 
@@ -385,16 +389,17 @@ class Controller:
             if self.pause_states == 'edit': 
                 time.sleep(1)
                 continue
-            if frame is not None: print (self.scn,self.uistates)
-            newscn, uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
-            
+
+            with self.lock:
+                newscn, self.uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
+        
             if action is not None:
                 match action[0]:
                     case 'copy_stage_data':
                         self.model.copy_stage_data(action[1], action[2])
 
                     case 'set_success_to_none':
-                        self.model.copy_stage_data(action[1])
+                        self.model.set_success_to_none(action[1])
 
                     case 'set_cupreg':
                         self.imu_handler.setcupreg()
@@ -405,9 +410,9 @@ class Controller:
             self.is_processing = True
             if self.tracking: 
                 self.imu_handler.handle_window_close(self.stage)
-                analysis_type, data_for_model, data_for_calib, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle)
+                analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle)
             else: 
-                analysis_type, data_for_model, data_for_calib, data_for_exam = self.model.exec(newscn, frame)
+                analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame)
             
             self.is_processing = False
             # add handling of 'exception:'
