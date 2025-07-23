@@ -51,7 +51,7 @@ class ViewModel:
             if data_for_model['analysis_error_code'] is None:
                 image = data_for_model['processed_frame']
                 dataforvm['metadata'] = data_for_model['landmarks']
-                dataforvm['checkmark'] = 1
+                dataforvm['checkmark'] = 1 if self.states['ai_mode'] == 1 else None
                 dataforvm['recon'] = None
                 dataforvm['error'] = None
                 dataforvm['measurements'] = None

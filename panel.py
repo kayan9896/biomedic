@@ -246,7 +246,7 @@ class Panel:
         self.controller.viewmodel.states['stage'] = m[scn]//2 if m[scn] < 6 else (m[scn] - 1) // 2
         self.controller.model.filldata(m[scn])
         self.controller.viewmodel.jump(m[scn], self.controller.model.data)
-        #self.controller.imu_handler.jump(m[scn], self.controller.model.data)
+        self.controller.imu_handler.jump(m[scn], self.controller.model.data)
         print('scn', self.controller.scn, self.controller.viewmodel.states['stage'])
 
     def _on_tab_changed(self, event):

@@ -240,14 +240,17 @@ class Model:
                     self.progress = (k + 1) / 30000
                     k += 1
 
-        if not self.ai_mode:
-            metadata['landmarks'] = None
 
         if error_code is None:
-            metadata['analysis_success'] = True
+            if not self.ai_mode:
+                metadata['landmarks'] = None
+                metadata['side'] = None
+                metadata['analysis_success'] = None
+            else: metadata['analysis_success'] = True
         else:
             metadata['analysis_success'] = False
             metadata['landmarks'] = None
+            metadata['side'] = None
         metadata['analysis_error_code'] = error_code
 
         return metadata, framecalib

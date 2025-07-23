@@ -222,5 +222,6 @@ class IMU_handler:
         self.iscupreg = True
 
     def jump(self, stage, data):
-        pass
+        if stage >= 5:
+            self.used_ob = data['cup-ob']['framedata']['imuangles'][1]
         

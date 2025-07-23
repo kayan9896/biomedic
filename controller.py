@@ -66,7 +66,8 @@ class Controller:
         self.stage = 0
         if self.tracking:
             self.imu_handler = IMU_handler(self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
-    
+            self.imu_sensor.handler = self.imu_handler
+
     def get_controller_states(self):
         return{
             'is_processing': self.is_processing,
@@ -386,6 +387,7 @@ class Controller:
                 continue
             if frame is not None: print (self.scn,self.uistates)
             newscn, uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
+            
             if action is not None:
                 match action[0]:
                     case 'copy_stage_data':
@@ -399,7 +401,7 @@ class Controller:
 
             if newscn == self.scn or newscn[-3:] == 'end':
                 continue
-            self.uistates = uistates
+            
             self.is_processing = True
             if self.tracking: 
                 self.imu_handler.handle_window_close(self.stage)
