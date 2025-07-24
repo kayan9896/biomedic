@@ -535,7 +535,7 @@ class Model:
     def __eval_frm_scn__(self, scn, active_side, frame_not_none, uistates):
         frm = self.__get_frm_strs__(scn)
         action = None
-        if frame_not_none: print (2,scn,frm.ob,uistates)
+        if frame_not_none: print(2,scn,frm.ob,frm.next_ap,uistates)
         if uistates is not None:
             match (uistates):
                 case 'prev':
@@ -558,7 +558,6 @@ class Model:
                         scn = ('frm:' + frm.ap + ':bgn')
                     if active_side == 'ob':
                         scn = ('frm:' + frm.ob + ':bgn')
-                    print(uistates, scn, action, scn, active_side, frame_not_none)
         return uistates, scn, action
 
     def __eval_rcn_scn__(self, scn, active_side, frame_not_none, uistates):

@@ -389,7 +389,7 @@ class Controller:
             if self.pause_states == 'edit': 
                 time.sleep(1)
                 continue
-
+            if frame is not None: print(1,self.uistates)
             with self.lock:
                 newscn, self.uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
         
@@ -405,6 +405,7 @@ class Controller:
                         self.imu_handler.setcupreg()
 
             if newscn == self.scn or newscn[-3:] == 'end':
+                self.scn = newscn
                 continue
             
             self.is_processing = True
