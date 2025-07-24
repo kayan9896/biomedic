@@ -379,7 +379,7 @@ function App() {
         }
         
         setMoveNext(data.next)
-        if(data.next) captureAndSaveFrame()
+        if(data.next) captureAndSaveFrame(stage)
 
     } catch (error) {
         console.error('Error fetching image:', error);
@@ -654,12 +654,13 @@ function App() {
     Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
   };
 
-  const captureAndSaveFrame = async () => {
+  const captureAndSaveFrame = async (stage) => {
     console.log(frameRef)
     if (!frameRef.current) return;
     
     try {
       // Use html2canvas to capture the frame with all overlays
+      await new Promise(r => setTimeout(r, 2000));
       const canvas = await html2canvas(frameRef.current, {
         useCORS: true,
         allowTaint: true,
@@ -761,7 +762,7 @@ function App() {
 
   return (
     <div className="app">
-      <div style={{position:'absolute',zIndex:2000,top:'0px',color:'white'}}>{scn}</div>
+      <div style={{position:'absolute',zIndex:2000,top:'0px',color:'white'}}>{scn},{stage}</div>
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}

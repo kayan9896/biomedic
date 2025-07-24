@@ -70,6 +70,7 @@ class Model:
 
 
     def _resetdata(self):
+        self.viewpairs = [None]*4
         self.data = {
             'hp1-ap': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
             'hp1-ob': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
@@ -522,8 +523,8 @@ class Model:
         target_ap = (target_stage + '-ap')
         target_ob = (target_stage + '-ob')
 
-        self.data[target_ap] = {'image': None, 'metadata': None, 'success': False, 'side': None}
-        self.data[target_ob] = {'image': None, 'metadata': None, 'success': False, 'side': None}
+        self.data[target_ap] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
+        self.data[target_ob] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
         self.data[target_ap]['image'] = self.data[source_ap]['image']
         self.data[target_ob]['image'] = self.data[source_ob]['image']
         return
@@ -581,7 +582,7 @@ class Model:
 
         if uistates == 'landmarks':
             uistates = None
-            scn = ('rcn:' + rcn.rcn + 'bgn')
+            scn = ('rcn:' + rcn.rcn + ':bgn')
         else:
             # user does nothing/ editing
             # they can retake
@@ -647,10 +648,12 @@ class Model:
             # they can retake
             if frame_not_none:
                 if active_side == 'ap':
-                    self.__set_success_to_none__(reg.ap)
+                    #self.__set_success_to_none__(reg.ap)
+                    action = ('set_success_to_none', reg.ap)
                     scn = ('frm:' + reg.ap + ':bgn')
                 if active_side == 'ob':
-                    self.__set_success_to_none__(reg.ob)
+                    #self.__set_success_to_none__(reg.ob)
+                    action = ('set_success_to_none', reg.ob)
                     scn = ('frm:' + reg.ob + ':bgn')
         return uistates, scn, action
 

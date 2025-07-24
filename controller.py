@@ -37,6 +37,7 @@ class Controller:
         self.is_processing = False
         self.active_side = None
         self.stage = 0
+        self.scn = 'init'
 
         self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"])
         
@@ -64,6 +65,7 @@ class Controller:
         with self.lock:
             self.uistates = 'restart'
         self.model._resetdata()
+        self.viewmodel.reset()
         self.scn = 'init'
         self.stage = 0
         if self.tracking:
@@ -377,7 +379,7 @@ class Controller:
         return True
 
     def _process_loop(self):
-        self.scn = 'init'
+
         while self.is_running:
             if self.do_capture:
                 frame = self.frame_grabber.last_frame
@@ -404,10 +406,10 @@ class Controller:
                     case 'set_cupreg':
                         self.imu_handler.setcupreg()
 
-            if newscn == self.scn or newscn[-3:] == 'end':
+            if newscn == self.scn or newscn[-3:] != 'bgn':
                 self.scn = newscn
                 continue
-            
+            print(4, newscn, self.scn)
             self.is_processing = True
             if self.tracking: 
                 self.imu_handler.handle_window_close(self.stage)

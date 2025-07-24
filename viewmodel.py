@@ -40,7 +40,9 @@ class ViewModel:
             "used_ob": None,
             "video_on": None
         }
+        self.reset()
         
+    def reset(self):
         self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'recon': None, 'error': None, 'next': False, 'measurements': None, 'side': None} for i in range(2)]
 
     def update(self, analysis_type, data_for_model):
