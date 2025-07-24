@@ -231,7 +231,7 @@ class Controller:
         
         
         with self.lock:
-            self.uistates = 'landmarks' if 'ap' not in self.scn else 'None'
+            self.uistates = 'landmarks' 
         self.pause_states = None
         self.viewmodel.imgs[0]['metadata'] = l
         self.viewmodel.imgs[1]['metadata'] = r

@@ -548,7 +548,8 @@ class Model:
                         action = ('copy_stage_data', 'cup', 'tri')
                         scn = ('frm:' + frm.next_ap + ':end')
                 case 'landmarks':
-                    scn = ('rcn:' + frm.rcn + ':bgn')
+                    if self.data[frm.ap]['framedata']['landmarks'] and self.data[frm.ob]['framedata']['landmarks']:
+                        scn = ('rcn:' + frm.rcn + ':bgn')
             uistates = None
         else:
             if self.data[frm.ap]['success'] and self.data[frm.ob]['success']:
@@ -612,7 +613,7 @@ class Model:
                         scn = 'frm:hp1-ap:bgn'
                     if active_side == 'ob':
                         scn = 'frm:hp1-ob:bgn'
-            return uistates, scn, action
+                    return uistates, scn, action
 
         # additional provisions for pelvis and cup registration (next & skip options)
 
