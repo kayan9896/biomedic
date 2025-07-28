@@ -469,7 +469,7 @@ function App() {
   };
 
   const handledit = async () => {
-    setEditing('left')
+    setEditing(leftImage!==getInstruction(stage,'AP') ? 'left' : 'right')
     useaiRef.current = useai
     pelvisRef.current = pelvis
     console.log(pelvisRef)
@@ -823,7 +823,7 @@ function App() {
       
       
       {/*L6 Edit blur, render when editing true*/}
-      <L6 editableSide={editing} setEditing={setEditing}/>
+      <L6 editableSide={editing} setEditing={setEditing} hasAp={leftImage!==getInstruction(stage,'AP')} hasOb={rightImage!==getInstruction(stage,'OB')}/>
 
       {/*L7 Imaging, render when backend progress=100*/}
       {!editing&&<L7 handledit={handledit} setReport={setReport} editable={!(leftImage===getInstruction(stage,'AP')&&rightImage===getInstruction(stage,'OB'))} leftCheckMark={leftCheckMark} rightCheckMark={rightCheckMark} recon={recon} setPause={setPause}/>}

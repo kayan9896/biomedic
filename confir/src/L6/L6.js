@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L6({editableSide, setEditing}) {
+function L6({editableSide, setEditing, hasAp, hasOb}) {
 
     return(
       <>
@@ -16,7 +16,7 @@ function L6({editableSide, setEditing}) {
           pointerEvents: editableSide === 'left' ? 'none' : 'auto'
         }}
       >
-        {editableSide === 'right' && <img src={require('./EditModeBGBlur.png')} alt="EditModeBGBlur" style={{width: '100%', height: '100%'}} onClick={()=>{setEditing('left')}}/>}
+        {editableSide === 'right' && <img src={hasAp ? require('./EditModeBGBlur.png') : require('./EditModeBGBlurWithoutText.png')} alt="EditModeBGBlur" style={{width: '100%', height: '100%'}} onClick={()=>{hasAp ? setEditing('left') : setEditing('right')}}/>}
       </div>
       
       {/* Right side */}
@@ -31,7 +31,7 @@ function L6({editableSide, setEditing}) {
           pointerEvents: editableSide === 'right' ? 'none' : 'auto'
         }}
       >
-        {editableSide === 'left' && <img src={require('./EditModeBGBlur.png')} alt="EditModeBGBlur" style={{width: '100%', height: '100%'}} onClick={()=>{setEditing('right')}}/>}
+        {editableSide === 'left' && <img src={hasOb ? require('./EditModeBGBlur.png') : require('./EditModeBGBlurWithoutText.png')} alt="EditModeBGBlur" style={{width: '100%', height: '100%'}} onClick={()=>{hasOb ? setEditing('right') : setEditing('left')}}/>}
       </div>
     </>
     )
