@@ -7,9 +7,9 @@ function L1({tracking, handlLabelClick}) {
         <img src={require('./ProgressBarBg.png')} alt ="ProgressBarBg" style={{'position':'absolute', top:'970px', left:'432px'}}/>
         <img src={require('./NavMeasurementsBG.png')} alt ="NavMeasurementsBG" style={{'position':'absolute', top:'970px', left:'960px'}}/>
         
-        <img src={require('./Logo.png')} alt ="Logo" style={{'position':'absolute', top:'1041px', left:'13px', zIndex: 12}}/>
-        <img src={require('./PatientDataBg.png')} alt ="PatientDataBg" style={{'position':'absolute', top:'980px', left:'13px', zIndex: 12}}/>
-        <img src={require('./PatientIcon.png')} alt ="PatientIcon" style={{'position':'absolute', top:'989px', left:'27px', zIndex: 12}}/>
+        <img src={require('./Logo.png')} alt ="Logo" style={{'position':'absolute', top:'1035px', left:'11px', zIndex: 12}}/>
+        <img src={require('./PatientDataBg.png')} alt ="PatientDataBg" style={{'position':'absolute', top:'970px', left:'11px', zIndex: 12}}/>
+        <img src={require('./PatientIcon.png')} alt ="PatientIcon" style={{'position':'absolute', top:'978px', left:'21px', zIndex: 12}}/>
 
         {tracking?(<img src={require('./APLabel.png')} alt ="APLabel" style={{'position':'absolute', top: '0px', left:'0px', zIndex:1}}/>):(
             <>

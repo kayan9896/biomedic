@@ -163,7 +163,7 @@ function L8({
           />
           <img 
             className="image-button"
-            src={require('../L23/NoBtn.png')} style={{position:'absolute', top:'539px', left:'1127px', zIndex:21}}
+            src={require('../L23/CancelBtn.png')} style={{position:'absolute', top:'539px', left:'1127px', zIndex:21}}
             onClick={()=>setResetWarning(false)}
           />
         </>}

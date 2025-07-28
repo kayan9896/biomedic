@@ -121,10 +121,10 @@ const L21 = ({
       />
 
       {/* Button (Enabled or Disabled based on selection) */}
-      {selectedTemplate ? <img className="image-button" src={require('../L23/YesBtn.png')} style={{'position':'absolute', top:'663px', left:'761px', zIndex:21}} onClick={(resetTemplate && selectedTemplate !== pelvis[0] ? () => {setSwitchWarning(true)} : handleContinueClick)}/> :
+      {selectedTemplate ? <img className="image-button" src={require('../L23/ConfirmBtn.png')} style={{'position':'absolute', top:'663px', left:'761px', zIndex:21}} onClick={(resetTemplate && selectedTemplate !== pelvis[0] ? () => {setSwitchWarning(true)} : handleContinueClick)}/> :
       <img src={require('../L23/YesBtnDis.png')} style={{'position':'absolute', top:'663px', left:'761px', zIndex:21}}/>
       }
-      <img className="image-button" src={require('../L23/NoBtn.png')} style={{'position':'absolute', top:'663px', left:'1035px', zIndex:21}} onClick={()=>{pelvis[0] === null ? setEditing(false) : setResetTemplate(false)}}/>
+      <img className="image-button" src={require('../L23/CancelBtn.png')} style={{'position':'absolute', top:'663px', left:'1035px', zIndex:21}} onClick={()=>{pelvis[0] === null ? setEditing(false) : setResetTemplate(false)}}/>
         
       
       {switchWarning&&<>

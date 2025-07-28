@@ -154,8 +154,8 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
           onClick={() => setShowKeyboard(true)}
           style={{
             position: 'absolute',
-            left: '66px',
-            top: '988px',
+            left: '64px',
+            top: '978px',
             width: '293px',
             background: 'transparent',
             color: 'white',

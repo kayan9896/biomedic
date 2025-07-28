@@ -12,7 +12,7 @@ function L17({handlerestart, setExit}) {
           handlerestart()
           setExit(false)
         }}/>
-        <img className="image-button" src={require('../L23/NoBtn.png')} alt="CancelBtn" style={{position:'absolute', top:'539px', left:'1241px', zIndex:17}} onClick={()=>setExit(false)}/>
+        <img className="image-button" src={require('../L23/CancelBtn.png')} alt="CancelBtn" style={{position:'absolute', top:'539px', left:'1241px', zIndex:17}} onClick={()=>setExit(false)}/>
         <img className="image-button" src={require('./SaveReportBtn.png')} alt="SaveReportBtn" style={{position:'absolute', top:'539px', left:'557px', zIndex:17}} />
         <img className="image-button" src={require('./ShutDownBtn.png')} alt="ShutDownBtn" style={{position:'absolute', top:'539px', left:'1013px', zIndex:17}} onClick={handleClose}/>
       </div>
