@@ -38,6 +38,7 @@ class Controller:
         self.active_side = None
         self.stage = 0
         self.scn = 'init'
+        self.jumpped = False
         self.lockside = False
 
         self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"])
@@ -426,7 +427,10 @@ class Controller:
 
                     case 'set_cupreg':
                         self.imu_handler.setcupreg()
-
+            if self.jumpped:
+                self.jumpped = False
+                continue
+                
             if newscn == self.scn or newscn[-3:] != 'bgn':
                 self.scn = newscn
                 continue

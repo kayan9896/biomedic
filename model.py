@@ -623,13 +623,10 @@ class Model:
                 action =('set_imu_setcupreg')
 
         if uistates == 'next':
-            if frame_not_none:
-                if active_side == 'ap':
-                    scn = ('frm:' + reg.next_ap + ':bgn')
-                if active_side == 'ob':
-                    scn = ('frm:' + reg.next_ob + ':bgn')
-                uistates = None
-                return uistates, scn, action
+            scn = ('frm:' + reg.next_ap + ':end')
+
+            uistates = None
+            return uistates, scn, action
 
         if uistates == 'skip':
             if frame_not_none:
