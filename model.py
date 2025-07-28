@@ -242,16 +242,16 @@ class Model:
                     k += 1
 
 
-        if error_code is None:
-            if not self.ai_mode:
-                metadata['landmarks'] = None
-                metadata['side'] = None
-                metadata['analysis_success'] = None
-            else: metadata['analysis_success'] = True
+        if error_code is None and self.ai_mode:
+            metadata['analysis_success'] = True
         else:
             metadata['analysis_success'] = False
             metadata['landmarks'] = None
             metadata['side'] = None
+            if 'hp2' in section:
+                metadata['side'] = self.data[section]['side']
+            if 'tri' in section and self.data['regcup']['success']:
+                metadata['side'] = self.data[section]['side']
         metadata['analysis_error_code'] = error_code
 
         return metadata, framecalib
@@ -548,7 +548,7 @@ class Model:
                         action = ('copy_stage_data', 'cup', 'tri')
                         scn = ('frm:' + frm.next_ap + ':end')
                 case 'landmarks':
-                    if self.data[frm.ap]['framedata']['landmarks'] and self.data[frm.ob]['framedata']['landmarks']:
+                    if self.data[frm.ap]['success'] and self.data[frm.ob]['success']:
                         scn = ('rcn:' + frm.rcn + ':bgn')
             uistates = None
         else:

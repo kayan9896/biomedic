@@ -490,9 +490,6 @@ function App() {
     setUseai([false, false])
     setPelvis([null, null])
     setMeasurements(null)
-    setPatient('')
-    setComment('')
-    setRatio('')
     setPause(0)
     setBrightness([100, 100])
     setContrast([100, 100])
@@ -520,7 +517,7 @@ function App() {
           },
           body: JSON.stringify({'uistates': editing || showCarm || isProcessing || pause || showglyph || report || showKeyboard ? 'edit' : null})
         });
-        setError(null)
+        //setError(null)
       } catch (error) {
         console.error('Error setting edit UI state:', error);
         setError("Failed to set UIState");
@@ -762,7 +759,7 @@ function App() {
 
   return (
     <div className="app">
-      <div style={{position:'absolute',zIndex:2000,top:'0px',color:'white'}}>{scn},{stage}</div>
+      <div style={{position:'absolute',zIndex:2000,top:'0px',color:'yellow'}}>{scn},{stage}</div>
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}

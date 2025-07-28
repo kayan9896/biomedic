@@ -38,6 +38,7 @@ class Controller:
         self.active_side = None
         self.stage = 0
         self.scn = 'init'
+        self.lockside = False
 
         self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"])
         
@@ -93,7 +94,7 @@ class Controller:
         
         # Update imu_on based on IMU is_connected
         
-        if self.tracking:
+        if self.tracking and not self.lockside:
             imu_states = self.imu_handler.get_all(self.stage)
             imu_states['imu_on'] = False if not hasattr(self, 'imu_sensor') else getattr(self.imu_sensor, 'is_connected', True)  # Default to True if property not found
 
@@ -152,7 +153,7 @@ class Controller:
         
         # Convert metadata coordinates from backend to frontend scale
         converted_metadata = self.backend_to_frontend_coords(image_data['metadata'])
-
+        self.lockside = False
         return {
             'image': image_base64,
             'metadata': converted_metadata,
@@ -179,6 +180,11 @@ class Controller:
             else:
                 self.model.data['hp1-ob']['framedata']= {'landmarks': r}
             
+            if l:
+                self.model.data['hp1-ap']['success'] = True
+            if r:
+                self.model.data['hp1-ob']['success'] = True
+
             if limgside:
                 self.model.data['hp1-ap']['side'] = limgside
             if rimgside:
@@ -194,6 +200,11 @@ class Controller:
             else:
                 self.model.data['hp2-ob']['framedata']= {'landmarks': r}
             
+            if l:
+                self.model.data['hp2-ap']['success'] = True
+            if r:
+                self.model.data['hp2-ob']['success'] = True
+
             if limgside:
                 self.model.data['hp2-ap']['side'] = limgside
             if rimgside:
@@ -209,6 +220,11 @@ class Controller:
             else:
                 self.model.data['cup-ob']['framedata']= {'landmarks': r}
             
+            if l:
+                self.model.data['cup-ap']['success'] = True
+            if r:
+                self.model.data['cup-ob']['success'] = True
+
             if limgside:
                 self.model.data['cup-ap']['side'] = limgside
             if rimgside:
@@ -224,6 +240,11 @@ class Controller:
             else:
                 self.model.data['tri-ob']['framedata']= {'landmarks': r}
             
+            if l:
+                self.model.data['tri-ap']['success'] = True
+            if r:
+                self.model.data['tri-ob']['success'] = True
+
             if limgside:
                 self.model.data['tri-ap']['side'] = limgside
             if rimgside:
@@ -411,6 +432,7 @@ class Controller:
                 continue
             print(4, newscn, self.scn)
             self.is_processing = True
+            self.lockside = True
             if self.tracking: 
                 self.imu_handler.handle_window_close(self.stage)
                 analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle)
