@@ -28,7 +28,7 @@ const L21 = ({
   setResetWarning
 }) => {
   // State to track which template is selected (if any)
-  const [selectedTemplate, setSelectedTemplate] = useState(resetTemplate ? pelvis[0] : null);
+  const [selectedTemplate, setSelectedTemplate] = useState(resetTemplate ? (pelvis[0] ? pelvis[0] : pelvis[1]) : null);
   const [switchWarning, setSwitchWarning] = useState(false)
 
   // Handle template selection
@@ -124,7 +124,7 @@ const L21 = ({
       {selectedTemplate ? <img className="image-button" src={require('../L23/ConfirmBtn.png')} style={{'position':'absolute', top:'663px', left:'761px', zIndex:21}} onClick={(resetTemplate && selectedTemplate !== pelvis[0] ? () => {setSwitchWarning(true)} : handleContinueClick)}/> :
       <img src={require('../L23/YesBtnDis.png')} style={{'position':'absolute', top:'663px', left:'761px', zIndex:21}}/>
       }
-      <img className="image-button" src={require('../L23/CancelBtn.png')} style={{'position':'absolute', top:'663px', left:'1035px', zIndex:21}} onClick={()=>{pelvis[0] === null ? setEditing(false) : setResetTemplate(false)}}/>
+      <img className="image-button" src={require('../L23/CancelBtn.png')} style={{'position':'absolute', top:'663px', left:'1035px', zIndex:21}} onClick={()=>{setResetTemplate(false)}}/>
         
       
       {switchWarning&&<>
