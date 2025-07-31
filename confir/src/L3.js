@@ -15,7 +15,8 @@ function L3({
   brightness,
   contrast,
   getInstruction,
-  stage
+  stage,
+  recon
 }) {
 
   const leftWrapperRef = useRef(null);
@@ -54,6 +55,7 @@ function L3({
           imageUrl={leftImage}
           editing={editing}
           filter = {getFilterStyle(brightness[0], contrast[0])}
+          recon={recon}
         />
         ))}
         </div>
@@ -85,6 +87,7 @@ function L3({
           imageUrl={rightImage}
           editing={editing}
           filter = {getFilterStyle(brightness[1], contrast[1])}
+          recon={recon}
         />
         ))}
         </div>

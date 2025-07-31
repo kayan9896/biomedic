@@ -338,7 +338,7 @@ function App() {
         if (active_side === 'ap') {
             setLeftImage(data.image);  // This is now a data URL
             setLeftImageMetadata(data.metadata);
-            setUseai([data.metadata && !data.recon ? true : false, false])
+            
             setLeftCheckMark(data.checkmark)
             setPelvis((prev) => {
               let tmp = [...prev]
@@ -351,16 +351,19 @@ function App() {
               setRightImage(getInstruction(stage,'OB'));
               setRightImageMetadata(null)
               setRightCheckMark(null)
+              setUseai([data.metadata ? true : false, false])
             }
         } else if (active_side === 'ob') {
             setRightImage(data.image);  // This is now a data URL
             setRightImageMetadata(data.metadata);
             setRightCheckMark(data.checkmark)
-            setUseai(prev => {
-              let tmp = [...prev]
-              tmp[1] = data.metadata && !data.recon? true : false
-              return tmp
-            })
+            if(!data.recon) {
+              setUseai(prev => {
+                let tmp = [...prev]
+                tmp[1] = data.metadata ? true : false
+                return tmp
+              })
+            }
             setPelvis((prev) => {
               let tmp = [...prev]
               tmp[1] = data.side
@@ -490,6 +493,7 @@ function App() {
     setUseai([false, false])
     setPelvis([null, null])
     setMeasurements(null)
+    setTestmeas(null)
     setPause(0)
     setBrightness([100, 100])
     setContrast([100, 100])
@@ -768,7 +772,7 @@ function App() {
       ) : (
         <>
         {/*L1 Background*/}
-        <L1 tracking={tracking} handlLabelClick={handlLabelClick}/>
+        <L1 tracking={tracking} handlLabelClick={handlLabelClick} editing={editing}/>
         
         {/*L2 Status bar*/}
         <L2 
@@ -818,6 +822,7 @@ function App() {
           contrast={contrast}
           getInstruction={getInstruction}
           stage={stage}
+          recon={recon}
         />
 
       

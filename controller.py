@@ -98,10 +98,11 @@ class Controller:
         if self.tracking and not self.lockside:
             imu_states = self.imu_handler.get_all(self.stage)
             imu_states['imu_on'] = False if not hasattr(self, 'imu_sensor') else getattr(self.imu_sensor, 'is_connected', True)  # Default to True if property not found
-
-            self.active_side = imu_states['active_side']
+            if not imu_states['imu_on']:
+                imu_states['active_side'] = None
+            self.active_side = imu_states['active_side'] 
             self.viewmodel.update_state(imu_states)
-
+        
         return self.viewmodel.states
     
     def backend_to_frontend_coords(self, coords, backend_size=1024, frontend_size=960, btof = True, flip_horizontal=False):

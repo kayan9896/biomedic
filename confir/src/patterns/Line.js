@@ -49,11 +49,9 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
       // Update cursor position for magnifier
       setCursorPosition({ x, y });
   
-      const controlPointIndex = curvePoints.findIndex(point => 
-        Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 18
-      );
+
       
-      if (controlPointIndex !== -1) {
+      if (activeDotIndex !== null) {
         const newPoints = [...curvePoints];
         newPoints[activeDotIndex] = [x, y];
         setCurvePoints(newPoints);
@@ -103,10 +101,15 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     setCursorPosition({ x, y });
+    const controlPointIndex = curvePoints.findIndex(point => 
+      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 25
+    );
+    if (controlPointIndex !== -1){
+      setActiveDotIndex(index);
+      setIsMouseDown(true);
+      setShowDots(true);
+    }
     
-    setActiveDotIndex(index);
-    setIsMouseDown(true);
-    setShowDots(true);
   };
 
   const handleLineMouseDown = (e) => {

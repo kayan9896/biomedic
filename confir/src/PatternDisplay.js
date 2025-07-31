@@ -4,7 +4,7 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing, filter }) => {
+const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing, filter, recon }) => {
   // Keep metadata in array format
   const [originalMetadata, setOriginalMetadata] = useState(metadata[group] || []);
   const [lastSavedMetadata, setLastSavedMetadata] = useState(metadata[group] || []);
@@ -13,7 +13,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
   
   useEffect(() => {
     if (metadata) {
-      setOriginalMetadata([...metadata[group]]);
+      if(!recon) setOriginalMetadata([...metadata[group]]);
       setLastSavedMetadata([...metadata[group]]);
       setCurrentMetadata([...metadata[group]]);
       setResetKey(prev => prev + 1);
@@ -130,7 +130,6 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
               top: 0, 
               left: 0, 
               pointerEvents: 'none',
-              zIndex: 1
             }}
           >
             {renderDashedLines(currentMetadata)}
@@ -277,7 +276,9 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
       // Create updated versions of all selected patterns
       const updatedPatterns = initialPatterns.map(pattern => {
         const newPattern = { ...pattern };
-
+        if (pattern.handle) {
+          newPattern.handle = controlPoint
+        }
         // Update points based on pattern type
         if (pattern.type === 'circle') {
           newPattern.points = {
@@ -363,7 +364,8 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
         pointerEvents: 'none',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex:10
       }}>
         <div style={{
           position: 'relative',
