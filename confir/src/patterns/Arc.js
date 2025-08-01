@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, idx, editing, filter}) => {
+const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter, ellipseSelect}) => {
   const [arc, setArc] = useState(initialArc);
-  const [isSelected, setIsSelected] = useState(idx);
+  const [isSelected, setIsSelected] = useState(idx!==null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
   const [dragStart, setDragStart] = useState(null);
@@ -113,15 +113,15 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
       setIsDragging(true);
       setDraggedPointIndex(controlPointIndex);
       setDragStart([x, y]);
-      setIsSelected(true);
+      arc.length ===3 ? setIsSelected(true) : ellipseSelect(true);
       setShowMagnifier(true);
     } else if (e.target.tagName === 'path') {
       setIsDragging(true);
       setDraggedPointIndex(null);
       setDragStart([x, y]);
-      setIsSelected(true);
+      arc.length ===3 ? setIsSelected(true) : ellipseSelect(true);
     } else {
-      setIsSelected(false);
+      arc.length ===3 ? setIsSelected(false) : ellipseSelect(false);
     }
   }
 
@@ -283,7 +283,7 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
           strokeWidth={editing?"2":"5"}
           strokeDasharray={patternColor==='FF0000'?"5,5":''}
         />
-        {(isSelected && arc) && arc.map((point, index) => (
+        {(isSelected && arc && arc.length === 3) && arc.map((point, index) => (
           <circle
             key={index}
             cx={point[0]}
@@ -300,12 +300,14 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     </svg>
     {/* Magnifier */}
     <Magnifier 
+        segment={segment}
+        group={group}
         show={showMagnifier}
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
         isLeftSquare={isLeftSquare}
-        metadata={metadata}
+        metadata={fulldata}
         idx={draggedPointIndex}
         filter={filter}
       />

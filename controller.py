@@ -145,9 +145,8 @@ class Controller:
             return coords
 
     def get_image_with_metadata(self):
-        if self.active_side == 'ap':
-            image_data = self.viewmodel.imgs[0]
-        elif self.active_side == 'ob':
+        image_data = self.viewmodel.imgs[0]
+        if self.active_side == 'ob':
             image_data = self.viewmodel.imgs[1]
 
         if image_data['image'] is not None:

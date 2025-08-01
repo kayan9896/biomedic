@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import Arc from './Arc';
 import Magnifier from './Magnifier';
 
-const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, idx, editing, filter}) => {
+const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
-  const [isSelected, setIsSelected] = useState(idx);
+  const [isSelected, setIsSelected] = useState(idx!==null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
   const [dragStart, setDragStart] = useState(null);
@@ -203,10 +203,10 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
   return (
     <>
     <Arc
-      arc={[ellipse[0], ellipse[3], ellipse[2]]}
+      arc={[ellipse[0], ellipse[3], ellipse[2], ellipse[1]]}
       onChange={(newArc) => {
         // Update the ellipse points based on the new arc points
-        const newEllipse = [newArc[0], ellipse[1], newArc[2], ellipse[3]];
+        const newEllipse = [newArc[0], newArc[3], newArc[2], newArc[1]];
         setEllipse(newEllipse);
         if (onChange) {
           onChange(newEllipse);
@@ -215,6 +215,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
       colour={patternColor}
       imageUrl={imageUrl}
       editing={editing}
+      ellipseSelect={setIsSelected}
     />
     <svg 
       ref={ellipseRef}
@@ -272,12 +273,14 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
     </svg>
     {/* Magnifier */}
     <Magnifier 
+        segment={segment}
+        group={group}
         show={showMagnifier}
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
         isLeftSquare={isLeftSquare}
-        metadata={metadata}
+        metadata={fulldata}
         idx={draggedPointIndex}
         filter={filter}
       />

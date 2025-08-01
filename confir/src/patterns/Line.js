@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
 import * as THREE from 'three';
 
-const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeftSquare, idx, editing, filter }) => {
+const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, metadata, fulldata, isLeftSquare, idx, editing, filter }) => {
   const [curvePoints, setCurvePoints] = useState(points);
   const [showDots, setShowDots] = useState(idx);
   const [activeDotIndex, setActiveDotIndex] = useState(idx);
@@ -246,12 +246,14 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
 
       {/* Magnifier */}
       <Magnifier 
+        segment={segment}
+        group={group}
         show={showMagnifier}
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
         isLeftSquare={isLeftSquare}
-        metadata={metadata}
+        metadata={fulldata}
         idx={activeDotIndex}
         filter={filter}
       />

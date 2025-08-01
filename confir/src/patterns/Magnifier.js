@@ -5,6 +5,8 @@ import Ellipse from './Ellipse';
 import Line from './Line';
 
 const Magnifier = ({ 
+  segment,
+  group,
   show, 
   imageUrl, 
   magnification = 2,
@@ -15,6 +17,7 @@ const Magnifier = ({
   idx,
   filter
 }) => {
+    
     const [magnifierPosition, setMagnifierPosition] = useState('');
     const proximityThreshold = 270; // Distance in pixels to trigger position change
     
@@ -72,9 +75,11 @@ const Magnifier = ({
   const magnificationLevel = 2;
   const magnifierSize = size;
   const [i,seti] =useState(idx)
+  const [currentSegment, setCurrentSegment] = useState(segment)
   useEffect(()=>{
     seti(idx)
-  },[idx])
+    setCurrentSegment(segment)
+  },[idx, segment])
   if (!show) return null;
   
 
@@ -107,10 +112,11 @@ const Magnifier = ({
             }}
           >
             <img src={imageUrl} alt="Image 1" style={{ width: '100%', height: 'auto', ...filter }} />
-        
-            {metadata&&metadata.map((pattern, index) => {
+            {metadata && Object.keys(metadata).map((g, i) => 
+            { return(
+              metadata[g].map((pattern, index) => {
             const key = `${pattern.type}-${index}-${Math.random()}`;
-            
+
             switch (pattern.type) {
               case 'circle':
                 return (
@@ -131,8 +137,8 @@ const Magnifier = ({
                     arc={pattern.points}
                     colour={pattern.colour}
                     imageUrl={imageUrl}
-                    metadata={metadata}
-                    idx={i}
+                    metadata={metadata[g]}
+                    idx={currentSegment === index && g === group ? i : null}
                     editing={true}
                   />
                 );
@@ -144,8 +150,8 @@ const Magnifier = ({
                     ellipse={pattern.points}
                     colour={pattern.colour}
                     imageUrl={imageUrl}
-                    metadata={metadata}
-                    idx={i}
+                    metadata={metadata[g]}
+                    idx={currentSegment === index && g === group ? i : null}
                     editing={true}
                   />
                 );
@@ -158,8 +164,8 @@ const Magnifier = ({
                     points={pattern.points}
                     colour={pattern.colour}
                     imageUrl={imageUrl}
-                    metadata={metadata}
-                    idx={i}
+                    metadata={metadata[g]}
+                    idx={currentSegment === index && g === group ? i : null}
                     editing={true}
                   />
                 );
@@ -167,7 +173,7 @@ const Magnifier = ({
               default:
                 return null;
             }
-          })}
+          }))})}
       </div>
       <div
         style={{

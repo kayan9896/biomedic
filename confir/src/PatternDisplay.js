@@ -167,12 +167,15 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                 return (
                   <Arc
                     key={key}
+                    segment={index}
+                    group={group}
                     arc={pattern.points}
                     colour={currentMetadata[index].template?'FF0000':pattern.colour}
                     onChange={(newArc) => handlePatternUpdate(index, newArc)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
+                    fulldata={{...metadata, [group]: currentMetadata}}
                     idx={null}
                     editing={editing}
                     filter={filter}
@@ -183,12 +186,15 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                 return (
                   <Ellipse
                     key={key}
+                    segment={index}
+                    group={group}
                     ellipse={pattern.points}
                     colour={currentMetadata[index].template?'FF0000':pattern.colour}
                     onChange={(newEllipse) => handlePatternUpdate(index, newEllipse)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
+                    fulldata={{...metadata, [group]: currentMetadata}}
                     idx={null}
                     editing={editing}
                     filter={filter}
@@ -199,6 +205,8 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                 return (
                   <Line
                     key={key}
+                    segment={index}
+                    group={group}
                     squareSize={960}
                     points={pattern.points}
                     colour={currentMetadata[index].template?'FF0000':pattern.colour}
@@ -206,6 +214,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
+                    fulldata={{...metadata, [group]: currentMetadata}}
                     idx={null}
                     editing={editing}
                     filter={filter}
