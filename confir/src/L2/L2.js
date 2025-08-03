@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,showReconnectionPage,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements,testmeas}) {
+function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isRecon,isPelReg,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,showReconnectionPage,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements,testmeas}) {
   const [switchWarning, setSwitchWarning] = useState(false)
   const [data, setData] = useState({
     'Inclination' : '-',
@@ -50,7 +50,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
   }
   const clickDash = () => {
     if(stage === 0){
-      if(recon === 2) handlenext()
+      if(isRecon) handlenext()
     }
     if(stage === 1){
       //if(!moveNext) handlerestart()
@@ -86,11 +86,11 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
   const showDash = (stage) => {
     if(showCarmBox || editing || isProcessing || pause || showReconnectionPage) return [null, null]
     if(stage === 0){
-      if(recon === 2) return [1, {'position':'absolute', top:'974px', left:'560px'}]
+      if(isRecon) return [1, {'position':'absolute', top:'974px', left:'560px'}]
       return [null, null]
     }
     if (stage === 1){
-      if(moveNext)  return [2, {'position':'absolute', top:'974px', left:'683px'}]
+      if(isPelReg)  return [2, {'position':'absolute', top:'974px', left:'683px'}]
       //return [0, {'position':'absolute', top:'983px', left:'293px'}]
       return [null, null]
     }
@@ -116,11 +116,11 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
         {showDash(stage)[0]!==null&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
         {showDash(stage)[0]===2&&<img src={require('./PossibleStageBg.png')} style={{'position':'absolute', top:'974px', left:'805px'}} onClick={clickTriDash}/>}
         {(
-          stage===0&&recon!==2?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>:
+          !isRecon?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>:
           <img src={require('./HipIcon2.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>
         )}
         {(
-          stage===0||(stage===1&&!moveNext)?<img src={require('./HipIcon3.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'582px', pointerEvents:'none'}}/>:
+          !isPelReg?<img src={require('./HipIcon3.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'582px', pointerEvents:'none'}}/>:
           <img src={require('./HipIcon4.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'582px', pointerEvents:'none'}}/>
         )}
         {(

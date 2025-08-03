@@ -219,7 +219,12 @@ class IMU_handler:
 
 
     def set_cupreg(self):
-        self.iscupreg = True
+        if not self.iscupreg:
+            self.iscupreg = True
+            self.used_ob = self.tmp_used_ob
+            self.tmp_used_ob = None
+
+        
 
     def jump(self, stage, data):
         try:

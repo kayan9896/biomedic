@@ -18,7 +18,7 @@ const Magnifier = ({
   filter
 }) => {
     
-    const [magnifierPosition, setMagnifierPosition] = useState('');
+    const [magnifierPosition, setMagnifierPosition] = useState('default');
     const proximityThreshold = 270; // Distance in pixels to trigger position change
     
     // Calculate magnifier's absolute position
@@ -55,21 +55,18 @@ const Magnifier = ({
       if (!show) return;
       
       // Calculate center of magnifier
-      const magnifierCenterX = isLeftSquare? size/2 : 960-size/2;
+      const magnifierCenterX = isLeftSquare? (magnifierPosition === 'default' ? size/2 : 960-size/2) : (magnifierPosition === 'default' ? 960-size/2 : size/2);
       const magnifierCenterY =  size/2;
       
       // Calculate distance between cursor and magnifier center
-      const distance = Math.sqrt(
-        Math.pow(magnifierCenterX - x, 2) + 
-        Math.pow(magnifierCenterY - y, 2)
-      );
+      const distanceX = Math.abs(magnifierCenterX - x)
+      const distanceY = Math.abs(magnifierCenterY - y)
+      
       
       // Switch position if cursor is too close
-      if (distance < proximityThreshold) {
-        setMagnifierPosition('alternate');
-      } else {
-        setMagnifierPosition('default');
-      }
+      if (distanceX < size / 2 + 50 && distanceY < size / 2 + 50) {
+        setMagnifierPosition(magnifierPosition === 'default' ? 'alternate' : 'default');
+      } 
     }, [x, y, show]);
 
   const magnificationLevel = 2;

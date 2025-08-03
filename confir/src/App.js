@@ -100,6 +100,8 @@ function App() {
   const [apRotationAngle, setAPRotationAngle] = useState(null);
   const [obRotationAngle, setOBRotationAngle] = useState(null);
   const [obRotationAngle2, setOBRotationAngle2] = useState(null);
+  const [isRecon, setIsRecon] = useState(null)
+  const [isPelReg, setIsPelReg] = useState(null)
   const [isCupReg, setIsCupReg] = useState(null)
   const [isTriReg, setIsTriReg] = useState(null)
   const [usedOB, setUsedOB] = useState(null)
@@ -320,6 +322,8 @@ function App() {
           setMoveNext(data.jump.next)
           setPelvis([data.jump.side, data.jump.side])
           setUseai(data.jump.recon ? [true, true] : [false, false])
+          setIsRecon(data.jump.stage > 0 || (data.jump.stage === 0 && data.jump.next) ? true : false)
+          setIsPelReg(data.jump.stage > 1 || (data.jump.stage === 1 && data.jump.next) ? true : false)
           setIsCupReg(data.jump.stage >= 2 && data.jump.next ? true : false)
           setIsTriReg(data.jump.stage === 3 && data.jump.next === 4 ? true : false)
           setTestmeas(data.jump.testmeas)
@@ -373,7 +377,12 @@ function App() {
         
         
         setMeasurements(data.measurements)
-
+        if(stage === 0){
+          if(data.recon === 2) setIsRecon(true)
+        }
+        if(stage === 1){
+          if(data.next) setIsPelReg(true)
+        }
         if(stage === 2){
           if(data.measurements) setIsCupReg(true)
         }
@@ -421,7 +430,7 @@ function App() {
     setRightCheckMark(null)
     setRecon(null)
     setUseai([false, false])
-    setPelvis([null, null])
+    if(!isCupReg) setPelvis([null, null])
     let st = next === 'next' ? stage + 1 : next === 'skip' ? stage + 2 : stage - 1;
     if(stage === 1 || stage === 2){
       setBrightness([100, 100])
@@ -439,7 +448,7 @@ function App() {
     if(!next) setStage(p => p - 1);
     setMoveNext(false);
     setMeasurements(null)
-
+    setError(null)
     try {
       await fetch('http://localhost:5000/next', {
         method: 'POST',
@@ -487,6 +496,8 @@ function App() {
     setLeftCheckMark(null)
     setRightCheckMark(null)
     setRecon(null)
+    setIsRecon(false)
+    setIsPelReg(false)
     setIsCupReg(false)
     setIsTriReg(false)
     setStage(0);
@@ -785,6 +796,8 @@ function App() {
           moveNext={moveNext} 
           handlerestart={handlerestart} 
           handlenext={handlenext} 
+          isRecon={isRecon}
+          isPelReg={isPelReg}
           isCupReg={isCupReg}
           isTriReg={isTriReg}
           showCarmBox={showCarm}

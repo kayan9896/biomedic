@@ -355,6 +355,7 @@ class Model:
 
     def update(self, analysis_type, data):
         section = data['section']
+    
         if analysis_type == 'frame':
             section_type = section[-2:]  # ap, ob
             # reset the 'ob' view if 'ap' image is repeated:
@@ -453,21 +454,23 @@ class Model:
         match stgstr:
             case 'hp1':
                 frm.rcn = 'hmplv1'
+                stgstr2 = 'hp2'
             case 'hp2':
                 frm.rcn = 'hmplv2'
+                stgstr2 = 'cup'
             case 'cup':
                 frm.rcn = 'acecup'
+                stgstr2 = 'tri'
             case 'tri':
+                stgstr2 = 'tri'
                 frm.rcn = 'tothip'
 
         frm.ap = stgstr + '-ap'
         frm.ob = stgstr + '-ob'
-        if stgstr == 'cup':
-            frm.next_ap = 'tri-ap'
-            frm.next_ob = 'tri-ob'
-        if stgstr == 'tri':
-            frm.prev_ap = 'cup-ap'
-            frm.prev_ob = 'cup-ob'
+
+        frm.next_ap = stgstr2 + '-ap'
+        frm.next_ob = stgstr2 + '-ap'
+
         return frm
 
 
@@ -479,17 +482,23 @@ class Model:
         match rcnstr:
             case 'hmplv1':
                 stgstr = 'hp1'
+                stgstr2 = 'hp2'
             case 'hmplv2':
                 stgstr= 'hp2'
+                stgstr2 = 'cup'
                 rcn.reg = 'pelvis'
             case 'acecup':
                 stgstr= 'cup'
+                stgstr2 = 'tri'
                 rcn.reg = 'regcup'
             case 'tothip':
                 stgstr = 'tri'
+                stgstr2 = 'tri'
                 rcn.reg = 'regtri'
         rcn.ap = stgstr + '-ap'
         rcn.ob = stgstr + '-ob'
+        rcn.next_ap = stgstr2 + '-ap'
+        rcn.next_ob = stgstr2 + '-ap'
         return rcn
 
     def __get_reg_strs__(self, reg_scn):
@@ -527,6 +536,9 @@ class Model:
         self.data[target_ob] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
         self.data[target_ap]['image'] = self.data[source_ap]['image']
         self.data[target_ob]['image'] = self.data[source_ob]['image']
+        if self.data['regcup']['success']:
+            self.data[target_ap]['side'] = self.data[source_ap]['side']
+            self.data[target_ob]['side'] = self.data[source_ob]['side']
         return
 
     def set_success_to_none(self, stage):
@@ -546,7 +558,7 @@ class Model:
                 case 'next':
                     if frm.rcn == 'acecup':
                         action = ('copy_stage_data', 'cup', 'tri')
-                        scn = ('frm:' + frm.next_ap + ':end')
+                    scn = ('frm:' + frm.next_ap + ':end')
                 case 'landmarks':
                     if self.data[frm.ap]['success'] and self.data[frm.ob]['success']:
                         scn = ('rcn:' + frm.rcn + ':bgn')
@@ -580,6 +592,20 @@ class Model:
                 scn = ('reg:' + rcn.reg + ':bgn')
                 return uistates, scn, action
             
+        if uistates == 'next':
+            scn = ('frm:' + rcn.next_ap + ':end')
+
+            uistates = None
+            return uistates, scn, action
+
+        if uistates == 'skip':
+            if frame_not_none:
+                if active_side == 'ap':
+                    scn = 'frm:tri-ap:bgn'
+                if active_side == 'ob':
+                    scn = 'frm:tri-ob:bgn'
+                uistates = None
+                return uistates, scn, action
 
         if uistates == 'landmarks':
             uistates = None
@@ -590,11 +616,11 @@ class Model:
             if frame_not_none:
                 if active_side == 'ap':
                     #self.__set_success_to_none__(rcn.ap)
-                    action = ('set_success_to_none', rcn.ap)
+                    #action = ('set_success_to_none', rcn.ap)
                     scn = ('frm:' + rcn.ap + ':bgn')
                 if active_side == 'ob':
                     #self.__set_success_to_none__(rcn.ob)
-                    action = ('set_success_to_none', rcn.ob)
+                    #action = ('set_success_to_none', rcn.ob)
                     scn = ('frm:' + rcn.ob + ':bgn')
 
         return uistates, scn, action
@@ -620,7 +646,7 @@ class Model:
         if self.data[reg.reg]['success']:
             if (reg.reg == 'regcup'):
                 #self.__set_imu_setcupreg__()
-                action =('set_imu_setcupreg')
+                action =('set_imu_setcupreg', '')
 
         if uistates == 'next':
             scn = ('frm:' + reg.next_ap + ':end')
@@ -647,11 +673,11 @@ class Model:
             if frame_not_none:
                 if active_side == 'ap':
                     #self.__set_success_to_none__(reg.ap)
-                    action = ('set_success_to_none', reg.ap)
+                    #action = ('set_success_to_none', reg.ap)
                     scn = ('frm:' + reg.ap + ':bgn')
                 if active_side == 'ob':
                     #self.__set_success_to_none__(reg.ob)
-                    action = ('set_success_to_none', reg.ob)
+                    #action = ('set_success_to_none', reg.ob)
                     scn = ('frm:' + reg.ob + ':bgn')
         return uistates, scn, action
 

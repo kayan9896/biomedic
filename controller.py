@@ -425,8 +425,8 @@ class Controller:
                     case 'set_success_to_none':
                         self.model.set_success_to_none(action[1])
 
-                    case 'set_cupreg':
-                        self.imu_handler.setcupreg()
+                    case 'set_imu_setcupreg':
+                        if self.tracking: self.imu_handler.set_cupreg()
             if self.jumpped:
                 self.jumpped = False
                 continue
