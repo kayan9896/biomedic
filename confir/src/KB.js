@@ -328,6 +328,7 @@ function KB({
       </div>
 
       <img
+        className="image-button"
         src={require('./ExitButton.png')}
         onClick={handleClose} 
         style={{

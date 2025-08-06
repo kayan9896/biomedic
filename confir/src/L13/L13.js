@@ -212,6 +212,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
     <div>
       <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'6px', left:'240px', zIndex:13}}/>
       {(currentStep ===2 || currentStep ===3) && <img 
+        className={(currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? "image-button" : null}
         src={(currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? require('./SetupTryAgainBtn.png') : require('./SetupTryAgainBtnDisable.png')} 
         alt="SetupTryAgain" 
         style={{
@@ -230,6 +231,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
         } 
       />}
       <img 
+        className={isCurrentStepComplete() ? "image-button" : null}
         src={isCurrentStepComplete() ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png')} 
         alt="SetupReturn" 
         style={{

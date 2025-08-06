@@ -46,7 +46,7 @@ function L11({setReport, stage, setError}) {
         {stitch && <img src={stitch} style={{position:'absolute', width: '1920px', height:'960px', top:'0px', left:'0px', zIndex:11}}/>}
         
         
-        <img src={require('./DLReportButton.png')} alt="DLReportButton" style={{position:'absolute', top:'1027px', left:'1280px', zIndex:11}}/>
+        <img className="image-button" src={require('./DLReportButton.png')} alt="DLReportButton" style={{position:'absolute', top:'1027px', left:'1280px', zIndex:11}}/>
         {localStage < 2 && imageNum === 0 && <img src={require('./RefStitch.png')} alt="RefStitch" style={{position:'absolute', top:'896px', left:'899px', zIndex:11}}/>}
         {localStage < 2 && imageNum === 1 && <img src={require('./RefVP1.png')} alt="RefVP1" style={{position:'absolute', top:'896px', left:'899px', zIndex:11}}/>}
         {localStage < 2 && imageNum === 2 && <img src={require('./RefVP2.png')} alt="RefVP2" style={{position:'absolute', top:'896px', left:'899px', zIndex:11}}/>}

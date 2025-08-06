@@ -59,24 +59,24 @@ class ViewModel:
                 dataforvm['measurements'] = None
                 dataforvm['next'] = False
                 dataforvm['side'] = data_for_model['side']
-            if data_for_model['analysis_error_code'] == '110':
+            if data_for_model['analysis_error_code'] == '115':
                 image = data_for_model['processed_frame']
                 dataforvm['metadata'] = None
                 dataforvm['checkmark'] = None
                 dataforvm['recon'] = None
-                dataforvm['error'] = '110'
+                dataforvm['error'] = data_for_model['analysis_error_code']
                 dataforvm['measurements'] = None
                 dataforvm['next'] = False
                 dataforvm['side'] = data_for_model['side']
-            if data_for_model['analysis_error_code'] in {'111', '112'}:
+            if data_for_model['analysis_error_code'] in {'110', '111', '112', '113'}:
                 image = data_for_model['processed_frame']
-                dataforvm['error'] = 'glyph' if data_for_model['analysis_error_code'] == '111' else 'ref'
-            if data_for_model['analysis_error_code'] == '113':
+                dataforvm['error'] = 'glyph' if data_for_model['analysis_error_code'] == '110' else 'ref'
+            if data_for_model['analysis_error_code'] == '114':
                 image = data_for_model['processed_frame']
                 dataforvm['metadata'] = None
                 dataforvm['checkmark'] = 0
                 dataforvm['recon'] = None
-                dataforvm['error'] = '113'
+                dataforvm['error'] = data_for_model['analysis_error_code']
                 dataforvm['measurements'] = None
                 dataforvm['next'] = False
                 dataforvm['side'] = data_for_model['side']
@@ -87,9 +87,9 @@ class ViewModel:
                 dataforvm['error'] = None
                 dataforvm['measurements'] = None
                 dataforvm['next'] = True if self.states['stage'] == 0 else False
-            if data_for_model['analysis_error_code'] == '120':
+            else:
                 dataforvm['recon'] = 3
-                dataforvm['error'] = 'recon fails'
+                dataforvm['error'] = data_for_model['analysis_error_code']
                 dataforvm['measurements'] = None
                 dataforvm['next'] = False
 
@@ -99,9 +99,9 @@ class ViewModel:
                 dataforvm['error'] = None
                 dataforvm['measurements'] = data_for_model['measurements']
                 dataforvm['next'] = True 
-            if data_for_model['analysis_error_code'] == '130':
+            else:
                 dataforvm['recon'] = 2
-                dataforvm['error'] = 'reg fails'
+                dataforvm['error'] = data_for_model['analysis_error_code']
                 dataforvm['measurements'] = None
                 dataforvm['next'] = False
         

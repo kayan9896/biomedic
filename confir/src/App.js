@@ -900,7 +900,7 @@ function App() {
         }
 
       {/*L19 Reg error*/}
-      {(error==='reg fails' && stage===1) && <L19 handlerestart={handlerestart}/>}
+      {(error==='130') && <L19 handlerestart={handlerestart}/>}
 
       {/*L20 Glyph error*/}
       {showglyph && <L20 image={errImage} showglyph={showglyph} setShowglyph={setShowglyph}/>}

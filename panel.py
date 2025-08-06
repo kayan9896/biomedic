@@ -271,10 +271,10 @@ class Panel:
         }
 
         errs = {
-            'ap': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks'],
-            'ob': ['110, Wrong side hip detected', '111, Glyph reference not detected', '112, Patient reference not detected', '113, Failed to autodetect image landmarks'],
-            'recons': ['120, Failed hemi-pelvis reconstruction', '121', '122'],
-            'regs': ['130, Failed hemi-pelvis registration (Cup Analysis)', '131']
+            'ap': ['110, Glyph reference not detected', '111, Distortion reference not detected', '112, Tracking reference not detected', '113, Camera calibration reference not detected', '114, Failed to autodetect image landmarks', '115, Wrong side hip detected'],
+            'ob': ['110, Glyph reference not detected', '111, Distortion reference not detected', '112, Tracking reference not detected', '113, Camera calibration reference not detected', '114, Failed to autodetect image landmarks', '115, Wrong side hip detected'],
+            'recons': ['120, Failed hemi-pelvis reconstruction', '121, Failed proximal femur reconstruction', '122, Failed cup reconstruction', '129, Failed reconstruction - mismatched sides'],
+            'regs': ['130, Failed Pelvis Registration', '131, Failed Cup Registration', '132, Failed Trial Analysis Registration']
         }
 
         # Create four sections: ap, ob, recons, and regs

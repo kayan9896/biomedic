@@ -12,7 +12,18 @@ function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriR
           // Cleanup timer if component unmounts or button disappears
           return () => clearTimeout(timer);
       }
-  }, [shownext, stage]);
+    }, [shownext, stage]);
+    const tb = {
+      '114': ['Failed to autodetect image landmarks', 'Edit or retake'],
+      '115': ['Wrong side hip detected', 'Retake'],
+      '120': ['Failed hemi-pelvis reconstruction', 'Edit or retake'], 
+      '121': ['Failed proximal femur reconstruction', 'Edit or retake'], 
+      '122': ['Failed cup reconstruction', 'Edit or retake'], 
+      '129': ['Failed reconstruction - mismatched sides', 'Edit or retake'],
+      '131': ['Failed Cup Registration','Retake'],
+      '132': ['Failed Trial Analysis Registration','Retake'],
+    }
+    const errortext = error in tb ? tb[error] : []
 
 
     return(
@@ -40,13 +51,13 @@ function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriR
           })}
         </div>
         </>}
-        {(error)&&<>
+        {(errortext[0])&&<>
           <img src={require('./Message1.png')} alt="Message1" style={{position:'absolute', top:'33px', left:'336px', zIndex:9}}/>
-          <div style={{position:'absolute', top:'53px', left:'636px', zIndex:9, fontSize:'40px', color:'white', fontFamily:'Abel'}}>{error}°</div>
+          <div style={{position:'absolute', display:'flex', flexDirection:'column', justifyContent:'center', textAlign:'center', top:'33px', left: '336px', width: '1249px', height: '100px', zIndex:9, fontSize:'75px', color:'white', fontFamily:'Abel'}}>{errortext[0]}</div>
         </>}
-        {(error)&&<>
+        {(errortext[1])&&<>
           <img src={require('./Message2.png')} alt="Message2" style={{position:'absolute', top:'133px', left:'336px', zIndex:9}}/>
-          <div style={{position:'absolute', top:'162px', left:'336px', zIndex:9}}>{error}</div>
+          <div style={{position:'absolute', display:'flex', flexDirection:'column', justifyContent:'center', textAlign:'center', top:'133px', left: '336px', width: '1249px', height: '100px', zIndex:9, fontSize:'75px', color:'#26A742', fontFamily:'Abel'}}>{errortext[1]}</div>
         </>}
       </div>
     )
