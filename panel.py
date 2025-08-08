@@ -13,6 +13,14 @@ class Panel:
         self.controller = None
         self.tilt_angle = 0
         self.rotation_angle = 0
+        self.is_connected = False
+        self.battery_level = 0
+
+        self.fg_is_connected = False
+        self.fg_is_running = False
+        self.image = None
+        self.available = False
+
         self._auto_mode = False
         self._running = True
         self.increasing = True
@@ -31,6 +39,7 @@ class Panel:
             'regs': None
         }
         self.step = 5
+        self.noise = 0
         
         # Get the exam folder path from config
         self.sim_data_path = config.get("model_simdata_path", "exam") if config else "exam"
@@ -73,92 +82,101 @@ class Panel:
         controls_container = tk.Frame(main_frame)
         controls_container.pack(fill=tk.X, pady=(0, 10))
         
-        # Left column - IMU frame
-        imu_frame = tk.LabelFrame(controls_container, text="IMU Control")
-        imu_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
-        
-        # IMU connection status
-        self.imu_connected_var = tk.BooleanVar(value=False)
-        imu_conn_frame = tk.Frame(imu_frame)
-        imu_conn_frame.pack(fill=tk.X, padx=5, pady=(5, 2))
-        
-        tk.Label(imu_conn_frame, text="Connected:").pack(side=tk.LEFT)
-        tk.Radiobutton(imu_conn_frame, text="True", variable=self.imu_connected_var, 
-                    value=True, command=self._update_imu_state).pack(side=tk.LEFT, padx=(5, 2))
-        tk.Radiobutton(imu_conn_frame, text="False", variable=self.imu_connected_var, 
-                    value=False, command=self._update_imu_state).pack(side=tk.LEFT)
-        
-        # IMU battery status
-        battery_frame = tk.Frame(imu_frame)
-        battery_frame.pack(fill=tk.X, padx=5, pady=(2, 5))
-        
-        tk.Label(battery_frame, text="Battery (%):").pack(side=tk.LEFT)
-        self.battery_var = tk.StringVar(value="100")
-        battery_entry = tk.Entry(battery_frame, textvariable=self.battery_var, width=5)
-        battery_entry.pack(side=tk.LEFT, padx=(5, 0))
-        battery_entry.bind("<FocusOut>", self._update_imu_state)
-        battery_entry.bind("<Return>", self._update_imu_state)
-        
-        # Display battery status
-        self.battery_status = tk.Label(imu_frame, text="Battery Status: OK", fg="green")
-        self.battery_status.pack(anchor=tk.W, padx=5, pady=(0, 5))
-        
-        # Compressed tilt_angle display in the same frame
-        angle_frame = tk.Frame(imu_frame)
-        angle_frame.pack(fill=tk.X, padx=5, pady=5)
-        
-        # First row: tilt_angle display and controls
-        tk.Label(angle_frame, text="tilt_angle:").grid(row=0, column=0, sticky=tk.W)
-        self.angle_value = tk.Label(angle_frame, text=str(self.tilt_angle))
-        self.angle_value.grid(row=0, column=1, sticky=tk.W, padx=(5, 10))
-        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle(-self.step)).grid(row=0, column=2)
-        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle(self.step)).grid(row=0, column=3)
-        
-        # Second row: rotation tilt_angle display and controls
-        tk.Label(angle_frame, text="Rotation:").grid(row=1, column=0, sticky=tk.W)
-        self.rotation_angle_value = tk.Label(angle_frame, text=str(self.rotation_angle))
-        self.rotation_angle_value.grid(row=1, column=1, sticky=tk.W, padx=(5, 10))
-        tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle2(-self.step)).grid(row=1, column=2)
-        tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle2(self.step)).grid(row=1, column=3)
-        
-        tk.Label(angle_frame, text="Increment:").grid(row=2, column=0, sticky=tk.W)
-        self.stepvar = tk.StringVar(value="5")
-        self.stepvar.trace_add("write", lambda *args: self._update_step())
-        step_entry = tk.Entry(angle_frame, textvariable=self.stepvar, width=5)
-        step_entry.grid(row=2, column=1, sticky=tk.W, padx=(5, 10))
-        step_entry.bind("<Return>", self._update_step)
+        if self.config.get("imu_simulation", True):
+            # Left column - IMU frame
+            imu_frame = tk.LabelFrame(controls_container, text="IMU Control")
+            imu_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+            
+            # IMU connection status
+            self.imu_connected_var = tk.BooleanVar(value=False)
+            imu_conn_frame = tk.Frame(imu_frame)
+            imu_conn_frame.pack(fill=tk.X, padx=5, pady=(5, 2))
+            
+            tk.Label(imu_conn_frame, text="Connected:").pack(side=tk.LEFT)
+            tk.Radiobutton(imu_conn_frame, text="True", variable=self.imu_connected_var, 
+                        value=True, command=self._update_imu_state).pack(side=tk.LEFT, padx=(5, 2))
+            tk.Radiobutton(imu_conn_frame, text="False", variable=self.imu_connected_var, 
+                        value=False, command=self._update_imu_state).pack(side=tk.LEFT)
+            
+            # IMU battery status
+            battery_frame = tk.Frame(imu_frame)
+            battery_frame.pack(fill=tk.X, padx=5, pady=(2, 5))
+            
+            tk.Label(battery_frame, text="Battery (%):").pack(side=tk.LEFT)
+            self.battery_var = tk.StringVar(value="100")
+            battery_entry = tk.Entry(battery_frame, textvariable=self.battery_var, width=5)
+            battery_entry.pack(side=tk.LEFT, padx=(5, 0))
+            battery_entry.bind("<FocusOut>", self._update_imu_state)
+            battery_entry.bind("<Return>", self._update_imu_state)
+            
+            # Display battery status
+            self.battery_status = tk.Label(imu_frame, text="Battery Status: OK", fg="green")
+            self.battery_status.pack(anchor=tk.W, padx=5, pady=(0, 5))
+            
+            # Compressed tilt_angle display in the same frame
+            angle_frame = tk.Frame(imu_frame)
+            angle_frame.pack(fill=tk.X, padx=5, pady=5)
+            
+            # First row: tilt_angle display and controls
+            tk.Label(angle_frame, text="tilt_angle:").grid(row=0, column=0, sticky=tk.W)
+            self.angle_value = tk.Label(angle_frame, text=str(self.tilt_angle))
+            self.angle_value.grid(row=0, column=1, sticky=tk.W, padx=(5, 10))
+            tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle(-self.step)).grid(row=0, column=2)
+            tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle(self.step)).grid(row=0, column=3)
+            
+            # Second row: rotation tilt_angle display and controls
+            tk.Label(angle_frame, text="Rotation:").grid(row=1, column=0, sticky=tk.W)
+            self.rotation_angle_value = tk.Label(angle_frame, text=str(self.rotation_angle))
+            self.rotation_angle_value.grid(row=1, column=1, sticky=tk.W, padx=(5, 10))
+            tk.Button(angle_frame, text="−", width=2, command=lambda: self._adjust_angle2(-self.step)).grid(row=1, column=2)
+            tk.Button(angle_frame, text="+", width=2, command=lambda: self._adjust_angle2(self.step)).grid(row=1, column=3)
+            
+            tk.Label(angle_frame, text="Increment:").grid(row=2, column=0, sticky=tk.W)
+            self.stepvar = tk.StringVar(value="5")
+            self.stepvar.trace_add("write", lambda *args: self._update_step())
+            step_entry = tk.Entry(angle_frame, textvariable=self.stepvar, width=5)
+            step_entry.grid(row=2, column=1, sticky=tk.W, padx=(5, 10))
+            step_entry.bind("<Return>", self._update_step)
 
-        # Right column - Framegrabber frame
-        framegrabber_frame = tk.LabelFrame(controls_container, text="Framegrabber Control")
-        framegrabber_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
-        
-        # Initialize framegrabber state variables
-        self.is_connected_var = tk.BooleanVar(value=False)
-        self.is_running_var = tk.BooleanVar(value=False)
-        
-        # Create connection controls
-        connection_frame = tk.Frame(framegrabber_frame)
-        connection_frame.pack(fill=tk.X, padx=5, pady=5)
-        
-        tk.Label(connection_frame, text="Connected:").pack(side=tk.LEFT)
-        tk.Radiobutton(connection_frame, text="True", variable=self.is_connected_var, 
-                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(5, 2))
-        tk.Radiobutton(connection_frame, text="False", variable=self.is_connected_var, 
-                    value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
-        
-        # Create running controls
-        running_frame = tk.Frame(framegrabber_frame)
-        running_frame.pack(fill=tk.X, padx=5, pady=5)
-        
-        tk.Label(running_frame, text="Running:").pack(side=tk.LEFT)
-        tk.Radiobutton(running_frame, text="True", variable=self.is_running_var, 
-                    value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(5, 2))
-        tk.Radiobutton(running_frame, text="False", variable=self.is_running_var, 
-                    value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
-                    
-        # Create status display
-        self.video_status = tk.Label(framegrabber_frame, text="Video Status: OFF", fg="red")
-        self.video_status.pack(anchor=tk.W, padx=5, pady=5)
+            tk.Label(angle_frame, text="Noise:").grid(row=2, column=2, sticky=tk.W)
+            self.noisevar = tk.StringVar(value="0")
+            self.noisevar.trace_add("write", lambda *args: self._update_noise())
+            step_entry = tk.Entry(angle_frame, textvariable=self.noisevar, width=5)
+            step_entry.grid(row=2, column=3, sticky=tk.W, padx=(5, 10))
+            step_entry.bind("<Return>", self._update_noise)
+
+        if self.config.get("fg_simulation", True):
+            # Right column - Framegrabber frame
+            framegrabber_frame = tk.LabelFrame(controls_container, text="Framegrabber Control")
+            framegrabber_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+            
+            # Initialize framegrabber state variables
+            self.is_connected_var = tk.BooleanVar(value=False)
+            self.is_running_var = tk.BooleanVar(value=False)
+            
+            # Create connection controls
+            connection_frame = tk.Frame(framegrabber_frame)
+            connection_frame.pack(fill=tk.X, padx=5, pady=5)
+            
+            tk.Label(connection_frame, text="Connected:").pack(side=tk.LEFT)
+            tk.Radiobutton(connection_frame, text="True", variable=self.is_connected_var, 
+                        value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(5, 2))
+            tk.Radiobutton(connection_frame, text="False", variable=self.is_connected_var, 
+                        value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
+            
+            # Create running controls
+            running_frame = tk.Frame(framegrabber_frame)
+            running_frame.pack(fill=tk.X, padx=5, pady=5)
+            
+            tk.Label(running_frame, text="Running:").pack(side=tk.LEFT)
+            tk.Radiobutton(running_frame, text="True", variable=self.is_running_var, 
+                        value=True, command=self._update_framegrabber_state).pack(side=tk.LEFT, padx=(5, 2))
+            tk.Radiobutton(running_frame, text="False", variable=self.is_running_var, 
+                        value=False, command=self._update_framegrabber_state).pack(side=tk.LEFT)
+                        
+            # Create status display
+            self.video_status = tk.Label(framegrabber_frame, text="Video Status: OFF", fg="red")
+            self.video_status.pack(anchor=tk.W, padx=5, pady=5)
         
         # Create tabs
         tab_control = ttk.Notebook(main_frame)
@@ -242,6 +260,7 @@ class Panel:
             self.controller.start_processing()
             self._test_with_selected_files()
 
+        self.controller.imu_sensor.start()
         self.controller.jumpped = True
         self.controller.scn = scn.split('(')[0]
         m = {'init(hp1 bgn)': 0, 'rcn:hmplv1:end(hp1 end)': 1, 'frm:hp2-ap:end(hp2 bgn)': 2, 'reg:pelvis:end(hp2 end)': 3, 'frm:cup-ap:end(cup bgn)': 4, 'reg:regcup:end(cup end)': 5, 'frm:tri-ap:end(tri bgn)': 6, 'frm:tri-ap:end(skip cup)': 7, 'reg:regtri:end(tri end)': 8}
@@ -375,14 +394,14 @@ class Panel:
                         'errors': selected_errors
                     }
         self.controller.model.settest(self.test_data)
-        self.image_path = self.test_data[tab_type]['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data[tab_type]['ob']['image_path']
-        self.controller.frame_grabber.last_frame = cv2.imread(self.image_path)
         
     def _test(self):
         # Trigger the test 
-        self.image_path = self.test_data[self.current_tab]['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data[self.current_tab]['ob']['image_path']
-        self.controller.frame_grabber.last_frame = cv2.imread(self.image_path)
-        self.controller.frame_grabber._is_new_frame_available = True
+        tab_names = ['hp1', 'hp2', 'cup', 'tri']
+        current_tab = tab_names[self.controller.stage]
+        self.image_path = self.test_data[current_tab]['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data[current_tab]['ob']['image_path']
+        self.image = cv2.imread(self.image_path)
+        self.available = True
         
     def _get_files_for_tab_section(self, tab_type, section):
         """Get files filtered by tab type and section"""
@@ -451,31 +470,27 @@ class Panel:
     
     def _update_framegrabber_state(self):
         """Update the framegrabber properties based on UI settings"""
-        is_connected = self.is_connected_var.get()
-        is_running = self.is_running_var.get()
-        
-        # Update framegrabber properties if available
-        if hasattr(self.controller, 'frame_grabber'):
-            self.controller.frame_grabber.is_connected = is_connected
-            self.controller.frame_grabber.is_running = is_running
-            
-            # Update controller properties
-            self.controller.video_connected = is_connected
+        self.fg_is_connected = self.is_connected_var.get()
+        self.fg_is_running = self.is_running_var.get()
             
         # Update the video status display
-        video_on = is_connected and is_running
+        video_on = self.fg_is_connected and self.fg_is_running
         if video_on:
             self.video_status.config(text="Video Status: ON", fg="green")
         else:
             self.video_status.config(text="Video Status: OFF", fg="red")
         
-        print(f"Framegrabber updated: connected={is_connected}, running={is_running}, video_on={video_on}")
+        print(f"Framegrabber updated: connected={self.fg_is_connected}, running={self.fg_is_running}, video_on={video_on}")
 
     def _update_step(self, event=None):
         """Update the IMU properties based on UI settings"""
         
         self.step = round(float(self.stepvar.get()), 1)
         self.stepvar.set(str(self.step))
+
+    def _update_noise(self, event=None):
+        self.noise = round(float(self.noisevar.get()), 1)
+        self.noisevar.set(str(self.noise))
 
     def _clear_err(self, tab_type, section):
         self.tab_widgets[tab_type]['error_lists'][section].selection_clear(0,tk.END)
@@ -503,8 +518,8 @@ class Panel:
         
         # Update IMU properties if available
         if hasattr(self.controller, 'imu_sensor'):
-            self.controller.imu_sensor.is_connected = is_connected
-            self.controller.imu_sensor.battery_level = battery_level
+            self.is_connected = is_connected
+            self.battery_level = battery_level
         
         # Update battery status display
         if battery_level <= 20:
@@ -564,7 +579,6 @@ class Panel:
         if not self._auto_mode:
             new_angle = min(max(self.tilt_angle + change, -100), 100)
             self.tilt_angle = round(new_angle, 2)
-            self.controller.imu_sensor.set_tilt(self.tilt_angle)
             self.angle_value.config(text=str(self.tilt_angle))
             print(f"Current tilt_angle: {self.tilt_angle}")
     
@@ -573,7 +587,6 @@ class Panel:
         if not self._auto_mode:
             new_angle = min(max(self.rotation_angle + change, -100), 100)
             self.rotation_angle = round(new_angle, 2)
-            self.controller.imu_sensor.set_rotation(self.rotation_angle)
             self.rotation_angle_value.config(text=str(self.rotation_angle))
             print(f"Current rotation_angle: {self.rotation_angle}")
     

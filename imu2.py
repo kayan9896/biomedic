@@ -42,14 +42,16 @@ class IMU_handler:
         self.window_shown = not (self.is_rot_valid(0) and self.is_tilt_valid(0))
 
     def set_tilt(self, a):
-        self.prev_angle = self.tilt_angle
-        self.tilt_angle = a
-        self.last_stable_time = time.time()
+        if abs(self.tilt_angle - a) > self.tol: 
+            self.prev_angle = self.tilt_angle
+            self.tilt_angle = a
+            self.last_stable_time = time.time()
 
     def set_rotation(self, a):
-        self.prev_rotation_angle = self.rotation_angle
-        self.rotation_angle = a
-        self.last_stable_time = time.time()
+        if abs(self.rotation_angle - a) > self.tol: 
+            self.prev_rotation_angle = self.rotation_angle
+            self.rotation_angle = a
+            self.last_stable_time = time.time()
 
     def activeside(self, stage=0):
         if stage == 0:

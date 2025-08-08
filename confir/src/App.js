@@ -587,23 +587,23 @@ function App() {
     try {
       rmRed()
       // Aggregate metadata from all groups
-      const leftData = Object.keys(leftSaveRefs.current).reduce((acc, group) => {
+      const leftData = leftImageMetadata ? Object.keys(leftSaveRefs.current).reduce((acc, group) => {
         const ref = leftSaveRefs.current[group];
         if (ref && typeof ref.getCurrentMetadata === 'function') {
           const metadata = ref.getCurrentMetadata();
           acc[group] = metadata[group]; // Only include the group-specific data
         }
         return acc;
-      }, {});
+      }, {}) : null;
 
-      const rightData = Object.keys(rightSaveRefs.current).reduce((acc, group) => {
+      const rightData = rightImageMetadata ? Object.keys(rightSaveRefs.current).reduce((acc, group) => {
         const ref = rightSaveRefs.current[group];
         if (ref && typeof ref.getCurrentMetadata === 'function') {
           const metadata = ref.getCurrentMetadata();
           acc[group] = metadata[group]; // Only include the group-specific data
         }
         return acc;
-      }, {});
+      }, {}) : null;
 
       // Send to backend
       await fetch('http://localhost:5000/landmarks', {

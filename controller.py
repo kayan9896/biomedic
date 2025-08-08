@@ -15,12 +15,13 @@ import datetime
 from imu import IMU_sensor
 from imu2 import IMU_handler
 from exam import Exam
+import base64
 
 class Controller:
     def __init__(self, config = None, calib = None,  panel = None):
         self.calib = calib
         self.config = config
-        self.frame_grabber = FrameGrabber(self.calib["FrameGrabber"])
+        self.frame_grabber = FrameGrabber(panel, self.calib["FrameGrabber"], self.config.get("fg_simulation", False))
 
         self.is_running = False
         self.process_thread = None
@@ -57,7 +58,7 @@ class Controller:
         self.tracking = self.calib['IMU'].get("imu_on", True)
         if self.tracking: 
             self.imu_handler = IMU_handler(self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
-            self.imu_sensor = IMU_sensor(self.calib['IMU'].get("imu_port", "COM3"), self.imu_handler)
+            self.imu_sensor = IMU_sensor(self.calib['IMU'].get("imu_port", "COM3"), self.imu_handler, panel, config.get("imu_simulation", False))
 
         if self.on_simulation:
             self.panel = panel
@@ -275,34 +276,13 @@ class Controller:
         """
         # Get device name from config
         device = self.config.get("framegrabber_device", "OBS Virtual Camera")
-        if self.on_simulation:
-            # Use the framegrabber connection state from Panel
-            is_connected = False
-            is_running = False
-            
-            if hasattr(self, 'frame_grabber'):
-                is_connected = getattr(self.frame_grabber, 'is_connected', False)
-                is_running = getattr(self.frame_grabber, 'is_running', False)
-            
-            connected = is_connected and is_running
-            
-            if connected:
-                return {
-                    "connected": True,
-                    "message": f"Successfully connected to {device}"
-                }
-            else:
-                return {
-                    "connected": False,
-                    "message": "Failed to connect to camera device"
-                }
         
         result = self.frame_grabber.connect(device)
         
         if result.get('connected', False):
 
             # Fetch the first frame
-            frame = controller.frame_grabber.fetchFrame()
+            frame = self.frame_grabber.fetchFrame()
             
             if frame is not None:
                 # Convert numpy array to JPEG
@@ -316,9 +296,9 @@ class Controller:
                     # Add the frame to the result as a data URI
                     result['frame'] = f"data:image/jpeg;base64,{base64_str}"
                 else:
-                    controller.logger.warning("Failed to encode frame to JPEG")
+                    self.logger.warning("Failed to encode frame to JPEG")
             else:
-                controller.logger.warning("No frame available after connection")
+                self.logger.warning("No frame available after connection")
         
         return result
         
@@ -413,7 +393,7 @@ class Controller:
             if self.pause_states == 'edit': 
                 time.sleep(1)
                 continue
-            if frame is not None: print(1,self.uistates)
+
             with self.lock:
                 newscn, self.uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
         
@@ -434,7 +414,7 @@ class Controller:
             if newscn == self.scn or newscn[-3:] != 'bgn':
                 self.scn = newscn
                 continue
-            print(4, newscn, self.scn)
+
             self.is_processing = True
             self.lockside = True
             if self.tracking: 
@@ -450,6 +430,7 @@ class Controller:
             print(data_for_model, newscn)
             self.scn = newscn[:-3] + 'end'
             self.model.update(analysis_type, data_for_model)
+            print(self.model.data)
             self.viewmodel.update(analysis_type, data_for_model)
             self.exam.save(analysis_type, data_for_exam, frame)
 

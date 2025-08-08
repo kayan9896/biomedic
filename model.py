@@ -389,7 +389,6 @@ class Model:
 
 
     def exec(self, scn, frame=None, tilt_angle=None, rotation_angle=None):
-        print(scn)
         match scn:
             case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn' | 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn' | 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn' | 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
                 try:
@@ -548,7 +547,7 @@ class Model:
     def __eval_frm_scn__(self, scn, active_side, frame_not_none, uistates):
         frm = self.__get_frm_strs__(scn)
         action = None
-        if frame_not_none: print(2,scn,frm.ob,frm.next_ap,uistates)
+
         if uistates is not None:
             match (uistates):
                 case 'prev':
@@ -684,7 +683,6 @@ class Model:
 
     def eval_modelscnario(self, frame, scn, active_side, uistates):
         frame_not_none = frame is not None
-        if(frame_not_none):print(3,scn,uistates)
         action = None
         match scn:
             case 'init':

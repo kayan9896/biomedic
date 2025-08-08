@@ -1,5 +1,7 @@
 {
     "on_simulation": true,
+    "imu_simulation": true,
+    "fg_simulation": true,
     "ai_mode": true, 
     "glyph_on": true,
     "framegrabber_device": "OBS Virtual Camera",
