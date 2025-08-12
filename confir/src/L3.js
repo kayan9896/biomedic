@@ -26,6 +26,8 @@ function L3({
     filter: `brightness(${brightness}%) contrast(${contrast}%)`,
   });
 
+  const [activeGroup, setActiveGroup] = useState(null)
+  
   return(
     <div>
     <div className="image-container" ref={frameRef}>
@@ -56,6 +58,8 @@ function L3({
           editing={editing}
           filter = {getFilterStyle(brightness[0], contrast[0])}
           recon={recon}
+          activeGroup={activeGroup}
+          setActiveGroup={setActiveGroup}
         />
         ))}
         </div>
@@ -88,6 +92,8 @@ function L3({
           editing={editing}
           filter = {getFilterStyle(brightness[1], contrast[1])}
           recon={recon}
+          activeGroup={activeGroup}
+          setActiveGroup={setActiveGroup}
         />
         ))}
         </div>

@@ -4,12 +4,18 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing, filter, recon }) => {
+const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing, filter, recon, activeGroup, setActiveGroup }) => {
   // Keep metadata in array format
   const [originalMetadata, setOriginalMetadata] = useState(metadata[group] || []);
   const [lastSavedMetadata, setLastSavedMetadata] = useState(metadata[group] || []);
   const [currentMetadata, setCurrentMetadata] = useState(metadata[group] || []);
   const [resetKey, setResetKey] = useState(0);
+  const [activeSegment, setActiveSegment] = useState(null)
+
+  const setActiveGroupSegment = (group, segment) => {
+    setActiveSegment(segment);
+    setActiveGroup(group)
+  }
   
   useEffect(() => {
     if (metadata) {
@@ -179,6 +185,9 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     idx={null}
                     editing={editing}
                     filter={filter}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
+                    setActiveGroupSegment={setActiveGroupSegment}
                   />
                 );
                 
@@ -198,6 +207,9 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     idx={null}
                     editing={editing}
                     filter={filter}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
+                    setActiveGroupSegment={setActiveGroupSegment}
                   />
                 );
                 
@@ -218,6 +230,9 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     idx={null}
                     editing={editing}
                     filter={filter}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
+                    setActiveGroupSegment={setActiveGroupSegment}
                   />
                 );
                 

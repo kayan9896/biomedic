@@ -662,8 +662,8 @@ function App() {
   };
 
   const handleReset = () => {
-    Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
-    Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
+    if(editing === 'left') Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
+    if(editing === 'right') Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
   };
 
   const captureAndSaveFrame = async (stage) => {

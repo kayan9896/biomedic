@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Arc from './Arc';
 import Magnifier from './Magnifier';
 
-const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter}) => {
+const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter, activeGroup, activeSegment, setActiveGroupSegment}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(idx!==null);
   const [isDragging, setIsDragging] = useState(false);
@@ -14,7 +14,14 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const patternColor = colour
   
-  
+  useEffect(()=>{
+    if(group !== null && segment !== null && (activeGroup !== group || activeSegment !== segment)){
+      setIsSelected(false);
+      return
+    }
+    setIsSelected(true)
+    },[activeGroup, activeSegment])
+
   useEffect(()=>{
     setDraggedPointIndex(idx)
     setIsSelected(idx!==null)
@@ -153,6 +160,7 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
     } else {
       setIsSelected(false);
     }
+    setActiveGroupSegment(group, segment)
   }
 
   function calculateEllipseParameters() {
@@ -283,6 +291,8 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
         metadata={fulldata}
         idx={draggedPointIndex}
         filter={filter}
+        activeGroup={activeGroup}
+        activeSegment={activeSegment}
       />
     </>
   );

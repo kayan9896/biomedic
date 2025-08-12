@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
 import * as THREE from 'three';
 
-const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, metadata, fulldata, isLeftSquare, idx, editing, filter }) => {
+const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, metadata, fulldata, isLeftSquare, idx, editing, filter, activeGroup, activeSegment, setActiveGroupSegment }) => {
   const [curvePoints, setCurvePoints] = useState(points);
-  const [showDots, setShowDots] = useState(idx);
+  const [showDots, setShowDots] = useState(idx!==null);
   const [activeDotIndex, setActiveDotIndex] = useState(idx);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [dragLine, setDragLine] = useState(false);
@@ -14,6 +14,14 @@ const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, 
 
   const HIT_TOLERANCE = 15;
   useEffect(()=>{
+    if(group !== null && segment !== null && (activeGroup !== group || activeSegment !== segment)){
+      setShowDots(false);
+      return
+    }
+    setShowDots(true)
+    },[activeGroup, activeSegment])
+
+  useEffect(()=>{
     setActiveDotIndex(idx)
     setShowDots(idx!==null)
     },[idx])
@@ -21,6 +29,7 @@ const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, 
   useEffect(() => {
     setCurvePoints(points);
     }, [points]);
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -108,8 +117,12 @@ const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, 
       setActiveDotIndex(index);
       setIsMouseDown(true);
       setShowDots(true);
+    }else{
+      setActiveDotIndex(null);
+      setIsMouseDown(false);
+      setShowDots(false);
     }
-    
+    setActiveGroupSegment(group, segment)
   };
 
   const handleLineMouseDown = (e) => {
@@ -120,7 +133,7 @@ const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, 
     const mouseY = e.clientY - rect.top;
     
     setCursorPosition({ x: mouseX, y: mouseY });
-    
+    setActiveDotIndex(null)
     setDragLine({
       startX: mouseX,
       startY: mouseY,
@@ -128,6 +141,7 @@ const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, 
     });
     setIsMouseDown(true);
     setShowDots(true);
+    setActiveGroupSegment(group, segment)
   };
 
   const handleTouchStart = (e) => {
@@ -256,6 +270,8 @@ const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, 
         metadata={fulldata}
         idx={activeDotIndex}
         filter={filter}
+        activeGroup={activeGroup}
+        activeSegment={activeSegment}
       />
     </>
   );

@@ -15,7 +15,9 @@ const Magnifier = ({
   metadata,
   isLeftSquare,
   idx,
-  filter
+  filter,
+  activeGroup,
+  activeSegment
 }) => {
     
     const [magnifierPosition, setMagnifierPosition] = useState('default');
@@ -46,6 +48,36 @@ const Magnifier = ({
         }
       }
     };
+
+    const renderDashedLines = (patterns) => {
+    const lines = [];
+  
+    for (let i = 0; i < patterns.length - 1; i++) {
+      const currentPattern = patterns[i];
+      const nextPattern = patterns[i + 1];
+  
+      
+        const lastPoint = currentPattern.points[currentPattern.points.length - 1];
+        const firstPoint = nextPattern.points[0];
+        //console.log(lastPoint,firstPoint,currentPattern,nextPattern)
+        lines.push(
+          <line
+            key={`dashed-line-${i}`}
+            x1={lastPoint[0]}
+            y1={lastPoint[1]}
+            x2={firstPoint[0]}
+            y2={firstPoint[1]}
+            stroke="gray"
+            strokeDasharray="5,5"
+            strokeWidth={2}
+            style={{ position: 'absolute', top: 0, left: 0 }}
+          />
+        );
+      
+    }
+  
+    return lines;
+  };
   
     // Get current coordinates
     const coordinates = getMagnifierCoordinates();
@@ -109,9 +141,22 @@ const Magnifier = ({
             }}
           >
             <img src={imageUrl} alt="Image 1" style={{ width: '100%', height: 'auto', ...filter }} />
-            {metadata && Object.keys(metadata).map((g, i) => 
+            {metadata && Object.keys(metadata).map((g, num) => 
             { return(
-              metadata[g].map((pattern, index) => {
+              <>
+              <svg 
+                width="960" 
+                height="960" 
+                style={{ 
+                  position: 'absolute', 
+                  top: 0, 
+                  left: 0, 
+                  pointerEvents: 'none',
+                }}
+              >
+              {renderDashedLines(metadata[g])}
+              </svg>
+              {metadata[g].map((pattern, index) => {
             const key = `${pattern.type}-${index}-${Math.random()}`;
 
             switch (pattern.type) {
@@ -137,6 +182,8 @@ const Magnifier = ({
                     metadata={metadata[g]}
                     idx={currentSegment === index && g === group ? i : null}
                     editing={true}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
                   />
                 );
                 
@@ -150,6 +197,8 @@ const Magnifier = ({
                     metadata={metadata[g]}
                     idx={currentSegment === index && g === group ? i : null}
                     editing={true}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
                   />
                 );
                 
@@ -164,13 +213,17 @@ const Magnifier = ({
                     metadata={metadata[g]}
                     idx={currentSegment === index && g === group ? i : null}
                     editing={true}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
                   />
                 );
                 
               default:
                 return null;
             }
-          }))})}
+          })}
+          </>
+        )})}
       </div>
       <div
         style={{
@@ -183,7 +236,7 @@ const Magnifier = ({
           fontSize: '20px', // Adjust size as needed
         }}
       >
-        +
+        
       </div>
     </div>
   );

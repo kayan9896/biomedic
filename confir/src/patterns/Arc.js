@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter, ellipseSelect}) => {
+const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter, ellipseSelect, activeGroup, activeSegment, setActiveGroupSegment}) => {
   const [arc, setArc] = useState(initialArc);
   const [isSelected, setIsSelected] = useState(idx!==null);
   const [isDragging, setIsDragging] = useState(false);
@@ -14,6 +14,14 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
   useEffect(()=>{
+    if(group !== null && segment !== null && (activeGroup !== group || activeSegment !== segment)){
+      setIsSelected(false);
+      return
+    }
+    setIsSelected(true)
+    },[activeGroup, activeSegment])
+
+  useEffect(()=>{
     setDraggedPointIndex(idx)
     setIsSelected(idx!=null)
   },[idx])
@@ -21,6 +29,8 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
   useEffect(()=>{
     setArc(initialArc)
   },[initialArc])
+
+  
 
   // Add effect for document-level event handling
   useEffect(() => {
@@ -123,6 +133,7 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
     } else {
       arc.length ===3 ? setIsSelected(false) : ellipseSelect(false);
     }
+    setActiveGroupSegment(group, segment)
   }
 
   function findCircle(p1, p2, p3) {
@@ -310,6 +321,8 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
         metadata={fulldata}
         idx={draggedPointIndex}
         filter={filter}
+        activeGroup={activeGroup}
+        activeSegment={activeSegment}
       />
     </>
   );
