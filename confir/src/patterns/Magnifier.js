@@ -177,7 +177,7 @@ const Magnifier = ({
                   <Arc
                     key={key}
                     arc={pattern.points}
-                    colour={pattern.colour}
+                    colour={pattern.template?'FF0000':pattern.colour}
                     imageUrl={imageUrl}
                     metadata={metadata[g]}
                     idx={currentSegment === index && g === group ? i : null}
@@ -192,7 +192,7 @@ const Magnifier = ({
                   <Ellipse
                     key={key}
                     ellipse={pattern.points}
-                    colour={pattern.colour}
+                    colour={pattern.template?'FF0000':pattern.colour}
                     imageUrl={imageUrl}
                     metadata={metadata[g]}
                     idx={currentSegment === index && g === group ? i : null}
@@ -208,7 +208,7 @@ const Magnifier = ({
                     key={key}
                     squareSize={960}
                     points={pattern.points}
-                    colour={pattern.colour}
+                    colour={pattern.template?'FF0000':pattern.colour}
                     imageUrl={imageUrl}
                     metadata={metadata[g]}
                     idx={currentSegment === index && g === group ? i : null}

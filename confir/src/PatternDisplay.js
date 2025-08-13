@@ -4,12 +4,9 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing, filter, recon, activeGroup, setActiveGroup }) => {
+const PatternDisplay = ({ group, fulldata, isLeftSquare, imageUrl, editing, filter, activeGroup, setActiveGroup, currentMetadata, setCurrentMetadata, resetKey}) => {
   // Keep metadata in array format
-  const [originalMetadata, setOriginalMetadata] = useState(metadata[group] || []);
-  const [lastSavedMetadata, setLastSavedMetadata] = useState(metadata[group] || []);
-  const [currentMetadata, setCurrentMetadata] = useState(metadata[group] || []);
-  const [resetKey, setResetKey] = useState(0);
+
   const [activeSegment, setActiveSegment] = useState(null)
 
   const setActiveGroupSegment = (group, segment) => {
@@ -17,78 +14,16 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
     setActiveGroup(group)
   }
   
-  useEffect(() => {
-    if (metadata) {
-      if(!recon) setOriginalMetadata([...metadata[group]]);
-      setLastSavedMetadata([...metadata[group]]);
-      setCurrentMetadata([...metadata[group]]);
-      setResetKey(prev => prev + 1);
-    }
-  }, [metadata]);
-  
-// Register methods with parent via callback
-  useEffect(() => {
-    if (onSave) {
-      onSave({
-        getCurrentMetadata: () => {
-          const updatedMetadata = { ...metadata, [group]: currentMetadata };
-          return updatedMetadata;
-        },
-        updateSavedMetadata: () => {
-          if (currentMetadata && currentMetadata.length > 0) {
-            setLastSavedMetadata([...currentMetadata]);
-          } else {
-            setLastSavedMetadata([]);
-          }
-        },
-        resetToLastSaved: () => {
-          console.log("Resetting to last saved state:", lastSavedMetadata);
-          if (lastSavedMetadata && lastSavedMetadata.length > 0) {
-            setCurrentMetadata([...lastSavedMetadata]);
-          } else {
-            setCurrentMetadata([]);
-          }
-          setResetKey(prev => prev + 1);
-        },
-        resetToOriginal: () => {
-          console.log("Resetting to original state:", originalMetadata);
-          setCurrentMetadata([...originalMetadata]);
-          setResetKey(prev => prev + 1);
-        },
-        setTmp: (template) => {
-          console.log("setting template:", template, group, template[group]);
-          setCurrentMetadata(template[group]);
-          setResetKey(prev => prev + 1);
-        },
-        clearAllPatterns: (template) => {
-          console.log(template,currentMetadata,"tmp");
-          setCurrentMetadata(template[group]);
-          console.log(currentMetadata,'cur')
-          setResetKey(prev => prev + 1);
-        },
-        checkTmp: () => {
-          let allmoved = false;
-          currentMetadata.forEach((seg) => {
-            allmoved = allmoved || seg['template']
-          })
-          return allmoved
-        },
-        removeRed: () => {
-          handleMultiplePatternsUpdate(currentMetadata)
-        }
-      });
-    }
-  }, [onSave, currentMetadata, lastSavedMetadata, originalMetadata, group, metadata]);
-
   // Handler to update a specific pattern
   const handlePatternUpdate = (index, newPoints) => {
     setCurrentMetadata(prev => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
+      const updated = {...prev};
+      updated[group][index] = {
+        ...updated[group][index],
         points: newPoints,
         template: 0
       };
+      console.log(updated)
       return updated;
     });
   };
@@ -181,7 +116,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
-                    fulldata={{...metadata, [group]: currentMetadata}}
+                    fulldata={fulldata}
                     idx={null}
                     editing={editing}
                     filter={filter}
@@ -203,7 +138,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
-                    fulldata={{...metadata, [group]: currentMetadata}}
+                    fulldata={fulldata}
                     idx={null}
                     editing={editing}
                     filter={filter}
@@ -226,7 +161,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
-                    fulldata={{...metadata, [group]: currentMetadata}}
+                    fulldata={fulldata}
                     idx={null}
                     editing={editing}
                     filter={filter}
@@ -258,10 +193,10 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
   // Function to update multiple patterns at once (for group movement)
   function handleMultiplePatternsUpdate(updatedPatterns) {
     setCurrentMetadata(prev => {
-      const newMetadata = [...prev];
+      const newMetadata = {...prev};
       updatedPatterns.forEach((pattern, i) => {
-        newMetadata[i] = pattern;
-        newMetadata[i]['template']=0
+        newMetadata[group][i] = pattern;
+        newMetadata[group][i]['template']=0
       });
       return newMetadata;
     });

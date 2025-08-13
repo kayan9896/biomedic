@@ -551,59 +551,33 @@ function App() {
       setLeftImageMetadata(template)
       clearFlagl.current = 1
     }
-    else Object.values(leftSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
+    else leftSaveRefs.current?.setTmp?.(template);
   }
   const setRightTmp = (template) => {
     if(!rightImageMetadata) {
       setRightImageMetadata(template)
       clearFlagr.current = 1
     }
-    else Object.values(rightSaveRefs.current).forEach(ref => ref?.setTmp?.(template));
+    else rightSaveRefs.current?.setTmp?.(template);
   }
   const checkTmp = () => {
-    const leftHasRed = Object.keys(leftSaveRefs.current).reduce((acc, group) => {
-        const ref = leftSaveRefs.current[group];
-        if (ref && typeof ref.checkTmp === 'function') {
-          const groupMoved = ref.checkTmp();
-          acc = acc || groupMoved; // Only include the group-specific data
-        }
-        return acc;
-      }, false);
-    const rightHasRed = Object.keys(rightSaveRefs.current).reduce((acc, group) => {
-        const ref = rightSaveRefs.current[group];
-        if (ref && typeof ref.checkTmp === 'function') {
-          const groupMoved = ref.checkTmp();
-          acc = acc || groupMoved; // Only include the group-specific data
-        }
-        return acc;
-      }, false);
+    const leftHasRed = leftSaveRefs.current?.checkTmp?.();
+
+    const rightHasRed = rightSaveRefs.current?.checkTmp?.();
+
     return leftHasRed || rightHasRed
   }
   const rmRed = () => {
-    Object.values(leftSaveRefs.current).forEach(ref => ref?.removeRed?.())
-    Object.values(rightSaveRefs.current).forEach(ref => ref?.removeRed?.())
+    leftSaveRefs.current?.removeRed?.()
+    rightSaveRefs.current?.removeRed?.()
   }
   const handleSave = async () => {
     try {
       rmRed()
       // Aggregate metadata from all groups
-      const leftData = leftImageMetadata ? Object.keys(leftSaveRefs.current).reduce((acc, group) => {
-        const ref = leftSaveRefs.current[group];
-        if (ref && typeof ref.getCurrentMetadata === 'function') {
-          const metadata = ref.getCurrentMetadata();
-          acc[group] = metadata[group]; // Only include the group-specific data
-        }
-        return acc;
-      }, {}) : null;
+      const leftData = leftImageMetadata ? leftSaveRefs.current?.getCurrentMetadata() : null;
 
-      const rightData = rightImageMetadata ? Object.keys(rightSaveRefs.current).reduce((acc, group) => {
-        const ref = rightSaveRefs.current[group];
-        if (ref && typeof ref.getCurrentMetadata === 'function') {
-          const metadata = ref.getCurrentMetadata();
-          acc[group] = metadata[group]; // Only include the group-specific data
-        }
-        return acc;
-      }, {}) : null;
+      const rightData = rightImageMetadata ? rightSaveRefs.current?.getCurrentMetadata() : null;
 
       // Send to backend
       await fetch('http://localhost:5000/landmarks', {
@@ -621,8 +595,8 @@ function App() {
       });
 
       // Update saved metadata for all groups
-      Object.values(leftSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
-      Object.values(rightSaveRefs.current).forEach(ref => ref?.updateSavedMetadata?.());
+      leftSaveRefs.current?.updateSavedMetadata?.();
+      rightSaveRefs.current?.updateSavedMetadata?.();
       if (leftImage!==getInstruction(stage,'AP')) setLeftCheckMark(1)
       if (rightImage!==getInstruction(stage,'OB')) setRightCheckMark(1)
       clearFlagl.current = 0
@@ -646,8 +620,8 @@ function App() {
         },
         body: JSON.stringify({'uistates': null})
       });
-      Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
-      Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToLastSaved?.());
+      leftSaveRefs.current?.resetToLastSaved?.();
+      rightSaveRefs.current?.resetToLastSaved?.();
       if(clearFlagl.current){
         setLeftImageMetadata(null)
       }
@@ -662,8 +636,8 @@ function App() {
   };
 
   const handleReset = () => {
-    if(editing === 'left') Object.values(leftSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
-    if(editing === 'right') Object.values(rightSaveRefs.current).forEach(ref => ref?.resetToOriginal?.());
+    if(editing === 'left') leftSaveRefs.current?.resetToOriginal?.();
+    if(editing === 'right') rightSaveRefs.current?.resetToOriginal?.();
   };
 
   const captureAndSaveFrame = async (stage) => {
@@ -827,8 +801,8 @@ function App() {
           rightImage={rightImage}
           activeRight={activeRight}
           rightImageMetadata={rightImageMetadata}
-          onSaveLeft={leftSaveRefs}
-          onSaveRight={rightSaveRefs}
+          onSaveLeft={(ref) => {leftSaveRefs.current = ref}}
+          onSaveRight={(ref) => {rightSaveRefs.current = ref}}
           frameRef={frameRef}
           editing={editing}
           brightness={brightness}
