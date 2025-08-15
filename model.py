@@ -107,6 +107,8 @@ class Model:
                 hmplv1 = json.load(f)
             self.data['hmplv1'] = {'success': True, 'metadata': hmplv1}
             vp0 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot0.png')
+            self.data['hp2-ap']['side'] = 'l' if self.data['hp1-ap']['side'] == 'r' else 'r'
+            self.data['hp2-ob']['side'] = self.data['hp2-ap']['side']
             self.viewpairs[0] = vp0
         if stage >= 3:
             hp2apimage = cv2.imread(self.sim_data['hp2']['ap']['image_path'])
@@ -207,7 +209,7 @@ class Model:
     def settest(self, testdata):
         self.sim_data = testdata
 
-    def analyzeframe_sim(self, section, image, tilt_angle=None, rotation_angle=None):
+    def analyzeframe_sim(self, section, image, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         section_type = section[-2:]  # ap, ob
         test_entry = self.sim_data.get(section[:-3]).get(section_type)
         if test_entry and test_entry.get('json_path'):
@@ -224,7 +226,7 @@ class Model:
             metadata = None
 
         metadata['processed_frame'] = image
-        metadata['imuangles'] = [tilt_angle, rotation_angle]
+        metadata['imuangles'] = [tilt_angle, rotation_angle, act_tilt, act_rot]
 
         self.calib['distortion'].update({(5, 20): {'data': {}}})
         self.calib['gantry'].update({(1.5, 0.2): {'data': {}}})
@@ -257,11 +259,11 @@ class Model:
         return metadata, framecalib
 
 
-    def analyzeframe_act(self, section, frame, tilt_angle=None, rotation_angle=None):
+    def analyzeframe_act(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         # actual frame analysis
         return (None, None)
 
-    def analyzeframe(self, section, frame, tilt_angle=None, rotation_angle=None):
+    def analyzeframe(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         if self.on_simulation:
             framedata, framecalib = self.analyzeframe_sim(section, frame, tilt_angle, rotation_angle)
         else:
@@ -302,6 +304,12 @@ class Model:
             metadata['analysis_success'] = False
             metadata['recondata'] = None
         metadata['analysis_error_code'] = error_code
+        k = 0
+        for i in range(10000):
+            for j in range(1000):
+                with self._lock:
+                    self.progress = (k + 1) / 100000
+                    k += 1
 
         return metadata
 
@@ -388,12 +396,12 @@ class Model:
             self.data[section]['stitch'] = data['stitched_image']
 
 
-    def exec(self, scn, frame=None, tilt_angle=None, rotation_angle=None):
+    def exec(self, scn, frame=None, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         match scn:
             case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn' | 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn' | 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn' | 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
                 try:
 
-                    framedata, analysis_parameters, framecalib = self.analyzeframe(scn[4:-4], frame, tilt_angle, rotation_angle)
+                    framedata, analysis_parameters, framecalib = self.analyzeframe(scn[4:-4], frame, tilt_angle, rotation_angle, act_tilt, act_rot)
                     
                     # Prepare data for different components
 
@@ -558,6 +566,8 @@ class Model:
                     if frm.rcn == 'acecup':
                         action = ('copy_stage_data', 'cup', 'tri')
                     scn = ('frm:' + frm.next_ap + ':end')
+                case 'skip':
+                    scn = ('frm:' + 'tri-ap' + ':end')
                 case 'landmarks':
                     if self.data[frm.ap]['success'] and self.data[frm.ob]['success']:
                         scn = ('rcn:' + frm.rcn + ':bgn')

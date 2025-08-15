@@ -6,6 +6,8 @@ import cv2
 from model import Model
 from fg import FrameGrabber
 from controller import Controller
+from imu import IMU_sensor
+from imu2 import IMU_handler
 import json
 
 class Panel:
@@ -228,46 +230,52 @@ class Panel:
         dropdown['value'] = ['init(hp1 bgn)', 'rcn:hmplv1:end(hp1 end)', 'frm:hp2-ap:end(hp2 bgn)', 'reg:pelvis:end(hp2 end)', 'frm:cup-ap:end(cup bgn)', 'reg:regcup:end(cup end)', 'frm:tri-ap:end(tri bgn)', 'frm:tri-ap:end(skip cup)', 'reg:regtri:end(tri end)']
 
     def jump(self, scn, e=None):
-        if self.controller is None:
-            self.jumpped = True
-            select={}
-            try:
-                with open(f"{self.config.get("sim_carm_folder")}/hardware.json", 'r') as file:
-                    select = json.load(file)
 
-                distortion = {}
-                for fname in os.listdir(f"{self.config.get("sim_carm_folder")}/calib_arcs/distortion"):
-                    with open(f"{self.config.get("sim_carm_folder")}/calib_arcs/distortion/{fname}", 'r') as file:
-                        t = int(fname[6 : 11]) / 10
-                        r = int(fname[-10 : -5]) / 10
-                        distortion[(t,r)] = json.load(file)
+        self.jumpped = True
+        select={}
+        try:
+            with open(f"{self.config.get("sim_carm_folder")}/hardware.json", 'r') as file:
+                select = json.load(file)
 
-                gantry = {}
-                for fname in os.listdir(f"{self.config.get("sim_carm_folder")}/calib_arcs/gantry"):
-                    with open(f"{self.config.get("sim_carm_folder")}/calib_arcs/gantry/{fname}", 'r') as file:
-                        t = int(fname[6 : 11]) / 10
-                        r = int(fname[-10 : -5]) / 10
-                        gantry[(t,r)] = json.load(file)
+            distortion = {}
+            for fname in os.listdir(f"{self.config.get("sim_carm_folder")}/calib_arcs/distortion"):
+                with open(f"{self.config.get("sim_carm_folder")}/calib_arcs/distortion/{fname}", 'r') as file:
+                    t = int(fname[6 : 11]) / 10
+                    r = int(fname[-10 : -5]) / 10
+                    distortion[(t,r)] = json.load(file)
+
+            gantry = {}
+            for fname in os.listdir(f"{self.config.get("sim_carm_folder")}/calib_arcs/gantry"):
+                with open(f"{self.config.get("sim_carm_folder")}/calib_arcs/gantry/{fname}", 'r') as file:
+                    t = int(fname[6 : 11]) / 10
+                    r = int(fname[-10 : -5]) / 10
+                    gantry[(t,r)] = json.load(file)
+    
+            select.update({'distortion': distortion})
+            select.update({'gantry': gantry})
+            select.update({'folder': f"{self.config.get("sim_carm_folder")}"})
+        except Exception as e:
+            print(f"Fail to bypass: {str(e)}")
+        if self.controller is None:    
+            self.controller = Controller(self.config, select, self) 
+            self.controller.start_processing() 
+            self.controller.connect_video()
+            if select['IMU'].get("imu_on", True): self.controller.imu_sensor.start()
+        else:
+            if select['IMU'].get("imu_on", True): 
+                self.controller.tracking = select['IMU'].get("imu_on", True)
+                self.controller.imu_handler = IMU_handler(select["IMU"]["ApplyTarget"], select["IMU"]["CarmRangeTilt"], select["IMU"]["CarmRangeRotation"], select["IMU"]["CarmTargetTilt"], select["IMU"]["CarmTargetRot"], tol = select["IMU"]["tol"])
+                self.controller.imu_sensor = IMU_sensor(select['IMU'].get("imu_port", "COM3"), self.controller.imu_handler, self, self.config.get("imu_simulation", False))
+                self.controller.imu_sensor.start()
         
-                select.update({'distortion': distortion})
-                select.update({'gantry': gantry})
-                select.update({'folder': f"{self.config.get("sim_carm_folder")}"})
-            except Exception as e:
-                print(f"Fail to bypass: {str(e)}")
-                
-            self.controller = Controller(self.config, select, self)
-            
-            self.controller.start_processing()
-            self._test_with_selected_files()
-
-        self.controller.imu_sensor.start()
+        self._test_with_selected_files()
         self.controller.jumpped = True
         self.controller.scn = scn.split('(')[0]
         m = {'init(hp1 bgn)': 0, 'rcn:hmplv1:end(hp1 end)': 1, 'frm:hp2-ap:end(hp2 bgn)': 2, 'reg:pelvis:end(hp2 end)': 3, 'frm:cup-ap:end(cup bgn)': 4, 'reg:regcup:end(cup end)': 5, 'frm:tri-ap:end(tri bgn)': 6, 'frm:tri-ap:end(skip cup)': 7, 'reg:regtri:end(tri end)': 8}
         self.controller.stage = m[scn]//2 if m[scn] <= 6 else (m[scn] - 1) // 2
         self.controller.model.filldata(m[scn])
         self.controller.viewmodel.jump(m[scn], self.controller.model.data)
-        self.controller.imu_handler.jump(m[scn], self.controller.model.data)
+        if select['IMU'].get("imu_on", True): self.controller.imu_handler.jump(m[scn], self.controller.model.data)
         print('scn', self.controller.scn, self.controller.viewmodel.states['stage'])
 
     def _on_tab_changed(self, event):
@@ -516,10 +524,9 @@ class Panel:
             battery_level = 100
             self.battery_var.set(str(battery_level))
         
-        # Update IMU properties if available
-        if hasattr(self.controller, 'imu_sensor'):
-            self.is_connected = is_connected
-            self.battery_level = battery_level
+
+        self.is_connected = is_connected
+        self.battery_level = battery_level
         
         # Update battery status display
         if battery_level <= 20:

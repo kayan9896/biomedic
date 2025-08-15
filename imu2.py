@@ -28,6 +28,8 @@ class IMU_handler:
         self.used_ob = None
         self.applytarget = ApplyTarget
 
+        self.act_rot = None
+
         # Initialize ob_min and ob_max with None checks
         self.ob_min = min(self.obtarget1, self.obtarget2) if self.obtarget1 is not None and self.obtarget2 is not None else None
         self.ob_max = max(self.obtarget1, self.obtarget2) if self.obtarget1 is not None and self.obtarget2 is not None else None
@@ -193,6 +195,10 @@ class IMU_handler:
             self.ob_min = min(self.obtarget1, self.obtarget2)
             self.ob_max = max(self.obtarget1, self.obtarget2)
 
+    def actual_target(self):
+        if self.obtarget1 is not None: self.act_rot = self.obtarget1 if abs(self.rotation_angle - self.obtarget1) < self.tol else self.obtarget2
+        return self.act_rot
+
     def get_all(self, stage):
         return {
             'tilt_angle': self.tilt_angle,
@@ -216,7 +222,8 @@ class IMU_handler:
             'apl': self.apl,
             'apr': self.apr,
             'ranger': self.ranger,
-            'scale': self.scale
+            'scale': self.scale,
+            'actual_target': self.actual_target()
         }
 
 
@@ -229,6 +236,7 @@ class IMU_handler:
         
 
     def jump(self, stage, data):
+        if stage > 4 and stage != 7: self.iscupreg = True
         try:
             self.used_ob = data['cup-ob']['framedata']['imuangles'][1]
         except:

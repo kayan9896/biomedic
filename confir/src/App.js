@@ -71,6 +71,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const useaiRef = useRef([]); 
 
+  const [carmModel, setCarmModel] = useState('')
   const [scn, setScn] = useState(0);
   const [tiltAngle, setAngle] = useState(0);
   const [rotationAngle, setRotationAngle] = useState(0);
@@ -248,9 +249,10 @@ function App() {
         const response = await fetch('http://localhost:5000/api/states');
         const data = await response.json();
 
+        setCarmModel(data['C-arm Model'])
         setAngle(data.tilt_angle);
         setRotationAngle(data.rotation_angle);
-        
+        setTracking(data.tracking)
         setIsProcessing(data.is_processing);
         setProgress(data.progress);
         setVideo_on(data.video_on)
@@ -936,7 +938,7 @@ function App() {
 
       {showReconnectionPage &&
             <ReconnectionPage 
-            selectedCArm={selectedCArm}
+            selectedCArm={carmModel}
             onClose={handleReconnectionReturn} 
             videoConnected={video_on} 
             imuConnected={imuon} 

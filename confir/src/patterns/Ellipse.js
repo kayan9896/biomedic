@@ -211,6 +211,8 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
   return (
     <>
     <Arc
+      segment={segment}
+      group={group}
       arc={[ellipse[0], ellipse[3], ellipse[2], ellipse[1]]}
       onChange={(newArc) => {
         // Update the ellipse points based on the new arc points
@@ -220,10 +222,13 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
           onChange(newEllipse);
         }
       }}
-      colour={patternColor}
+      colour={colour}
       imageUrl={imageUrl}
       editing={editing}
       ellipseSelect={setIsSelected}
+      activeGroup={activeGroup}
+      activeSegment={activeSegment}
+      setActiveGroupSegment={setActiveGroupSegment}
     />
     <svg 
       ref={ellipseRef}

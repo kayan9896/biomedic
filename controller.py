@@ -53,6 +53,8 @@ class Controller:
         self.check_interval = 0.1
         
         self.logger = self.frame_grabber.logger
+        self.imu_handler = None
+        self.imu_sensor = None
         
         # Initialize IMU if enabled in config
         self.tracking = self.calib['IMU'].get("imu_on", True)
@@ -82,7 +84,8 @@ class Controller:
             'autocollect': self.autocollect,
             'active_side': self.active_side,
             'stage': self.stage,
-            'scn': self.scn
+            'scn': self.scn,
+            'tracking': self.tracking
         }
 
     def get_states(self):
@@ -99,7 +102,7 @@ class Controller:
         if self.tracking and not self.lockside:
             imu_states = self.imu_handler.get_all(self.stage)
             imu_states['imu_on'] = False if not hasattr(self, 'imu_sensor') else getattr(self.imu_sensor, 'is_connected', True)  # Default to True if property not found
-            if not imu_states['imu_on']:
+            if not imu_states['imu_on'] or not imu_states['is_tilt_valid'] or not imu_states['is_rot_valid']:
                 imu_states['active_side'] = None
             self.active_side = imu_states['active_side'] 
             self.viewmodel.update_state(imu_states)
@@ -419,7 +422,7 @@ class Controller:
             self.lockside = True
             if self.tracking: 
                 self.imu_handler.handle_window_close(self.stage)
-                analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle)
+                analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
             else: 
                 analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame)
             
