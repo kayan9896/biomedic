@@ -617,13 +617,7 @@ function App() {
     setUseai(useaiRef.current)
     setPelvis(pelvisRef.current)
     try {
-      await fetch('http://localhost:5000/edit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({'uistates': null})
-      });
+      
       leftSaveRefs.current?.resetToLastSaved?.();
       rightSaveRefs.current?.resetToLastSaved?.();
       if(clearFlagl.current){
@@ -848,6 +842,7 @@ function App() {
             stage={stage}
             pelvis={pelvis}
             getTemplate={getTemplate}
+            isCupReg={isCupReg}
           />}
       
         
@@ -892,7 +887,7 @@ function App() {
       {showglyph && <L20 image={errImage} showglyph={showglyph} setShowglyph={setShowglyph}/>}
 
       {/*L21 Template Selection, render when editing is true and pelvis is null*/}
-      {(resetTemplate || shouldShowL21()) && (
+      {editing && (resetTemplate || shouldShowL21()) && (
         <L21 
           pelvis={pelvis}
           setPelvis={setPelvis}

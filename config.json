@@ -1,6 +1,6 @@
 {
     "on_simulation": true,
-    "imu_simulation": false,
+    "imu_simulation": true,
     "fg_simulation": true,
     "ai_mode": true, 
     "glyph_on": true,
