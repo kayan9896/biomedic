@@ -238,7 +238,7 @@ class IMU_handler:
     def jump(self, stage, data):
         if stage > 4 and stage != 7: self.iscupreg = True
         try:
-            self.used_ob = data['cup-ob']['framedata']['imuangles'][1]
+            if stage > 4 and stage != 7: self.used_ob = data['cup-ob']['framedata']['imuangles'][1]
         except:
             self.used_ob = None
         

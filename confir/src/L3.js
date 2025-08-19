@@ -16,7 +16,10 @@ function L3({
   contrast,
   getInstruction,
   stage,
-  recon
+  recon,
+  tiltValid,
+  rotValid,
+  tracking
 }) {
 
   const leftWrapperRef = useRef(null);
@@ -208,10 +211,10 @@ function L3({
       <img src={require('./L5/PartingLine.png')} style={{position:'absolute', left: '958px', top: '0px'}}/>
 
     </div>
-        {activeLeft && !editing && (
+        {activeLeft && (!tracking || (tracking && tiltValid && rotValid)) && !editing && (
               <img src={require('./L5/APViewportBlueBorder.png')} alt="blue box" style={{position: 'absolute', top: '0px', left: '0px', zIndex : 4}}/>
             )}
-        {activeRight && !editing && (
+        {activeRight && (!tracking || (tracking && tiltValid && rotValid)) && !editing && (
           <img src={require('./L5/OBViewportBlueBorder.png')} alt="blue box" style={{position: 'absolute', top: '0px', left: '960px', zIndex : 4}}/>
         )}
     </div>

@@ -15,7 +15,12 @@ function L8({
   setResetTemplate,
   checkTmp,
   resetWarning,
-  setResetWarning
+  setResetWarning,
+  setLeftTmp,
+  setRightTmp,
+  stage,
+  pelvis,
+  getTemplate
 }) {
   const [showBrightnessBar, setShowBrightnessBar] = useState(false);
   const [showContrastBar, setShowContrastBar] = useState(false);
@@ -150,7 +155,11 @@ function L8({
           <img 
             className="image-button"
             src={require('./ResettoTemplateBtn.png')} style={{position:'absolute', top:'539px', left:'671px', zIndex: 21}}
-            onClick={()=>{setResetTemplate(true)}}
+            onClick={()=>{
+              if(stage === 1 || stage === 3) {
+                (editing === 'left' ? setLeftTmp(getTemplate(stage, pelvis[0])) : setRightTmp(getTemplate(stage, pelvis[1])));
+                setResetWarning(false)
+              }else setResetTemplate(true)}}
           />
           <img 
             className="image-button"

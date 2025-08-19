@@ -16,6 +16,7 @@ const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, 
   useEffect(()=>{
     if(group !== null && segment !== null && (activeGroup !== group || activeSegment !== segment)){
       setShowDots(false);
+      setActiveDotIndex(null)
       return
     }
     setShowDots(true)

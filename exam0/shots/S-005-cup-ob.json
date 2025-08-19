@@ -3,7 +3,7 @@
     "analysis_success": true,
     "analysis_error_code": null,
     "side": "l",
-    "imuangles": [0, 15],
+    "imuangles": [0, 20],
     "landmarks": {
         "pelvis": [
             {

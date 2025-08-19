@@ -265,9 +265,9 @@ class Model:
 
     def analyzeframe(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         if self.on_simulation:
-            framedata, framecalib = self.analyzeframe_sim(section, frame, tilt_angle, rotation_angle)
+            framedata, framecalib = self.analyzeframe_sim(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
         else:
-            framedata, framecalib = self.analyzeframe_act(section, frame, tilt_angle, rotation_angle)
+            framedata, framecalib = self.analyzeframe_act(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
 
         analysis_parameters = {
             'extract_distortion': self.extract_distortion,

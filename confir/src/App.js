@@ -510,7 +510,9 @@ function App() {
     setPause(0)
     setBrightness([100, 100])
     setContrast([100, 100])
-    
+    setPatient('')
+    setRatio('')
+    setComment('')
     try {
       await fetch('http://localhost:5000/restart', {
         method: 'POST',
@@ -812,6 +814,9 @@ function App() {
           getInstruction={getInstruction}
           stage={stage}
           recon={recon}
+          tiltValid={tiltValid}
+          rotValid={rotValid}
+          tracking={tracking}
         />
 
       
@@ -838,6 +843,11 @@ function App() {
             checkTmp={checkTmp}
             resetWarning={resetWarning}
             setResetWarning={setResetWarning}
+            setLeftTmp={setLeftTmp}
+            setRightTmp={setRightTmp}
+            stage={stage}
+            pelvis={pelvis}
+            getTemplate={getTemplate}
           />}
       
         
@@ -845,7 +855,7 @@ function App() {
       {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit}/>}
    
       {/*L10 Carmbox, render if backend tilt_angle changes*/}
-      {(tracking && showCarm && !pause && !isProcessing && !editing) && 
+      {(tracking && showCarm && !pause && !isProcessing && !editing && imuon) && 
           <L10 
           tiltAngle={tiltAngle} 
           rotationAngle={rotationAngle} 
@@ -943,6 +953,7 @@ function App() {
             videoConnected={video_on} 
             imuConnected={imuon} 
             setShowReconnectionPage={setShowReconnectionPage}
+            tracking={tracking}
           />}
       
       {/*L1x Keyboard, render when showKeyboard true*/}

@@ -3,12 +3,10 @@ import './L21.css';
 
 // Import all the required images
 import TemplateDialogueBoxBg from './SelectTemplateWindow.png';
-import TemplateDialogueBtnDis from './TemplateDialogueBtnDis.png';
-import TemplateDialogueBtn from '../L22/TemplateDialogueBtn.png';
 import LeftTemplate from './LeftTemplate.png';
 import RightTemplate from './RightTemplate.png';
-import LeftTemplateSelected from '../L22/LeftTemplateSelected.png';
-import RightTemplateSelected from '../L22/RightTemplateSelected.png';
+import LeftTemplateSelected from './LeftTemplateSelected.png';
+import RightTemplateSelected from './RightTemplateSelected.png';
 
 
 const L21 = ({ 
@@ -97,8 +95,8 @@ const L21 = ({
         className="left-template" 
         style={{ 
           position: 'absolute', 
-          left: '669px', 
-          top: '361px',
+          left: '663px', 
+          top: '356px',
           cursor: 'pointer',
           zIndex: 21
         }}
@@ -112,8 +110,8 @@ const L21 = ({
         className="right-template" 
         style={{ 
           position: 'absolute', 
-          left: '985px', 
-          top: '361px',
+          left: '976px', 
+          top: '356px',
           cursor: 'pointer',
           zIndex: 21 
         }}

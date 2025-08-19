@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CircularProgress2 from '../CircularProgress2';
 
 function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected, tracking, setTracking }) {
   const [cArms, setCArms] = useState({});
@@ -12,6 +13,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   const [allChecksComplete, setAllChecksComplete] = useState(false);
   const [warning, setWarning] = useState(false)
   const [carmimg, setCarmimg] = useState(false)
+  const [loading, setLoading] = useState(false)
   
   
   // Fetch C-arm data when component mounts
@@ -86,16 +88,18 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   // Simulate tilt sensor check
   const checkTiltSensor = async () => {
     try {
-      const response = await fetch('http://localhost:5000/check-tilt-sensor');
+      setLoading(true)
+      const response = await fetch('http://localhost:5000/check-tilt-sensor',{ signal: AbortSignal.timeout(20000) });
       if (!response.ok) {
         throw new Error('Failed to check tilt sensor');
       }
       const data = await response.json();
       setTiltSensorConnected(data.connected);
       setTiltSensorBatteryLow(data.battery_low);
-      
+      setLoading(false)
     } catch (err) {
       setError('Error checking tilt sensor: ' + err.message);
+      setLoading(false)
       console.error(err);
     }
   };
@@ -106,8 +110,11 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       setCurrentStep(2);
       checkVideoConnection(); // Automatically check video when advancing to step 2
     } else if (currentStep === 2 && videoConnected) {
-      setCurrentStep(!tracking ? 4 : 3);
-      checkTiltSensor(); // Automatically check tilt sensor when advancing to step 3
+      if(!tracking) setCurrentStep(4);
+      else{
+        setCurrentStep(3);
+        checkTiltSensor();
+      } // Automatically check tilt sensor when advancing to step 3
     } else if (currentStep === 3 && isCurrentStepComplete()) {
       setCurrentStep(4);
     } else if (currentStep === 4) {
@@ -333,7 +340,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
         <img className="image-button" src={require('../L23/NoBtn.png')} style={{position:'absolute', top:'539px', left:'1035px', zIndex:15}} onClick={()=>setWarning(false)}/>
       </>}
       <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
-
+      {loading && <CircularProgress2/>}
     </div>
   );
 }

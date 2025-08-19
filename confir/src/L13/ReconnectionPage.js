@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected, setShowReconnectionPage }) {
+function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected, setShowReconnectionPage, tracking }) {
   // Start with video step if disconnected, otherwise IMU step
   const [currentStep, setCurrentStep] = useState(videoConnected ? 3 : 2);
   const [videoStatus, setVideoStatus] = useState(videoConnected);
@@ -48,7 +48,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
   // Handle continue/return button
   const handleContinue = () => {
     if (currentStep === 2 && videoStatus) {
-      if (!imuStatus) {
+      if (!imuStatus && tracking) {
         setCurrentStep(3); // Move to IMU step if it's not connected
       } else {
         onClose(); // Both connected, close the page
@@ -62,8 +62,12 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
   const getCheckStatus = (step) => {
     let background = '';
     let textColor, icon, isComplete = false;
-
-    if (step === 1) { // C-ARM is always completed
+    if (step === 3 && !tracking){
+        background = '';
+        textColor = '#686868';
+        icon = 'CrossGray.png';
+      }
+    else if (step === 1) { // C-ARM is always completed
       textColor = '#00B0F0';
       icon = 'CheckmarkBlue.png';
       isComplete = true;
@@ -248,7 +252,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
           position: 'absolute',
           top: '59px',
           left: '1568px',
-          zIndex: 14
+          zIndex: 13
         }}
       />
     </div>

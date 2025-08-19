@@ -2,6 +2,10 @@ import threading
 import time
 import logging
 import math
+import sys
+import openzen
+
+openzen.set_log_level(openzen.ZenLogLevel.Warning)
 
 class IMU_sensor:
     def __init__(self, port, handler, panel, imu_simulation = False):
@@ -12,12 +16,36 @@ class IMU_sensor:
         self.handler = handler
         self.panel = panel
         self.imu_simulation = imu_simulation
+        self.sensor_desc_connect = None
 
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
 
     def start(self, frequency: float = 30.0):
         try:
+            if not self.imu_simulation:
+                error, self.client = openzen.make_client()
+                if not error == openzen.ZenError.NoError:
+                    print ("Error while initializing OpenZen library")
+                    sys.exit(1)
+
+                error = self.client.list_sensors_async()
+                while True:
+                    zenEvent = self.client.wait_for_next_event()
+
+                    if zenEvent.event_type == openzen.ZenEventType.SensorFound:
+                        print ("Found sensor {} on IoType {}".format( zenEvent.data.sensor_found.name,
+                            zenEvent.data.sensor_found.io_type))
+                        if self.sensor_desc_connect is None:
+                            self.sensor_desc_connect = zenEvent.data.sensor_found
+                            self.is_connected = True if self.sensor_desc_connect is not None else False
+
+                    if zenEvent.event_type == openzen.ZenEventType.SensorListingProgress:
+                        lst_data = zenEvent.data.sensor_listing_progress
+                        print ("Sensor listing progress: {} %".format(lst_data.progress * 100))
+                        if lst_data.complete > 0:
+                            break
+                print ("Sensor Listing complete")
             self.check_thread = threading.Thread(
                 target=self.imu_loop,
                 args=(frequency,),
@@ -36,13 +64,26 @@ class IMU_sensor:
         """Main loop for checking video frames"""
         period = 1.0 / frequency
         
-        while True:
+        if not self.imu_simulation:
+            error, sensor = self.client.obtain_sensor(self.sensor_desc_connect )
+            while self.is_connected:
+                zenEvent = self.client.wait_for_next_event()
+                self.sensor_desc_connect = zenEvent.data.sensor_found
+                self.is_connected = True if self.sensor_desc_connect is not None else False
+                #self.battery_level = sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1]
+                self.set_tilt(zenEvent.data.imu_data.r[0])
+                self.set_rotation(zenEvent.data.imu_data.r[1])
+                #print(zenEvent.data.imu_data.r)
+            
+        else:
             self.is_connected = self.panel.is_connected
-            self.battery_level = self.panel.battery_level
-            noise = self.panel.noise * math.sin(time.time()**2)
-            self.set_tilt(self.panel.tilt_angle + noise)
-            self.set_rotation(self.panel.rotation_angle + noise)
-            time.sleep(period)
+            while self.is_connected:
+                self.is_connected = self.panel.is_connected
+                self.battery_level = self.panel.battery_level
+                noise = self.panel.noise * math.sin(time.time()**2)
+                self.set_tilt(self.panel.tilt_angle + noise)
+                self.set_rotation(self.panel.rotation_angle + noise)
+                time.sleep(period)
 
     def check_tilt_sensor(self):
         self.start()        

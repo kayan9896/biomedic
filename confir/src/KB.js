@@ -177,8 +177,8 @@ function KB({
 
   return (
       <div>
-        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:13}} onClick={handleClose}/>
-        <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'310px', left:'0px', zIndex:13}}/>
+        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:15}} onClick={handleClose}/>
+        <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'310px', left:'0px', zIndex:15}}/>
         <input
           ref={pidInputRef}
           type="text"
@@ -203,7 +203,7 @@ function KB({
             color:'white',
             paddingLeft: '20px',
             paddingRight: '20px',
-            zIndex: 14
+            zIndex: 15
           }}
           placeholder="No Patient Data"
         />
@@ -232,7 +232,7 @@ function KB({
             color:'white',
             paddingLeft: '20px',
             paddingRight: '20px',
-            zIndex: 14
+            zIndex: 15
           }}
           placeholder="Ratio"
         />
@@ -251,7 +251,7 @@ function KB({
             backgroundColor: '#131313',
             padding: '4px 20px',
 
-            zIndex: 14
+            zIndex: 15
         }}>
         <textarea
           ref={commentInputRef}

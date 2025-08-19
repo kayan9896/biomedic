@@ -102,7 +102,7 @@ class Controller:
         if self.tracking and not self.lockside:
             imu_states = self.imu_handler.get_all(self.stage)
             imu_states['imu_on'] = False if not hasattr(self, 'imu_sensor') else getattr(self.imu_sensor, 'is_connected', True)  # Default to True if property not found
-            if not imu_states['imu_on'] or not imu_states['is_tilt_valid'] or not imu_states['is_rot_valid']:
+            if not imu_states['imu_on']:
                 imu_states['active_side'] = None
             self.active_side = imu_states['active_side'] 
             self.viewmodel.update_state(imu_states)
@@ -149,9 +149,9 @@ class Controller:
             return coords
 
     def get_image_with_metadata(self):
-        image_data = self.viewmodel.imgs[0]
-        if self.active_side == 'ob':
-            image_data = self.viewmodel.imgs[1]
+        image_data = self.viewmodel.imgs[1]
+        if self.active_side == 'ap':
+            image_data = self.viewmodel.imgs[0]
 
         if image_data['image'] is not None:
             image_base64 = self.viewmodel.encode(image_data['image'])

@@ -111,7 +111,7 @@ class ViewModel:
             for i in dataforvm:
                 self.imgs[0][i] = dataforvm[i]
             self.imgs[1]['recon'] = self.imgs[0]['recon']
-        elif self.states['active_side'] == 'ob':
+        else:
             if image is not None: self.imgs[1]['image'] = image
             if 'jump' in self.imgs[1]: self.imgs[1].pop('jump')
             for i in dataforvm:
@@ -136,7 +136,7 @@ class ViewModel:
         self.imgs[0]['image'], self.imgs[1]['image'] = blank_image, blank_image
         if stage == 0 or stage == 2 or stage == 4:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
-            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None, 'testmeas': testmeas, 'side': 'l' if data['hp1-ap']['side'] == 'r' else 'l' if stage == 2 else None}
+            jump = {'stage': stage//2, 'apimage': 'default', 'obimage': 'default', 'checkmark': None, 'recon': None, 'next': None, 'testmeas': testmeas, 'side': None if stage != 2 else 'l' if data['hp1-ap']['side'] == 'r' else 'l'}
         if stage == 1:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
             apimage, obimage = data['hp1-ap']['image'], data['hp1-ob']['image']
