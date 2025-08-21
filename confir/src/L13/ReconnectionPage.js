@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CircularProgress2 from '../CircularProgress2';
 
 function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected, setShowReconnectionPage, tracking }) {
   // Start with video step if disconnected, otherwise IMU step
@@ -8,6 +9,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
   const [videoFrame, setVideoFrame] = useState(null);
   const [tiltSensorBatteryLow, setTiltSensorBatteryLow] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false)
   
   // Check video connection
   const checkVideoConnection = async () => {
@@ -32,14 +34,17 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
   // Check IMU/tilt sensor connection
   const checkTiltSensor = async () => {
     try {
-      const response = await fetch('http://localhost:5000/check-tilt-sensor');
+      setLoading(true)
+      const response = await fetch('http://localhost:5000/check-tilt-sensor',{ signal: AbortSignal.timeout(20000) });
       if (!response.ok) {
         throw new Error('Failed to check tilt sensor');
       }
       const data = await response.json();
       setImuStatus(data.connected);
       setTiltSensorBatteryLow(data.battery_low);
+      setLoading(false)
     } catch (err) {
+      setLoading(false)
       setError('Error checking tilt sensor: ' + err.message);
       console.error(err);
     }
@@ -255,6 +260,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
           zIndex: 13
         }}
       />
+      {loading && <CircularProgress2/>}
     </div>
   );
 }

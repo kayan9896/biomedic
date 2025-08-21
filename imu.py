@@ -3,6 +3,7 @@ import time
 import logging
 import math
 import sys
+sys.path.append("C:/")
 import openzen
 
 openzen.set_log_level(openzen.ZenLogLevel.Warning)
@@ -36,9 +37,9 @@ class IMU_sensor:
                     if zenEvent.event_type == openzen.ZenEventType.SensorFound:
                         print ("Found sensor {} on IoType {}".format( zenEvent.data.sensor_found.name,
                             zenEvent.data.sensor_found.io_type))
-                        if self.sensor_desc_connect is None:
+                        if self.is_connected is False:
                             self.sensor_desc_connect = zenEvent.data.sensor_found
-                            self.is_connected = True if self.sensor_desc_connect is not None else False
+                            self.is_connected = self.sensor_desc_connect is not None 
 
                     if zenEvent.event_type == openzen.ZenEventType.SensorListingProgress:
                         lst_data = zenEvent.data.sensor_listing_progress
@@ -46,6 +47,11 @@ class IMU_sensor:
                         if lst_data.complete > 0:
                             break
                 print ("Sensor Listing complete")
+                error, self.sensor = self.client.obtain_sensor(self.sensor_desc_connect )
+                if not error == openzen.ZenSensorInitError.NoError:
+                    self.is_connected = False
+                    print ("Error connecting to sensor")
+                print(self.is_connected, 12212121)
             self.check_thread = threading.Thread(
                 target=self.imu_loop,
                 args=(frequency,),
@@ -65,14 +71,18 @@ class IMU_sensor:
         period = 1.0 / frequency
         
         if not self.imu_simulation:
-            error, sensor = self.client.obtain_sensor(self.sensor_desc_connect )
+            
+            t = time.time()
             while self.is_connected:
-                zenEvent = self.client.wait_for_next_event()
-                self.sensor_desc_connect = zenEvent.data.sensor_found
-                self.is_connected = True if self.sensor_desc_connect is not None else False
+                zenEvent = self.client.poll_next_event()
+                if zenEvent is None:
+                    if time.time() - t > 5:
+                        self.is_connected = False
+                    continue
                 #self.battery_level = sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1]
                 self.set_tilt(zenEvent.data.imu_data.r[0])
                 self.set_rotation(zenEvent.data.imu_data.r[1])
+                t = time.time()
                 #print(zenEvent.data.imu_data.r)
             
         else:

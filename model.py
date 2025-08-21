@@ -435,18 +435,16 @@ class Model:
 
             
             case 'reg:pelvis:bgn' | 'reg:regcup:bgn' | 'reg:regtri:bgn':
-                try:
-                    reg_result = self.reg(scn[4:-4])
-                    
-                    #return dataforsave, dataforvm, processed_frame
-                    data_for_model = reg_result
-                    data_for_calib = None
-                    data_for_exam = reg_result
+                
+                reg_result = self.reg(scn[4:-4])
+                
+                #return dataforsave, dataforvm, processed_frame
+                data_for_model = reg_result
+                data_for_calib = None
+                data_for_exam = reg_result
 
-                    return 'reg', data_for_model, data_for_exam
+                return 'reg', data_for_model, data_for_exam
 
-                except Exception as error:
-                    return 'exception', {'type': 'reg', 'success': False, 'error': str(error)}, None, None
 
 
             case _:
@@ -601,7 +599,15 @@ class Model:
                 scn = ('reg:' + rcn.reg + ':bgn')
                 return uistates, scn, action
             
+        if uistates == 'prev':
+            action = ('copy_stage_data', 'tri', 'cup')
+            scn = ('frm:' + 'cup-ap' + ':end')
+            uistates = None
+            return uistates, scn, action
+
         if uistates == 'next':
+            if rcn.rcn == 'acecup':
+                action = ('copy_stage_data', 'cup', 'tri')
             scn = ('frm:' + rcn.next_ap + ':end')
 
             uistates = None
@@ -657,7 +663,15 @@ class Model:
                 #self.__set_imu_setcupreg__()
                 action =('set_imu_setcupreg', '')
 
+        if uistates == 'prev':
+            action = ('copy_stage_data', 'tri', 'cup')
+            scn = ('frm:' + 'cup-ap' + ':end')
+            uistates = None
+            return uistates, scn, action
+            
         if uistates == 'next':
+            if reg.rcn == 'acecup':
+                action = ('copy_stage_data', 'cup', 'tri')
             scn = ('frm:' + reg.next_ap + ':end')
 
             uistates = None
