@@ -1,8 +1,8 @@
 
 .background-image {
   position: absolute;
-  top: 302px;
-  left: 832px;
+  top: 362px;
+  left: 830px;
   z-index: 15;
 }
 
@@ -15,8 +15,8 @@
 
 .rotating {
   position: absolute;
-  top: 321px;
-  left: 849px;
+  top: 381px;
+  left: 848px;
   z-index: 15;
   animation: spin 2s linear infinite;
 }

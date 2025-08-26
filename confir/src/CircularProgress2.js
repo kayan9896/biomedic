@@ -13,8 +13,6 @@ const CircularProgress2 = () => {
           src={require("./LoadingCircleNoPct.png")}
           alt="Rotating"
           className="rotating"
-          width={200}
-          height={200}
         />
       </div>
 

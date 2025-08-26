@@ -46,8 +46,10 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
 
       if (draggedPointIndex !== null) {
         // Moving a control point
+        
         const newArc = [...arc];
         newArc[draggedPointIndex] = [x, y];
+        if(invalid(newArc)) return
         setArc(newArc);
         if (onChange) {
           onChange(newArc);
@@ -160,6 +162,12 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
   }
 
   const { center, radius } = findCircle(arc[0], arc[1], arc[2]);
+
+  function invalid(newarc) {
+    const o = [(newarc[0][0] + newarc[2][0]) / 2, (newarc[0][1] + newarc[2][1]) / 2]
+    const r = Math.sqrt(Math.pow(o[0] - newarc[0][0], 2) + Math.pow(o[1] - newarc[0][1], 2))
+    return Math.sqrt(Math.pow(o[0] - newarc[1][0], 2) + Math.pow(o[1] - newarc[1][1], 2)) > r
+  }
   
   function calculate(arc){
     const x1 = arc[0][0], y1 = arc[0][1];

@@ -28,7 +28,7 @@ const CircularProgress = ({ percentage }) => {
         {/* Outer white circle */}
         <circle
           cx="960"
-          cy="432"
+          cy="492"
           r={radiusOuter}
           stroke="#FFF"
           strokeWidth="16"
@@ -38,7 +38,7 @@ const CircularProgress = ({ percentage }) => {
         {/* Blue progress circle */}
         <circle
           cx="960"
-          cy="432"
+          cy="492"
           r={radiusOuter}
           stroke="url(#progress-gradient)"
           strokeWidth="16"
@@ -46,13 +46,13 @@ const CircularProgress = ({ percentage }) => {
           strokeLinecap="square"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          transform="rotate(-90 960 432)"
+          transform="rotate(-90 960 492)"
         />
         
         {/* Hollow inner circle */}
         <circle
           cx="960"
-          cy="432"
+          cy="492"
           r={radiusInner}
           fill="none"
         />
@@ -67,7 +67,7 @@ const CircularProgress = ({ percentage }) => {
           textAlign: 'center',
           position: 'absolute',
           width: '166px',
-          top: '385px',
+          top: '445px',
           left: '878px',
           zIndex: 20,
           color: '#00B0F0'
@@ -82,7 +82,7 @@ const CircularProgress = ({ percentage }) => {
           textAlign: 'center',
           position: 'absolute',
           width: '231px',
-          top: '548px',
+          top: '608px',
           left: '845px',
           zIndex: 20,
           color: 'white'

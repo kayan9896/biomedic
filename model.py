@@ -252,7 +252,7 @@ class Model:
             metadata['side'] = None
             if 'hp2' in section:
                 metadata['side'] = self.data[section]['side']
-            if 'tri' in section and self.data['regcup']['success']:
+            if self.data['regcup']['success']:
                 metadata['side'] = self.data[section]['side']
         metadata['analysis_error_code'] = error_code
 
@@ -300,6 +300,9 @@ class Model:
 
         if error_code is None:
             metadata['analysis_success'] = True
+            metadata['shot_1'] = self.data[curap]['framedata']
+            curob = curap[:-3] + '-ob'
+            metadata['shot_2'] = self.data[curob]['framedata']
         else:
             metadata['analysis_success'] = False
             metadata['recondata'] = None
@@ -388,6 +391,7 @@ class Model:
             self.data[section]['success'] = data['analysis_success']
             self.data[section]['metadata'] = data['recondata']
             self.data[section]['error_code'] = data['analysis_error_code']
+            self.angles = [data['shot_1']['imuangles'][0], data['shot_1']['imuangles'][1], data['shot_2']['imuangles'][1]]
 
         if analysis_type == 'reg':
             self.data[section]['metadata'] = data['regresult']

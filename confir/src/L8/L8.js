@@ -157,7 +157,7 @@ function L8({
             className="image-button"
             src={require('./ResettoTemplateBtn.png')} style={{position:'absolute', top:'539px', left:'671px', zIndex: 21}}
             onClick={()=>{
-              if(stage === 1 || (stage === 3 && isCupReg)) {
+              if(stage === 1 || isCupReg) {
                 (editing === 'left' ? setLeftTmp(getTemplate(stage, pelvis[0])) : setRightTmp(getTemplate(stage, pelvis[1])));
                 setResetWarning(false)
               }else setResetTemplate(true)}}

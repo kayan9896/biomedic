@@ -281,7 +281,7 @@ class Controller:
         device = self.config.get("framegrabber_device", "OBS Virtual Camera")
         
         result = self.frame_grabber.connect(device)
-        
+        time.sleep(2)
         if result.get('connected', False):
 
             # Fetch the first frame
@@ -318,8 +318,9 @@ class Controller:
     def next(self, state, stage):
         with self.lock:
             self.uistates = state
+        
+        if self.imu_handler is not None: self.imu_handler.confirm_save(self.model.angles, self.stage)
         self.stage = stage
-        if hasattr(self, 'imu_handler'): self.imu_handler.confirm_save()
 
     def save_screen(self, stage, file):
         save_dir = f'{self.exam.exam_folder}/viewpairs'
@@ -400,23 +401,23 @@ class Controller:
             with self.lock:
                 newscn, self.uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
         
-            if action is not None:
-                match action[0]:
-                    case 'copy_stage_data':
-                        self.model.copy_stage_data(action[1], action[2])
+                if action is not None:
+                    match action[0]:
+                        case 'copy_stage_data':
+                            self.model.copy_stage_data(action[1], action[2])
 
-                    case 'set_success_to_none':
-                        self.model.set_success_to_none(action[1])
+                        case 'set_success_to_none':
+                            self.model.set_success_to_none(action[1])
 
-                    case 'set_imu_setcupreg':
-                        if self.tracking: self.imu_handler.set_cupreg()
-            if self.jumpped:
-                self.jumpped = False
-                continue
-                
-            if newscn == self.scn or newscn[-3:] != 'bgn':
-                self.scn = newscn
-                continue
+                        case 'set_imu_setcupreg':
+                            if self.tracking: self.imu_handler.set_cupreg()
+                if self.jumpped:
+                    self.jumpped = False
+                    continue
+                    
+                if newscn == self.scn or newscn[-3:] != 'bgn':
+                    self.scn = newscn
+                    continue
 
             self.is_processing = True
             self.lockside = True

@@ -68,7 +68,8 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
 
   const checkVideoConnection = async () => {
     try {
-      const response = await fetch('http://localhost:5000/check-video-connection');
+      setLoading(true)
+      const response = await fetch('http://localhost:5000/check-video-connection',{ signal: AbortSignal.timeout(20000) });
       if (!response.ok) {
         throw new Error('Failed to check video connection');
       }
@@ -79,8 +80,10 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       if (data.connected && data.frame) {
         setVideoFrame(data.frame); // data.frame is a data URI (e.g., "data:image/jpeg;base64,...")
       }
+      setLoading(false)
     } catch (err) {
       setError('Error checking video connection: ' + err.message);
+      setLoading(false)
       console.error(err);
     }
   };

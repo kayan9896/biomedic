@@ -177,19 +177,18 @@ class IMU_handler:
             elif abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON:
                 self.tmp_used_ob = self.obtarget2
 
-    def confirm_save(self):
-        if self.tmp_tilttarget is not None and self.tilttarget is None:
-            self.tilttarget = self.tmp_tilttarget
-        if self.tmp_aptarget is not None and self.aptarget is None:
-            self.aptarget = self.tmp_aptarget
-        if self.tmp_obtarget1 is not None and self.obtarget1 is None:
-            self.obtarget1 = self.tmp_obtarget1
-        if self.tmp_obtarget2 == self.obtarget1:
-            self.obtarget1, self.obtarget2 = self.obtarget2, self.obtarget1
-        if self.tmp_obtarget2 is not None and self.obtarget2 is None:
-            self.obtarget2 = self.tmp_obtarget2
-        if self.tmp_used_ob is not None:
-            self.used_ob = self.tmp_used_ob
+    def confirm_save(self, angles, stage):
+        if stage == 0:
+            self.tilttarget = angles[0]
+            self.aptarget = angles[1]
+            if self.obtarget2 is not None and self.obtarget2 == angles[2]:
+                self.obtarget2 = self.obtarget1
+            self.obtarget1 = angles[2]
+        if stage == 1:
+            self.obtarget2 = angles[2]
+        if stage > 1:
+            self.used_ob = angles[2]
+
         # Update ob_min and ob_max
         if self.obtarget1 is not None and self.obtarget2 is not None:
             self.ob_min = min(self.obtarget1, self.obtarget2)

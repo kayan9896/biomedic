@@ -28,7 +28,6 @@ class IMU_sensor:
                 error, self.client = openzen.make_client()
                 if not error == openzen.ZenError.NoError:
                     print ("Error while initializing OpenZen library")
-                    sys.exit(1)
 
                 error = self.client.list_sensors_async()
                 while True:
@@ -51,7 +50,7 @@ class IMU_sensor:
                 if not error == openzen.ZenSensorInitError.NoError:
                     self.is_connected = False
                     print ("Error connecting to sensor")
-                print(self.is_connected, 12212121)
+
             self.check_thread = threading.Thread(
                 target=self.imu_loop,
                 args=(frequency,),
@@ -79,7 +78,7 @@ class IMU_sensor:
                     if time.time() - t > 5:
                         self.is_connected = False
                     continue
-                #self.battery_level = sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1]
+                #self.battery_level = self.sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1]
                 self.set_tilt(zenEvent.data.imu_data.r[0])
                 self.set_rotation(zenEvent.data.imu_data.r[1])
                 t = time.time()

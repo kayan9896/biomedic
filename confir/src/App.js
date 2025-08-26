@@ -30,6 +30,7 @@ import rightTriTemplate from './L21/tritemplate-r.json';
 import ReconnectionPage from './L13/ReconnectionPage';
 import L17 from './L17/L17';
 import KB from './KB';
+import L26 from './L26/L26';
 
 function App() {
   
@@ -267,7 +268,7 @@ function App() {
         setOBRotationAngle2(data.obtarget2)
         setTargetTiltAngle(data.tilttarget)
         setUsedOB(data.used_ob)
-        setShowCarm(data.show_window)
+        setShowCarm(data.show_window && data.imu_on)
         setShowIcon(data.show_icon)
         setTiltValid(data.is_tilt_valid)
         setRotValid(data.is_rot_valid)
@@ -330,6 +331,8 @@ function App() {
           setIsTriReg(data.jump.stage === 3 && data.jump.next === 4 ? true : false)
           setTestmeas(data.jump.testmeas)
           setError(null)
+          setBrightness([100, 100])
+          setContrast([100, 100])
           return
         }
         setTestmeas(null)
@@ -377,6 +380,8 @@ function App() {
             })
         }
         
+        setMoveNext(data.next)
+        if(data.next) await captureAndSaveFrame(stage)
         
         setMeasurements(data.measurements)
         if(stage === 0){
@@ -384,6 +389,7 @@ function App() {
         }
         if(stage === 1){
           if(data.next) setIsPelReg(true)
+            console.log(isPelReg,data.next)
         }
         if(stage === 2){
           if(data.measurements) setIsCupReg(true)
@@ -391,9 +397,7 @@ function App() {
         if(stage === 3){
           if(data.measurements) setIsTriReg(true)
         }
-        
-        setMoveNext(data.next)
-        if(data.next) captureAndSaveFrame(stage)
+         
 
     } catch (error) {
         console.error('Error fetching image:', error);
@@ -491,6 +495,7 @@ function App() {
 
   const handlerestart = async () => {
     setError(null)
+    setEditing(false)
     setLeftImage(getInstruction(0,'AP'));
     setRightImage(getInstruction(0,'OB'));
     setLeftImageMetadata(null)
@@ -644,6 +649,7 @@ function App() {
     
     try {
       // Use html2canvas to capture the frame with all overlays
+      setIsProcessing(true)
       await new Promise(r => setTimeout(r, 2000));
       const canvas = await html2canvas(frameRef.current, {
         useCORS: true,
@@ -669,7 +675,9 @@ function App() {
           throw new Error('Failed to save image with overlays');
         }
       }, 'image/png');
+      setIsProcessing(false)
     } catch (err) {
+      setIsProcessing(false)
       console.error('Error capturing and saving frame:', err);
       alert('Error saving image with overlays: ' + err.message);
     }
@@ -743,6 +751,7 @@ function App() {
   };
   const [selectedCArm, setSelectedCArm] = useState('');
 
+  const [splash, setSplash] = useState(true)
 
   return (
     <div className="app">
@@ -751,6 +760,7 @@ function App() {
         <div>
           {/*L13 Setup, render when iscoonected false*/}
           <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected} tracking={tracking} setTracking={setTracking}/>
+          {splash && <L26 setSplash={setSplash}/>}
         </div>
       ) : (
         <>

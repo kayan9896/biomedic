@@ -62,7 +62,7 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
         // Moving a control point
         const newEllipse = [...ellipse];
         newEllipse[draggedPointIndex] = [x, y];
-    
+        if(invalid(newEllipse)) return
         if (draggedPointIndex === 0 || draggedPointIndex === 2) {
           const newArc = [...arcPoints];
           newArc[draggedPointIndex] = [x, y];
@@ -207,6 +207,12 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
   }
 
   const { center, a, b, angle } = calculateEllipseParameters();
+
+  function invalid(newarc) {
+    const o = [(newarc[0][0] + newarc[2][0]) / 2, (newarc[0][1] + newarc[2][1]) / 2]
+    const r = Math.sqrt(Math.pow(o[0] - newarc[0][0], 2) + Math.pow(o[1] - newarc[0][1], 2))
+    return Math.sqrt(Math.pow(o[0] - newarc[1][0], 2) + Math.pow(o[1] - newarc[1][1], 2)) > r || Math.sqrt(Math.pow(o[0] - newarc[3][0], 2) + Math.pow(o[1] - newarc[3][1], 2)) > r
+  }
 
   return (
     <>

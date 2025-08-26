@@ -14,6 +14,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
   // Check video connection
   const checkVideoConnection = async () => {
     try {
+      setLoading(true)
       const response = await fetch('http://localhost:5000/check-video-connection');
       if (!response.ok) {
         throw new Error('Failed to check video connection');
@@ -25,8 +26,10 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
       if (data.connected && data.frame) {
         setVideoFrame(data.frame);
       }
+      setLoading(false)
     } catch (err) {
       setError('Error checking video connection: ' + err.message);
+      setLoading(false)
       console.error(err);
     }
   };
@@ -161,6 +164,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
       {/* Try Again Button - always show but only enable for current active step that needs reconnection */}
       <img 
         src={isTryAgainEnabled() ? require('./SetupTryAgainBtn.png') : require('./SetupTryAgainBtnDisable.png')} 
+        className={isTryAgainEnabled() && "image-button"}
         alt="SetupTryAgain" 
         style={{
           position:'absolute', 
@@ -178,6 +182,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
           (currentStep === 2 && !isStepComplete(3) ? (isStepComplete(2) ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png')) : 
           require('./SetupReturnBtnDisable.png'))
         }
+        className="image-button"
         alt={allIssuesResolved() ? "Return" : "Continue"} 
         style={{
           position:'absolute', 
@@ -252,6 +257,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
 
       <img
         src={require('../ExitButton.png')}
+        className="image-button"
         onClick={() => setShowReconnectionPage(false)} 
         style={{
           position: 'absolute',
