@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isRecon,isPelReg,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,showReconnectionPage,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements,testmeas}) {
+function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart,handlenext,isRecon,isPelReg,isCupReg,isTriReg,showCarmBox,autocollect,editing,recon,handlepause,setSelectCup,isProcessing,pause,showReconnectionPage,leftImage,leftImageMetadata,leftSaveRefs,rightImage,rightImageMetadata,rightSaveRefs,measurements,testmeas,capturing}) {
   const [switchWarning, setSwitchWarning] = useState(false)
   const [data, setData] = useState({
     'Inclination' : '-',
@@ -49,6 +49,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
     }
   }
   const clickDash = () => {
+    if(capturing.current) return
     if(stage === 0){
       if(isRecon) handlenext()
     }

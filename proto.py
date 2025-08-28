@@ -299,6 +299,19 @@ def patient():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/pdf')
+def pdf():
+    try:
+        global controller
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+
+        controller.savepdf()
+
+        return jsonify({"message": f"pdf saved successfully"})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 '''
 @app.route('/check-running-state', methods=['GET'])
 def check_running_state():

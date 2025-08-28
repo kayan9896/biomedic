@@ -1,6 +1,6 @@
 {
   "name": "confir",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "dependencies": {
     "@fontsource/abel": "^5.1.1",
@@ -32,6 +32,9 @@
   },
   "build": {
     "appId": "com.example.confir-operation-software",
+    "win": {
+      "icon": "build/icon.ico"
+    },
     "files": [
       "build/**/*",
       "node_modules/**/*"

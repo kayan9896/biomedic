@@ -30,6 +30,8 @@ import rightTriTemplate from './L21/tritemplate-r.json';
 import ReconnectionPage from './L13/ReconnectionPage';
 import L17 from './L17/L17';
 import KB from './KB';
+import L18 from './L18/L18';
+import L24 from './L24/L24';
 import L26 from './L26/L26';
 
 function App() {
@@ -294,6 +296,7 @@ function App() {
       } catch (error) {
         console.error('Error fetching states:', error);
         setError("Error connecting to server");
+        setGe(true)
       }
     };
 
@@ -309,6 +312,7 @@ function App() {
   const [testmeas, setTestmeas] = useState(null)
   const updateImages = async (active_side, stage) => {
     try {
+        capturing.current = true
         const response = await fetch('http://localhost:5000/api/image-with-metadata');
         const data = await response.json();
 
@@ -398,10 +402,11 @@ function App() {
           if(data.measurements) setIsTriReg(true)
         }
          
-
+        capturing.current = false
     } catch (error) {
         console.error('Error fetching image:', error);
         setError("Error updating images");
+        capturing.current = false
     }
   };
  
@@ -539,7 +544,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({'uistates': editing || showCarm || isProcessing || pause || showglyph || report || showKeyboard ? 'edit' : null})
+          body: JSON.stringify({'uistates': editing || showCarm || pause || isProcessing|| showglyph || report || showKeyboard ? 'edit' : null})
         });
         //setError(null)
       } catch (error) {
@@ -599,7 +604,9 @@ function App() {
           leftMetadata: leftData,
           rightMetadata: rightData,
           limgside: pelvis[0],
-          rimgside: pelvis[1]
+          rimgside: pelvis[1],
+          brightness: brightness,
+          contrast: contrast
         }),
       });
 
@@ -643,13 +650,14 @@ function App() {
     if(editing === 'right') rightSaveRefs.current?.resetToOriginal?.();
   };
 
+  const capturing = useRef(false)
   const captureAndSaveFrame = async (stage) => {
     console.log(frameRef)
     if (!frameRef.current) return;
     
     try {
       // Use html2canvas to capture the frame with all overlays
-      setIsProcessing(true)
+      capturing.current = true
       await new Promise(r => setTimeout(r, 2000));
       const canvas = await html2canvas(frameRef.current, {
         useCORS: true,
@@ -675,9 +683,9 @@ function App() {
           throw new Error('Failed to save image with overlays');
         }
       }, 'image/png');
-      setIsProcessing(false)
+      capturing.current = false
     } catch (err) {
-      setIsProcessing(false)
+      capturing.current = false
       console.error('Error capturing and saving frame:', err);
       alert('Error saving image with overlays: ' + err.message);
     }
@@ -749,9 +757,32 @@ function App() {
       return newContrast;
     });
   };
-  const [selectedCArm, setSelectedCArm] = useState('');
 
-  const [splash, setSplash] = useState(true)
+  const handleDl = async () => {
+      try{
+        const res = await fetch(`http://localhost:5000/pdf`)
+        const data = await res.json()
+        if (!res.ok) {
+          console.log(data.error)
+          if (data.error == 'No path') setUsb(true)
+          else {
+            setError(data.error)
+            setGe(true)
+          }
+        }
+        else {
+          setError('Saved!')
+          setGe(true)
+        }
+      }catch(error){
+        console.error('Error saving report:', error);
+        alert(error)
+      }
+    }
+  const [selectedCArm, setSelectedCArm] = useState('');
+  const [usb, setUsb] = useState(false)
+  const [ge, setGe] = useState(false)
+  const [splash, setSplash] = useState(false)
 
   return (
     <div className="app">
@@ -759,8 +790,9 @@ function App() {
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
+          {splash ? <L24 setSplash={setSplash}/> : 
           <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected} tracking={tracking} setTracking={setTracking}/>
-          {splash && <L26 setSplash={setSplash}/>}
+          }
         </div>
       ) : (
         <>
@@ -799,6 +831,7 @@ function App() {
           rightSaveRefs={rightSaveRefs}
           measurements={measurements}
           testmeas={testmeas}
+          capturing={capturing}
         />
 
         {/*L3 Images, containing L4 landmarks and L5 viewport inside*/}
@@ -938,7 +971,7 @@ function App() {
       
 
       {/*L11 Report, render when report button clicked*/}
-      {report&&<L11 setReport={setReport} stage={stage} setError={setError}/>}
+      {report&&<L11 setReport={setReport} stage={stage} setError={setError} handleDl={handleDl}/>}
             
       {/*L12 Pause, render when next button clicked */}
       {<L12 key={Math.random()} pause={pause} setPause={setPause} handlenext={handlenext} selectCup={selectCup}/>}
@@ -979,8 +1012,13 @@ function App() {
         </>
       )}
       {/*L17 Exit, render when exit true*/}
-      {exit&&<L17 setExit={setExit} handlerestart={handlerestart}/>}
-      <img src={exit ? require('./L2/ExitIconOn.png') : require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>
+      {exit&&<L17 setExit={setExit} handlerestart={handlerestart} handleDl={handleDl}/>}
+
+      {usb && <L18 handleDl={handleDl} setUsb={setUsb}/>}
+
+      {ge && <L26 txt={error} setGe={setGe}/>};
+
+      {!splash && <img src={exit ? require('./L2/ExitIconOn.png') : require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>}
     </div>
   );
 }

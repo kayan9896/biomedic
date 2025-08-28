@@ -55,7 +55,8 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true
-    }
+    },
+    icon: path.join(__dirname, './AppLogo.png')
   });
   mainWindow.setMenuBarVisibility(false)
   // Load the index.html from a url

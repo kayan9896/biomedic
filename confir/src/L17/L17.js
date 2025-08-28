@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L17({handlerestart, setExit}) {
+function L17({handlerestart, setExit, handleDl}) {
     const handleClose = () => {
       window.close()
     }
@@ -13,7 +13,7 @@ function L17({handlerestart, setExit}) {
           setExit(false)
         }}/>
         <img className="image-button" src={require('../L23/CancelBtn.png')} alt="CancelBtn" style={{position:'absolute', top:'539px', left:'1241px', zIndex:17}} onClick={()=>setExit(false)}/>
-        <img className="image-button" src={require('./SaveReportBtn.png')} alt="SaveReportBtn" style={{position:'absolute', top:'539px', left:'557px', zIndex:17}} />
+        <img className="image-button" src={require('./SaveReportBtn.png')} alt="SaveReportBtn" style={{position:'absolute', top:'539px', left:'557px', zIndex:17}} onClick={handleDl}/>
         <img className="image-button" src={require('./ShutDownBtn.png')} alt="ShutDownBtn" style={{position:'absolute', top:'539px', left:'1013px', zIndex:17}} onClick={handleClose}/>
       </div>
     )

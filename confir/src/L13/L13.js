@@ -330,7 +330,8 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
             top: '140px', 
             left: '1025px',
             maxWidth: '500px',
-            maxHeight: '400px'
+            maxHeight: '400px',
+            border:'2px solid grey'
           }}
         />
       )}

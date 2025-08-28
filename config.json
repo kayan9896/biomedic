@@ -1,7 +1,7 @@
 {
     "on_simulation": true,
     "imu_simulation": true,
-    "fg_simulation": false,
+    "fg_simulation": true,
     "ai_mode": true, 
     "glyph_on": true,
     "framegrabber_device": "OBS Virtual Camera",
@@ -12,5 +12,6 @@
     "carm_folder": "./Calibration",
     "sim_carm_folder": "./Calibration/03OEC9900-9in-II",
     "backend_pixel": 1024,
-    "ui_pixel": 960
+    "ui_pixel": 960,
+    "pdf_path": "./pdf/"
 }

@@ -281,7 +281,7 @@ class Controller:
         device = self.config.get("framegrabber_device", "OBS Virtual Camera")
         
         result = self.frame_grabber.connect(device)
-        time.sleep(2)
+        time.sleep(1)
         if result.get('connected', False):
 
             # Fetch the first frame
@@ -446,3 +446,13 @@ class Controller:
     def patient(self, data):
         self.model.patient_data = data
         self.exam.save_patient(data)
+
+    def savepdf(self):
+        images = [Image.fromarray(np.uint8(data)).convert('RGB') for data in self.model.viewpairs if data is not None]
+        if not os.path.exists(self.config.get('pdf_path')):
+            raise Exception('No path')
+        pdf_path = f'{self.config.get('pdf_path')}bbd1.pdf'
+            
+        images[0].save(
+            pdf_path, "PDF" ,resolution=100.0, save_all=True, append_images=images[1:]
+        )
