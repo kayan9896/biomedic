@@ -782,7 +782,7 @@ function App() {
   const [selectedCArm, setSelectedCArm] = useState('');
   const [usb, setUsb] = useState(false)
   const [ge, setGe] = useState(false)
-  const [splash, setSplash] = useState(false)
+  const [splash, setSplash] = useState(true)
 
   return (
     <div className="app">

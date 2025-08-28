@@ -141,14 +141,14 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected,
   const isStepComplete = (step) => {
     switch (step) {
       case 2: return videoStatus;
-      case 3: return imuStatus && !tiltSensorBatteryLow;
+      case 3: return (tracking && imuStatus && !tiltSensorBatteryLow) || !tracking;
       default: return false;
     }
   };
 
   // Determine if all issues are resolved
   const allIssuesResolved = () => {
-    return videoStatus && imuStatus && !tiltSensorBatteryLow;
+    return videoStatus && ((tracking && imuStatus) || !tracking) && !tiltSensorBatteryLow;
   };
 
   // Determine if try again button should be enabled
