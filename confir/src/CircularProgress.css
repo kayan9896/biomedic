@@ -3,21 +3,21 @@
   position: absolute;
   top: 362px;
   left: 830px;
-  z-index: 15;
+  z-index: 25;
 }
 
 .circular-progress svg {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 15;
+  z-index: 25;
 }
 
 .rotating {
   position: absolute;
   top: 381px;
   left: 848px;
-  z-index: 15;
+  z-index: 25;
   animation: spin 2s linear infinite;
 }
 

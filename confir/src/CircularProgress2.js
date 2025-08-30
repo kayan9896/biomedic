@@ -6,7 +6,7 @@ const CircularProgress2 = () => {
 
   return (
     <div className="circular-progress">
-      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:15, aspectRatio:'1920/1080', height:'1080px'}}/>
+      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:25, aspectRatio:'1920/1080', height:'1080px'}}/>
       <img src={backgroundImage} alt="window background" className="background-image" />
       <div className="image-container">
         <img

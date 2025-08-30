@@ -417,6 +417,7 @@ class Controller:
                     
                 if newscn == self.scn or newscn[-3:] != 'bgn':
                     self.scn = newscn
+                    self.is_processing = False
                     continue
 
             self.is_processing = True
@@ -427,7 +428,7 @@ class Controller:
             else: 
                 analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame)
             
-            self.is_processing = False
+            
             # add handling of 'exception:'
             #if analysis_type == 'exception':
             #     
@@ -441,7 +442,8 @@ class Controller:
     def update_backendstates(self):
         if not self.frame_grabber._is_new_frame_available:
             return None
-        return self.frame_grabber.fetchFrame()
+        f = self.frame_grabber.fetchFrame()
+        return f if not self.is_processing else None
 
     def patient(self, data):
         self.model.patient_data = data

@@ -16,7 +16,7 @@ const CircularProgress = ({ percentage }) => {
 
   return (
     <div className="circular-progress">
-      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:15, aspectRatio:'1920/1080', height:'1080px'}}/>
+      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:25, aspectRatio:'1920/1080', height:'1080px'}}/>
       <img src={backgroundImage} alt="window background" className="background-image" />
       <svg width="1920" height="960" viewBox="0 0 1920 960">
         <defs>
@@ -69,7 +69,7 @@ const CircularProgress = ({ percentage }) => {
           width: '166px',
           top: '445px',
           left: '878px',
-          zIndex: 20,
+          zIndex: 25,
           color: '#00B0F0'
         }}
         >
@@ -84,7 +84,7 @@ const CircularProgress = ({ percentage }) => {
           width: '231px',
           top: '608px',
           left: '845px',
-          zIndex: 20,
+          zIndex: 25,
           color: 'white'
         }}
         >

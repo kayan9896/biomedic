@@ -178,6 +178,7 @@ class IMU_handler:
                 self.tmp_used_ob = self.obtarget2
 
     def confirm_save(self, angles, stage):
+        if angles is None: return
         if stage == 0:
             self.tilttarget = angles[0]
             self.aptarget = angles[1]

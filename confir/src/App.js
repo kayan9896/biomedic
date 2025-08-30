@@ -337,16 +337,20 @@ function App() {
           setError(null)
           setBrightness([100, 100])
           setContrast([100, 100])
+          capturing.current = false
           return
         }
         setTestmeas(null)
-        setRecon(data.recon)
+        
         setError(data.error)
         if(data.error==='glyph' || data.error === 'ref') {
           setShowglyph(data.error)
           setErrImage(data.image)
+          capturing.current = false
           return
         }
+
+        setRecon(data.recon)
 
         if (active_side === 'ap') {
             setLeftImage(data.image);  // This is now a data URL
@@ -544,7 +548,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({'uistates': editing || showCarm || pause || isProcessing|| showglyph || report || showKeyboard ? 'edit' : null})
+          body: JSON.stringify({'uistates': editing || showCarm || pause || showglyph || report || showKeyboard ? 'edit' : null})
         });
         //setError(null)
       } catch (error) {
@@ -587,6 +591,7 @@ function App() {
   }
   const handleSave = async () => {
     try {
+      capturing.current = true
       rmRed()
       // Aggregate metadata from all groups
       const leftData = leftImageMetadata ? leftSaveRefs.current?.getCurrentMetadata() : null;
@@ -619,9 +624,11 @@ function App() {
       clearFlagr.current = 0
       setError(null)
       setEditing(false);
+      //capturing.current = false
     } catch (error) {
       console.error('Error saving landmarks:', error);
       setError("Failed to save landmarks");
+      capturing.current = false
     }
   };
 
@@ -658,7 +665,7 @@ function App() {
     try {
       // Use html2canvas to capture the frame with all overlays
       capturing.current = true
-      await new Promise(r => setTimeout(r, 2000));
+      //await new Promise(r => setTimeout(r, 2000));
       const canvas = await html2canvas(frameRef.current, {
         useCORS: true,
         allowTaint: true,
@@ -782,7 +789,7 @@ function App() {
   const [selectedCArm, setSelectedCArm] = useState('');
   const [usb, setUsb] = useState(false)
   const [ge, setGe] = useState(false)
-  const [splash, setSplash] = useState(true)
+  const [splash, setSplash] = useState(false)
 
   return (
     <div className="app">

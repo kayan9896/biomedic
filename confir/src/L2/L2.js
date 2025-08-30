@@ -74,6 +74,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
     }
   }
   const clickTriDash = () => {
+    if(capturing.current) return
     setSelectCup(false)
     handlepause(stage+1);
   }
@@ -115,7 +116,7 @@ function L2({setShowKeyboard,pid,setting,setSetting,stage,moveNext,handlerestart
 
         <img src={require('./CurrentStageBg.png')} style={blueStage(stage)}/>
         {showDash(stage)[0]!==null&&<img src={require('./PossibleStageBg.png')} style={showDash(stage)[1]} onClick={clickDash}/>}
-        {showDash(stage)[0]===2&&<img src={require('./PossibleStageBg.png')} style={{'position':'absolute', top:'974px', left:'805px'}} onClick={clickTriDash}/>}
+        {showDash(stage)[0]===2&&stage!==3&&<img src={require('./PossibleStageBg.png')} style={{'position':'absolute', top:'974px', left:'805px'}} onClick={clickTriDash}/>}
         {(
           !isRecon?<img src={require('./HipIcon1.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>:
           <img src={require('./HipIcon2.png')} style={{'position':'absolute', width:'50px', height:'71px', top:'983px', left:'460px', pointerEvents:'none'}}/>

@@ -58,6 +58,7 @@ class Model:
         self._resetdata()
         self.sim_data = None
         self.patient_data = None
+        self.angles = None
 
         self._lock = threading.Lock()
         self._stitch_thread = None
@@ -187,9 +188,9 @@ class Model:
         # Simulate processing with progress updates
         k=0
         for i in range(1000):
-            for j in range(3000):
+            for j in range(30000):
                 with self._lock:
-                    self.progress = (k + 1) /30000
+                    self.progress = (k + 1) /300000
                     k+=1
         # Stitch the images
         result = np.hstack((frame1_resized, frame2_resized))
@@ -238,9 +239,9 @@ class Model:
         #>> wait (self.sim_wait_values['frame_analysis'])?
         k = 0
         for i in range(1000):
-            for j in range(3000):
+            for j in range(30000):
                 with self._lock:
-                    self.progress = (k + 1) / 30000
+                    self.progress = (k + 1) / 300000
                     k += 1
 
 
@@ -391,7 +392,7 @@ class Model:
             self.data[section]['success'] = data['analysis_success']
             self.data[section]['metadata'] = data['recondata']
             self.data[section]['error_code'] = data['analysis_error_code']
-            self.angles = [data['shot_1']['imuangles'][0], data['shot_1']['imuangles'][1], data['shot_2']['imuangles'][1]]
+            if 'imuangles' in data['shot_1'] and 'imuangles' in data['shot_2']: self.angles = [data['shot_1']['imuangles'][0], data['shot_1']['imuangles'][1], data['shot_2']['imuangles'][1]]
 
         if analysis_type == 'reg':
             self.data[section]['metadata'] = data['regresult']
