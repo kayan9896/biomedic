@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress2 from '../CircularProgress2';
 
-function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected, tracking, setTracking }) {
+function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected, tracking, setTracking, setGe, setError }) {
   const [cArms, setCArms] = useState({});
   const [cArmSelected, setCarmSelected] = useState(false);
   const [videoConnected, setVideoConnected] = useState(false);
   const [videoFrame, setVideoFrame] = useState(null);
-  const [error, setError] = useState(null);
   const [tiltSensorConnected, setTiltSensorConnected] = useState(false);
   const [tiltSensorBatteryLow, setTiltSensorBatteryLow] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -83,6 +82,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       setLoading(false)
     } catch (err) {
       setError('Error checking video connection: ' + err.message);
+      setGe(true)
       setLoading(false)
       console.error(err);
     }
@@ -102,6 +102,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       setLoading(false)
     } catch (err) {
       setError('Error checking tilt sensor: ' + err.message);
+      setGe(true)
       setLoading(false)
       console.error(err);
     }

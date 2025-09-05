@@ -61,6 +61,8 @@ function App() {
 
   const [leftImage, setLeftImage] = useState(getInstruction(stage,'AP'));
   const [rightImage, setRightImage] = useState(getInstruction(stage,'OB'));
+  const [oriLeft, setOriLeft] = useState(leftImage)
+  const [oriRight, setOriRight] = useState(rightImage)
   const [errImage, setErrImage] = useState(null);
   const [error, setError] = useState(null);
 
@@ -116,6 +118,25 @@ function App() {
   const [showReconnectionPage, setShowReconnectionPage] = useState(false);
   const handleReconnectionReturn = () => {
     setShowReconnectionPage(false);
+  };
+
+  const [brightness, setBrightness] = useState([100, 100]);
+  const [contrast, setContrast] = useState([100, 100]);
+
+  const handleBrightnessChange = (value) => {
+    setBrightness(prev => {
+      const newBrightness = [...prev];
+      newBrightness[editing === 'left' ? 0 : 1] = value;
+      return newBrightness;
+    });
+  };
+
+  const handleContrastChange = (value) => {
+    setContrast(prev => {
+      const newContrast = [...prev];
+      newContrast[editing === 'left' ? 0 : 1] = value;
+      return newContrast;
+    });
   };
 
   function getInstruction (stage, side) {
@@ -284,6 +305,10 @@ function App() {
         setApr(data.apr)
         setScale(data.scale)
         setScn(data.scn)
+        if(data.unexpected_error){
+          setError(`Unexpected_error: ${data.unexpected_error}`)
+          setGe(true)
+        }
         
         if (data.img_count !== previousImgCountRef.current) {
           previousImgCountRef.current = data.img_count;
@@ -293,6 +318,7 @@ function App() {
         if (data.measurements) {
           setMeasurements(data.measurements);
         }
+        if(error === "Error connecting to server") setGe(false)
       } catch (error) {
         console.error('Error fetching states:', error);
         setError("Error connecting to server");
@@ -308,6 +334,74 @@ function App() {
     };
   });
 
+  const adjustImage = async(base64, brightness = 0, contrast = 0) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw original image
+        ctx.drawImage(img, 0, 0);
+
+        // Get image data
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        // Apply brightness
+        let bright = brightness - 100
+        for (let i = 0; i < data.length; i += 4) {
+            data[i] = Math.min(255, Math.max(0, data[i] + (data[i] * (bright / 100)))); // Red
+            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + (data[i + 1] * (bright / 100)))); // Green
+            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + (data[i + 2] * (bright / 100)))); // Blue
+
+        }
+
+        // Apply contrast
+        let con = contrast - 100
+        const factor = (259 * (con + 255)) / (255 * (259 - con));
+        for (let i = 0; i < data.length; i += 4) {
+            data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));
+            data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128));
+            data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128));
+        }
+
+        // Put modified data back
+        ctx.putImageData(imageData, 0, 0);
+
+        // Return new base64 string
+        resolve(canvas.toDataURL());
+
+      };
+      img.src = base64;
+    })
+  }
+
+  useEffect(() => {
+    const update = async() => {
+      if (oriLeft === getInstruction(stage, 'AP')) {
+        setLeftImage(oriLeft)
+        return;
+      }
+      const img = await adjustImage(oriLeft, brightness[0], contrast[0])
+      setLeftImage(img)
+    }
+    update()
+  }, [oriLeft, brightness[0], contrast[0]])
+
+    useEffect(() => {
+    const update = async() => {
+      if (oriRight === getInstruction(stage, 'OB')) {
+        setRightImage(oriRight)
+        return;
+      }
+      const img = await adjustImage(oriRight, brightness[1], contrast[1])
+      setRightImage(img)
+    }
+    update()
+  }, [oriRight, brightness[1], contrast[1]])
   
   const [testmeas, setTestmeas] = useState(null)
   const updateImages = async (active_side, stage) => {
@@ -353,7 +447,7 @@ function App() {
         setRecon(data.recon)
 
         if (active_side === 'ap') {
-            setLeftImage(data.image);  // This is now a data URL
+            setOriLeft(data.image)
             setLeftImageMetadata(data.metadata);
             
             setLeftCheckMark(data.checkmark)
@@ -365,13 +459,13 @@ function App() {
             console.log(stage, data.metadata)
 
             if(!data.recon) {
-              setRightImage(getInstruction(stage,'OB'));
+              setOriRight(getInstruction(stage,'OB'));
               setRightImageMetadata(null)
               setRightCheckMark(null)
               setUseai([data.metadata ? true : false, false])
             }
         } else if (active_side === 'ob') {
-            setRightImage(data.image);  // This is now a data URL
+            setOriRight(data.image)
             setRightImageMetadata(data.metadata);
             setRightCheckMark(data.checkmark)
             if(!data.recon) {
@@ -452,11 +546,11 @@ function App() {
       setContrast([100, 100])
     }
     if(!keep) {
-      setLeftImage(getInstruction(st,'AP'));
-      setRightImage(getInstruction(st,'OB'));
+      setOriLeft(getInstruction(st,'AP'));
+      setOriRight(getInstruction(st,'OB'));
     }else{
-      if(leftImage === getInstruction(stage,'AP')) setLeftImage(getInstruction(st,'AP'));
-      if(rightImage === getInstruction(stage,'OB')) setRightImage(getInstruction(st,'OB'));
+      if(leftImage === getInstruction(stage,'AP')) setOriLeft(getInstruction(st,'AP'));
+      if(rightImage === getInstruction(stage,'OB')) setOriRight(getInstruction(st,'OB'));
     }
     if(next === 'next') setStage(p => p + 1);
     if(next === 'skip') setStage(p => p + 2);
@@ -505,8 +599,8 @@ function App() {
   const handlerestart = async () => {
     setError(null)
     setEditing(false)
-    setLeftImage(getInstruction(0,'AP'));
-    setRightImage(getInstruction(0,'OB'));
+    setOriLeft(getInstruction(0,'AP'));
+    setOriRight(getInstruction(0,'OB'));
     setLeftImageMetadata(null)
     setRightImageMetadata(null)
     setLeftCheckMark(null)
@@ -675,6 +769,7 @@ function App() {
       // Convert canvas to blob
       canvas.toBlob(async (blob) => {
         // Create form data and append the image
+        capturing.current = true
         const formData = new FormData();
         formData.append('image', blob, `stage${stage}.png`);
         
@@ -689,6 +784,7 @@ function App() {
         } else {
           throw new Error('Failed to save image with overlays');
         }
+        capturing.current = false
       }, 'image/png');
       capturing.current = false
     } catch (err) {
@@ -746,24 +842,7 @@ function App() {
            (pelvis[1] === null);
   };
 
-  const [brightness, setBrightness] = useState([100, 100]);
-  const [contrast, setContrast] = useState([100, 100]);
 
-  const handleBrightnessChange = (value) => {
-    setBrightness(prev => {
-      const newBrightness = [...prev];
-      newBrightness[editing === 'left' ? 0 : 1] = value;
-      return newBrightness;
-    });
-  };
-
-  const handleContrastChange = (value) => {
-    setContrast(prev => {
-      const newContrast = [...prev];
-      newContrast[editing === 'left' ? 0 : 1] = value;
-      return newContrast;
-    });
-  };
 
   const handleDl = async () => {
       try{
@@ -798,7 +877,7 @@ function App() {
         <div>
           {/*L13 Setup, render when iscoonected false*/}
           {splash ? <L24 setSplash={setSplash}/> : 
-          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected} tracking={tracking} setTracking={setTracking}/>
+          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected} tracking={tracking} setTracking={setTracking} setGe={setGe} setError={setError}/>
           }
         </div>
       ) : (
@@ -1019,7 +1098,7 @@ function App() {
         </>
       )}
       {/*L17 Exit, render when exit true*/}
-      {exit&&<L17 setExit={setExit} handlerestart={handlerestart} handleDl={handleDl}/>}
+      {exit&&<L17 setExit={setExit} handlerestart={handlerestart} handleDl={handleDl} capturing={capturing}/>}
 
       {usb && <L18 handleDl={handleDl} setUsb={setUsb}/>}
 

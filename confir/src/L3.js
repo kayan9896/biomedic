@@ -128,7 +128,7 @@ function L3({
     }, [onSaveRight, currentGlobalr, lastSavedGlobalr]);
   
   const getFilterStyle = (brightness, contrast) => ({
-    filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+    filter: `brightness(${100}%) contrast(${100}%)`,
   });
 
   const [activeGroup, setActiveGroup] = useState(null)
