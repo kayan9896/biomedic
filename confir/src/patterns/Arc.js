@@ -30,7 +30,7 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
   useEffect(()=>{
     setArc(initialArc)
     if(!activeGroup) setOldArc(initialArc)
-  },[initialArc])
+  },[initialArc, activeGroup])
 
   
 

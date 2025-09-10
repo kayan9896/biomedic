@@ -319,6 +319,7 @@ function App() {
           setMeasurements(data.measurements);
         }
         if(error === "Error connecting to server") setGe(false)
+        console.log(capturing)
       } catch (error) {
         console.error('Error fetching states:', error);
         setError("Error connecting to server");
@@ -784,6 +785,7 @@ function App() {
         } else {
           throw new Error('Failed to save image with overlays');
         }
+        capturing.current = false
       } catch (err) {
         capturing.current = false
         alert(err.message);

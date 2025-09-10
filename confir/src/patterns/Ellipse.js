@@ -32,7 +32,7 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
       setEllipse(initialEllipse)
       if(!activeGroup) setOldEllipse(initialEllipse)
       setArcPoints([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
-    },[initialEllipse])
+    },[initialEllipse, activeGroup])
 
   useEffect(() => {
     if (groupOffset) {
