@@ -4,6 +4,7 @@ import Magnifier from './Magnifier';
 
 const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter, activeGroup, activeSegment, setActiveGroupSegment}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
+  const [oldellipse, setOldEllipse] = useState(initialEllipse);
   const [isSelected, setIsSelected] = useState(idx!==null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
@@ -29,6 +30,7 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
   
   useEffect(()=>{
       setEllipse(initialEllipse)
+      if(!activeGroup) setOldEllipse(initialEllipse)
       setArcPoints([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
     },[initialEllipse])
 
@@ -60,8 +62,12 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
 
       if (draggedPointIndex !== null) {
         // Moving a control point
+        const res = follow(draggedPointIndex, cursorPosition, oldellipse)
         const newEllipse = [...ellipse];
+        newEllipse[1] = res[0]
+        newEllipse[3] = res[1]
         newEllipse[draggedPointIndex] = [x, y];
+
         if(invalid(newEllipse)) return
         if (draggedPointIndex === 0 || draggedPointIndex === 2) {
           const newArc = [...arcPoints];
@@ -99,7 +105,7 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
 
     const handleGlobalUp = () => {
       setIsDragging(false);
-      
+      setOldEllipse(ellipse)
       setShowMagnifier(false)
     };
 
@@ -209,9 +215,47 @@ const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, gr
   const { center, a, b, angle } = calculateEllipseParameters();
 
   function invalid(newarc) {
+    if (draggedPointIndex === 0 || draggedPointIndex === 2){
+      return false
+    }
     const o = [(newarc[0][0] + newarc[2][0]) / 2, (newarc[0][1] + newarc[2][1]) / 2]
     const r = Math.sqrt(Math.pow(o[0] - newarc[0][0], 2) + Math.pow(o[1] - newarc[0][1], 2))
     return Math.sqrt(Math.pow(o[0] - newarc[1][0], 2) + Math.pow(o[1] - newarc[1][1], 2)) > r || Math.sqrt(Math.pow(o[0] - newarc[3][0], 2) + Math.pow(o[1] - newarc[3][1], 2)) > r
+  }
+
+  function follow(draggedPointIndex, cursorPosition, ellipse){
+    if (draggedPointIndex === 1){
+      return [[cursorPosition.x, cursorPosition.y], ellipse[3]]
+    }
+    if (draggedPointIndex === 3){
+      return [ellipse[1], [cursorPosition.x, cursorPosition.y]]
+    }
+    let now = [cursorPosition.x, cursorPosition.y]
+    let mid = ellipse[1]
+    let old = draggedPointIndex === 0 ? ellipse[0] : ellipse[2]
+    let ori = draggedPointIndex === 0 ? ellipse[2] : ellipse[0]
+    let arc = ellipse[3]
+    
+    let v1 = [old[0] - ori[0], old[1] - ori[1]]
+    let v2 = [now[0] - ori[0], now[1] - ori[1]]
+
+    let l1 = Math.sqrt(Math.pow(v1[0], 2) + Math.pow(v1[1], 2))
+    let l2 = Math.sqrt(Math.pow(v2[0], 2) + Math.pow(v2[1], 2))
+    let alpha = Math.atan2(v2[1], v2[0]) - Math.atan2(v1[1], v1[0])
+    let scale = l2 / l1
+
+    let v3 = [mid[0] - ori[0], mid[1] - ori[1]]
+    let l3 = Math.sqrt(Math.pow(v3[0], 2) + Math.pow(v3[1], 2))
+    let beta = Math.atan2(v3[1], v3[0])
+    let newmid = [l3 * scale * Math.cos(beta + alpha) + ori[0], l3 * scale * Math.sin(beta + alpha) + ori[1]]
+    
+    let v4 = [arc[0] - ori[0], arc[1] - ori[1]]
+    let l4 = Math.sqrt(Math.pow(v4[0], 2) + Math.pow(v4[1], 2))
+    let theta = Math.atan2(v4[1], v4[0])
+    let newarc = [l4 * scale * Math.cos(theta + alpha) + ori[0], l4 * scale * Math.sin(theta + alpha) + ori[1]]
+
+    return [newmid, newarc]
+
   }
 
   return (

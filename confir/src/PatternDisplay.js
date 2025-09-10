@@ -183,6 +183,7 @@ const PatternDisplay = ({ group, fulldata, isLeftSquare, imageUrl, editing, filt
               onPatternsUpdate={handleMultiplePatternsUpdate}
               handle={currentMetadata[0]['handle']}
               group={group}
+              setActiveGroupSegment={setActiveGroupSegment}
             />
           }
         </div>
@@ -204,7 +205,7 @@ const PatternDisplay = ({ group, fulldata, isLeftSquare, imageUrl, editing, filt
 };
 
 // New component for managing groups of selected patterns
-const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
+const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group, setActiveGroupSegment }) => {
   const [controlPoint, setControlPoint] = useState(handle);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
@@ -267,11 +268,12 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
       setDragStart([x, y]);
       
       // Also update the initial positions for next move
-      setInitialPatterns(updatedPatterns);
+      //setInitialPatterns(updatedPatterns);
     };
 
     const handleGlobalUp = () => {
       setIsDragging(false);
+      setActiveGroupSegment(null, null)
     };
 
     if (isDragging) {

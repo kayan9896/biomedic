@@ -35,7 +35,6 @@ import L24 from './L24/L24';
 import L26 from './L26/L26';
 
 function App() {
-  
   const [patient, setPatient] = useState('');
   const [ratio, setRatio] = useState('');
   const [comment, setComment] = useState('');
@@ -65,6 +64,7 @@ function App() {
   const [oriRight, setOriRight] = useState(rightImage)
   const [errImage, setErrImage] = useState(null);
   const [error, setError] = useState(null);
+  const [generalError, setGeneralError] = useState(null);
 
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
@@ -306,7 +306,7 @@ function App() {
         setScale(data.scale)
         setScn(data.scn)
         if(data.unexpected_error){
-          setError(`Unexpected_error: ${data.unexpected_error}`)
+          setGeneralError(`Backend Loop Error.`)
           setGe(true)
         }
         
@@ -772,7 +772,7 @@ function App() {
         capturing.current = true
         const formData = new FormData();
         formData.append('image', blob, `stage${stage}.png`);
-        
+        try{
         // Send to backend
         const response = await fetch(`http://localhost:5000/screenshot/${stage}`, {
           method: 'POST',
@@ -784,7 +784,10 @@ function App() {
         } else {
           throw new Error('Failed to save image with overlays');
         }
+      } catch (err) {
         capturing.current = false
+        alert(err.message);
+      }
       }, 'image/png');
       capturing.current = false
     } catch (err) {
@@ -1102,7 +1105,7 @@ function App() {
 
       {usb && <L18 handleDl={handleDl} setUsb={setUsb}/>}
 
-      {ge && <L26 txt={error} setGe={setGe}/>};
+      {ge && <L26 txt={generalError ? generalError : error} setGe={setGe}/>};
 
       {!splash && <img src={exit ? require('./L2/ExitIconOn.png') : require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>}
     </div>

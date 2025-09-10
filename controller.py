@@ -41,6 +41,7 @@ class Controller:
         self.scn = 'init'
         self.jumpped = False
         self.lockside = False
+        self.unexpected_error = None
 
         self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"])
         
@@ -78,6 +79,8 @@ class Controller:
             self.imu_sensor.handler = self.imu_handler
 
     def get_controller_states(self):
+        tmp = str(self.unexpected_error) if self.unexpected_error else None
+        self.unexpected_error = None
         return{
             'is_processing': self.is_processing,
             'ai_mode' : self.ai_mode,
@@ -85,7 +88,8 @@ class Controller:
             'active_side': self.active_side,
             'stage': self.stage,
             'scn': self.scn,
-            'tracking': self.tracking
+            'tracking': self.tracking,
+            'unexpected_error': tmp
         }
 
     def get_states(self):
@@ -333,7 +337,7 @@ class Controller:
         
         image = Image.open(file)
         image_array = np.array(image)
-        self.model.viewpairs[stage] = image_array
+        self.model.viewpairs[stage] = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
 
     def get_screen(self, stage):
         vp = self.model.viewpairs[stage]
@@ -387,57 +391,63 @@ class Controller:
     def _process_loop(self):
 
         while self.is_running:
-            if self.do_capture:
-                frame = self.frame_grabber.last_frame
-                self.do_capture = False
-            else:
-                # Normal processing
-                frame = self.update_backendstates()
-            
-            if self.pause_states == 'edit': 
-                time.sleep(1)
-                continue
-
-            with self.lock:
-                newscn, self.uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
-        
-                if action is not None:
-                    match action[0]:
-                        case 'copy_stage_data':
-                            self.model.copy_stage_data(action[1], action[2])
-
-                        case 'set_success_to_none':
-                            self.model.set_success_to_none(action[1])
-
-                        case 'set_imu_setcupreg':
-                            if self.tracking: self.imu_handler.set_cupreg()
-                if self.jumpped:
-                    self.jumpped = False
-                    continue
-                    
-                if newscn == self.scn or newscn[-3:] != 'bgn':
-                    self.scn = newscn
-                    self.is_processing = False
+            try:
+                if self.do_capture:
+                    frame = self.frame_grabber.last_frame
+                    self.do_capture = False
+                else:
+                    # Normal processing
+                    frame = self.update_backendstates()
+                
+                if self.pause_states == 'edit': 
+                    time.sleep(1)
                     continue
 
-            self.is_processing = True
-            self.lockside = True
-            if self.tracking: 
-                self.imu_handler.handle_window_close(self.stage)
-                analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
-            else: 
-                analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame)
+                with self.lock:
+                    newscn, self.uistates, action = self.model.eval_modelscnario(frame, self.scn, self.active_side, self.uistates)
             
-            
-            # add handling of 'exception:'
-            #if analysis_type == 'exception':
-            #     
-            print(data_for_model, newscn)
-            self.scn = newscn[:-3] + 'end'
-            self.model.update(analysis_type, data_for_model)
-            print(self.model.data)
-            self.viewmodel.update(analysis_type, data_for_model)
-            self.exam.save(analysis_type, data_for_exam, frame)
+                    if action is not None:
+                        match action[0]:
+                            case 'copy_stage_data':
+                                self.model.copy_stage_data(action[1], action[2])
+
+                            case 'set_success_to_none':
+                                self.model.set_success_to_none(action[1])
+
+                            case 'set_imu_setcupreg':
+                                if self.tracking: self.imu_handler.set_cupreg()
+                    if self.jumpped:
+                        self.jumpped = False
+                        continue
+                        
+                    if newscn == self.scn or newscn[-3:] != 'bgn':
+                        self.scn = newscn
+                        self.is_processing = False
+                        continue
+
+                self.is_processing = True
+                self.lockside = True
+                if self.tracking: 
+                    self.imu_handler.handle_window_close(self.stage)
+                    analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
+                else: 
+                    analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame)
+                
+                
+                # add handling of 'exception:'
+                #if analysis_type == 'exception':
+                #     
+                print(data_for_model, newscn)
+                self.scn = newscn[:-3] + 'end'
+                self.model.update(analysis_type, data_for_model)
+                print(self.model.data)
+                self.viewmodel.update(analysis_type, data_for_model)
+                self.exam.save(analysis_type, data_for_exam, frame)
+            except Exception as e:
+                self.is_processing = False
+                self.is_running = False
+                self.unexpected_error = e
+                print(self.unexpected_error)
 
     def update_backendstates(self):
         if not self.frame_grabber._is_new_frame_available:

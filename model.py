@@ -188,9 +188,9 @@ class Model:
         # Simulate processing with progress updates
         k=0
         for i in range(1000):
-            for j in range(30000):
+            for j in range(3000):
                 with self._lock:
-                    self.progress = (k + 1) /300000
+                    self.progress = (k + 1) /30000
                     k+=1
         # Stitch the images
         result = np.hstack((frame1_resized, frame2_resized))
@@ -239,9 +239,9 @@ class Model:
         #>> wait (self.sim_wait_values['frame_analysis'])?
         k = 0
         for i in range(1000):
-            for j in range(30000):
+            for j in range(3000):
                 with self._lock:
-                    self.progress = (k + 1) / 300000
+                    self.progress = (k + 1) / 30000
                     k += 1
 
 
@@ -404,40 +404,37 @@ class Model:
     def exec(self, scn, frame=None, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         match scn:
             case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn' | 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn' | 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn' | 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
-                try:
 
-                    framedata, analysis_parameters, framecalib = self.analyzeframe(scn[4:-4], frame, tilt_angle, rotation_angle, act_tilt, act_rot)
-                    
-                    # Prepare data for different components
 
-                    data_for_model = framedata
-                    data_for_calib = framecalib
-                    data_for_exam = {
-                        'framedata': framedata, 
-                        'analysis_parameters': analysis_parameters, 
-                        'framecalib': framecalib
-                    }
-
-                    return "frame", data_for_model, data_for_exam
+                framedata, analysis_parameters, framecalib = self.analyzeframe(scn[4:-4], frame, tilt_angle, rotation_angle, act_tilt, act_rot)
                 
-                except Exception as error:
-                    return "exception", {'type':'frame', 'success': False, 'error': str(error)}, None, None
+                # Prepare data for different components
+
+                data_for_model = framedata
+                data_for_calib = framecalib
+                data_for_exam = {
+                    'framedata': framedata, 
+                    'analysis_parameters': analysis_parameters, 
+                    'framecalib': framecalib
+                }
+
+                return "frame", data_for_model, data_for_exam
+                
+
 
 
             case 'rcn:hmplv1:bgn' | 'rcn:hmplv2:bgn' | 'rcn:acecup:bgn' | 'rcn:tothip:bgn':
-                try:
-                    recon_result= self.reconstruct(scn[4:-4])
-
-                    #return dataforsave, dataforvm, processed_frame
-                    data_for_model = recon_result
-                    data_for_calib = None
-                    data_for_exam = recon_result
-                    
-                    return 'recon', data_for_model, data_for_exam
                 
-                except Exception as error:
-                    return 'exception', {'type': 'recon', 'success': False, 'error': str(error)}, None, None
+                recon_result= self.reconstruct(scn[4:-4])
 
+                #return dataforsave, dataforvm, processed_frame
+                data_for_model = recon_result
+                data_for_calib = None
+                data_for_exam = recon_result
+                
+                return 'recon', data_for_model, data_for_exam
+                
+    
             
             case 'reg:pelvis:bgn' | 'reg:regcup:bgn' | 'reg:regtri:bgn':
                 
