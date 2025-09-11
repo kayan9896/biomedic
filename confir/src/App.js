@@ -10,6 +10,7 @@ import L8 from './L8/L8';
 import L10 from './L10/L10';
 import L11 from './L11/L11';
 import L13 from './L13/L13';
+import ReconnectionPage from './L13/ReconnectionPage';
 import L12 from './L12/L12';
 import L14 from './L14/L14';
 import L9 from './L9/L9';
@@ -20,14 +21,6 @@ import L20 from './L20/L20';
 import L19 from './L19/L19';
 import html2canvas from 'html2canvas';
 import L21 from './L21/L21';
-
-import leftTemplate from './L21/template-l.json';
-import rightTemplate from './L21/template-r.json';
-import leftCupTemplate from './L21/cuptemplate-l.json';
-import rightCupTemplate from './L21/cuptemplate-r.json';
-import leftTriTemplate from './L21/tritemplate-l.json';
-import rightTriTemplate from './L21/tritemplate-r.json';
-import ReconnectionPage from './L13/ReconnectionPage';
 import L17 from './L17/L17';
 import KB from './KB';
 import L18 from './L18/L18';
@@ -113,6 +106,7 @@ function App() {
   const [usedOB, setUsedOB] = useState(null)
 
   const [selectCup, setSelectCup] = useState(true)
+  const [templates, setTemplates] = useState(null)
 
   const [resetWarning, setResetWarning] = useState(false);
   const [showReconnectionPage, setShowReconnectionPage] = useState(false);
@@ -150,32 +144,16 @@ function App() {
       return side === 'AP' ? require('./Instruction/TrialAPInstruction.png') : require('./Instruction/TrialOBInstruction.png')
     }
   }
-
-  function scalePoints(templateData, scaleFactor) {
-    const scaledData = JSON.parse(JSON.stringify(templateData)); // Create a deep copy of the data
-  
-    // Function to scale a single point
-    const scalePoint = (point) => point.map(coord => coord * scaleFactor);
-    console.log(Object.keys(scaledData))
-    // Loop through the groups and scale points
-    Object.keys(scaledData).forEach(groupKey => {
-        scaledData[groupKey].forEach(item => {
-            item.points = item.points.map(scalePoint); // Scale each point
-        });
-    });
-  
-    return scaledData;
-  }
   
   const getTemplate = (stage, pelvis, scaleFactor = 960 / 1024)=> {
     if (stage === 0 || stage === 1){
-      return pelvis === 'l' ? scalePoints(leftTemplate, scaleFactor) : scalePoints(rightTemplate, scaleFactor);
+      return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[0])) : JSON.parse(JSON.stringify(templates[1]));
     }
     if (stage === 2){
-      return pelvis === 'l' ? scalePoints(leftCupTemplate, scaleFactor) : scalePoints(rightCupTemplate, scaleFactor);
+      return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[2])) : JSON.parse(JSON.stringify(templates[3]));
     }
     if (stage === 3){
-      return pelvis === 'l' ? scalePoints(leftTriTemplate, scaleFactor) : scalePoints(rightTriTemplate, scaleFactor);
+      return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[4])) : JSON.parse(JSON.stringify(templates[5]));
     }
     return
   }
@@ -520,6 +498,8 @@ function App() {
       });
 
       if (!response.ok) throw new Error('Connection failed');
+      const data = await response.json()
+      setTemplates(data.templates)
       setIsConnected(true);
     } catch (err) {
       setError('Error connecting to device: ' + err.message);

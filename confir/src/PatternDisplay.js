@@ -181,7 +181,6 @@ const PatternDisplay = ({ group, fulldata, isLeftSquare, imageUrl, editing, filt
             editing&&<PatternGroupManager
               patterns={currentMetadata}
               onPatternsUpdate={handleMultiplePatternsUpdate}
-              handle={currentMetadata[0]['handle']}
               group={group}
               setActiveGroupSegment={setActiveGroupSegment}
             />
@@ -205,8 +204,8 @@ const PatternDisplay = ({ group, fulldata, isLeftSquare, imageUrl, editing, filt
 };
 
 // New component for managing groups of selected patterns
-const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group, setActiveGroupSegment }) => {
-  const [controlPoint, setControlPoint] = useState(handle);
+const PatternGroupManager = ({ patterns, onPatternsUpdate, group, setActiveGroupSegment }) => {
+  const [controlPoint, setControlPoint] = useState(patterns[0]['handle']);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
   const [initialPatterns, setInitialPatterns] = useState([]);
@@ -214,6 +213,7 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group, setAct
 
   useEffect(() => {
     setInitialPatterns(patterns);
+    setControlPoint(patterns[0]['handle'])
   }, [patterns]);
 
   useEffect(() => {

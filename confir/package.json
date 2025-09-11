@@ -1,6 +1,6 @@
 {
   "name": "confir",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "dependencies": {
     "@fontsource/abel": "^5.1.1",
@@ -58,6 +58,10 @@
       {
         "from": "../config.json",
         "to": "../config.json"
+      },
+      {
+        "from": "../templates",
+        "to": "../templates"
       }
     ],
     "directories": {

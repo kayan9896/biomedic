@@ -147,8 +147,8 @@ def start_processing():
         result = controller.start_processing()
         if not result:
             return jsonify({"error": "Processing is already running"}), 400
-        
-        return jsonify({"message": f"Started processing on device"})
+        templates = controller.load()
+        return jsonify({"message": f"Started processing on device", "templates": templates})
 
 @app.route('/api/states')
 def get_states():

@@ -387,6 +387,15 @@ class Controller:
         self.process_thread.start()
         self.logger.info("Started image processing")
         return True
+    
+    def load(self):
+        rt = []
+        fl = ['template-l.json', 'template-r.json', 'cuptemplate-l.json', 'cuptemplate-r.json', 'tritemplate-l.json', 'tritemplate-r.json']
+        for fn in fl:
+            with open(f'./templates/{fn}', 'r') as f:
+                metadata = json.load(f)
+            rt.append(self.backend_to_frontend_coords(metadata))
+        return rt
 
     def _process_loop(self):
 

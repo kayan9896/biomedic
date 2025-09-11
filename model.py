@@ -369,18 +369,20 @@ class Model:
         section = data['section']
     
         if analysis_type == 'frame':
-            section_type = section[-2:]  # ap, ob
-            # reset the 'ob' view if 'ap' image is repeated:
-            if section_type == 'ap':
-                tmp = section[:-2] + 'ob'
-                self.data[tmp] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
-                self.data[tmp]['side'] = self.data[section]['side']
-
-            self.data[section]['image'] = data['processed_frame']
-            self.data[section]['framedata'] = data
-            self.data[section]['success'] = data['analysis_success']
-            self.data[section]['side'] = data['side']
+            if data['analysis_error_code'] not in {'110', '111', '112', '113'}:
+                section_type = section[-2:]  # ap, ob
+                # reset the 'ob' view if 'ap' image is repeated:
+                if section_type == 'ap':
+                    tmp = section[:-2] + 'ob'
+                    self.data[tmp] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
+                    self.data[tmp]['side'] = self.data[section]['side']
+                
+                self.data[section]['image'] = data['processed_frame']
+                self.data[section]['framedata'] = data
+                self.data[section]['success'] = data['analysis_success']
+                self.data[section]['side'] = data['side']
             self.data[section]['error_code'] = data['analysis_error_code']
+            
 
         if analysis_type == 'recon':
             if section == 'hmplv1':
@@ -573,7 +575,7 @@ class Model:
                         scn = ('rcn:' + frm.rcn + ':bgn')
             uistates = None
         else:
-            if self.data[frm.ap]['success'] and self.data[frm.ob]['success']:
+            if self.data[frm.ap]['success'] and self.data[frm.ob]['success'] and (('ap' in scn and self.data[frm.ap]['error_code'] == None) or ('ob' in scn and self.data[frm.ob]['error_code'] == None)):
                 scn = ('rcn:' + frm.rcn + ':bgn')
             else:
                 if frame_not_none:

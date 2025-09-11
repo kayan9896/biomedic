@@ -1,0 +1,11 @@
+{
+    "section": "regtri",
+    "analysis_success": true,
+    "analysis_error_code": null,
+    "regresult": null,
+    "measurements": {
+        "LLD": "3mm",
+        "Offset": "5mm"
+    },
+    "RegIndex": 3
+}
