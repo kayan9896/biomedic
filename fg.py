@@ -9,7 +9,7 @@ from datetime import datetime
 import pythoncom
 
 class FrameGrabber:
-    def __init__(self, panel, calib = None, fg_simulation = False):
+    def __init__(self, panel, calib = None, fg_simulation = False, logger = None):
         self.device_name: str = ""
         self.device_index: int = -1
         self.capture = None
@@ -29,8 +29,7 @@ class FrameGrabber:
         self.last_frame = None
         self.frame_lock = threading.Lock()
         
-        self.logger = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
+        self.logger = logger
 
     def get_available_devices(self) -> Dict[str, int]:
         """

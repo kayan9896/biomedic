@@ -5,7 +5,7 @@ import cv2
 import base64
 
 class ViewModel:
-    def __init__(self, calib = None):
+    def __init__(self, calib = None,  bugs = None, logger = None):
         self.states = {
             "C-arm Model": "ATEC>OEC9902 E9-0284",
             "active_side": None,
@@ -41,84 +41,91 @@ class ViewModel:
             "video_on": None
         }
         self.reset()
+        self.bugs = bugs
+        self.logger = logger
         
     def reset(self):
         self.imgs = [{'image': None, 'metadata': None, 'checkmark': None, 'recon': None, 'error': None, 'next': False, 'measurements': None, 'side': None} for i in range(2)]
 
     def update(self, analysis_type, data_for_model):
-        # Assuming dataforvm contains metadata
-        image = None
-        dataforvm = {}
-        if analysis_type == 'frame':
-            if data_for_model['analysis_error_code'] is None:
-                image = data_for_model['processed_frame']
-                dataforvm['metadata'] = data_for_model['landmarks']
-                dataforvm['checkmark'] = 1 if self.states['ai_mode'] == 1 else None
-                dataforvm['recon'] = None
-                dataforvm['error'] = None
-                dataforvm['measurements'] = None
-                dataforvm['next'] = False
-                dataforvm['side'] = data_for_model['side']
-            if data_for_model['analysis_error_code'] == '115':
-                image = data_for_model['processed_frame']
-                dataforvm['metadata'] = None
-                dataforvm['checkmark'] = None
-                dataforvm['recon'] = None
-                dataforvm['error'] = data_for_model['analysis_error_code']
-                dataforvm['measurements'] = None
-                dataforvm['next'] = False
-                dataforvm['side'] = data_for_model['side']
-            if data_for_model['analysis_error_code'] in {'110', '111', '112', '113'}:
-                image = data_for_model['processed_frame']
-                dataforvm['error'] = 'glyph' if data_for_model['analysis_error_code'] == '110' else 'ref'
-            if data_for_model['analysis_error_code'] == '114':
-                image = data_for_model['processed_frame']
-                dataforvm['metadata'] = None
-                dataforvm['checkmark'] = 0
-                dataforvm['recon'] = None
-                dataforvm['error'] = data_for_model['analysis_error_code']
-                dataforvm['measurements'] = None
-                dataforvm['next'] = False
-                dataforvm['side'] = data_for_model['side']
+        try:
+            # Assuming dataforvm contains metadata
+            image = None
+            dataforvm = {}
+            if analysis_type == 'frame':
+                if data_for_model['analysis_error_code'] is None:
+                    image = data_for_model['processed_frame']
+                    dataforvm['metadata'] = data_for_model['landmarks']
+                    dataforvm['checkmark'] = 1 if self.states['ai_mode'] == 1 else None
+                    dataforvm['recon'] = None
+                    dataforvm['error'] = None
+                    dataforvm['measurements'] = None
+                    dataforvm['next'] = False
+                    dataforvm['side'] = data_for_model['side']
+                if data_for_model['analysis_error_code'] == '115':
+                    image = data_for_model['processed_frame']
+                    dataforvm['metadata'] = None
+                    dataforvm['checkmark'] = None
+                    dataforvm['recon'] = None
+                    dataforvm['error'] = data_for_model['analysis_error_code']
+                    dataforvm['measurements'] = None
+                    dataforvm['next'] = False
+                    dataforvm['side'] = data_for_model['side']
+                if data_for_model['analysis_error_code'] in {'110', '111', '112', '113'}:
+                    image = data_for_model['processed_frame']
+                    dataforvm['error'] = 'glyph' if data_for_model['analysis_error_code'] == '110' else 'ref'
+                if data_for_model['analysis_error_code'] == '114':
+                    image = data_for_model['processed_frame']
+                    dataforvm['metadata'] = None
+                    dataforvm['checkmark'] = 0
+                    dataforvm['recon'] = None
+                    dataforvm['error'] = data_for_model['analysis_error_code']
+                    dataforvm['measurements'] = None
+                    dataforvm['next'] = False
+                    dataforvm['side'] = data_for_model['side']
 
-        if analysis_type == 'recon':
-            if data_for_model['analysis_error_code'] is None:
-                dataforvm['recon'] = 2
-                dataforvm['error'] = None
-                dataforvm['measurements'] = None
-                dataforvm['next'] = True if self.states['stage'] == 0 else False
-            else:
-                dataforvm['recon'] = 3
-                dataforvm['error'] = data_for_model['analysis_error_code']
-                dataforvm['measurements'] = None
-                dataforvm['next'] = False
+            if analysis_type == 'recon':
+                if data_for_model['analysis_error_code'] is None:
+                    dataforvm['recon'] = 2
+                    dataforvm['error'] = None
+                    dataforvm['measurements'] = None
+                    dataforvm['next'] = True if self.states['stage'] == 0 else False
+                else:
+                    dataforvm['recon'] = 3
+                    dataforvm['error'] = data_for_model['analysis_error_code']
+                    dataforvm['measurements'] = None
+                    dataforvm['next'] = False
 
-        if analysis_type == 'reg':
-            if data_for_model['analysis_error_code'] is None:
-                dataforvm['recon'] = 2
-                dataforvm['error'] = None
-                dataforvm['measurements'] = data_for_model['measurements']
-                dataforvm['next'] = True 
+            if analysis_type == 'reg':
+                if data_for_model['analysis_error_code'] is None:
+                    dataforvm['recon'] = 2
+                    dataforvm['error'] = None
+                    dataforvm['measurements'] = data_for_model['measurements']
+                    dataforvm['next'] = True 
+                else:
+                    dataforvm['recon'] = 2
+                    dataforvm['error'] = data_for_model['analysis_error_code']
+                    dataforvm['measurements'] = None
+                    dataforvm['next'] = False
+            
+            if self.states['active_side'] == 'ap':
+                if image is not None: self.imgs[0]['image'] = image
+                if 'jump' in self.imgs[0]: self.imgs[0].pop('jump')
+                for i in dataforvm:
+                    self.imgs[0][i] = dataforvm[i]
+                self.imgs[1]['recon'] = self.imgs[0]['recon']
             else:
-                dataforvm['recon'] = 2
-                dataforvm['error'] = data_for_model['analysis_error_code']
-                dataforvm['measurements'] = None
-                dataforvm['next'] = False
-        
-        if self.states['active_side'] == 'ap':
-            if image is not None: self.imgs[0]['image'] = image
-            if 'jump' in self.imgs[0]: self.imgs[0].pop('jump')
-            for i in dataforvm:
-                self.imgs[0][i] = dataforvm[i]
-            self.imgs[1]['recon'] = self.imgs[0]['recon']
-        else:
-            if image is not None: self.imgs[1]['image'] = image
-            if 'jump' in self.imgs[1]: self.imgs[1].pop('jump')
-            for i in dataforvm:
-                self.imgs[1][i] = dataforvm[i]
-            self.imgs[0]['recon'] = self.imgs[1]['recon']
-        
-        self.update_img_count()
+                if image is not None: self.imgs[1]['image'] = image
+                if 'jump' in self.imgs[1]: self.imgs[1].pop('jump')
+                for i in dataforvm:
+                    self.imgs[1][i] = dataforvm[i]
+                self.imgs[0]['recon'] = self.imgs[1]['recon']
+            
+            self.update_img_count()
+        except Exception as e:
+            self.bugs[0] = str(e)
+            self.logger.error(f'Exception in {self.__class__.__name__}: {str(e)}')
+            self.bugs.append(str(e))
 
     def update_img_count(self):
         """Update img_count cycling from 0 to 4"""

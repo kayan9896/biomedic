@@ -1,0 +1,239 @@
+{
+    "section": "acecup",
+    "shot_1": {
+        "section": "cup-ap",
+        "analysis_success": true,
+        "analysis_error_code": null,
+        "side": "l",
+        "imuangles": [
+            null,
+            null,
+            null,
+            null
+        ],
+        "landmarks": {
+            "pelvis": [
+                {
+                    "handle": [
+                        811,
+                        578
+                    ],
+                    "points": [
+                        [
+                            712,
+                            309
+                        ],
+                        [
+                            716,
+                            416
+                        ],
+                        [
+                            742,
+                            505
+                        ],
+                        [
+                            811,
+                            618
+                        ],
+                        [
+                            894,
+                            704
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "D55E00"
+                },
+                {
+                    "points": [
+                        [
+                            854,
+                            773
+                        ],
+                        [
+                            757,
+                            825
+                        ],
+                        [
+                            704,
+                            768
+                        ],
+                        [
+                            722,
+                            677
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "56B4E9"
+                },
+                {
+                    "points": [
+                        [
+                            746,
+                            576
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "CC79A7"
+                }
+            ],
+            "femur": [
+                {
+                    "handle": [
+                        468,
+                        427
+                    ],
+                    "points": [
+                        [
+                            468,
+                            467
+                        ],
+                        [
+                            593,
+                            538
+                        ],
+                        [
+                            682,
+                            675
+                        ],
+                        [
+                            637,
+                            441
+                        ]
+                    ],
+                    "type": "ellipse",
+                    "colour": "F0E442"
+                }
+            ]
+        },
+        "analysis_parameters": {
+            "extract_distortion": false,
+            "correct_distortion": false,
+            "extract_glyph": false,
+            "extract_tracking": false,
+            "extract_camcalib": false,
+            "ai_mode": true
+        },
+        "framecalib": {},
+        "ShotIndex": 4
+    },
+    "shot_2": {
+        "section": "cup-ob",
+        "analysis_success": true,
+        "analysis_error_code": null,
+        "side": "l",
+        "imuangles": [
+            null,
+            null,
+            null,
+            null
+        ],
+        "landmarks": {
+            "pelvis": [
+                {
+                    "handle": [
+                        811,
+                        578
+                    ],
+                    "points": [
+                        [
+                            712,
+                            309
+                        ],
+                        [
+                            716,
+                            416
+                        ],
+                        [
+                            742,
+                            505
+                        ],
+                        [
+                            811,
+                            618
+                        ],
+                        [
+                            894,
+                            704
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "D55E00"
+                },
+                {
+                    "points": [
+                        [
+                            854,
+                            773
+                        ],
+                        [
+                            757,
+                            825
+                        ],
+                        [
+                            704,
+                            768
+                        ],
+                        [
+                            722,
+                            677
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "56B4E9"
+                },
+                {
+                    "points": [
+                        [
+                            746,
+                            576
+                        ]
+                    ],
+                    "type": "lines",
+                    "colour": "CC79A7"
+                }
+            ],
+            "femur": [
+                {
+                    "handle": [
+                        468,
+                        427
+                    ],
+                    "points": [
+                        [
+                            468,
+                            467
+                        ],
+                        [
+                            593,
+                            538
+                        ],
+                        [
+                            682,
+                            675
+                        ],
+                        [
+                            637,
+                            441
+                        ]
+                    ],
+                    "type": "ellipse",
+                    "colour": "F0E442"
+                }
+            ]
+        },
+        "analysis_parameters": {
+            "extract_distortion": false,
+            "correct_distortion": false,
+            "extract_glyph": false,
+            "extract_tracking": false,
+            "extract_camcalib": false,
+            "ai_mode": true
+        },
+        "framecalib": {},
+        "ShotIndex": 5
+    },
+    "analysis_success": true,
+    "analysis_error_code": null,
+    "recondata": 1,
+    "ReconIndex": 2
+}

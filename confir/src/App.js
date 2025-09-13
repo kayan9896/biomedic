@@ -58,6 +58,8 @@ function App() {
   const [errImage, setErrImage] = useState(null);
   const [error, setError] = useState(null);
   const [generalError, setGeneralError] = useState(null);
+  const [bugs, setBugs] = useState([])
+  const [fullBugs, setFullBugs] = useState(false)
 
   const [leftImageMetadata, setLeftImageMetadata] = useState(null);
   const [rightImageMetadata, setRightImageMetadata] = useState(null);
@@ -249,6 +251,7 @@ function App() {
     const fetchStates = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/states');
+        if(!response.ok) throw new Error('Error connecting to server')
         const data = await response.json();
 
         setCarmModel(data['C-arm Model'])
@@ -283,6 +286,7 @@ function App() {
         setApr(data.apr)
         setScale(data.scale)
         setScn(data.scn)
+        setBugs(data.bugs)
         if(data.unexpected_error){
           setGeneralError(`Backend Loop Error.`)
           setGe(true)
@@ -297,11 +301,12 @@ function App() {
           setMeasurements(data.measurements);
         }
         if(error === "Error connecting to server") setGe(false)
-        console.log(capturing)
-      } catch (error) {
-        console.error('Error fetching states:', error);
-        setError("Error connecting to server");
-        setGe(true)
+      } catch (e) {
+        console.error('Error fetching states:', e);
+        if(generalError !== "Error connecting to server"){
+          setGeneralError("Error connecting to server");
+          setGe(true)
+        }
       }
     };
 
@@ -482,7 +487,9 @@ function App() {
         capturing.current = false
     } catch (error) {
         console.error('Error fetching image:', error);
-        setError("Error updating images");
+        setGeneralError(null)
+        setError('Backend API error')
+        setGe(true)
         capturing.current = false
     }
   };
@@ -502,7 +509,10 @@ function App() {
       setTemplates(data.templates)
       setIsConnected(true);
     } catch (err) {
-      setError('Error connecting to device: ' + err.message);
+      console.log('Error connecting to device: ' + err.message);
+      setGeneralError(null)
+      setError('Backend API error')
+      setGe(true)
     }
   };
   const handlepause = async (num) => {
@@ -552,21 +562,27 @@ function App() {
       });
     } catch (error) {
       console.error('Error going next:', error);
-      setError("Failed to change backend uistate");
+      setGeneralError(null)
+      setError('Backend API error')
+      setGe(true)
     }
   };
 
   const handlLabelClick = async (label) => {
     try {
-      await fetch('http://localhost:5000/label', {
+      const response = await fetch('http://localhost:5000/label', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({'label': label})
       });
+      if (!response.ok) throw new Error('Switch label failed');
     } catch (error) {
-      setError("Failed to change active side");
+      console.log(error)
+      setGeneralError(null)
+      setError('Backend API error')
+      setGe(true)
     }
   };
 
@@ -603,32 +619,34 @@ function App() {
     setRatio('')
     setComment('')
     try {
-      await fetch('http://localhost:5000/restart', {
+      const response = await fetch('http://localhost:5000/restart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         }
       });
+      if (!response.ok) throw new Error('Restart failed');
     } catch (error) {
       console.error('Error restart:', error);
-      setError("Failed to change backend uistate restart");
+      setGeneralError(null)
+      setError('Backend API error')
+      setGe(true)
     }
   };
 
   useEffect(() => {
     const setEditUIState = async () => {
       try {
-        await fetch('http://localhost:5000/edit', {
+        const response = await fetch('http://localhost:5000/edit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({'uistates': editing || showCarm || pause || showglyph || report || showKeyboard ? 'edit' : null})
         });
-        //setError(null)
+        if (!response.ok) throw new Error('Set uistate failed');
       } catch (error) {
         console.error('Error setting edit UI state:', error);
-        setError("Failed to set UIState");
       }
     };
   
@@ -674,7 +692,7 @@ function App() {
       const rightData = rightImageMetadata ? rightSaveRefs.current?.getCurrentMetadata() : null;
 
       // Send to backend
-      await fetch('http://localhost:5000/landmarks', {
+      const response = await fetch('http://localhost:5000/landmarks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -689,7 +707,7 @@ function App() {
           contrast: contrast
         }),
       });
-
+      if (!response.ok) throw new Error('Set landmarks failed');
       // Update saved metadata for all groups
       leftSaveRefs.current?.updateSavedMetadata?.();
       rightSaveRefs.current?.updateSavedMetadata?.();
@@ -702,7 +720,9 @@ function App() {
       //capturing.current = false
     } catch (error) {
       console.error('Error saving landmarks:', error);
-      setError("Failed to save landmarks");
+      setGeneralError(null)
+      setError('Backend API error')
+      setGe(true)
       capturing.current = false
     }
   };
@@ -768,14 +788,18 @@ function App() {
         capturing.current = false
       } catch (err) {
         capturing.current = false
-        alert(err.message);
+        setGeneralError(null)
+        setError('Backend API error')
+        setGe(true)
       }
       }, 'image/png');
       capturing.current = false
     } catch (err) {
       capturing.current = false
       console.error('Error capturing and saving frame:', err);
-      alert('Error saving image with overlays: ' + err.message);
+      setGeneralError(null)
+      setError('Backend API error')
+      setGe(true)
     }
   };
 
@@ -858,6 +882,15 @@ function App() {
   return (
     <div className="app">
       <div style={{position:'absolute',zIndex:2000,top:'0px',color:'yellow'}}>{scn},{stage}</div>
+      <div style={{position:'absolute',zIndex:2000,top:'20px',color:'yellow'}} onClick={() => {setFullBugs(!fullBugs)}}>Exceptions:
+        {fullBugs ? ((bugs.length > 0 ? (
+          <div>
+            {bugs.map((bug, i) => {
+              return <div index={i}>{bug}</div>
+            })}
+          </div>) : 'None')
+        ) : bugs.length}
+      </div>
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}

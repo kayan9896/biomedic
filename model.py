@@ -32,7 +32,7 @@ class Reg:
         self.next_ob = None
 
 class Model:
-    def __init__(self, ai_mode = True, on_simulation = False, calib = None, distortion = None , gantry = None):
+    def __init__(self, ai_mode = True, on_simulation = False, calib = None, distortion = None , gantry = None, bugs = None, logger = None):
 
         self.calib = None
         if calib is not None:
@@ -59,6 +59,8 @@ class Model:
         self.sim_data = None
         self.patient_data = None
         self.angles = None
+        self.bugs = bugs
+        self.logger = logger
 
         self._lock = threading.Lock()
         self._stitch_thread = None
@@ -366,41 +368,46 @@ class Model:
         return reg_result
 
     def update(self, analysis_type, data):
-        section = data['section']
-    
-        if analysis_type == 'frame':
-            if data['analysis_error_code'] not in {'110', '111', '112', '113'}:
-                section_type = section[-2:]  # ap, ob
-                # reset the 'ob' view if 'ap' image is repeated:
-                if section_type == 'ap':
-                    tmp = section[:-2] + 'ob'
-                    self.data[tmp] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
-                    self.data[tmp]['side'] = self.data[section]['side']
+        try:
+            sectio = data['section']
+        
+            if analysis_type == 'frame':
+                if data['analysis_error_code'] not in {'110', '111', '112', '113'}:
+                    section_type = section[-2:]  # ap, ob
+                    # reset the 'ob' view if 'ap' image is repeated:
+                    if section_type == 'ap':
+                        tmp = section[:-2] + 'ob'
+                        self.data[tmp] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
+                        self.data[tmp]['side'] = self.data[section]['side']
+                    
+                    self.data[section]['image'] = data['processed_frame']
+                    self.data[section]['framedata'] = data
+                    self.data[section]['success'] = data['analysis_success']
+                    self.data[section]['side'] = data['side']
+                self.data[section]['error_code'] = data['analysis_error_code']
                 
-                self.data[section]['image'] = data['processed_frame']
-                self.data[section]['framedata'] = data
+
+            if analysis_type == 'recon':
+                if section == 'hmplv1':
+                    self.data['hp2-ap']['side'] = 'l' if self.data['hp1-ap']['side'] == 'r' else 'r'
+                    self.data['hp2-ob']['side'] = self.data['hp2-ap']['side']
+                if section == 'acecup':
+                    self.data['tri-ap']['side'] = self.data['cup-ap']['side']
+                    self.data['tri-ob']['side'] = self.data['tri-ap']['side']
                 self.data[section]['success'] = data['analysis_success']
-                self.data[section]['side'] = data['side']
-            self.data[section]['error_code'] = data['analysis_error_code']
-            
+                self.data[section]['metadata'] = data['recondata']
+                self.data[section]['error_code'] = data['analysis_error_code']
+                if 'imuangles' in data['shot_1'] and 'imuangles' in data['shot_2']: self.angles = [data['shot_1']['imuangles'][0], data['shot_1']['imuangles'][1], data['shot_2']['imuangles'][1]]
 
-        if analysis_type == 'recon':
-            if section == 'hmplv1':
-                self.data['hp2-ap']['side'] = 'l' if self.data['hp1-ap']['side'] == 'r' else 'r'
-                self.data['hp2-ob']['side'] = self.data['hp2-ap']['side']
-            if section == 'acecup':
-                self.data['tri-ap']['side'] = self.data['cup-ap']['side']
-                self.data['tri-ob']['side'] = self.data['tri-ap']['side']
-            self.data[section]['success'] = data['analysis_success']
-            self.data[section]['metadata'] = data['recondata']
-            self.data[section]['error_code'] = data['analysis_error_code']
-            if 'imuangles' in data['shot_1'] and 'imuangles' in data['shot_2']: self.angles = [data['shot_1']['imuangles'][0], data['shot_1']['imuangles'][1], data['shot_2']['imuangles'][1]]
-
-        if analysis_type == 'reg':
-            self.data[section]['metadata'] = data['regresult']
-            self.data[section]['success'] = data['analysis_success']
-            self.data[section]['error_code'] = data['analysis_error_code']
-            self.data[section]['stitch'] = data['stitched_image']
+            if analysis_type == 'reg':
+                self.data[section]['metadata'] = data['regresult']
+                self.data[section]['success'] = data['analysis_success']
+                self.data[section]['error_code'] = data['analysis_error_code']
+                self.data[section]['stitch'] = data['stitched_image']
+        except Exception as e:
+            self.bugs[0] = str(e)
+            self.bugs.append(str(e))
+            self.logger.error(f'Exception in {self.__class__.__name__}: {str(e)}')
 
 
     def exec(self, scn, frame=None, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
@@ -535,20 +542,25 @@ class Model:
         return reg
 
     def copy_stage_data(self, source_stage, target_stage):
+        try:
 
-        source_ap = (source_stage + '-ap')
-        source_ob = (source_stage + '-ob')
-        target_ap = (target_stage + '-ap')
-        target_ob = (target_stage + '-ob')
+            source_ap = (source_stage + '-ap')
+            source_ob = (source_stage + '-ob')
+            target_ap = (target_stage + '-ap')
+            target_ob = (target_stage + '-ob')
 
-        self.data[target_ap] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
-        self.data[target_ob] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
-        self.data[target_ap]['image'] = self.data[source_ap]['image']
-        self.data[target_ob]['image'] = self.data[source_ob]['image']
-        if self.data['regcup']['success']:
-            self.data[target_ap]['side'] = self.data[source_ap]['side']
-            self.data[target_ob]['side'] = self.data[source_ob]['side']
-        return
+            self.data[target_ap] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
+            self.data[target_ob] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
+            self.data[target_ap]['image'] = self.data[source_ap]['image']
+            self.data[target_ob]['image'] = self.data[source_ob]['image']
+            if self.data['regcup']['success']:
+                self.data[target_ap]['side'] = self.data[source_ap]['side']
+                self.data[target_ob]['side'] = self.data[source_ob]['side']
+            return
+        except Exception as e:
+            self.bugs[0] = str(e)
+            self.bugs.append(str(e))
+            self.logger.error(f'Exception in {self.__class__.__name__}: {str(e)}')
 
     def set_success_to_none(self, stage):
         self.data[stage]['success'] = None
@@ -710,27 +722,35 @@ class Model:
 
 
     def eval_modelscnario(self, frame, scn, active_side, uistates):
-        frame_not_none = frame is not None
-        action = None
-        match scn:
-            case 'init':
-                if frame is not None:
-                    if active_side == 'ap':
-                        scn = 'frm:hp1-ap:bgn'
-                    if active_side == 'ob':
-                        scn = 'frm:hp1-ob:bgn'
-                else: scn = 'init'
+        try:
+            frame_not_none = frame is not None
+            actio = None
+            match scn:
+                case 'init':
+                    if frame is not None:
+                        if active_side == 'ap':
+                            scn = 'frm:hp1-ap:bgn'
+                        if active_side == 'ob':
+                            scn = 'frm:hp1-ob:bgn'
+                    else: scn = 'init'
 
-            case 'frm:hp1-ap:end' | 'frm:hp1-ob:end' | 'frm:hp2-ap:end' | 'frm:hp2-ob:end' | 'frm:cup-ap:end' | 'frm:cup-ob:end' | 'frm:tri-ap:end' | 'frm:tri-ob:end':
-                uistates, scn, action = self.__eval_frm_scn__(scn, active_side, frame_not_none, uistates)
+                case 'frm:hp1-ap:end' | 'frm:hp1-ob:end' | 'frm:hp2-ap:end' | 'frm:hp2-ob:end' | 'frm:cup-ap:end' | 'frm:cup-ob:end' | 'frm:tri-ap:end' | 'frm:tri-ob:end':
+                    uistates, scn, action = self.__eval_frm_scn__(scn, active_side, frame_not_none, uistates)
 
-            case 'rcn:hmplv1:end' | 'rcn:hmplv2:end' | 'rcn:acecup:end' | 'rcn:tothip:end':
-                uistates, scn, action = self.__eval_rcn_scn__(scn, active_side, frame_not_none, uistates)
+                case 'rcn:hmplv1:end' | 'rcn:hmplv2:end' | 'rcn:acecup:end' | 'rcn:tothip:end':
+                    uistates, scn, action = self.__eval_rcn_scn__(scn, active_side, frame_not_none, uistates)
 
-            case 'reg:pelvis:end' | 'reg:regcup:end' | 'reg:regtri:end':
-                uistates, scn, action = self.__eval_reg_scn__(scn, active_side, frame_not_none, uistates)
+                case 'reg:pelvis:end' | 'reg:regcup:end' | 'reg:regtri:end':
+                    uistates, scn, action = self.__eval_reg_scn__(scn, active_side, frame_not_none, uistates)
 
-        return scn, uistates, action
+            return scn, uistates, action
+        except Exception as e:
+            errname = 'eval_modelscnario: ' + str(e)
+            if errname != self.bugs[-1]:
+                self.bugs[0] = str(e)
+                self.bugs.append(errname)
+                self.logger.error(f'Exception in {self.__class__.__name__}: {errname}')
+            return scn, None, None
 
     def get_model_states(self):
         return {'progress': self.progress}

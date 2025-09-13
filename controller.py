@@ -18,10 +18,10 @@ from exam import Exam
 import base64
 
 class Controller:
-    def __init__(self, config = None, calib = None,  panel = None):
+    def __init__(self, config = None, calib = None,  panel = None, logger = None):
         self.calib = calib
         self.config = config
-        self.frame_grabber = FrameGrabber(panel, self.calib["FrameGrabber"], self.config.get("fg_simulation", False))
+        self.frame_grabber = FrameGrabber(panel, self.calib["FrameGrabber"], self.config.get("fg_simulation", False), logger)
 
         self.is_running = False
         self.process_thread = None
@@ -41,19 +41,20 @@ class Controller:
         self.scn = 'init'
         self.jumpped = False
         self.lockside = False
-        self.unexpected_error = None
+        #self.unexpected_error = None
+        self.bugs = [None]
 
-        self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"])
+        self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"], self.bugs, logger)
         
         
-        self.viewmodel = ViewModel(config)
-        self.exam = Exam(self.calib['folder'])
+        self.viewmodel = ViewModel(config, self.bugs, logger)
+        self.exam = Exam(self.calib['folder'], self.bugs, logger)
         self.pause_states= None
         self.uistates = None
         self.do_capture = False
         self.check_interval = 0.1
         
-        self.logger = self.frame_grabber.logger
+        self.logger = logger
         self.imu_handler = None
         self.imu_sensor = None
         
@@ -79,8 +80,8 @@ class Controller:
             self.imu_sensor.handler = self.imu_handler
 
     def get_controller_states(self):
-        tmp = str(self.unexpected_error) if self.unexpected_error else None
-        self.unexpected_error = None
+        tmp = self.bugs[0] if self.bugs[0] else None
+        self.bugs[0] = None
         return{
             'is_processing': self.is_processing,
             'ai_mode' : self.ai_mode,
@@ -89,7 +90,8 @@ class Controller:
             'stage': self.stage,
             'scn': self.scn,
             'tracking': self.tracking,
-            'unexpected_error': tmp
+            'unexpected_error': tmp,
+            'bugs': self.bugs[1:]
         }
 
     def get_states(self):
@@ -424,7 +426,13 @@ class Controller:
                                 self.model.set_success_to_none(action[1])
 
                             case 'set_imu_setcupreg':
-                                if self.tracking: self.imu_handler.set_cupreg()
+                                try:
+                                    if self.tracking: self.imu_handler.set_cupreg()
+                                except Exception as e:
+                                    self.bugs[0] = str(e)
+                                    self.bugs.append(str(e))
+                                    self.logger.error(self.bugs[0])
+
                     if self.jumpped:
                         self.jumpped = False
                         continue
@@ -455,14 +463,22 @@ class Controller:
             except Exception as e:
                 self.is_processing = False
                 self.is_running = False
-                self.unexpected_error = e
-                print(self.unexpected_error)
+                self.bugs[0] = str(e)
+                self.bugs.append(str(e))
+                self.logger.error(self.bugs[0])
 
     def update_backendstates(self):
-        if not self.frame_grabber._is_new_frame_available:
+        try:
+            if not self.frame_grabber._is_new_frame_available:
+                return None
+            f = self.frame_grabber.fetchFrame()
+            return f if not self.is_processing else None
+        except Exception as e:
+            self.bugs[0] = str(e)
+            self.bugs.append(str(e))
+            self.logger.error(self.bugs[0])
             return None
-        f = self.frame_grabber.fetchFrame()
-        return f if not self.is_processing else None
+
 
     def patient(self, data):
         self.model.patient_data = data

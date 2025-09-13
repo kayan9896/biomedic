@@ -11,7 +11,7 @@ from imu2 import IMU_handler
 import json
 
 class Panel:
-    def __init__(self, config=None):
+    def __init__(self, config=None, logger = None):
         self.controller = None
         self.tilt_angle = 0
         self.rotation_angle = 0
@@ -51,6 +51,7 @@ class Panel:
         self.gui_thread = threading.Thread(target=self._run_gui)
         self.gui_thread.daemon = True
         self.gui_thread.start()
+        self.logger = logger
     
     def _run_gui(self):
         """Run the GUI in its own thread"""
@@ -257,7 +258,7 @@ class Panel:
         except Exception as e:
             print(f"Fail to bypass: {str(e)}")
         if self.controller is None:    
-            self.controller = Controller(self.config, select, self) 
+            self.controller = Controller(self.config, select, self, self.logger) 
             self.controller.start_processing() 
             self.controller.connect_video()
             if select['IMU'].get("imu_on", True): self.controller.imu_sensor.start()

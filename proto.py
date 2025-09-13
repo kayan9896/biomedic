@@ -23,8 +23,10 @@ class Filter(logging.Filter):
     def filter(self, record):  
         return "api/states" not in record.getMessage()
 
+logger = None
 # Configure logging
 def setup_logging():
+    global logger
     # Create logs directory if it doesn't exist
     if not os.path.exists('logs'):
         os.makedirs('logs')
@@ -66,7 +68,7 @@ controller = None
 
 config = ConfigManager()
 calibrate = Calibrate()
-panel = Panel(config) if config.get('on_simulation') else None
+panel = Panel(config, logger) if config.get('on_simulation') else None
 server_lock = threading.Lock()
 
 
@@ -77,6 +79,8 @@ def get_carms():
     """Endpoint to retrieve C-arm data from JSON file"""
     global panel
     global controller
+    global logger
+
     if panel and panel.jumpped:
         controller = panel.controller
         return jsonify({'jump': True})
@@ -84,7 +88,7 @@ def get_carms():
         carm_data = calibrate.get_carms(carm_folder)
         return jsonify(carm_data)
     except Exception as e:
-        print(f"Error fetching C-arm data: {str(e)}")
+        logger.error(f"Error fetching C-arm data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/carm-images/<filename>', methods=['GET'])
@@ -92,6 +96,8 @@ def serve_carm_image(filename):
     """Endpoint to serve C-arm images"""
     global select
     global controller
+    global logger
+
     if controller: 
         controller = None
     try:
@@ -103,7 +109,7 @@ def serve_carm_image(filename):
             'imu_on': select['IMU']['imu_on']
         })
     except Exception as e:
-        print(f"Error serving image {filename}: {str(e)}")
+        logger.error(f"Error serving image {filename}: {str(e)}")
         return jsonify({"error": str(e)}), 404
 
 
@@ -113,10 +119,11 @@ def check_video_connection():
     global controller
     global select
     global panel
-
+    global logger
+    
     with server_lock:
         if controller is None:
-            controller = Controller(config, select, panel)
+            controller = Controller(config, select, panel, logger)
         
         # Get the connection result
         result = controller.connect_video()
@@ -138,45 +145,57 @@ def check_tilt_sensor():
 def start_processing():
     """Start video capture and frame processing"""
     global controller
-    
-    with server_lock:
-        if controller is None:
-            controller = Controller(config)
+    global logger
 
-        # Connect to the video device and start processing
-        result = controller.start_processing()
-        if not result:
-            return jsonify({"error": "Processing is already running"}), 400
-        templates = controller.load()
-        return jsonify({"message": f"Started processing on device", "templates": templates})
+    try:
+        with server_lock:
+            if controller is None:
+                controller = Controller(config)
+
+            # Connect to the video device and start processing
+            result = controller.start_processing()
+            if not result:
+                return jsonify({"error": "Processing is already running"}), 400
+            templates = controller.load()
+            return jsonify({"message": f"Started processing on device", "templates": templates})
+    except Exception as e:
+        logger.error(f"Fail to start controller loop: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/states')
 def get_states():
     global controller
+    global logger
+
     try:
         return jsonify(controller.get_states())
     except Exception as e:
+        logger.error(f"Fail to get states: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/setting', methods=['POST'])
 def set_ai_autocollect_modes():
     global controller
-    if controller is None:
-        controller = Controller()
+    global logger
     
     try:
+        if controller is None:
+            controller = Controller()
         data = request.get_json()
         controller.set_ai_autocollect_modes(data)
 
         return jsonify({'success': True})
     except Exception as e:
+        logger.error(f"Setting: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/image-with-metadata')
 def get_image_with_metadata():
+    global controller
+    global logger
+
     try:
-        global controller
         if controller is None:
             return jsonify({"error": "Controller not initialized"}), 404
         
@@ -185,12 +204,15 @@ def get_image_with_metadata():
         # Return both image and converted metadata in JSON
         return jsonify(image_data)
     except Exception as e:
+        logger.error(f"Update UI error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/landmarks', methods=['POST'])
 def save_landmarks():
+    global controller
+    global logger
+
     try:
-        global controller
         if controller is None:
             return jsonify({"error": "Controller not initialized"}), 404
         
@@ -204,92 +226,134 @@ def save_landmarks():
         
         return jsonify({"message": "update landmarks"})
     except Exception as e:
+        logger.error(f"Update landmarks error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/cap', methods=['POST'])
 def manual_framecap():
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    state = request.json.get('cap')
-    controller.do_capture = state
-    return jsonify({"message": "do capture"})
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        state = request.json.get('cap')
+        controller.do_capture = state
+        return jsonify({"message": "do capture"})
+    except Exception as e:
+        logger.error(f"Manual capture error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/label', methods=['POST'])
 def switch_side():
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    label = request.json.get('label')
-    controller.active_side = label
-    return jsonify({"message": "click label switch active side"})
-    
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        label = request.json.get('label')
+        controller.active_side = label
+        return jsonify({"message": "click label switch active side"})
+    except Exception as e:
+        logger.error(f"Manual switch side error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/edit', methods=['POST'])
 def edit():
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    state = request.json.get('uistates')
-    controller.pause_states = state
-    return jsonify({"message": "pause_states updated"})
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        state = request.json.get('uistates')
+        controller.pause_states = state
+        return jsonify({"message": "pause_states updated"})
+    except Exception as e:
+        logger.error(f"Edit/pause error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/next', methods=['POST'])
 def next():
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    state = request.json.get('uistates')
-    stage = request.json.get('stage')
-    controller.next(state, stage)
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        state = request.json.get('uistates')
+        stage = request.json.get('stage')
+        controller.next(state, stage)
 
-    return jsonify({"message": "uistates updated"})
+        return jsonify({"message": "uistates updated"})
+    except Exception as e:
+        logger.error(f"Moving next error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/restart', methods=['POST'])
 def restart():
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    controller.restart()
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        controller.restart()
 
-    return jsonify({"message": "uistate restart"})
+        return jsonify({"message": "uistate restart"})
+    except Exception as e:
+        logger.error(f"Restart error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/screenshot/<int:stage>', methods=['POST'])
 def save_screen(stage):
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
 
-    if 'image' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    controller.save_screen(stage, file)
-    
-    return jsonify({"message": f"screenshot saved successfully"})
+        if 'image' not in request.files:
+            return jsonify({"error": "No file part"}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+        controller.save_screen(stage, file)
+        
+        return jsonify({"message": f"screenshot saved successfully"})
+    except Exception as e:
+        logger.error(f"Save screenshot error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/screenshot/<int:stage>')
 def get_screen(stage):
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    
-    return jsonify(controller.get_screen(stage))
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        return jsonify(controller.get_screen(stage))
+    except Exception as e:
+        logger.error(f"Load screenshot error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/stitch/<int:stage>')
 def get_stitch(stage):
     global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    
-    return jsonify(controller.get_stitch(stage))
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        return jsonify(controller.get_stitch(stage))
+    except Exception as e:
+        logger.error(f"Load stitch error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/patient', methods=['POST'])
 def patient():
+    global controller
+    global logger
     try:
-        global controller
         if controller is None:
             return jsonify({"error": "Controller not initialized"}), 404
 
@@ -297,12 +361,14 @@ def patient():
 
         return jsonify({"message": f"patient saved successfully"})
     except Exception as e:
+        logger.error(f"Save patient error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/pdf')
 def pdf():
+    global controller
+    global logger
     try:
-        global controller
         if controller is None:
             return jsonify({"error": "Controller not initialized"}), 404
 
@@ -310,6 +376,7 @@ def pdf():
 
         return jsonify({"message": f"pdf saved successfully"})
     except Exception as e:
+        logger.error(f"Save report error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 '''
