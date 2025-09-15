@@ -39,7 +39,7 @@ class Exam:
     def save(self, analysis_type, data_for_exam, rawframe=None):
 
         try:
-            if analysis_typ == 'frame':
+            if analysis_type == 'frame':
 
                 framedata = data_for_exam['framedata']
                 analysis_parameters = data_for_exam['analysis_parameters']

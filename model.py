@@ -369,7 +369,7 @@ class Model:
 
     def update(self, analysis_type, data):
         try:
-            sectio = data['section']
+            section = data['section']
         
             if analysis_type == 'frame':
                 if data['analysis_error_code'] not in {'110', '111', '112', '113'}:
@@ -724,7 +724,7 @@ class Model:
     def eval_modelscnario(self, frame, scn, active_side, uistates):
         try:
             frame_not_none = frame is not None
-            actio = None
+            action = None
             match scn:
                 case 'init':
                     if frame is not None:

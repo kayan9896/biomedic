@@ -177,89 +177,32 @@ class Controller:
             'jump': image_data['jump'] if 'jump' in image_data else None
         }
 
-    def update_landmarks(self, ui_l, ui_r, limgside, rimgside, stage):
+    def update_landmarks(self, ui_l, ui_r, limgside, rimgside, brightness, contrast, stage):
         l = self.backend_to_frontend_coords(ui_l, btof = False) if ui_l else None
         # Apply horizontal flipping for right metadata
         r = self.backend_to_frontend_coords(ui_r, btof = False) if ui_r else None
-        if stage == 0:
-            if self.model.data['hp1-ap']['framedata']:
-                self.model.data['hp1-ap']['framedata']['landmarks'] = l
-            else:
-                self.model.data['hp1-ap']['framedata']= {'landmarks': l}
-            if self.model.data['hp1-ob']['framedata']:
-                self.model.data['hp1-ob']['framedata']['landmarks'] = r
-            else:
-                self.model.data['hp1-ob']['framedata']= {'landmarks': r}
-            
-            if l:
-                self.model.data['hp1-ap']['success'] = True
-            if r:
-                self.model.data['hp1-ob']['success'] = True
+        stages = [['hp1-ap', 'hp1-ob'], ['hp2-ap', 'hp2-ob'], ['cup-ap', 'cup-ob'], ['tri-ap', 'tri-ob']]
 
-            if limgside:
-                self.model.data['hp1-ap']['side'] = limgside
-            if rimgside:
-                self.model.data['hp1-ob']['side'] = rimgside
+        if self.model.data[stages[stage][0]]['framedata']:
+            self.model.data[stages[stage][0]]['framedata']['landmarks'] = l
+            self.model.data[stages[stage][0]]['framedata']['brightness'] = brightness[0]
+            self.model.data[stages[stage][0]]['framedata']['contrast'] = contrast[0]
+
+        if self.model.data[stages[stage][1]]['framedata']:
+            self.model.data[stages[stage][1]]['framedata']['landmarks'] = r
+            self.model.data[stages[stage][1]]['framedata']['brightness'] = brightness[1]
+            self.model.data[stages[stage][1]]['framedata']['contrast'] = contrast[1]
+   
         
-        if stage == 1:
-            if self.model.data['hp2-ap']['framedata']:
-                self.model.data['hp2-ap']['framedata']['landmarks'] = l
-            else:
-                self.model.data['hp2-ap']['framedata']= {'landmarks': l}
-            if self.model.data['hp2-ob']['framedata']:
-                self.model.data['hp2-ob']['framedata']['landmarks'] = r
-            else:
-                self.model.data['hp2-ob']['framedata']= {'landmarks': r}
-            
-            if l:
-                self.model.data['hp2-ap']['success'] = True
-            if r:
-                self.model.data['hp2-ob']['success'] = True
+        if l:
+            self.model.data[stages[stage][0]]['success'] = True
+        if r:
+            self.model.data[stages[stage][1]]['success'] = True
 
-            if limgside:
-                self.model.data['hp2-ap']['side'] = limgside
-            if rimgside:
-                self.model.data['hp2-ob']['side'] = rimgside
-        
-        if stage == 2:
-            if self.model.data['cup-ap']['framedata']:
-                self.model.data['cup-ap']['framedata']['landmarks'] = l
-            else:
-                self.model.data['cup-ap']['framedata']= {'landmarks': l}
-            if self.model.data['cup-ob']['framedata']:
-                self.model.data['cup-ob']['framedata']['landmarks'] = r
-            else:
-                self.model.data['cup-ob']['framedata']= {'landmarks': r}
-            
-            if l:
-                self.model.data['cup-ap']['success'] = True
-            if r:
-                self.model.data['cup-ob']['success'] = True
-
-            if limgside:
-                self.model.data['cup-ap']['side'] = limgside
-            if rimgside:
-                self.model.data['cup-ob']['side'] = rimgside
-        
-        if stage == 3:
-            if self.model.data['tri-ap']['framedata']:
-                self.model.data['tri-ap']['framedata']['landmarks'] = l
-            else:
-                self.model.data['tri-ap']['framedata']= {'landmarks': l}
-            if self.model.data['tri-ob']['framedata']:
-                self.model.data['tri-ob']['framedata']['landmarks'] = r
-            else:
-                self.model.data['tri-ob']['framedata']= {'landmarks': r}
-            
-            if l:
-                self.model.data['tri-ap']['success'] = True
-            if r:
-                self.model.data['tri-ob']['success'] = True
-
-            if limgside:
-                self.model.data['tri-ap']['side'] = limgside
-            if rimgside:
-                self.model.data['tri-ob']['side'] = rimgside
+        if limgside:
+            self.model.data[stages[stage][0]]['side'] = limgside
+        if rimgside:
+            self.model.data[stages[stage][1]]['side'] = rimgside
         
         
         with self.lock:

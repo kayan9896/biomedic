@@ -150,14 +150,18 @@ class ViewModel:
             self.imgs[0]['image'], self.imgs[1]['image'] = apimage, obimage
             jump = {'stage': 0, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
             'apmetadata': data['hp1-ap']['framedata']['landmarks'], 'obmetadata': data['hp1-ob']['framedata']['landmarks'], 'side': data['hp1-ap']['side'],
-            'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas}
+            'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas,
+            'brightness': [data['hp1-ap']['framedata'].get('brightness', 100), data['hp1-ob']['framedata'].get('brightness', 100)],
+            'contrast': [data['hp1-ap']['framedata'].get('contrast', 100), data['hp1-ob']['framedata'].get('contrast', 100)]}
         if stage == 3:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
             apimage, obimage = data['hp2-ap']['image'], data['hp2-ob']['image']
             self.imgs[0]['image'], self.imgs[1]['image'] = apimage, obimage
             jump = {'stage': 1, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
             'apmetadata': data['hp2-ap']['framedata']['landmarks'], 'obmetadata': data['hp2-ob']['framedata']['landmarks'], 'side': data['hp2-ap']['side'],
-            'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas}
+            'checkmark': 1, 'recon': 2, 'next': True, 'testmeas': testmeas,
+            'brightness': [data['hp2-ap']['framedata'].get('brightness', 100), data['hp2-ob']['framedata'].get('brightness', 100)],
+            'contrast': [data['hp2-ap']['framedata'].get('contrast', 100), data['hp2-ob']['framedata'].get('contrast', 100)]}
         if stage == 5:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
             testmeas.update(data['regcup']['metadata']['measurements'])
@@ -166,6 +170,8 @@ class ViewModel:
             jump = {'stage': 2, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
             'apmetadata': data['cup-ap']['framedata']['landmarks'], 'obmetadata': data['cup-ob']['framedata']['landmarks'], 'side': data['cup-ap']['side'],
             'measurements': data['regcup']['metadata']['measurements'], 'testmeas': testmeas,
+            'brightness': [data['cup-ap']['framedata'].get('brightness', 100), data['cup-ob']['framedata'].get('brightness', 100)],
+            'contrast': [data['cup-ap']['framedata'].get('contrast', 100), data['cup-ob']['framedata'].get('contrast', 100)],
             'checkmark': 1, 'recon': 2, 'next': True}
         if stage == 6:
             testmeas = {'Inclination' : '-', 'Anteversion' : '-', 'LLD': '-mm', 'Offset': '-mm'}
@@ -183,6 +189,8 @@ class ViewModel:
             jump = {'stage': 3, 'apimage': self.encode(apimage), 'obimage': self.encode(obimage), 
             'apmetadata': data['tri-ap']['framedata']['landmarks'], 'obmetadata': data['tri-ob']['framedata']['landmarks'], 'side': data['tri-ap']['side'],
             'measurements': data['regtri']['metadata']['measurements'], 'testmeas': testmeas,
+            'brightness': [data['tri-ap']['framedata'].get('brightness', 100), data['tri-ob']['framedata'].get('brightness', 100)],
+            'contrast': [data['tri-ap']['framedata'].get('contrast', 100), data['tri-ob']['framedata'].get('contrast', 100)],
             'checkmark': 1, 'recon': 2, 'next': 4}
 
         self.imgs[0]['jump'], self.imgs[1]['jump'] = jump, jump

@@ -221,8 +221,10 @@ def save_landmarks():
         r = request.json.get('rightMetadata')
         limgside = request.json.get('limgside')
         rimgside = request.json.get('rimgside')
+        brightness = request.json.get('brightness')
+        contrast = request.json.get('contrast')
         
-        controller.update_landmarks(l, r, limgside, rimgside, stage)
+        controller.update_landmarks(l, r, limgside, rimgside, brightness, contrast, stage)
         
         return jsonify({"message": "update landmarks"})
     except Exception as e:

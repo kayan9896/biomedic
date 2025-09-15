@@ -300,7 +300,7 @@ function App() {
         if (data.measurements) {
           setMeasurements(data.measurements);
         }
-        if(error === "Error connecting to server") setGe(false)
+        if(generalError === "Error connecting to server") setGe(false)
       } catch (e) {
         console.error('Error fetching states:', e);
         if(generalError !== "Error connecting to server"){
@@ -396,8 +396,8 @@ function App() {
 
         if(data.jump){
           setStage(data.jump.stage)
-          setLeftImage(data.jump.apimage === 'default' ? getInstruction(data.jump.stage, 'AP') : data.jump.apimage)
-          setRightImage(data.jump.obimage === 'default' ? getInstruction(data.jump.stage, 'OB') : data.jump.obimage)
+          setOriLeft(data.jump.apimage === 'default' ? getInstruction(data.jump.stage, 'AP') : data.jump.apimage)
+          setOriRight(data.jump.obimage === 'default' ? getInstruction(data.jump.stage, 'OB') : data.jump.obimage)
           setLeftImageMetadata(data.jump.apmetadata)
           setRightImageMetadata(data.jump.obmetadata)
           setLeftCheckMark(data.jump.checkmark)
@@ -413,8 +413,10 @@ function App() {
           setIsTriReg(data.jump.stage === 3 && data.jump.next === 4 ? true : false)
           setTestmeas(data.jump.testmeas)
           setError(null)
-          setBrightness([100, 100])
-          setContrast([100, 100])
+          if (data.jump.brightness) setBrightness(data.jump.brightness)
+          else setBrightness([100, 100])
+          if (data.jump.contrast) setContrast(data.jump.contrast)
+          else setContrast([100, 100])
           capturing.current = false
           return
         }

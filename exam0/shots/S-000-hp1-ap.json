@@ -4,6 +4,8 @@
     "analysis_error_code": null,
     "side": "r",
     "imuangles": [0, 0],
+    "brightness": 24,
+    "contrast": 34,
     "landmarks": {
         "pelvis": [
             {
