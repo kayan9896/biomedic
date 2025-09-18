@@ -37,7 +37,7 @@ def setup_logging():
     logger.addFilter(Filter())
     
     # Create a file handler
-    file_handler = RotatingFileHandler('logs/app.log', maxBytes=10000000, backupCount=5)
+    file_handler = RotatingFileHandler(f'logs/{time.strftime("%Y-%m-%d %H-%M-%S", time.localtime(time.time()))}.log', maxBytes=10000000, backupCount=5)
     file_handler.setLevel(logging.DEBUG)
     
     # Create a console handler
@@ -52,6 +52,7 @@ def setup_logging():
     # Add the handlers to the logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+    
 
 # Call this function at the start of your script
 setup_logging()

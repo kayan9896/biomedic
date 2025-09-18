@@ -239,6 +239,7 @@ function App() {
           setMoveNext(data.move_next);
         }
       } catch (error) {
+        window.electronAPI?.logError(error);
         console.error('Error checking backend state:', error);
       }
     };
@@ -303,6 +304,7 @@ function App() {
         if(generalError === "Error connecting to server") setGe(false)
       } catch (e) {
         console.error('Error fetching states:', e);
+        window.electronAPI?.logError(e);
         if(generalError !== "Error connecting to server"){
           setGeneralError("Error connecting to server");
           setGe(true)

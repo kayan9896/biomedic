@@ -52,8 +52,9 @@ function createWindow() {
     height: 600,
     fullscreen:true,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: path.join(__dirname, '../build/preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
       enableRemoteModule: true
     },
     icon: path.join(__dirname, './AppLogo.png')
@@ -85,3 +86,47 @@ app.on('window-all-closed', async () => {
 app.on('quit', async () => {
   await terminateServer();
 });
+
+const fs = require('fs');
+const logDir = './logs';
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+
+function toAsctime(date) {
+
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const dateNum = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const mseconds = date.getMilliseconds();
+  const year = date.getFullYear();
+
+  return `${year}-${month}-${dateNum} ${hours}:${minutes}:${seconds},${mseconds}`;
+}
+const logname = `${toAsctime(new Date()).replace(/[: ]/g, '')}.log`
+
+
+function logError(source, error) {
+  const logPath = path.join('./logs', logname);
+  const message = `${toAsctime(new Date())} [${source}] ${error.stack || error}\n`;
+  fs.appendFileSync(logPath, message);
+}
+
+process.on('uncaughtException', (error) => {
+  logError('Main Process', error);
+});
+
+
+const { ipcMain } = require('electron');
+
+ipcMain.on('renderer-error', (event, errorMsg) => {
+  const logPath = path.join('./logs', logname);
+  const message = `${toAsctime(new Date())} [Renderer] ${errorMsg}\n`;
+  console.log(logPath, message)
+  fs.appendFileSync(logPath, message);
+});
+
+

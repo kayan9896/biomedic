@@ -168,7 +168,7 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
   const { center, radius } = findCircle(arc[0], arc[1], arc[2]);
 
   function invalid(newarc) {
-    if (draggedPointIndex === 0 || draggedPointIndex === 2){
+    if (newarc.length === 3 || draggedPointIndex === 0 || draggedPointIndex === 2){
       return false
     }
     const o = [(newarc[0][0] + newarc[2][0]) / 2, (newarc[0][1] + newarc[2][1]) / 2]
@@ -179,6 +179,9 @@ const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLe
   function follow(draggedPointIndex, cursorPosition, arcpoints){
       if (draggedPointIndex === 1){
         return [cursorPosition.x, cursorPosition.y]
+      }
+      if (arcpoints.length === 3){
+        return arcpoints[1]
       }
 
       let now = [cursorPosition.x, cursorPosition.y]
