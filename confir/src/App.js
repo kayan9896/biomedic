@@ -150,7 +150,7 @@ function App() {
   
   const getTemplate = (stage, pelvis, scaleFactor = 960 / 1024)=> {
     if (stage === 0 || stage === 1){
-      return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[0])) : JSON.parse(JSON.stringify(templates[1]));
+      return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[6])) : JSON.parse(JSON.stringify(templates[1]));
     }
     if (stage === 2){
       return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[2])) : JSON.parse(JSON.stringify(templates[3]));
@@ -1044,6 +1044,7 @@ function App() {
           ranger={ranger}
           scale={scale}
           applyTarget={applyTarget}
+          noap={leftImage===getInstruction(stage,'AP')}
         />
       
         }

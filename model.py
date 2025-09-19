@@ -675,7 +675,7 @@ class Model:
         # additional provisions for pelvis and cup registration (next & skip options)
 
         if self.data[reg.reg]['success']:
-            if (reg.reg == 'regcup'):
+            if reg.reg == 'regcup' or reg.reg == "regtri":
                 #self.__set_imu_setcupreg__()
                 action =('set_imu_setcupreg', '')
 

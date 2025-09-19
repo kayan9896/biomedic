@@ -35,6 +35,7 @@ class IMU_handler:
         self.ob_max = max(self.obtarget1, self.obtarget2) if self.obtarget1 is not None and self.obtarget2 is not None else None
 
         self.iscupreg = False
+        self.istrireg = False
 
         # Timing and stability tracking
         self.last_stable_time = 0
@@ -68,13 +69,13 @@ class IMU_handler:
                 if self.obtarget1 is not None and self.rotation_angle * self.obtarget1 > 0:
                     return None
                 return 'ob'
-        if stage == 2 or (stage ==3 and not self.iscupreg):
+        if stage == 2 or (stage ==3 and not (self.iscupreg or self.istrireg)):
             if self.rangel < self.rotation_angle <= self.ranger:
                 if self.aptarget is not None and self.ob_min is not None and self.ob_max is not None:
                     if (self.ob_min + self.aptarget) / 2 < self.rotation_angle <= (self.ob_max + self.aptarget) / 2:
                         return 'ap'
                 return 'ob'
-        if stage == 3 and self.iscupreg:
+        if stage == 3 and (self.iscupreg or self.istrireg):
             if self.rangel < self.rotation_angle < self.ranger:
                 if self.aptarget is not None and self.ob_min is not None and self.ob_max is not None:
                     if (self.ob_min + self.aptarget) / 2 < self.rotation_angle <= (self.ob_max + self.aptarget) / 2:
@@ -95,8 +96,12 @@ class IMU_handler:
             return abs(self.tilt_angle - self.tilttarget) < self.tol + self.EPSILON if self.tilttarget is not None else abs(self.tilt_angle - self.tmp_tilttarget) < self.tol + self.EPSILON
         return False
 
-    def is_rot_valid(self, stage):
+    def is_rot_valid(self, stage, data = None):
         active = self.activeside(stage)
+        if active == 'ob' and data is not None:
+            scn = [('hp1-ap', 'hp1-ob'), ('hp2-ap', 'hp2-ob'), ('cup-ap', 'cup-ob'), ('tri-ap', 'tri-ob')]
+            if data[scn[stage][0]]['image'] is None: 
+                return False
         if stage == 0:
             if active == 'ap'and self.aptarget is not None:
                 return abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON
@@ -113,23 +118,23 @@ class IMU_handler:
                 if self.obtarget2 is not None:
                     return abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON
                 return self.obtarget1 is not None and self.rotation_angle * self.obtarget1 < 0
-        if stage == 2 or (stage ==3 and not self.iscupreg):
+        if stage == 2 or (stage ==3 and not (self.iscupreg or self.istrireg)):
             if active == 'ap':
                 return self.aptarget is not None and abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON
             if active == 'ob':
                 return self.obtarget1 is not None and self.obtarget2 is not None and \
                        (abs(self.rotation_angle - self.obtarget1) < self.tol + self.EPSILON or abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON)
-        if stage == 3 and self.iscupreg:
+        if stage == 3 and (self.iscupreg or self.istrireg):
             if active == 'ap':
                 return self.aptarget is not None and abs(self.rotation_angle - self.aptarget) < self.tol + self.EPSILON
             if active == 'ob':
                 return self.used_ob is not None and abs(self.rotation_angle - self.used_ob) < self.tol + self.EPSILON
         return False
 
-    def show_icon(self, stage):
+    def show_icon(self, stage, data):
         current_time = time.time()
         is_tilt_valid = self.is_tilt_valid(stage)  # Assuming stage 0 for icon, adjust if needed
-        is_rot_valid = self.is_rot_valid(stage)    # Assuming stage 0 for icon, adjust if needed
+        is_rot_valid = self.is_rot_valid(stage, data)    # Assuming stage 0 for icon, adjust if needed
         is_stable = abs(self.prev_angle - self.tilt_angle) < self.tol + self.EPSILON and abs(self.prev_rotation_angle - self.rotation_angle) < self.tol + self.EPSILON
 
         if is_tilt_valid and is_rot_valid and is_stable:
@@ -141,10 +146,10 @@ class IMU_handler:
         
         return self.icon_shown
 
-    def show_window(self, stage):
+    def show_window(self, stage, data):
         current_time = time.time()
         is_tilt_valid = self.is_tilt_valid(stage)  # Assuming stage 0 for window, adjust if needed
-        is_rot_valid = self.is_rot_valid(stage)    # Assuming stage 0 for window, adjust if needed
+        is_rot_valid = self.is_rot_valid(stage, data)    # Assuming stage 0 for window, adjust if needed
         has_changed = abs(self.prev_angle - self.tilt_angle) > self.tol + self.EPSILON or abs(self.prev_rotation_angle - self.rotation_angle) > self.tol + self.EPSILON
         is_stable = abs(self.prev_angle - self.tilt_angle) < self.tol + self.EPSILON and abs(self.prev_rotation_angle - self.rotation_angle) < self.tol + self.EPSILON
 
@@ -171,7 +176,7 @@ class IMU_handler:
         elif stage == 1:
             if self.activeside(stage) == 'ob':
                 self.tmp_obtarget2 = self.rotation_angle
-        elif stage == 2:
+        elif stage == 2 or stage == 3:
             if abs(self.rotation_angle - self.obtarget1) < self.tol + self.EPSILON:
                 self.tmp_used_ob = self.obtarget1
             elif abs(self.rotation_angle - self.obtarget2) < self.tol + self.EPSILON:
@@ -199,7 +204,7 @@ class IMU_handler:
         if self.obtarget1 is not None: self.act_rot = self.obtarget1 if abs(self.rotation_angle - self.obtarget1) < self.tol else self.obtarget2
         return self.act_rot
 
-    def get_all(self, stage):
+    def get_all(self, stage, data):
         return {
             'tilt_angle': self.tilt_angle,
             'rotation_angle': self.rotation_angle,
@@ -213,9 +218,9 @@ class IMU_handler:
             'ob_min': self.ob_min,
             'ob_max': self.ob_max,
             'is_tilt_valid': self.is_tilt_valid(stage),  
-            'is_rot_valid': self.is_rot_valid(stage),  
-            'show_icon': self.show_icon(stage),
-            'show_window': self.show_window(stage),
+            'is_rot_valid': self.is_rot_valid(stage, data),  
+            'show_icon': self.show_icon(stage, data),
+            'show_window': self.show_window(stage, data),
             'tiltl': self.tiltl,
             'tiltr': self.tiltr,
             'rangel': self.rangel,
@@ -227,11 +232,16 @@ class IMU_handler:
         }
 
 
-    def set_cupreg(self):
-        if not self.iscupreg:
+    def set_cupreg(self, stage):
+        if stage > 1 and not self.iscupreg:
             self.iscupreg = True
             self.used_ob = self.tmp_used_ob
             self.tmp_used_ob = None
+        if stage > 2 and not self.istrireg:
+            self.istrireg = True
+            if self.tmp_used_ob is not None:
+                self.used_ob = self.tmp_used_ob
+                self.tmp_used_ob = None
 
         
 

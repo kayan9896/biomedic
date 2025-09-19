@@ -26,7 +26,8 @@ function L10({
   rangel,
   ranger,
   scale,
-  applyTarget
+  applyTarget,
+  noap
 }) {
   const blue60 = '#3ca4e5';
   const blue80 = '#0260a0';
@@ -39,6 +40,7 @@ function L10({
   
   // Display value for rotation tiltAngle (saved or current)
   const getDisplayRotationValue = () => {
+    if(noap) return activeLeft ? [`${rotationAngle - apRotationAngle}`, 1] : [`${rotationAngle}`, 0]
     if (stage !== 0 && activeLeft) return [`${rotationAngle - apRotationAngle}`, 1]
     if (stage !== 0 && stage !== 1 && activeRight){
       if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? [`${rotationAngle - obRotationAngle}`, 1] : [`${rotationAngle - obRotationAngle2}`, 1]
@@ -94,6 +96,18 @@ function L10({
   }
 
   const getRotaionTick = () => {
+    if(noap) return [{
+          value: apRotationAngle === null ? 0 : apRotationAngle,
+          valueConfig:{
+            style: {
+            fontSize: (rotationAngle <= apr && rotationAngle > apl)? '50px' : '30px',
+            fill:'white',
+            fontFamily:'abel'
+          }},
+          lineConfig:{width:(rotationAngle <= apr && rotationAngle > apl)? '5px' : '3px',
+            length:(rotationAngle <= apr && rotationAngle > apl)? 20 : 5,
+            distanceFromArc: (rotationAngle <= apr && rotationAngle > apl)? 3 : 5,color:'#ffffff'}
+        }]
     if(stage === 0){
       let targetl = null
       let targetr = null
@@ -294,7 +308,56 @@ function L10({
   }
 
   function getDynamicArray() {
+    if(noap) {
+        const array = [
+        {
+          limit: apl,
+          color: 'grey',
+          showTick: false,
+          tooltip: { text: 'Out' }
+        }]
+        if(apRotationAngle){
+          array.push(
+            {
+              limit: Math.max(apRotationAngle - 0.5*scale, apl + 0.01),
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+            {
+              limit:Math.min(apRotationAngle + 0.5*scale, apr - 0.01),
+              color: rotationAngle <= apr && rotationAngle > apl ? red80 : red40,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+          )
+      
+            array.push({
+              limit: apr,
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },)
+        }else{
+        array.push({
+            limit: apr,
+            color: rotationAngle <= apr && rotationAngle > apl ? red60 : red10,
+            showTick: false,
+            tooltip: { text: 'AP Range' }
+          },)
+        }
+        array.push({
+          limit: 90*scale,
+          color: 'grey',
+          showTick: false,
+          tooltip: { text: 'Out' }
+          }
+        )
+        return array
+      }
+
     if(stage === 0){
+      
       const array = [
         {
           limit: rangel,

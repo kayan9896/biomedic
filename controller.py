@@ -106,11 +106,12 @@ class Controller:
         # Update imu_on based on IMU is_connected
         
         if self.tracking and not self.lockside:
-            imu_states = self.imu_handler.get_all(self.stage)
+            imu_states = self.imu_handler.get_all(self.stage, self.model.data)
             imu_states['imu_on'] = False if not hasattr(self, 'imu_sensor') else getattr(self.imu_sensor, 'is_connected', True)  # Default to True if property not found
             if not imu_states['imu_on']:
                 imu_states['active_side'] = None
             self.active_side = imu_states['active_side'] 
+            
             self.viewmodel.update_state(imu_states)
         
         return self.viewmodel.states
@@ -187,11 +188,15 @@ class Controller:
             self.model.data[stages[stage][0]]['framedata']['landmarks'] = l
             self.model.data[stages[stage][0]]['framedata']['brightness'] = brightness[0]
             self.model.data[stages[stage][0]]['framedata']['contrast'] = contrast[0]
+        else:
+            self.model.data[stages[stage][0]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0]}
 
         if self.model.data[stages[stage][1]]['framedata']:
             self.model.data[stages[stage][1]]['framedata']['landmarks'] = r
             self.model.data[stages[stage][1]]['framedata']['brightness'] = brightness[1]
             self.model.data[stages[stage][1]]['framedata']['contrast'] = contrast[1]
+        else:
+            self.model.data[stages[stage][0]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0]}
    
         
         if l:
@@ -370,7 +375,7 @@ class Controller:
 
                             case 'set_imu_setcupreg':
                                 try:
-                                    if self.tracking: self.imu_handler.set_cupreg()
+                                    if self.tracking: self.imu_handler.set_cupreg(self.stage)
                                 except Exception as e:
                                     self.bugs[0] = str(e)
                                     self.bugs.append(str(e))
