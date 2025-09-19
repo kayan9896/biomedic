@@ -2,11 +2,11 @@ import React from 'react';
 import './CircularProgress.css';
 import backgroundImage from './LCBg.png';
 
-const CircularProgress2 = () => {
+const CircularProgress2 = ({txt = null}) => {
 
   return (
     <div className="circular-progress">
-      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:25, aspectRatio:'1920/1080', height:'1080px'}}/>
+      {!txt && <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:25, aspectRatio:'1920/1080', height:'1080px'}}/>}
       <img src={backgroundImage} alt="window background" className="background-image" />
       <div className="image-container">
         <img
@@ -15,7 +15,21 @@ const CircularProgress2 = () => {
           className="rotating"
         />
       </div>
-
+      <div
+          style={{
+          fontSize: "45px",
+          fontFamily: 'abel',
+          textAlign: 'center',
+          position: 'absolute',
+          width: '231px',
+          top: '608px',
+          left: '845px',
+          zIndex: 25,
+          color: 'white'
+        }}
+        >
+          {txt}
+        </div>
     </div>
   );
 };

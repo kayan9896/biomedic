@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriReg, setExit}) {
+function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriReg, setExit, takeAP}) {
     const shownext = (stage == 1 && moveNext) || (stage === 2 && moveNext)
     useEffect(() => {
       if (shownext) {
@@ -58,6 +58,10 @@ function L9({error, measurements, handlepause, moveNext, stage, isCupReg, isTriR
         {(errortext[1])&&<>
           <img src={require('./Message2.png')} alt="Message2" style={{position:'absolute', top:'133px', left:'336px', zIndex:9}}/>
           <div style={{position:'absolute', display:'flex', flexDirection:'column', justifyContent:'center', textAlign:'center', top:'133px', left: '336px', width: '1249px', height: '100px', zIndex:9, fontSize:'75px', color:'#26A742', fontFamily:'Abel'}}>{errortext[1]}</div>
+        </>}
+        {takeAP&&<>
+          <img src={require('./Message2.png')} alt="Message2" style={{position:'absolute', top:'133px', left:'336px', zIndex:9}}/>
+          <div style={{position:'absolute', display:'flex', flexDirection:'column', justifyContent:'center', textAlign:'center', top:'133px', left: '336px', width: '1249px', height: '100px', zIndex:9, fontSize:'75px', color:'#26A742', fontFamily:'Abel'}}>{takeAP}</div>
         </>}
       </div>
     )

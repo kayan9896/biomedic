@@ -12,6 +12,7 @@ function L10({
   targetTiltAngle,
   stage,
   isCupReg,
+  isTriReg,
   usedOB,
   showIcon,
   tiltValid,
@@ -190,7 +191,7 @@ function L10({
       return array
     }
     const array = []
-    if(!isCupReg || (isCupReg && usedOB < 0)){
+    if(!isCupReg || ((isCupReg || isTriReg) && usedOB < 0)){
       array.push(
         {
           value: obl,
@@ -218,7 +219,7 @@ function L10({
         length:(rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 20 : 5,
         distanceFromArc: (rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 3 : 5,color:'#ffffff'}
     })
-    if(!isCupReg || (isCupReg && usedOB > 0)){
+    if(!isCupReg || ((isCupReg || isTriReg) && usedOB > 0)){
       array.push({
         value: obr,
         valueConfig:{
@@ -558,7 +559,7 @@ function L10({
         tooltip: { text: 'Out' }
       }]
       
-    if(isCupReg && usedOB > 0){
+    if((isCupReg || isTriReg) && usedOB > 0){
       array.push({
         limit: (obl + apRotationAngle)/2,
         color: 'grey',
@@ -610,7 +611,7 @@ function L10({
         tooltip: { text: 'AP Range' }
       },)
 
-      if(isCupReg && usedOB < 0){
+      if((isCupReg || isTriReg) && usedOB < 0){
         array.push({
           limit: ranger,
           color: 'grey',

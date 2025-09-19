@@ -26,6 +26,7 @@ import KB from './KB';
 import L18 from './L18/L18';
 import L24 from './L24/L24';
 import L26 from './L26/L26';
+import CircularProgress2 from './CircularProgress2';
 
 function App() {
   const [patient, setPatient] = useState('');
@@ -73,8 +74,8 @@ function App() {
 
   const [carmModel, setCarmModel] = useState('')
   const [scn, setScn] = useState(0);
-  const [tiltAngle, setAngle] = useState(0);
-  const [rotationAngle, setRotationAngle] = useState(0);
+  const [tiltAngle, setAngle] = useState(360);
+  const [rotationAngle, setRotationAngle] = useState(360);
   const [activeLeft, setActiveLeft] = useState(false);
   const [activeRight, setActiveRight] = useState(false)
   const [imuon, setImuon] = useState(false);
@@ -159,6 +160,8 @@ function App() {
     }
     return
   }
+
+  const [takeAP, setTakeAP] = useState('Move the C-arm to the AP View')
 
   useEffect(() => {
     const checkBackendState = async () => {
@@ -256,6 +259,13 @@ function App() {
         const data = await response.json();
 
         setCarmModel(data['C-arm Model'])
+        if(data.show_window && data.imu_on){
+          if(tiltAngle !== 360 && rotationAngle !== 360 && (data.tilt_angle !== tiltAngle || data.rotation_angle !== rotationAngle)){
+            console.log(data.tilt_angle, tiltAngle, data.rotation_angle, rotationAngle)
+            setShowCarm(true)
+            setTakeAP(null)
+          }
+        }else setShowCarm(false)
         setAngle(data.tilt_angle);
         setRotationAngle(data.rotation_angle);
         setTracking(data.tracking)
@@ -273,7 +283,7 @@ function App() {
         setOBRotationAngle2(data.obtarget2)
         setTargetTiltAngle(data.tilttarget)
         setUsedOB(data.used_ob)
-        setShowCarm(data.show_window && data.imu_on)
+        
         setShowIcon(data.show_icon)
         setTiltValid(data.is_tilt_valid)
         setRotValid(data.is_rot_valid)
@@ -525,7 +535,7 @@ function App() {
   }
   const handlenext = async (next = 'next', keep = false) => {
     setPause(false)
-    
+    if(!activeLeft) setTakeAP('Move the C-arm to the AP View')
     setLeftImageMetadata(null)
     setRightImageMetadata(null)
     leftSaveRefs.current = {}
@@ -757,6 +767,7 @@ function App() {
   };
 
   const capturing = useRef(false)
+  const capturetxt = useRef(null)
   const captureAndSaveFrame = async (stage) => {
     console.log(frameRef)
     if (!frameRef.current) return;
@@ -764,6 +775,7 @@ function App() {
     try {
       // Use html2canvas to capture the frame with all overlays
       capturing.current = true
+      capturetxt.current = "Screenshot"
       //await new Promise(r => setTimeout(r, 2000));
       const canvas = await html2canvas(frameRef.current, {
         useCORS: true,
@@ -774,7 +786,6 @@ function App() {
       // Convert canvas to blob
       canvas.toBlob(async (blob) => {
         // Create form data and append the image
-        capturing.current = true
         const formData = new FormData();
         formData.append('image', blob, `stage${stage}.png`);
         try{
@@ -790,16 +801,21 @@ function App() {
           throw new Error('Failed to save image with overlays');
         }
         capturing.current = false
+        capturetxt.current = ""
       } catch (err) {
         capturing.current = false
+        capturetxt.current = ""
         setGeneralError(null)
+        window.electronAPI?.logError('Backend API error');
         setError('Backend API error')
         setGe(true)
       }
       }, 'image/png');
-      capturing.current = false
+
     } catch (err) {
       capturing.current = false
+      capturetxt.current = ""
+      window.electronAPI?.logError(`Error capturing and saving frame: ${err}`);
       console.error('Error capturing and saving frame:', err);
       setGeneralError(null)
       setError('Backend API error')
@@ -998,7 +1014,7 @@ function App() {
       
         
       {/*L9 Message box, render based on backend measurements or error*/}
-      {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit}/>}
+      {(!pause && !editing && !isProcessing) && <L9 error={error} measurements={measurements} handlepause={handlepause} moveNext={moveNext} stage={stage} isCupReg={isCupReg} isTriReg={isTriReg} setExit={setExit} takeAP={takeAP}/>}
    
       {/*L10 Carmbox, render if backend tilt_angle changes*/}
       {(tracking && showCarm && !pause && !isProcessing && !editing && imuon) && 
@@ -1013,6 +1029,7 @@ function App() {
           targetTiltAngle={targetTiltAngle}
           stage={stage}
           isCupReg={isCupReg}
+          isTriReg={isTriReg}
           usedOB={usedOB}
           showIcon={showIcon}
           tiltValid={tiltValid}
@@ -1082,7 +1099,7 @@ function App() {
       {report&&<L11 setReport={setReport} stage={stage} setError={setError} handleDl={handleDl}/>}
             
       {/*L12 Pause, render when next button clicked */}
-      {<L12 key={Math.random()} pause={pause} setPause={setPause} handlenext={handlenext} selectCup={selectCup}/>}
+      {<L12 pause={pause} setPause={setPause} handlenext={handlenext} selectCup={selectCup}/>}
 
       {/*L14 Setting, render when setting true*/}
       {setting&&<L14 setSetting={setSetting} ai_mode={ai_mode} autocollect={autocollect} />}
@@ -1091,6 +1108,7 @@ function App() {
 
       {/*L1x Progree bar, render based on backend params*/}
       {isProcessing && <CircularProgress percentage={progress} />}
+      {capturing.current && capturetxt.current && <CircularProgress2 txt={capturetxt.current}/>}
 
       {showReconnectionPage &&
             <ReconnectionPage 
