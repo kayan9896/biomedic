@@ -58,7 +58,7 @@ function App() {
   const [oriRight, setOriRight] = useState(rightImage)
   const [errImage, setErrImage] = useState(null);
   const [error, setError] = useState(null);
-  const [generalError, setGeneralError] = useState(null);
+  const generalError = useRef(null)
   const [bugs, setBugs] = useState([])
   const [fullBugs, setFullBugs] = useState(false)
 
@@ -299,7 +299,7 @@ function App() {
         setScn(data.scn)
         setBugs(data.bugs)
         if(data.unexpected_error){
-          setGeneralError(`Backend Loop Error.`)
+          generalError.current = `Backend Loop Error.`
           setGe(true)
         }
         
@@ -311,12 +311,12 @@ function App() {
         if (data.measurements) {
           setMeasurements(data.measurements);
         }
-        if(generalError === "Error connecting to server") setGe(false)
+        if(generalError.current === "Error connecting to server") setGe(false)
       } catch (e) {
         console.error('Error fetching states:', e);
         window.electronAPI?.logError(e);
-        if(generalError !== "Error connecting to server"){
-          setGeneralError("Error connecting to server");
+        if(generalError.current !== "Error connecting to server"){
+          generalError.current = "Error connecting to server"
           setGe(true)
         }
       }
@@ -501,7 +501,7 @@ function App() {
         capturing.current = false
     } catch (error) {
         console.error('Error fetching image:', error);
-        setGeneralError(null)
+        generalError.current = null
         setError('Backend API error')
         setGe(true)
         capturing.current = false
@@ -524,7 +524,7 @@ function App() {
       setIsConnected(true);
     } catch (err) {
       console.log('Error connecting to device: ' + err.message);
-      setGeneralError(null)
+      generalError.current = null
       setError('Backend API error')
       setGe(true)
     }
@@ -576,7 +576,7 @@ function App() {
       });
     } catch (error) {
       console.error('Error going next:', error);
-      setGeneralError(null)
+      generalError.current = null
       setError('Backend API error')
       setGe(true)
     }
@@ -594,7 +594,7 @@ function App() {
       if (!response.ok) throw new Error('Switch label failed');
     } catch (error) {
       console.log(error)
-      setGeneralError(null)
+      generalError.current = null
       setError('Backend API error')
       setGe(true)
     }
@@ -642,7 +642,7 @@ function App() {
       if (!response.ok) throw new Error('Restart failed');
     } catch (error) {
       console.error('Error restart:', error);
-      setGeneralError(null)
+      generalError.current = null
       setError('Backend API error')
       setGe(true)
     }
@@ -734,7 +734,7 @@ function App() {
       //capturing.current = false
     } catch (error) {
       console.error('Error saving landmarks:', error);
-      setGeneralError(null)
+      generalError.current = null
       setError('Backend API error')
       setGe(true)
       capturing.current = false
@@ -805,7 +805,7 @@ function App() {
       } catch (err) {
         capturing.current = false
         capturetxt.current = ""
-        setGeneralError(null)
+        generalError.current = null
         window.electronAPI?.logError('Backend API error');
         setError('Backend API error')
         setGe(true)
@@ -817,7 +817,7 @@ function App() {
       capturetxt.current = ""
       window.electronAPI?.logError(`Error capturing and saving frame: ${err}`);
       console.error('Error capturing and saving frame:', err);
-      setGeneralError(null)
+      generalError.current = null
       setError('Backend API error')
       setGe(true)
     }
@@ -1143,7 +1143,7 @@ function App() {
 
       {usb && <L18 handleDl={handleDl} setUsb={setUsb}/>}
 
-      {ge && <L26 txt={generalError ? generalError : error} setGe={setGe}/>};
+      {ge && <L26 txt={generalError.current ? generalError.current : error} setGe={setGe}/>};
 
       {!splash && <img src={exit ? require('./L2/ExitIconOn.png') : require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>}
     </div>
