@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier';
 
-const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, idx, editing }) => {
+const Arc = ({ segment, group, arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter, ellipseSelect, activeGroup, activeSegment, setActiveGroupSegment}) => {
   const [arc, setArc] = useState(initialArc);
-  const [isSelected, setIsSelected] = useState(idx);
+  const [oldArc, setOldArc] = useState(initialArc);
+  const [isSelected, setIsSelected] = useState(idx!==null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
   const [dragStart, setDragStart] = useState(null);
@@ -14,13 +15,24 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 
   useEffect(()=>{
+    if(group !== null && segment !== null && (activeGroup !== group || activeSegment !== segment)){
+      setIsSelected(false);
+      return
+    }
+    setIsSelected(true)
+    },[activeGroup, activeSegment])
+
+  useEffect(()=>{
     setDraggedPointIndex(idx)
     setIsSelected(idx!=null)
   },[idx])
   
   useEffect(()=>{
     setArc(initialArc)
-  },[initialArc])
+    if(!activeGroup) setOldArc(initialArc)
+  },[initialArc, activeGroup])
+
+  
 
   // Add effect for document-level event handling
   useEffect(() => {
@@ -36,8 +48,12 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
 
       if (draggedPointIndex !== null) {
         // Moving a control point
+        
         const newArc = [...arc];
+        const res = follow(draggedPointIndex, cursorPosition, oldArc)
+        newArc[1] = res
         newArc[draggedPointIndex] = [x, y];
+        if(invalid(newArc)) return
         setArc(newArc);
         if (onChange) {
           onChange(newArc);
@@ -62,7 +78,7 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
 
     const handleGlobalUp = () => {
       setIsDragging(false);
-      
+      setOldArc(initialArc)
       setShowMagnifier(false)
     };
 
@@ -102,8 +118,8 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     const rect = arcRef.current.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    setShowMagnifier(true);
-    setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+    
+    setCursorPosition({ x, y });
   
     const controlPointIndex = arc.findIndex(point => 
       Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 25
@@ -113,15 +129,17 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
       setIsDragging(true);
       setDraggedPointIndex(controlPointIndex);
       setDragStart([x, y]);
-      setIsSelected(true);
+      arc.length ===3 ? setIsSelected(true) : ellipseSelect(true);
+      setShowMagnifier(true);
     } else if (e.target.tagName === 'path') {
       setIsDragging(true);
       setDraggedPointIndex(null);
       setDragStart([x, y]);
-      setIsSelected(true);
+      arc.length ===3 ? setIsSelected(true) : ellipseSelect(true);
     } else {
-      setIsSelected(false);
+      arc.length ===3 ? setIsSelected(false) : ellipseSelect(false);
     }
+    setActiveGroupSegment(group, segment)
   }
 
   function findCircle(p1, p2, p3) {
@@ -148,6 +166,44 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
   }
 
   const { center, radius } = findCircle(arc[0], arc[1], arc[2]);
+
+  function invalid(newarc) {
+    if (newarc.length === 3 || draggedPointIndex === 0 || draggedPointIndex === 2){
+      return false
+    }
+    const o = [(newarc[0][0] + newarc[2][0]) / 2, (newarc[0][1] + newarc[2][1]) / 2]
+    const r = Math.sqrt(Math.pow(o[0] - newarc[0][0], 2) + Math.pow(o[1] - newarc[0][1], 2))
+    return Math.sqrt(Math.pow(o[0] - newarc[1][0], 2) + Math.pow(o[1] - newarc[1][1], 2)) > r
+  }
+
+  function follow(draggedPointIndex, cursorPosition, arcpoints){
+      if (draggedPointIndex === 1){
+        return [cursorPosition.x, cursorPosition.y]
+      }
+      if (arcpoints.length === 3){
+        return arcpoints[1]
+      }
+
+      let now = [cursorPosition.x, cursorPosition.y]
+      let old = draggedPointIndex === 0 ? arcpoints[0] : arcpoints[2]
+      let ori = draggedPointIndex === 0 ? arcpoints[2] : arcpoints[0]
+      let arc = arcpoints[1]
+      
+      let v1 = [old[0] - ori[0], old[1] - ori[1]]
+      let v2 = [now[0] - ori[0], now[1] - ori[1]]
+
+      let l1 = Math.sqrt(Math.pow(v1[0], 2) + Math.pow(v1[1], 2))
+      let l2 = Math.sqrt(Math.pow(v2[0], 2) + Math.pow(v2[1], 2))
+      let alpha = Math.atan2(v2[1], v2[0]) - Math.atan2(v1[1], v1[0])
+      let scale = l2 / l1
+      
+      let v4 = [arc[0] - ori[0], arc[1] - ori[1]]
+      let l4 = Math.sqrt(Math.pow(v4[0], 2) + Math.pow(v4[1], 2))
+      let theta = Math.atan2(v4[1], v4[0])
+      let newarc = [l4 * scale * Math.cos(theta + alpha) + ori[0], l4 * scale * Math.sin(theta + alpha) + ori[1]]
+
+      return newarc
+    }
   
   function calculate(arc){
     const x1 = arc[0][0], y1 = arc[0][1];
@@ -282,7 +338,7 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
           strokeWidth={editing?"2":"5"}
           strokeDasharray={patternColor==='FF0000'?"5,5":''}
         />
-        {(isSelected && arc) && arc.map((point, index) => (
+        {(isSelected && arc && arc.length === 3) && arc.map((point, index) => (
           <circle
             key={index}
             cx={point[0]}
@@ -299,13 +355,18 @@ const Arc = ({ arc: initialArc, colour, onChange, imageUrl, isLeftSquare, metada
     </svg>
     {/* Magnifier */}
     <Magnifier 
+        segment={segment}
+        group={group}
         show={showMagnifier}
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
         isLeftSquare={isLeftSquare}
-        metadata={metadata}
+        metadata={fulldata}
         idx={draggedPointIndex}
+        filter={filter}
+        activeGroup={activeGroup}
+        activeSegment={activeSegment}
       />
     </>
   );

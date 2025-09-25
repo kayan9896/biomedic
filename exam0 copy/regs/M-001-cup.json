@@ -1,0 +1,11 @@
+{
+    "folder": "regs",
+    "type": "cup",
+    "Pelvis_Recon": null,
+    "Implant_Recon": null,
+    "RegsResult": {
+        "Inclination" : "41",
+        "Anteversion" : "31"
+    },
+    "timestamp": "2025-04-18 20:33:01.641711"
+}

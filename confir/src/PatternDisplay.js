@@ -4,81 +4,30 @@ import Arc from './patterns/Arc';
 import Ellipse from './patterns/Ellipse';
 import Line from './patterns/Line';
 
-const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editing }) => {
+const PatternDisplay = ({ group, fulldata, isLeftSquare, imageUrl, editing, filter, activeGroup, setActiveGroup, currentMetadata, setCurrentMetadata, resetKey}) => {
   // Keep metadata in array format
-  const [originalMetadata, setOriginalMetadata] = useState(metadata[group] || []);
-  const [lastSavedMetadata, setLastSavedMetadata] = useState(metadata[group] || []);
-  const [currentMetadata, setCurrentMetadata] = useState(metadata[group] || []);
-  const [resetKey, setResetKey] = useState(0);
-  
-  useEffect(() => {
-    if (metadata) {
-      setOriginalMetadata([...metadata[group]]);
-      setLastSavedMetadata([...metadata[group]]);
-      setCurrentMetadata([...metadata[group]]);
-      setResetKey(prev => prev + 1);
-    }
-  }, [metadata]);
-  
-// Register methods with parent via callback
-  useEffect(() => {
-    if (onSave) {
-      onSave({
-        getCurrentMetadata: () => {
-          const updatedMetadata = { ...metadata, [group]: currentMetadata };
-          return updatedMetadata;
-        },
-        updateSavedMetadata: () => {
-          if (currentMetadata && currentMetadata.length > 0) {
-            setLastSavedMetadata([...currentMetadata]);
-          } else {
-            setLastSavedMetadata([]);
-          }
-        },
-        resetToLastSaved: () => {
-          console.log("Resetting to last saved state:", lastSavedMetadata);
-          if (lastSavedMetadata && lastSavedMetadata.length > 0) {
-            setCurrentMetadata([...lastSavedMetadata]);
-          } else {
-            setCurrentMetadata([]);
-          }
-          setResetKey(prev => prev + 1);
-        },
-        resetToOriginal: () => {
-          console.log("Resetting to original state:", originalMetadata);
-          setCurrentMetadata([...originalMetadata]);
-          setResetKey(prev => prev + 1);
-        },
-        clearAllPatterns: (template) => {
-          console.log(template,currentMetadata,"tmp");
-          setCurrentMetadata(template[group]);
-          console.log(currentMetadata,'cur')
-          setResetKey(prev => prev + 1);
-        },
-      });
-    }
-  }, [onSave, currentMetadata, lastSavedMetadata, originalMetadata, group, metadata]);
 
+  const [activeSegment, setActiveSegment] = useState(null)
+
+  const setActiveGroupSegment = (group, segment) => {
+    setActiveSegment(segment);
+    setActiveGroup(group)
+  }
+  
   // Handler to update a specific pattern
   const handlePatternUpdate = (index, newPoints) => {
     setCurrentMetadata(prev => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
+      const updated = {...prev};
+      updated[group][index] = {
+        ...updated[group][index],
         points: newPoints,
         template: 0
       };
+      console.log(updated)
       return updated;
     });
   };
 
-
-  // Container styles
-  const containerStyle = {
-    position: 'absolute',
-    top: '0px',
-    zIndex: 5
-  };
 
   const renderDashedLines = (patterns) => {
     const lines = [];
@@ -113,7 +62,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
   return (
     <>
       {currentMetadata && currentMetadata.length > 0 && (
-        <div style={containerStyle} key={resetKey}>
+        <div key={resetKey}>
           <svg 
             width="960" 
             height="960" 
@@ -122,7 +71,6 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
               top: 0, 
               left: 0, 
               pointerEvents: 'none',
-              zIndex: 1
             }}
           >
             {renderDashedLines(currentMetadata)}
@@ -152,6 +100,7 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     }
                     imageUrl={imageUrl}
                     metadata={currentMetadata}
+                    filter={filter}
                   />
                 );
                 
@@ -159,14 +108,21 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                 return (
                   <Arc
                     key={key}
+                    segment={index}
+                    group={group}
                     arc={pattern.points}
                     colour={currentMetadata[index].template?'FF0000':pattern.colour}
                     onChange={(newArc) => handlePatternUpdate(index, newArc)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
+                    fulldata={fulldata}
                     idx={null}
                     editing={editing}
+                    filter={filter}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
+                    setActiveGroupSegment={setActiveGroupSegment}
                   />
                 );
                 
@@ -174,14 +130,21 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                 return (
                   <Ellipse
                     key={key}
+                    segment={index}
+                    group={group}
                     ellipse={pattern.points}
                     colour={currentMetadata[index].template?'FF0000':pattern.colour}
                     onChange={(newEllipse) => handlePatternUpdate(index, newEllipse)}
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
+                    fulldata={fulldata}
                     idx={null}
                     editing={editing}
+                    filter={filter}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
+                    setActiveGroupSegment={setActiveGroupSegment}
                   />
                 );
                 
@@ -189,6 +152,8 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                 return (
                   <Line
                     key={key}
+                    segment={index}
+                    group={group}
                     squareSize={960}
                     points={pattern.points}
                     colour={currentMetadata[index].template?'FF0000':pattern.colour}
@@ -196,8 +161,13 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
                     imageUrl={imageUrl}
                     isLeftSquare={isLeftSquare}
                     metadata={currentMetadata}
+                    fulldata={fulldata}
                     idx={null}
                     editing={editing}
+                    filter={filter}
+                    activeGroup={activeGroup}
+                    activeSegment={activeSegment}
+                    setActiveGroupSegment={setActiveGroupSegment}
                   />
                 );
                 
@@ -211,8 +181,8 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
             editing&&<PatternGroupManager
               patterns={currentMetadata}
               onPatternsUpdate={handleMultiplePatternsUpdate}
-              handle={metadata[group][0]['handle']}
               group={group}
+              setActiveGroupSegment={setActiveGroupSegment}
             />
           }
         </div>
@@ -223,10 +193,10 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
   // Function to update multiple patterns at once (for group movement)
   function handleMultiplePatternsUpdate(updatedPatterns) {
     setCurrentMetadata(prev => {
-      const newMetadata = [...prev];
+      const newMetadata = {...prev};
       updatedPatterns.forEach((pattern, i) => {
-        newMetadata[i] = pattern;
-        newMetadata[i]['template']=0
+        newMetadata[group][i] = pattern;
+        newMetadata[group][i]['template']=0
       });
       return newMetadata;
     });
@@ -234,8 +204,8 @@ const PatternDisplay = ({ group, metadata, onSave, isLeftSquare, imageUrl, editi
 };
 
 // New component for managing groups of selected patterns
-const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
-  const [controlPoint, setControlPoint] = useState(handle);
+const PatternGroupManager = ({ patterns, onPatternsUpdate, group, setActiveGroupSegment }) => {
+  const [controlPoint, setControlPoint] = useState(patterns[0]['handle']);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
   const [initialPatterns, setInitialPatterns] = useState([]);
@@ -243,6 +213,7 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
 
   useEffect(() => {
     setInitialPatterns(patterns);
+    setControlPoint(patterns[0]['handle'])
   }, [patterns]);
 
   useEffect(() => {
@@ -265,7 +236,9 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
       // Create updated versions of all selected patterns
       const updatedPatterns = initialPatterns.map(pattern => {
         const newPattern = { ...pattern };
-
+        if (pattern.handle) {
+          newPattern.handle = controlPoint
+        }
         // Update points based on pattern type
         if (pattern.type === 'circle') {
           newPattern.points = {
@@ -295,11 +268,12 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
       setDragStart([x, y]);
       
       // Also update the initial positions for next move
-      setInitialPatterns(updatedPatterns);
+      //setInitialPatterns(updatedPatterns);
     };
 
     const handleGlobalUp = () => {
       setIsDragging(false);
+      setActiveGroupSegment(null, null)
     };
 
     if (isDragging) {
@@ -351,7 +325,8 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
         pointerEvents: 'none',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex:10
       }}>
         <div style={{
           position: 'relative',
@@ -379,7 +354,7 @@ const PatternGroupManager = ({ patterns, onPatternsUpdate, handle, group }) => {
             fontWeight: 'bold',
             textAlign: 'center'
           }}>
-            pelvis
+            {group}
           </div>
         </div>
       </div>

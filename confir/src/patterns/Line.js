@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import Magnifier from './Magnifier'; 
 import * as THREE from 'three';
 
-const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeftSquare, idx, editing }) => {
+const Line = ({ segment, group, squareSize, points, colour, onChange, imageUrl, metadata, fulldata, isLeftSquare, idx, editing, filter, activeGroup, activeSegment, setActiveGroupSegment }) => {
   const [curvePoints, setCurvePoints] = useState(points);
-  const [showDots, setShowDots] = useState(idx);
+  const [showDots, setShowDots] = useState(idx!==null);
   const [activeDotIndex, setActiveDotIndex] = useState(idx);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [dragLine, setDragLine] = useState(false);
@@ -14,6 +14,15 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
 
   const HIT_TOLERANCE = 15;
   useEffect(()=>{
+    if(group !== null && segment !== null && (activeGroup !== group || activeSegment !== segment)){
+      setShowDots(false);
+      setActiveDotIndex(null)
+      return
+    }
+    setShowDots(true)
+    },[activeGroup, activeSegment])
+
+  useEffect(()=>{
     setActiveDotIndex(idx)
     setShowDots(idx!==null)
     },[idx])
@@ -21,6 +30,7 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
   useEffect(() => {
     setCurvePoints(points);
     }, [points]);
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -43,12 +53,14 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
       const rect = lineRef.current.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const x = Math.min(Math.max(0, clientX - rect.left), squareSize);
-      const y = Math.min(Math.max(0, clientY - rect.top), squareSize);
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
       
       // Update cursor position for magnifier
       setCursorPosition({ x, y });
   
+
+      
       if (activeDotIndex !== null) {
         const newPoints = [...curvePoints];
         newPoints[activeDotIndex] = [x, y];
@@ -61,9 +73,10 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
         const dy = y - dragLine.startY;
         
         const newPoints = dragLine.originalPoints.map(point => [
-          Math.min(Math.max(0, point[0] + dx), squareSize),
-          Math.min(Math.max(0, point[1] + dy), squareSize)
+          point[0] + dx,
+          point[1] + dy
         ]);
+        setActiveDotIndex(null)
         setCurvePoints(newPoints);
         if (onChange) {
           onChange(newPoints);
@@ -90,29 +103,39 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
     };
   }, [isMouseDown, activeDotIndex, dragLine, curvePoints, squareSize]);
 
-  const handleDotMouseDown = (e, index) => {
+  const handleDotDown = (e, index) => {
     e.preventDefault();
     e.stopPropagation();
-    
+    const event = e.touches ? e.touches[0] : e;
     const rect = lineRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
     setCursorPosition({ x, y });
-    
-    setActiveDotIndex(index);
-    setIsMouseDown(true);
-    setShowDots(true);
+    const controlPointIndex = curvePoints.findIndex(point => 
+      Math.sqrt(Math.pow(x - point[0], 2) + Math.pow(y - point[1], 2)) < 25
+    );
+    if (controlPointIndex !== -1){
+      setActiveDotIndex(index);
+      setIsMouseDown(true);
+      setShowDots(true);
+    }else{
+      setActiveDotIndex(null);
+      setIsMouseDown(false);
+      setShowDots(false);
+    }
+    setActiveGroupSegment(group, segment)
   };
 
-  const handleLineMouseDown = (e) => {
+  const handleLineDown = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    const event = e.touches ? e.touches[0] : e;
     const rect = lineRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
     
     setCursorPosition({ x: mouseX, y: mouseY });
-    
+    setActiveDotIndex(null)
     setDragLine({
       startX: mouseX,
       startY: mouseY,
@@ -120,39 +143,7 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
     });
     setIsMouseDown(true);
     setShowDots(true);
-  };
-
-  const handleTouchStart = (e) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const rect = lineRef.current.getBoundingClientRect();
-    const touchX = touch.clientX - rect.left;
-    const touchY = touch.clientY - rect.top;
-
-    setCursorPosition({ x: touchX, y: touchY });
-    
-    setDragLine({
-      startX: touchX,
-      startY: touchY,
-      originalPoints: [...curvePoints]
-    });
-    setIsMouseDown(true);
-    setShowDots(true);
-  };
-
-  const handleDotTouchStart = (e, index) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const rect = lineRef.current.getBoundingClientRect();
-    const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    setCursorPosition({ x, y });
-    
-    setActiveDotIndex(index);
-    setIsMouseDown(true);
-    setShowDots(true);
+    setActiveGroupSegment(group, segment)
   };
 
   
@@ -200,8 +191,8 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
           fill="none"
           style={{ cursor: 'move' }}
           pointerEvents="auto"
-          onMouseDown={handleLineMouseDown}
-          onTouchStart={handleTouchStart}
+          onMouseDown={handleLineDown}
+          onTouchStart={handleLineDown}
         />
         {/* Visible smooth curve */}
         <path
@@ -230,22 +221,26 @@ const Line = ({ squareSize, points, colour, onChange, imageUrl, metadata, isLeft
             top: `${point[1]-2 - (activeDotIndex === index ? 20 : 10)}px`,
             touchAction: 'none',
             pointerEvents: "auto",
-            zIndex: 10
           }}
-          onMouseDown={(e) => handleDotMouseDown(e, index)}
-          onTouchStart={(e) => handleDotTouchStart(e, index)}
+          onMouseDown={(e) => handleDotDown(e, index)}
+          onTouchStart={(e) => handleDotDown(e, index)}
         />
       ))}
 
       {/* Magnifier */}
       <Magnifier 
+        segment={segment}
+        group={group}
         show={showMagnifier}
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
         isLeftSquare={isLeftSquare}
-        metadata={metadata}
+        metadata={fulldata}
         idx={activeDotIndex}
+        filter={filter}
+        activeGroup={activeGroup}
+        activeSegment={activeSegment}
       />
     </>
   );

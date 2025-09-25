@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import Arc from './Arc';
 import Magnifier from './Magnifier';
 
-const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, idx, editing}) => {
+const Ellipse = ({ segment, group, ellipse: initialEllipse, colour, onChange, groupOffset, imageUrl, isLeftSquare, metadata, fulldata, idx, editing, filter, activeGroup, activeSegment, setActiveGroupSegment}) => {
   const [ellipse, setEllipse] = useState(initialEllipse);
-  const [isSelected, setIsSelected] = useState(idx);
+  const [oldellipse, setOldEllipse] = useState(initialEllipse);
+  const [isSelected, setIsSelected] = useState(idx!==null);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedPointIndex, setDraggedPointIndex] = useState(idx);
   const [dragStart, setDragStart] = useState(null);
@@ -14,7 +15,14 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const patternColor = colour
   
-  
+  useEffect(()=>{
+    if(group !== null && segment !== null && (activeGroup !== group || activeSegment !== segment)){
+      setIsSelected(false);
+      return
+    }
+    setIsSelected(true)
+    },[activeGroup, activeSegment])
+
   useEffect(()=>{
     setDraggedPointIndex(idx)
     setIsSelected(idx!==null)
@@ -22,8 +30,9 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
   
   useEffect(()=>{
       setEllipse(initialEllipse)
+      if(!activeGroup) setOldEllipse(initialEllipse)
       setArcPoints([initialEllipse[0], initialEllipse[3], initialEllipse[2]]);
-    },[initialEllipse])
+    },[initialEllipse, activeGroup])
 
   useEffect(() => {
     if (groupOffset) {
@@ -53,9 +62,13 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
 
       if (draggedPointIndex !== null) {
         // Moving a control point
+        const res = follow(draggedPointIndex, cursorPosition, oldellipse)
         const newEllipse = [...ellipse];
+        newEllipse[1] = res[0]
+        newEllipse[3] = res[1]
         newEllipse[draggedPointIndex] = [x, y];
-    
+
+        if(invalid(newEllipse)) return
         if (draggedPointIndex === 0 || draggedPointIndex === 2) {
           const newArc = [...arcPoints];
           newArc[draggedPointIndex] = [x, y];
@@ -92,7 +105,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
 
     const handleGlobalUp = () => {
       setIsDragging(false);
-      
+      setOldEllipse(ellipse)
       setShowMagnifier(false)
     };
 
@@ -132,7 +145,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
     const rect = ellipseRef.current.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    setShowMagnifier(true);
+    
     setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top });
     
     const controlPointIndex = ellipse.findIndex(point => 
@@ -144,6 +157,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
       setDraggedPointIndex(controlPointIndex);
       setDragStart([x, y]);
       setIsSelected(true);
+      setShowMagnifier(true);
     } else if (e.target.tagName === 'ellipse') {
       setIsDragging(true);
       setDraggedPointIndex(null);
@@ -152,6 +166,7 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
     } else {
       setIsSelected(false);
     }
+    setActiveGroupSegment(group, segment)
   }
 
   function calculateEllipseParameters() {
@@ -199,21 +214,71 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
 
   const { center, a, b, angle } = calculateEllipseParameters();
 
+  function invalid(newarc) {
+    if (draggedPointIndex === 0 || draggedPointIndex === 2){
+      return false
+    }
+    const o = [(newarc[0][0] + newarc[2][0]) / 2, (newarc[0][1] + newarc[2][1]) / 2]
+    const r = Math.sqrt(Math.pow(o[0] - newarc[0][0], 2) + Math.pow(o[1] - newarc[0][1], 2))
+    return Math.sqrt(Math.pow(o[0] - newarc[1][0], 2) + Math.pow(o[1] - newarc[1][1], 2)) > r || Math.sqrt(Math.pow(o[0] - newarc[3][0], 2) + Math.pow(o[1] - newarc[3][1], 2)) > r
+  }
+
+  function follow(draggedPointIndex, cursorPosition, ellipse){
+    if (draggedPointIndex === 1){
+      return [[cursorPosition.x, cursorPosition.y], ellipse[3]]
+    }
+    if (draggedPointIndex === 3){
+      return [ellipse[1], [cursorPosition.x, cursorPosition.y]]
+    }
+    let now = [cursorPosition.x, cursorPosition.y]
+    let mid = ellipse[1]
+    let old = draggedPointIndex === 0 ? ellipse[0] : ellipse[2]
+    let ori = draggedPointIndex === 0 ? ellipse[2] : ellipse[0]
+    let arc = ellipse[3]
+    
+    let v1 = [old[0] - ori[0], old[1] - ori[1]]
+    let v2 = [now[0] - ori[0], now[1] - ori[1]]
+
+    let l1 = Math.sqrt(Math.pow(v1[0], 2) + Math.pow(v1[1], 2))
+    let l2 = Math.sqrt(Math.pow(v2[0], 2) + Math.pow(v2[1], 2))
+    let alpha = Math.atan2(v2[1], v2[0]) - Math.atan2(v1[1], v1[0])
+    let scale = l2 / l1
+
+    let v3 = [mid[0] - ori[0], mid[1] - ori[1]]
+    let l3 = Math.sqrt(Math.pow(v3[0], 2) + Math.pow(v3[1], 2))
+    let beta = Math.atan2(v3[1], v3[0])
+    let newmid = [l3 * scale * Math.cos(beta + alpha) + ori[0], l3 * scale * Math.sin(beta + alpha) + ori[1]]
+    
+    let v4 = [arc[0] - ori[0], arc[1] - ori[1]]
+    let l4 = Math.sqrt(Math.pow(v4[0], 2) + Math.pow(v4[1], 2))
+    let theta = Math.atan2(v4[1], v4[0])
+    let newarc = [l4 * scale * Math.cos(theta + alpha) + ori[0], l4 * scale * Math.sin(theta + alpha) + ori[1]]
+
+    return [newmid, newarc]
+
+  }
+
   return (
     <>
     <Arc
-      arc={[ellipse[0], ellipse[3], ellipse[2]]}
+      segment={segment}
+      group={group}
+      arc={[ellipse[0], ellipse[3], ellipse[2], ellipse[1]]}
       onChange={(newArc) => {
         // Update the ellipse points based on the new arc points
-        const newEllipse = [newArc[0], ellipse[1], newArc[2], ellipse[3]];
+        const newEllipse = [newArc[0], newArc[3], newArc[2], newArc[1]];
         setEllipse(newEllipse);
         if (onChange) {
           onChange(newEllipse);
         }
       }}
-      colour={patternColor}
+      colour={colour}
       imageUrl={imageUrl}
       editing={editing}
+      ellipseSelect={setIsSelected}
+      activeGroup={activeGroup}
+      activeSegment={activeSegment}
+      setActiveGroupSegment={setActiveGroupSegment}
     />
     <svg 
       ref={ellipseRef}
@@ -271,13 +336,18 @@ const Ellipse = ({ ellipse: initialEllipse, colour, onChange, groupOffset, image
     </svg>
     {/* Magnifier */}
     <Magnifier 
+        segment={segment}
+        group={group}
         show={showMagnifier}
         position={cursorPosition}
         imageUrl={imageUrl}
         magnification={2}
         isLeftSquare={isLeftSquare}
-        metadata={metadata}
+        metadata={fulldata}
         idx={draggedPointIndex}
+        filter={filter}
+        activeGroup={activeGroup}
+        activeSegment={activeSegment}
       />
     </>
   );

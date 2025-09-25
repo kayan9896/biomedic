@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Toggle from 'react-toggle';
 import 'react-toggle/style.css';
 
-function L14({setSetting, ai_mode, autocollect, tracking}) {
+function L14({setSetting, ai_mode, autocollect}) {
   // Data structure for placeholder texts
   const [items] = useState([
       { id: 1, text: 'AI Mode', isActive: ai_mode },
       { id: 2, text: 'Auto capture', isActive: autocollect },
-      { id: 3, text: 'Tracking IMU', isActive: tracking },
+      { id: 3, text: 'Placeholder 3', isActive: false },
       { id: 4, text: 'Placeholder 4', isActive: false },
       { id: 5, text: 'Placeholder 5', isActive: false },
       { id: 6, text: 'Placeholder 6', isActive: false },
@@ -85,28 +85,6 @@ function L14({setSetting, ai_mode, autocollect, tracking}) {
             }));
         }
     }
-    if (id === 3) {
-        try {
-            const response = await fetch('http://localhost:5000/api/setting', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 'tracking': newState ? true : false }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update AI mode');
-            }
-        } catch (error) {
-            console.error('Error updating AI mode:', error);
-            // Revert the toggle state if the update failed
-            setToggleStates(prev => ({
-                ...prev,
-                [id]: !newState
-            }));
-        }
-    }
   };
 
   // Custom CSS for react-toggle color
@@ -125,8 +103,9 @@ function L14({setSetting, ai_mode, autocollect, tracking}) {
   return(
     <>
       <style>{toggleStyle}</style>
-      <img src={require('./SettingWindow.png')} alt="SettingWindow" style={{position:'absolute', top:'99px', left:'234px', zIndex:13}}/>
-      <img src={require('./SettingExitBtn.png')} alt="SettingExit" style={{position:'absolute', top:'121px', left:'1617px', zIndex:13}} onClick={()=>setSetting(false)}/>
+      <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:14, aspectRatio:'1920/1080',height:'1080px'}}/>
+      <img src={require('./SettingWindow.png')} alt="SettingWindow" style={{position:'absolute', top:'99px', left:'234px', zIndex:14}}/>
+      <img className="image-button" src={require('../ExitButton.png')} alt="SettingExit" style={{position:'absolute', top:'121px', left:'1617px', zIndex:14}} onClick={()=>setSetting(false)}/>
       <div style={{
           position: 'absolute',
           color: 'white',
@@ -134,7 +113,7 @@ function L14({setSetting, ai_mode, autocollect, tracking}) {
           left: '305px',
           height: '222px',
           width: '1320px',
-          zIndex: 13,
+          zIndex: 14,
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gridTemplateRows: 'repeat(4, 1fr)',

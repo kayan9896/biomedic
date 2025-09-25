@@ -1,0 +1,11 @@
+{
+    "folder": "regs",
+    "type": "tri",
+    "Pelvis_Recon": null,
+    "Implant_Recon": null,
+    "RegsResult": {
+        "LLD" : "3mm",
+        "Offset" : "5mm"
+    },
+    "timestamp": "2025-04-18 20:33:01.641711"
+}

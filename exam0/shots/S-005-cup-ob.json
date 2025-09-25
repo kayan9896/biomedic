@@ -1,10 +1,11 @@
 {
-    "folder": "shots",
-    "type": "cup-ob",
+    "section": "cup-ob",
+    "analysis_success": true,
+    "analysis_error_code": null,
     "side": "l",
-    "imuangles": [0, 0],
-    "metadata": {
-        "group1": [
+    "imuangles": [0, 20],
+    "landmarks": {
+        "pelvis": [
             {
                 "handle": [
                     811,
@@ -68,7 +69,7 @@
                 "colour": "CC79A7"
             }
         ],
-        "group2": [
+        "femur": [
             {
                 "handle": [
                     468,
@@ -97,6 +98,17 @@
             }
         ]
     },
-    "Calibration": {},
-    "Segmentation": null
+    "analysis_parameters": {
+        "extract_distortion": false,
+        "correct_distortion": false,
+        "extract_glyph": false,
+        "extract_tracking": false,
+        "extract_camcalib": false,
+        "ai_mode": true
+    },
+    "framecalib": {
+        "glyph": null,
+        "tracking": null,
+        "camcalib": null
+    }
 }

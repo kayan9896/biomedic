@@ -23,17 +23,47 @@ function KB({
 
   useEffect(() => {
     // Focus the active input when component mounts or active input changes
+    console.log(localCursorPosition)
     if (activeInput === 'pid' && pidInputRef.current) {
+      pidInputRef.current.selectionStart = localCursorPosition
+      pidInputRef.current.selectionEnd = localCursorPosition
+      pidInputRef.current.blur();
       pidInputRef.current.focus();
-      pidInputRef.current.setSelectionRange(localCursorPosition, localCursorPosition);
+      
+      
     } else if (activeInput === 'ratio' && ratioInputRef.current) {
+      ratioInputRef.current.selectionStart = localCursorPosition
+      ratioInputRef.current.selectionEnd = localCursorPosition
+      ratioInputRef.current.blur();
       ratioInputRef.current.focus();
-      ratioInputRef.current.setSelectionRange(localCursorPosition, localCursorPosition);
+      
     } else if (activeInput === 'comment' && commentInputRef.current) {
+      commentInputRef.current.selectionStart = localCursorPosition
+      commentInputRef.current.selectionEnd = localCursorPosition
+      commentInputRef.current.blur();
       commentInputRef.current.focus();
-      commentInputRef.current.setSelectionRange(localCursorPosition, localCursorPosition);
+      
     }
   }, [activeInput, localCursorPosition]);
+
+  const handleClose = async () => {
+    try{
+        await fetch(`http://localhost:5000/patient`,{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body:JSON.stringify({
+            pid,
+            ratio,
+            comment
+          })
+        })
+        setShowKeyboard(false)
+    }catch (err) {
+      console.log('Error to save patient: ' + err.message);
+    }
+  }
 
   // Handle input changes for the ratio field
   const handleRatioChange = (e) => {
@@ -50,7 +80,7 @@ function KB({
   // Handle PID input changes but use the local cursor position
   const handlePidChange = (e) => {
     setPatient(e.target.value)
-    setLocalCursorPosition(e.target.selectionStart);
+    //setLocalCursorPosition(e.target.selectionStart);
   };
 
   // Handle cursor position updates for any input
@@ -59,7 +89,8 @@ function KB({
   };
 
   // Customized keyboard button press handler
-  const handleKeyboardButtonPress = (button) => {
+  const handleKeyboardButtonPress = (button, event) => {
+    if(event) event.preventDefault()
     let currentValue = '';
     let currentCursorPos = localCursorPosition;
     
@@ -72,7 +103,7 @@ function KB({
     }
 
     if (button === "{enter}") {
-      setShowKeyboard(false);
+      insertAtCursor('\n');
     } else if (button === "{bksp}") {
       const beforeCursor = currentValue.substring(0, currentCursorPos - 1);
       const afterCursor = currentValue.substring(currentCursorPos);
@@ -89,8 +120,28 @@ function KB({
       setLocalCursorPosition(currentCursorPos - 1);
     } else if (button === "{space}") {
       insertAtCursor(' ');
-    } else if (button === "{shift}" || button === "{lock}") {
+    } else if (button === "{lock}" || button === "{shift}") {
       setKeyboardLayout(keyboardLayout === "default" ? "shift" : "default");
+    } else if (button === "{tab}") {
+      setActiveInput(activeInput === 'pid' ? 'ratio' : activeInput === 'ratio' ? 'comment' : 'pid')
+    } else if (button === "←"){
+      setLocalCursorPosition(Math.max(0, currentCursorPos - 1));
+    } else if (button === "→"){
+      setLocalCursorPosition(Math.min(currentValue.length, currentCursorPos + 1));
+    } else if (button === "↑"){
+      let i = localCursorPosition - 1
+      while (i > 0){
+        if (currentValue[i] === '\n') break
+        i--
+      }
+      setLocalCursorPosition(i);
+    } else if (button === "↓"){
+      let i = localCursorPosition + 1
+      while (i < currentValue.length){
+        if (currentValue[i] === '\n') break
+        i++
+      }
+      setLocalCursorPosition(i);
     } else if (!button.includes("{")) {
       insertAtCursor(button);
     }
@@ -126,8 +177,8 @@ function KB({
 
   return (
       <div>
-        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
-        <img src={require('./PatientIDBg.png')} alt="PatientIDBg" style={{position:'absolute', top:'245px', left:'0px', zIndex:13}}/>
+        <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:15}} onClick={handleClose}/>
+        <img src={require('./PatientIDWindow.png')} alt="PatientIDBg" style={{position:'absolute', top:'310px', left:'0px', zIndex:15}}/>
         <input
           ref={pidInputRef}
           type="text"
@@ -137,21 +188,24 @@ function KB({
           onClick={() => setActiveInput('pid')}
           style={{
             position: 'absolute',
-            left: '374px',
-            top: '271px',
-            width: '348px',
-            height: '71px',
-            background: activeInput === 'pid' ? '#fff' : '#eee',
+            left: '335px',
+            top: '456px',
+            width: '401px',
+            height: '49px',
+            border: activeInput === 'pid' ? '2px solid #fff' : '0px solid',
+            backgroundColor: '#131313',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            border: activeInput === 'pid' ? '2px solid #4a90e2' : '0px solid',
-            borderRadius: '21px',
-            fontSize: '51px',
+            borderRadius: '20px',
+            fontSize: '40px',
             fontFamily:'abel',
-            zIndex: 14
+            color:'white',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            zIndex: 15
           }}
-          placeholder="no pid data"
+          placeholder="No Patient Data"
         />
         {/* Ratio Input */}
         <input
@@ -163,55 +217,73 @@ function KB({
           onClick={() => setActiveInput('ratio')}
           style={{
             position: 'absolute',
-            left: '1457px',
-            top: '271px',
-            width: '348px',
-            height: '71px',
-            background: activeInput === 'ratio' ? '#fff' : '#eee',
+            left: '568px',
+            top: '571px',
+            width: '164px',
+            height: '49px',
+            backgroundColor: '#131313',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            border: activeInput === 'ratio' ? '2px solid #4a90e2' : '0px solid',
-            borderRadius: '21px',
-            fontSize: '51px',
+            border: activeInput === 'ratio' ? '2px solid #fff' : '0px solid',
+            borderRadius: '20px',
+            fontSize: '40px',
             fontFamily:'abel',
-            zIndex: 14
+            color:'white',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            zIndex: 15
           }}
           placeholder="Ratio"
         />
         
         {/* Comment Input */}
-        <input
+        <div 
+          
+          style={{
+            position: 'absolute',
+            left: '1055px',
+            top: '456px',
+            width: '687px',
+            height: '156px',
+            border: activeInput === 'comment' ? '2px solid #fff' : '0px solid',
+            borderRadius: '20px',
+            backgroundColor: '#131313',
+            padding: '4px 20px',
+
+            zIndex: 15
+        }}>
+        <textarea
           ref={commentInputRef}
           value={comment}
           onChange={handleCommentChange}
           onSelect={handleSelect}
           onClick={() => setActiveInput('comment')}
           style={{
-            position: 'absolute',
-            left: '1154px',
-            top: '409px',
-            width: '651px',
-            height: '71px',
-            background: activeInput === 'comment' ? '#fff' : '#eee',
             overflow: 'auto',
-            border: activeInput === 'comment' ? '2px solid #4a90e2' : '1px solid #ccc',
-            borderRadius: '21px',
-            fontSize: '55px',
+            width: '683px',
+            height: '156px',
+            fontSize: '40px',
             fontFamily:'abel',
-            zIndex: 14
+            resize: 'none',
+            border: 'none',
+            backgroundColor: 'transparent',
+            color: 'white',
+
+            
           }}
           placeholder="Add comment here..."
         />
+        </div>
       
       
       <div 
         ref={keyboardRef}
         style={{
           position: 'absolute',
-          left: '0px',
-          top: '540px',
-          width: '1920px',
+          left: '178px',
+          top: '669px',
+          width: '1568px',
           zIndex: 1000
         }}
       >
@@ -223,36 +295,46 @@ function KB({
               "{tab} q w e r t y u i o p [ ] \\",
               "{lock} a s d f g h j k l ; ' {enter}",
               "{shift} z x c v b n m , . / {shift}",
-              "{space}"
+              "← → {space} ↑ ↓"
             ],
             shift: [
               "~ ! @ # $ % ^ & * ( ) _ + {bksp}",
               "{tab} Q W E R T Y U I O P { } |",
               '{lock} A S D F G H J K L : " {enter}',
               "{shift} Z X C V B N M < > ? {shift}",
-              "{space}"
+              "← → {space} ↑ ↓"
             ]
           }}
           theme={"hg-theme-default myTheme"}
           buttonTheme={[
             {
               class: "hg-black",
-              buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shift} z x c v b n m , . / {shift} {space}"
+              buttons: "` 1 2 3 4 5 6 7 8 9 0 - = {bksp} {tab} q w e r t y u i o p [ ] \\ {lock} a s d f g h j k l ; ' {enter} {shift} z x c v b n m , . / {shift} ← → {space} ↑ ↓"
+            },
+            {
+              class: "hg-space",
+              buttons: "{space}"
+            },
+            {
+              class: "hg-shift",
+              buttons: "{shift}"
             }
           ]}
           onKeyPress={handleKeyboardButtonPress}
           physicalKeyboardHighlight={true}
           mergeDisplay={true}
+          newLineOnEnter={true}
         />
       </div>
 
       <img
-        src={require('./L13/CrossWhite.png')}
-        onClick={() => setShowKeyboard(false)} 
+        className="image-button"
+        src={require('./ExitButton.png')}
+        onClick={handleClose} 
         style={{
           position: 'absolute',
-          top: '280px',
-          right: '20px',
+          top: '346px',
+          left: '1841px',
           zIndex: 1001
         }}
       />

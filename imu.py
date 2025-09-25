@@ -1,81 +1,118 @@
 import threading
 import time
-import keyboard  # You'll need to install this: pip install keyboard
+import logging
+import math
+import sys
+sys.path.append("C:/")
+import openzen
 
-class IMU:
-    def __init__(self, viewmodel):
-        self.angle = 0
+openzen.set_log_level(openzen.ZenLogLevel.Warning)
+
+class IMU_sensor:
+    def __init__(self, port, handler, panel, imu_simulation = False):
+        self.tilt_angle = 0
         self.rotation_angle = 0
-        self.viewmodel = viewmodel
-        self._auto_mode = False  # Start in manual mode
-        self._running = True
-        self.increasing = True
-        
-        # Initialize the angle in viewmodel
-        self.viewmodel.update_state('angle', self.angle)
-        
-        # Start the angle update thread
-        self.thread = threading.Thread(target=self._update_angle)
-        self.thread.daemon = True
-        self.thread.start()
-        
-        # Start keyboard listener
-        self._setup_keyboard_controls()
+        self.is_connected = False
+        self.battery_level = 100
+        self.handler = handler
+        self.panel = panel
+        self.imu_simulation = imu_simulation
+        self.sensor_desc_connect = None
 
-    def _update_angle(self):
-        while self._running:
-            if self._auto_mode:
-                if self.increasing:
-                    self.angle += 1
-                    if self.angle >= 60:
-                        self.increasing = False
-                else:
-                    self.angle -= 1
-                    if self.angle <= -60:
-                        self.increasing = True
-                # Update the angle in viewmodel
-                self.viewmodel.update_state('angle', self.angle)
-            time.sleep(0.1)
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO)
 
-    def _setup_keyboard_controls(self):
+    def start(self, frequency: float = 30.0):
         try:
-            keyboard.on_press_key('z', lambda _: self._adjust_angle(-5))
-            keyboard.on_press_key('x', lambda _: self._adjust_angle(5))
-            keyboard.on_press_key('a', lambda _: self._toggle_auto_mode())
-            keyboard.on_press_key('c', lambda _: self._adjust_angle2(-5))
-            keyboard.on_press_key('v', lambda _: self._adjust_angle2(5))
-            print("Keyboard controls enabled:")
-            print("  Press 'z' to decrease angle by 5")
-            print("  Press 'x' to increase angle by 5")
-            print("  Press 'a' to toggle auto mode")
-        except:
-            print("Failed to setup keyboard controls. Make sure you have admin/root permissions.")
+            if not self.imu_simulation:
+                error, self.client = openzen.make_client()
+                if not error == openzen.ZenError.NoError:
+                    print ("Error while initializing OpenZen library")
 
-    def _adjust_angle(self, change):
-        if not self._auto_mode:
-            new_angle = min(max(self.angle + change, -60), 60)
-            self.angle = new_angle
-            self.viewmodel.update_state('angle', self.angle)
-            print(f"Current angle: {self.angle}")
-    def _adjust_angle2(self, change):
-        if not self._auto_mode:
-            new_angle = min(max(self.rotation_angle + change, -60), 60)
-            self.rotation_angle = new_angle
-            self.viewmodel.update_state('rotation_angle', self.rotation_angle)
-            print(f"Current rotation_angle: {self.rotation_angle}")
+                error = self.client.list_sensors_async()
+                while True:
+                    zenEvent = self.client.wait_for_next_event()
 
-    def _toggle_auto_mode(self):
-        self._auto_mode = not self._auto_mode
-        print(f"Auto mode: {'ON' if self._auto_mode else 'OFF'}")
+                    if zenEvent.event_type == openzen.ZenEventType.SensorFound:
+                        print ("Found sensor {} on IoType {}".format( zenEvent.data.sensor_found.name,
+                            zenEvent.data.sensor_found.io_type))
+                        if self.is_connected is False:
+                            self.sensor_desc_connect = zenEvent.data.sensor_found
+                            self.is_connected = self.sensor_desc_connect is not None 
 
-    def get_angle(self):
-        return self.angle
+                    if zenEvent.event_type == openzen.ZenEventType.SensorListingProgress:
+                        lst_data = zenEvent.data.sensor_listing_progress
+                        print ("Sensor listing progress: {} %".format(lst_data.progress * 100))
+                        if lst_data.complete > 0:
+                            break
+                print ("Sensor Listing complete")
+                error, self.sensor = self.client.obtain_sensor(self.sensor_desc_connect )
+                if not error == openzen.ZenSensorInitError.NoError:
+                    self.is_connected = False
+                    print ("Error connecting to sensor")
 
-    def cleanup(self):
-        self._running = False
-        self.thread.join()
-        # Clean up keyboard listeners
-        try:
-            keyboard.unhook_all()
-        except:
-            pass
+            self.check_thread = threading.Thread(
+                target=self.imu_loop,
+                args=(frequency,),
+                #daemon=True
+            )
+            self.check_thread.start()
+            
+            self.logger.info(f"Started imu checking at {frequency} Hz")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Error starting imu: {str(e)}")
+            return f"Error starting imu: {str(e)}"
+
+    def imu_loop(self, frequency: float):
+        """Main loop for checking video frames"""
+        period = 1.0 / frequency
+        
+        if not self.imu_simulation:
+            
+            t = time.time()
+            while self.is_connected:
+                zenEvent = self.client.poll_next_event()
+                if zenEvent is None:
+                    if time.time() - t > 5:
+                        self.is_connected = False
+                    continue
+                #self.battery_level = self.sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1]
+                self.set_tilt(zenEvent.data.imu_data.r[0])
+                self.set_rotation(zenEvent.data.imu_data.r[1])
+                t = time.time()
+                #print(zenEvent.data.imu_data.r)
+            
+        else:
+            self.is_connected = self.panel.is_connected
+            while self.is_connected:
+                self.is_connected = self.panel.is_connected
+                self.battery_level = self.panel.battery_level
+                noise = self.panel.noise * math.sin(time.time()**2)
+                self.set_tilt(self.panel.tilt_angle + noise)
+                self.set_rotation(self.panel.rotation_angle + noise)
+                time.sleep(period)
+
+    def check_tilt_sensor(self):
+        self.start()        
+        if not self.is_connected:
+            message = "Tilt sensor disconnected. Please check the connection."
+        elif self.battery_level < 30:
+            message = "Tilt sensor connected but battery is low. Consider replacing batteries soon."
+        else:
+            message = "Tilt sensor connected successfully."
+        return {
+            "connected": self.is_connected,
+            "battery_low": self.battery_level < 30,
+            "message": message
+        }
+    
+    def set_tilt(self, a):
+        self.tilt_angle = a
+        self.handler.set_tilt(a)
+
+    def set_rotation(self, a):
+        self.rotation_angle = a
+        self.handler.set_rotation(a)
+    

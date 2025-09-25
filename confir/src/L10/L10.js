@@ -2,7 +2,7 @@ import React from 'react';
 import GaugeComponent from 'react-gauge-component';
 
 function L10({
-  angle, 
+  tiltAngle, 
   rotationAngle, 
   activeLeft,
   activeRight,
@@ -12,6 +12,7 @@ function L10({
   targetTiltAngle,
   stage,
   isCupReg,
+  isTriReg,
   usedOB,
   showIcon,
   tiltValid,
@@ -24,7 +25,9 @@ function L10({
   apr,
   rangel,
   ranger,
-  scale
+  scale,
+  applyTarget,
+  noap
 }) {
   const blue60 = '#3ca4e5';
   const blue80 = '#0260a0';
@@ -35,61 +38,43 @@ function L10({
   const red80 = '#cd5445';
   const red40 = '#E9C4BF';
   
-  // Display value for rotation angle (saved or current)
+  // Display value for rotation tiltAngle (saved or current)
   const getDisplayRotationValue = () => {
-    if (stage !== 0 && activeLeft) return `${rotationAngle - apRotationAngle}`
+    if(noap) return activeLeft ? [`${rotationAngle - apRotationAngle}`, 1] : [`${rotationAngle}`, 0]
+    if (stage !== 0 && activeLeft) return [`${rotationAngle - apRotationAngle}`, 1]
     if (stage !== 0 && stage !== 1 && activeRight){
-      if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? `${rotationAngle - obRotationAngle}` : `${rotationAngle - obRotationAngle2}`
-      if(rotationAngle * usedOB > 0) return `${rotationAngle - usedOB}` 
+      if(!isCupReg) return rotationAngle * obRotationAngle > 0 ? [`${rotationAngle - obRotationAngle}`, 1] : [`${rotationAngle - obRotationAngle2}`, 1]
+      if(rotationAngle * usedOB > 0) return [`${rotationAngle - usedOB}`, 1]
     } 
-    return `${rotationAngle}`;
+    if (activeLeft && apRotationAngle) return [`${rotationAngle - apRotationAngle}`, 1]
+    if (activeRight && obRotationAngle && rotationAngle * obRotationAngle > 0) return [`${rotationAngle - obRotationAngle}`, 1] 
+    if (activeRight && obRotationAngle2 && rotationAngle * obRotationAngle2 > 0) return [`${rotationAngle - obRotationAngle2}`, 1]
+    return [`${rotationAngle}`, 0];
+  };
+
+  const getDisplayTiltValue = () => {
+    return stage === 0 && activeLeft && !applyTarget ? [`${tiltAngle}`, 0] : [`${tiltAngle - targetTiltAngle}`, 1]
   };
   
   // Color for rotation value display
   const getTiltColor = () => {
-    if (stage === 0 && activeLeft && tiltValid) return '#46a745'
-    if (angle === targetTiltAngle) return '#46a745'
+    if (tiltValid) return '#46a745'
     return '#FFFFFF'
   };
   
-
   const getRotationColor = () => {
-    if (stage === 0 && (activeLeft || activeRight)) return '#46a745'
-    if (stage === 1 && ((activeLeft && rotationAngle === apRotationAngle) || (activeRight && rotationAngle * obRotationAngle < 0))) return '#46a745'
-    if(stage > 1){
-      if (!isCupReg){
-        if((rotationAngle === apRotationAngle) || ((rotationAngle === obRotationAngle || rotationAngle === obRotationAngle2))) return '#46a745'
-      }else{
-        if((rotationAngle === apRotationAngle) || (rotationAngle === usedOB)) return '#46a745'
-      }
-    }
+    if (rotValid) return '#46a745'
     return '#FFFFFF'
   };
 
   const displayValue = (i) => {
-    if(i % 1 === 0){
-      return [i, 0]
-    }
-    const str = i.toString().split('.')
+    const str = parseFloat(i).toFixed(1).split('.')
     return [str[0], str[1]]
   }
 
-  const getBG = (c, type) => {
-    if(type === 'tilt'){
-      if(stage === 0 && activeLeft) return c === '#46a745' ? require('./AngleDegreeBg.png') : require('./WhiteAngleDegreeBg.png')
-      return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
-    }else{
-      if (stage !== 0 && activeLeft) return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
-      if (stage !== 0 && stage !== 1 && activeRight){
-        if(isCupReg){
-          if((usedOB > 0 && rotationAngle < (obl+apRotationAngle)/2) || (usedOB <= 0 && rotationAngle > (obr+apRotationAngle)/2)){
-            return require('./WhiteAngleDegreeBg.png')
-          } 
-        }
-        return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
-      }
-      return c === '#46a745' ? require('./AngleDegreeBg.png') : require('./WhiteAngleDegreeBg.png')
-    }
+  const getBG = (c, delta) => {
+    if (!delta) return c === '#46a745' ? require('./AngleDegreeBg.png') : require('./WhiteAngleDegreeBg.png')
+    return c === '#46a745' ? require('./DeltaAngleDegreeBg.png') : require('./WhiteDeltaAngleDegreeBg.png')
   }
 
   const getTiltTick = () => {
@@ -98,23 +83,45 @@ function L10({
         value: targetTiltAngle!==null? targetTiltAngle: 0,
         valueConfig:{
           style: {
-          fontSize: (angle <= tiltr && angle >= tiltl)? '50px' : '30px',
+          fontSize: (tiltAngle <= tiltr && tiltAngle >= tiltl)? '50px' : '30px',
           fill:'white',
           fontFamily:'abel'
         }},
-        lineConfig:{width:(angle <= tiltr && angle >= tiltl)? '5px' : '3px',
-          length:(angle <= tiltr && angle >= tiltl)? 20 : 5,
-          distanceFromArc: (angle <= tiltr && angle >= tiltl)? 3 : 5,color:'#ffffff'}
+        lineConfig:{width:(tiltAngle <= tiltr && tiltAngle >= tiltl)? '5px' : '3px',
+          length:(tiltAngle <= tiltr && tiltAngle >= tiltl)? 20 : 5,
+          distanceFromArc: (tiltAngle <= tiltr && tiltAngle >= tiltl)? 3 : 5,color:'#ffffff'}
       },
       
     ]
   }
 
   const getRotaionTick = () => {
+    if(noap) return [{
+          value: apRotationAngle === null ? 0 : apRotationAngle,
+          valueConfig:{
+            style: {
+            fontSize: (rotationAngle <= apr && rotationAngle > apl)? '50px' : '30px',
+            fill:'white',
+            fontFamily:'abel'
+          }},
+          lineConfig:{width:(rotationAngle <= apr && rotationAngle > apl)? '5px' : '3px',
+            length:(rotationAngle <= apr && rotationAngle > apl)? 20 : 5,
+            distanceFromArc: (rotationAngle <= apr && rotationAngle > apl)? 3 : 5,color:'#ffffff'}
+        }]
     if(stage === 0){
+      let targetl = null
+      let targetr = null
+      if (obRotationAngle !== null){
+        if(obRotationAngle < 0) targetl = obRotationAngle
+        else targetr = obRotationAngle
+      } 
+      if (obRotationAngle2 !== null){
+        if(obRotationAngle2 < 0) targetl = obRotationAngle2
+        else targetr = obRotationAngle2
+      } 
       return [
         {
-          value: -(apr + ranger)/2,
+          value: targetl === null ? -(apr + ranger)/2 : targetl,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= apl && rotationAngle > rangel)? '50px' : '30px',
@@ -126,7 +133,7 @@ function L10({
             distanceFromArc: (rotationAngle <= apl && rotationAngle > rangel)? 3 : 5,color:'#ffffff'}
         },
         {
-          value: 0,
+          value: apRotationAngle === null ? 0 : apRotationAngle,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= apr && rotationAngle > apl)? '50px' : '30px',
@@ -138,7 +145,7 @@ function L10({
             distanceFromArc: (rotationAngle <= apr && rotationAngle > apl)? 3 : 5,color:'#ffffff'}
         },
         {
-          value: (apr + ranger)/2,
+          value: targetr === null ? (apr + ranger)/2 : targetr,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= ranger && rotationAngle > apr) ? '50px' : '30px',
@@ -153,10 +160,10 @@ function L10({
     }
     if(stage === 1){
       const array = []
-      if(obRotationAngle > apr)(
+      if(obRotationAngle > 0)(
         array.push(
           {
-            value: -(apr + ranger)/2,
+            value: obRotationAngle2 === null ? -(apr + ranger)/2 : obRotationAngle2,
             valueConfig:{
               style: {
               fontSize: (rotationAngle <= apl && rotationAngle > rangel)? '50px' : '30px',
@@ -181,9 +188,9 @@ function L10({
           length:(rotationAngle <= apr && rotationAngle > apl)? 20 : 5,
           distanceFromArc: (rotationAngle <= apr && rotationAngle > apl)? 3 : 5,color:'#ffffff'}
       })
-      if(obRotationAngle < apl){
+      if(obRotationAngle < 0){
         array.push({
-          value: (apr + ranger)/2,
+          value: obRotationAngle2 === null ? (apr + ranger)/2 : obRotationAngle2,
           valueConfig:{
             style: {
             fontSize: (rotationAngle <= ranger && rotationAngle > apr) ? '50px' : '30px',
@@ -198,7 +205,7 @@ function L10({
       return array
     }
     const array = []
-    if(!isCupReg || (isCupReg && usedOB <= apl)){
+    if(!isCupReg || ((isCupReg || isTriReg) && usedOB < 0)){
       array.push(
         {
           value: obl,
@@ -226,7 +233,7 @@ function L10({
         length:(rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 20 : 5,
         distanceFromArc: (rotationAngle <= (apRotationAngle + obr)/2 && rotationAngle >(obl + apRotationAngle)/2)? 3 : 5,color:'#ffffff'}
     })
-    if(!isCupReg || (isCupReg && usedOB > apr)){
+    if(!isCupReg || ((isCupReg || isTriReg) && usedOB > 0)){
       array.push({
         value: obr,
         valueConfig:{
@@ -243,17 +250,17 @@ function L10({
       return array
   }
 
-  function getTiltArray(targetTiltAngle, angle) {
-    if (stage === 0 && activeLeft) return [
+  function getTiltArray(targetTiltAngle, tiltAngle) {
+    if (stage === 0 && activeLeft && (targetTiltAngle == null || (targetTiltAngle !== null && !applyTarget))) return [
       {
-        limit: apl,
+        limit: tiltl,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
       },
       {
-        limit: apr,
-        color: (angle <= tiltr && angle >apl) ? red60 : red10,
+        limit: tiltr,
+        color: (tiltAngle <= tiltr && tiltAngle >tiltl) ? red60 : red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
@@ -268,25 +275,25 @@ function L10({
 
     return [
       {
-        limit: apl,
+        limit: tiltl,
         color: 'grey',
         showTick: false,
         tooltip: { text: 'Out' }
       },
       {
-        limit: Math.max(targetTiltAngle - 0.5*scale, -19.99),
+        limit: Math.max(targetTiltAngle - 0.5*scale, tiltl + 0.01),
         color: red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit: Math.min(targetTiltAngle + 0.5*scale, 19.99),
-        color: angle <= tiltr && angle > apl ? red80 : red40,
+        limit: Math.min(targetTiltAngle + 0.5*scale, tiltr - 0.01),
+        color: tiltAngle <= tiltr && tiltAngle > tiltl ? red80 : red40,
         showTick: false,
         tooltip: { text: 'AP Range' }
       },
       {
-        limit: apr,
+        limit: tiltr,
         color: red10,
         showTick: false,
         tooltip: { text: 'AP Range' }
@@ -301,7 +308,56 @@ function L10({
   }
 
   function getDynamicArray() {
+    if(noap) {
+        const array = [
+        {
+          limit: apl,
+          color: 'grey',
+          showTick: false,
+          tooltip: { text: 'Out' }
+        }]
+        if(apRotationAngle){
+          array.push(
+            {
+              limit: Math.max(apRotationAngle - 0.5*scale, apl + 0.01),
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+            {
+              limit:Math.min(apRotationAngle + 0.5*scale, apr - 0.01),
+              color: rotationAngle <= apr && rotationAngle > apl ? red80 : red40,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+          )
+      
+            array.push({
+              limit: apr,
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },)
+        }else{
+        array.push({
+            limit: apr,
+            color: rotationAngle <= apr && rotationAngle > apl ? red60 : red10,
+            showTick: false,
+            tooltip: { text: 'AP Range' }
+          },)
+        }
+        array.push({
+          limit: 90*scale,
+          color: 'grey',
+          showTick: false,
+          tooltip: { text: 'Out' }
+          }
+        )
+        return array
+      }
+
     if(stage === 0){
+      
       const array = [
         {
           limit: rangel,
@@ -309,27 +365,131 @@ function L10({
           showTick: false,
           tooltip: { text: 'Out' }
         }]
-        array.push({
-          limit: apl,
-          color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
-          showTick: false,
-          tooltip: { text: 'OB Range' }
-        },)
-  
+        if(obRotationAngle && obRotationAngle < 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle - 0.5*scale, rangel + 0.01),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle + 0.5*scale, apl - 0.01),
+              color: (rotationAngle <= apl && rotationAngle > rangel) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: apl,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else if(obRotationAngle2 && obRotationAngle2 < 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle2 - 0.5*scale, rangel + 0.01),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle2 + 0.5*scale, apl - 0.01),
+              color: (rotationAngle <= apl && rotationAngle > rangel) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: apl,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else{
+          array.push({
+            limit: apl,
+            color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)}
+        if(apRotationAngle){
+          array.push(
+            {
+              limit: Math.max(apRotationAngle - 0.5*scale, apl + 0.01),
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+            {
+              limit:Math.min(apRotationAngle + 0.5*scale, apr - 0.01),
+              color: rotationAngle <= apr && rotationAngle > apl ? red80 : red40,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },
+          )
+      
+            array.push({
+              limit: apr,
+              color: red10,
+              showTick: false,
+              tooltip: { text: 'AP Range' }
+            },)
+        }else{
         array.push({
           limit: apr,
           color: rotationAngle <= apr && rotationAngle > apl ? red60 : red10,
           showTick: false,
           tooltip: { text: 'AP Range' }
-        },)
-
+        },)}
+        if(obRotationAngle && obRotationAngle > 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle - 0.5*scale, apr),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle + 0.5*scale, ranger - 0.01),
+              color: (rotationAngle <= ranger && rotationAngle > apr) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: ranger,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else if(obRotationAngle2 && obRotationAngle2 > 0){
+          array.push(
+            {
+              limit: Math.max(obRotationAngle2 - 0.5*scale, apr),
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },
+            {
+              limit: Math.min(obRotationAngle2 + 0.5*scale, ranger - 0.01),
+              color: (rotationAngle <= ranger && rotationAngle > apr) ? blue80 : blue40,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          array.push({
+            limit: ranger,
+            color: blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          },)
+        }else{
+          array.push({
+            limit: ranger,
+            color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
+            showTick: false,
+            tooltip: { text: 'OB Range' }
+          })}
+        
         array.push({
-          limit: ranger,
-          color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
-          showTick: false,
-          tooltip: { text: 'OB Range' }
-        },
-        {
           limit: 90*scale,
           color: 'grey',
           showTick: false,
@@ -347,7 +507,7 @@ function L10({
           showTick: false,
           tooltip: { text: 'Out' }
         }]
-        if (obRotationAngle < apl) {
+        if (obRotationAngle < 0) {
           array.push({
             limit: apl,
             color: 'grey',
@@ -355,22 +515,44 @@ function L10({
             tooltip: { text: 'OB Range' }
           },)
         }else{
-          array.push({
-            limit: apl,
-            color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
-            showTick: false,
-            tooltip: { text: 'OB Range' }
-          },)
+          if(obRotationAngle2){
+            array.push(
+              {
+                limit: Math.max(obRotationAngle2 - 0.5*scale, rangel + 0.01),
+                color: blue10,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },
+              {
+                limit: Math.min(obRotationAngle2 + 0.5*scale, apl - 0.01),
+                color: (rotationAngle <= apl && rotationAngle > rangel) ? blue80 : blue40,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },)
+            array.push({
+              limit: apl,
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          }else{
+            array.push({
+              limit: apl,
+              color: (rotationAngle <= apl && rotationAngle > rangel) ? blue60 : blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          }        
         }
         array.push(
           {
-            limit: Math.max(apRotationAngle - 0.5*scale, -19.99),
+            limit: Math.max(apRotationAngle - 0.5*scale, apl + 0.01),
             color: red10,
             showTick: false,
             tooltip: { text: 'AP Range' }
           },
           {
-            limit:Math.min(apRotationAngle + 0.5*scale, 19.99),
+            limit:Math.min(apRotationAngle + 0.5*scale, apr - 0.01),
             color: rotationAngle <= apr && rotationAngle > apl ? red80 : red40,
             showTick: false,
             tooltip: { text: 'AP Range' }
@@ -383,7 +565,7 @@ function L10({
           showTick: false,
           tooltip: { text: 'AP Range' }
         },)
-        if (obRotationAngle > apr) {
+        if (obRotationAngle > 0) {
           array.push({
             limit: ranger,
             color: 'grey',
@@ -391,12 +573,34 @@ function L10({
             tooltip: { text: 'OB Range' }
           },)
         }else{
+          if(obRotationAngle2){
+            array.push(
+              {
+                limit: Math.max(obRotationAngle2 - 0.5*scale, apr),
+                color: blue10,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },
+              {
+                limit: Math.min(obRotationAngle2 + 0.5*scale, ranger - 0.01),
+                color: (rotationAngle <= ranger && rotationAngle > apr) ? blue80 : blue40,
+                showTick: false,
+                tooltip: { text: 'OB Range' }
+              },)
+            array.push({
+              limit: ranger,
+              color: blue10,
+              showTick: false,
+              tooltip: { text: 'OB Range' }
+            },)
+          }else{
           array.push({
             limit: ranger,
             color: (rotationAngle <= ranger && rotationAngle > apr) ? blue60 : blue10,
             showTick: false,
             tooltip: { text: 'OB Range' }
           },)
+          }
         }
         array.push(
         {
@@ -418,7 +622,7 @@ function L10({
         tooltip: { text: 'Out' }
       }]
       
-    if(isCupReg && usedOB > apr){
+    if((isCupReg || isTriReg) && usedOB > 0){
       array.push({
         limit: (obl + apRotationAngle)/2,
         color: 'grey',
@@ -429,7 +633,7 @@ function L10({
       console.log((obl + apRotationAngle)/2 - 0.01)
       array.push(
         {
-          limit: Math.max(obl - 0.5*scale, -49.99),
+          limit: Math.max(obl - 0.5*scale, rangel + 0.01),
           color: blue10,
           showTick: false,
           tooltip: { text: 'OB Range' }
@@ -470,7 +674,7 @@ function L10({
         tooltip: { text: 'AP Range' }
       },)
 
-      if(isCupReg && usedOB <= apl){
+      if((isCupReg || isTriReg) && usedOB < 0){
         array.push({
           limit: ranger,
           color: 'grey',
@@ -486,7 +690,7 @@ function L10({
           tooltip: { text: 'OB Range' }
         },
         {
-          limit: Math.min(obr + 0.5*scale, 49.99),
+          limit: Math.min(obr + 0.5*scale, ranger - 0.01),
           color: (rotationAngle <= ranger && rotationAngle > (apRotationAngle + obr)/2) ? blue80 : blue40,
           showTick: false,
           tooltip: { text: 'OB Range' }
@@ -508,18 +712,6 @@ function L10({
   
     return array;
   }
-  console.log(getDynamicArray())
-  const deltaDecimal = ()=> {
-    if (stage !== 0 && activeLeft) return true
-    if (stage !== 0 && stage !== 1 && activeRight){
-      if(isCupReg){
-        if((usedOB > 0 && rotationAngle < (obl+apRotationAngle)/2) || (usedOB <= 0 && rotationAngle > (obr+apRotationAngle)/2)) return false
-      }
-      return true
-    } 
-    return false
-  }
-
 
 
   return(
@@ -541,7 +733,7 @@ function L10({
           width: 0.2,
           padding: 0,
           cornerRadius: 1,
-          subArcs: getTiltArray(targetTiltAngle, angle)
+          subArcs: getTiltArray(targetTiltAngle, tiltAngle)
         }}
         pointer={{
           color: '#ffffff',
@@ -566,7 +758,7 @@ function L10({
           },
           
         }}
-        value={angle}
+        value={tiltAngle}
         minValue={-90*scale}
         maxValue={90*scale}
       />
@@ -612,7 +804,7 @@ function L10({
 
 
       <div className="hand" style={{ 
-        transform: `rotate(${angle/scale}deg)`,
+        transform: `rotate(${tiltAngle > 0? Math.min(87, tiltAngle/scale) : Math.max(-87, tiltAngle/scale)}deg)`,
         position:'absolute', 
         top:'335px', 
         left:'263px', 
@@ -621,7 +813,7 @@ function L10({
         <img src={require('./CarmTilt.png')} alt="indicator" />
       </div>
       <div className="hand" style={{ 
-        transform: `rotate(${rotationAngle/scale}deg)`,
+        transform: `rotate(${rotationAngle > 0 ? Math.min(87, rotationAngle/scale) : Math.max(-87, rotationAngle/scale)}deg)`,
         position:'absolute', 
         top:'339px', 
         left:'1048px', 
@@ -630,67 +822,67 @@ function L10({
         <img src={require('./CarmRotation.png')} alt="indicator" />
       </div>
       
-      {/* Tilt angle display box */}
+      {/* Tilt tiltAngle display box */}
       <div style={{position:'absolute', alignItems:'center', top:'666px', left:'376px', zIndex:11}}>
-        <img src={getBG(getTiltColor(),'tilt')} alt="box" />
+        <img src={getBG(getTiltColor(), getDisplayTiltValue()[1])} alt="box" />
         <div style={{
           position:'absolute', 
           top: 0, 
-          right:(stage === 0 && activeLeft)?'148px':'113px', 
+          right:getDisplayTiltValue()[1] ? '113px' : '148px', 
           width:'100%', 
           textAlign:'right', 
           color: getTiltColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
-          {displayValue(stage === 0 && activeLeft ? `${angle}` : `${angle - targetTiltAngle}`)[0]}
+          {displayValue(getDisplayTiltValue()[0])[0]}
         </div>
         <div style={{
           position:'absolute', 
           top: 0, 
-          left: (stage === 0 && activeLeft)?'179px':'213px', 
+          left: getDisplayTiltValue()[1] ? '213px' : '179px', 
           width:'100%', 
           textAlign:'left', 
           color: getTiltColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
-          {displayValue(stage === 0 && activeLeft ? `${angle}` : `${angle - targetTiltAngle}`)[1]}
+          {displayValue(getDisplayTiltValue()[0])[1]}
         </div>
 
       </div>
       
-      {/* Rotation angle display box */}
+      {/* Rotation tiltAngle display box */}
       <div style={{position:'absolute', top:'666px', left:'1157px', zIndex:11}}>
-        <img src={getBG(getRotationColor(),'rot')} alt="box" />
+        <img src={getBG(getRotationColor(), getDisplayRotationValue()[1])} alt="box" />
         <div style={{
           position:'absolute', 
           top: 0, 
-          right: deltaDecimal()?'113px':'148px', 
+          right: getDisplayRotationValue()[1] ? '113px' : '148px', 
           width:'100%', 
           textAlign:'right', 
           color: getRotationColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
-          {displayValue(getDisplayRotationValue())[0]}
+          {displayValue(getDisplayRotationValue()[0])[0]}
         </div>
         <div style={{
           position:'absolute', 
           top: 0, 
-          left: deltaDecimal()?'213px':'179px', 
+          left: getDisplayRotationValue()[1] ? '213px' : '179px', 
           width:'100%', 
           textAlign:'left', 
           color: getRotationColor(),
           fontFamily:'abel', 
-          fontSize:'80px'
+          fontSize:'75px'
         }}>
-          {displayValue(getDisplayRotationValue())[1]}
+          {displayValue(getDisplayRotationValue()[0])[1]}
         </div>
 
       </div>
       {showIcon && 
-      <img style={{position:'absolute', top:'671px', left:'900px', zIndex:11}} src={require('./CarmCheckmarks.png')} alt="box" />}
+      <img style={{position:'absolute', top:'652px', left:'862px', zIndex:11}} src={require('./CarmCheckmarks.png')} alt="box" />}
       
     </>
   );

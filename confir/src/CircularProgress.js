@@ -10,13 +10,13 @@ const CircularProgress = ({ percentage }) => {
 
   // Gradient colors
   const gradientColors = [
-    '#0155BB', // tail (start)
-    '#3792FF', // head (end)
+    '#00B0F0', // tail (start)
+    '#00B0F0', // head (end)
   ];
 
   return (
     <div className="circular-progress">
-      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:10}}/>
+      <img src={require('./L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:25, aspectRatio:'1920/1080', height:'1080px'}}/>
       <img src={backgroundImage} alt="window background" className="background-image" />
       <svg width="1920" height="960" viewBox="0 0 1920 960">
         <defs>
@@ -28,7 +28,7 @@ const CircularProgress = ({ percentage }) => {
         {/* Outer white circle */}
         <circle
           cx="960"
-          cy="496"
+          cy="492"
           r={radiusOuter}
           stroke="#FFF"
           strokeWidth="16"
@@ -38,48 +38,58 @@ const CircularProgress = ({ percentage }) => {
         {/* Blue progress circle */}
         <circle
           cx="960"
-          cy="496"
+          cy="492"
           r={radiusOuter}
           stroke="url(#progress-gradient)"
           strokeWidth="16"
           fill="none"
-          strokeLinecap="round"
+          strokeLinecap="square"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          transform="rotate(-90 960 496)"
+          transform="rotate(-90 960 492)"
         />
         
         {/* Hollow inner circle */}
         <circle
           cx="960"
-          cy="496"
+          cy="492"
           r={radiusInner}
           fill="none"
         />
+        
+        
+      </svg>
         {/* Percentage text */}
-        <text
-          x="877"
-          y="433"
-          textAnchor="start"
-          dominantBaseline="hanging"
-          fill="#3792FF"
-          fontSize="74px"
-          fontFamily='abel'
+        <div
+          style={{
+          fontSize: "74px",
+          fontFamily: 'abel',
+          textAlign: 'center',
+          position: 'absolute',
+          width: '166px',
+          top: '445px',
+          left: '878px',
+          zIndex: 25,
+          color: '#00B0F0'
+        }}
         >
           {`${Math.round(percentage)}%`}
-        </text>
-        <text
-          x="865"
-          y="503"
-          textAnchor="start"
-          dominantBaseline="hanging"
-          fill="white"
-          fontSize="39.6px"
-          fontFamily='abel'
+        </div>
+        <div
+          style={{
+          fontSize: "45px",
+          fontFamily: 'abel',
+          textAlign: 'center',
+          position: 'absolute',
+          width: '231px',
+          top: '608px',
+          left: '845px',
+          zIndex: 25,
+          color: 'white'
+        }}
         >
           Analyzing
-        </text>
-      </svg>
+        </div>
     </div>
   );
 };

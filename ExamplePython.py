@@ -161,15 +161,16 @@ while True:
         zenEvent.component.handle == imu.component.handle:
 
         imu_data = zenEvent.data.imu_data
-        print ("ts: {} s".format(imu_data.timestamp))
-        print ("A: {} g".format(imu_data.a))
-        print ("G1: {} degree/s".format(imu_data.g1))   # depending on sensor, gyro data is outputted to g1, g2 or both
+        print (sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1])
+        
+        print ("Angle: {} degrees".format(imu_data.r))
+        '''print ("G1: {} degree/s".format(imu_data.g1))   # depending on sensor, gyro data is outputted to g1, g2 or both
         print ("G2: {} degree/s".format(imu_data.g2))   # read more on https://lpresearch.bitbucket.io/openzen/latest/getting_started.html#id1
-        print ("B: {} microT".format(imu_data.b))
+        print ("B: {} microT".format(imu_data.b))'''
 
     runSome = runSome + 1
-    if runSome > 5:
-        break
+    if runSome > 50000000:
+        breakhyh
 
 print ("Streaming of sensor data complete")
 sensor.release()

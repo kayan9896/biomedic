@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import CircularProgress2 from '../CircularProgress2';
 
-function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected }) {
+function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected, setShowReconnectionPage, tracking }) {
   // Start with video step if disconnected, otherwise IMU step
   const [currentStep, setCurrentStep] = useState(videoConnected ? 3 : 2);
   const [videoStatus, setVideoStatus] = useState(videoConnected);
@@ -8,10 +9,12 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
   const [videoFrame, setVideoFrame] = useState(null);
   const [tiltSensorBatteryLow, setTiltSensorBatteryLow] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false)
   
   // Check video connection
   const checkVideoConnection = async () => {
     try {
+      setLoading(true)
       const response = await fetch('http://localhost:5000/check-video-connection');
       if (!response.ok) {
         throw new Error('Failed to check video connection');
@@ -23,8 +26,10 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
       if (data.connected && data.frame) {
         setVideoFrame(data.frame);
       }
+      setLoading(false)
     } catch (err) {
       setError('Error checking video connection: ' + err.message);
+      setLoading(false)
       console.error(err);
     }
   };
@@ -32,14 +37,17 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
   // Check IMU/tilt sensor connection
   const checkTiltSensor = async () => {
     try {
-      const response = await fetch('http://localhost:5000/check-tilt-sensor');
+      setLoading(true)
+      const response = await fetch('http://localhost:5000/check-tilt-sensor',{ signal: AbortSignal.timeout(20000) });
       if (!response.ok) {
         throw new Error('Failed to check tilt sensor');
       }
       const data = await response.json();
       setImuStatus(data.connected);
       setTiltSensorBatteryLow(data.battery_low);
+      setLoading(false)
     } catch (err) {
+      setLoading(false)
       setError('Error checking tilt sensor: ' + err.message);
       console.error(err);
     }
@@ -48,7 +56,7 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
   // Handle continue/return button
   const handleContinue = () => {
     if (currentStep === 2 && videoStatus) {
-      if (!imuStatus) {
+      if (!imuStatus && tracking) {
         setCurrentStep(3); // Move to IMU step if it's not connected
       } else {
         onClose(); // Both connected, close the page
@@ -62,8 +70,12 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
   const getCheckStatus = (step) => {
     let background = '';
     let textColor, icon, isComplete = false;
-
-    if (step === 1) { // C-ARM is always completed
+    if (step === 3 && !tracking){
+        background = '';
+        textColor = '#686868';
+        icon = 'CrossGray.png';
+      }
+    else if (step === 1) { // C-ARM is always completed
       textColor = '#00B0F0';
       icon = 'CheckmarkBlue.png';
       isComplete = true;
@@ -126,17 +138,17 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
   };
 
   // Determine if current step is completed
-  const isCurrentStepComplete = () => {
-    switch (currentStep) {
+  const isStepComplete = (step) => {
+    switch (step) {
       case 2: return videoStatus;
-      case 3: return imuStatus && !tiltSensorBatteryLow;
+      case 3: return (tracking && imuStatus && !tiltSensorBatteryLow) || !tracking;
       default: return false;
     }
   };
 
   // Determine if all issues are resolved
   const allIssuesResolved = () => {
-    return videoStatus && imuStatus && !tiltSensorBatteryLow;
+    return videoStatus && ((tracking && imuStatus) || !tracking) && !tiltSensorBatteryLow;
   };
 
   // Determine if try again button should be enabled
@@ -146,11 +158,13 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
 
   return (
     <div>
+      <img src={require('../L10/BgBlur.png')} alt="ReportImageViewport" style={{position:'absolute', top:'0px', zIndex:13}}/>
       <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'6px', left:'240px', zIndex:13}}/>
       
       {/* Try Again Button - always show but only enable for current active step that needs reconnection */}
       <img 
         src={isTryAgainEnabled() ? require('./SetupTryAgainBtn.png') : require('./SetupTryAgainBtnDisable.png')} 
+        className={isTryAgainEnabled() && "image-button"}
         alt="SetupTryAgain" 
         style={{
           position:'absolute', 
@@ -164,20 +178,24 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
       
       {/* Continue/Return Button */}
       <img 
-        src={allIssuesResolved() ? require('./ReturnBtn.png') : (isCurrentStepComplete() ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png'))}
+        src={allIssuesResolved() ? require('./ReturnBtn.png') : 
+          (currentStep === 2 && !isStepComplete(3) ? (isStepComplete(2) ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png')) : 
+          require('./SetupReturnBtnDisable.png'))
+        }
+        className="image-button"
         alt={allIssuesResolved() ? "Return" : "Continue"} 
         style={{
           position:'absolute', 
           top:'839px', 
           left:'1327px', 
           zIndex:13, 
-          cursor: isCurrentStepComplete() ? 'pointer' : 'default'
+          cursor: isStepComplete(currentStep) ? 'pointer' : 'default'
         }} 
-        onClick={isCurrentStepComplete() ? handleContinue : null} 
+        onClick={isStepComplete(currentStep) ? handleContinue : null} 
       />
 
       {/* Check 1: C-ARM EQUIPMENT - Always shown as completed */}
-      {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289, 'C-arm has been successfully selected.')}
+      {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289, 'C-arm model is confirmed.')}
       
       {/* Disabled dropdown showing selected C-arm */}
       <select 
@@ -210,20 +228,16 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 3 && imuStatus && !tiltSensorBatteryLow && (
-        <img src={require('./TiltSensorSucceedInstruction.png')} 
-             style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
-      )}
-      
-      {currentStep === 3 && imuStatus && tiltSensorBatteryLow && (
-        <img src={require('./TiltSensorLowBatteryInstruction.png')} 
-             style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
-      )}
-      
       {currentStep === 3 && !imuStatus && (
-        <img src={require('./VideoConnectionFailedInstruction.png')} 
+        <img src={require('./TiltSensorFailedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
+      
+      {currentStep === 3 && imuStatus && (
+        <img src={tiltSensorBatteryLow ? require('./TiltSensorLowBatteryInstruction.png') : require('./TiltSensorSucceedInstruction.png')} 
+             style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
+      )}
+      
       
       {/* Video frame */}
       {currentStep === 2 && videoStatus && videoFrame && (
@@ -240,6 +254,19 @@ function ReconnectionPage({ selectedCArm, onClose, videoConnected, imuConnected 
           }}
         />
       )}
+
+      <img
+        src={require('../ExitButton.png')}
+        className="image-button"
+        onClick={() => setShowReconnectionPage(false)} 
+        style={{
+          position: 'absolute',
+          top: '59px',
+          left: '1568px',
+          zIndex: 13
+        }}
+      />
+      {loading && <CircularProgress2/>}
     </div>
   );
 }

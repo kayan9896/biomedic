@@ -4,30 +4,40 @@ import threading
 import io
 from PIL import Image
 import time
-from ab2 import AnalyzeBox
+from model import Model
 from fg import FrameGrabber
-from be2 import ImageProcessingController
+from controller import Controller
 from config_manager import ConfigManager
+from calibrate import Calibrate
+from panel import Panel
 from flask_cors import CORS
 import numpy as np
 import json
+import base64
 
 import logging
 from logging.handlers import RotatingFileHandler
 import os
 
+class Filter(logging.Filter):
+    def filter(self, record):  
+        return "api/states" not in record.getMessage()
+
+logger = None
 # Configure logging
 def setup_logging():
+    global logger
     # Create logs directory if it doesn't exist
     if not os.path.exists('logs'):
         os.makedirs('logs')
     
     # Set up the logger
-    logger = logging.getLogger()
+    logger = logging.getLogger('werkzeug')
     logger.setLevel(logging.DEBUG)  # Set the logging level
+    logger.addFilter(Filter())
     
     # Create a file handler
-    file_handler = RotatingFileHandler('logs/app.log', maxBytes=10000000, backupCount=5)
+    file_handler = RotatingFileHandler(f'logs/{time.strftime("%Y-%m-%d %H-%M-%S", time.localtime(time.time()))}.log', maxBytes=10000000, backupCount=5)
     file_handler.setLevel(logging.DEBUG)
     
     # Create a console handler
@@ -42,6 +52,7 @@ def setup_logging():
     # Add the handlers to the logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+    
 
 # Call this function at the start of your script
 setup_logging()
@@ -55,88 +66,323 @@ CORS(app)
 frame_grabber = None
 analyze_box = None
 controller = None
+
 config = ConfigManager()
+calibrate = Calibrate()
+panel = Panel(config, logger) if config.get('on_simulation') else None
 server_lock = threading.Lock()
 
 
-def frontend_to_backend_coords(coords, backend_size=1024, frontend_size=960, flip_horizontal=False):
-    """
-    Convert coordinates from frontend (960x960) to backend (1024x1024) scale
-    
-    Args:
-        coords: Can be a single [x,y] coordinate pair or nested structures containing coordinates
-        backend_size: Size of the backend image (default 1024)
-        frontend_size: Size of the frontend display (default 960)
-        flip_horizontal: If True, will flip x-coordinates horizontally (mirror effect)
-    
-    Returns:
-        Converted coordinates in the same structure as input
-    """
-    scale_factor = backend_size / frontend_size
-    
-    if isinstance(coords, list):
-        if len(coords) == 2 and all(isinstance(c, (int, float)) for c in coords):
-            # Single [x,y] coordinate pair
-            x, y = coords
-            
-            # Scale the coordinates
-            x_scaled = x * scale_factor
-            y_scaled = y * scale_factor
-            
-            # Flip horizontally if requested
-            if flip_horizontal:
-                x_scaled = backend_size - x_scaled
-                
-            return [int(x_scaled), int(y_scaled)]
-        else:
-            # Nested list structure
-            return [frontend_to_backend_coords(item, backend_size, frontend_size, flip_horizontal) for item in coords]
-    elif isinstance(coords, dict):
-        # Dictionary structure
-        return {k: frontend_to_backend_coords(v, backend_size, frontend_size, flip_horizontal) for k, v in coords.items()}
-    else:
-        # Return non-coordinate values unchanged
-        return coords
+carm_folder = config.get("carm_folder", "./Calibration")
+select = {}
+@app.route('/get-carms', methods=['GET'])
+def get_carms():
+    """Endpoint to retrieve C-arm data from JSON file"""
+    global panel
+    global controller
+    global logger
 
-def backend_to_frontend_coords(coords, backend_size=1024, frontend_size=960, flip_horizontal=False):
-    """
-    Convert coordinates from backend (1024x1024) to frontend (960x960) scale
-    
-    Args:
-        coords: Can be a single [x,y] coordinate pair or nested structures containing coordinates
-        backend_size: Size of the backend image (default 1024)
-        frontend_size: Size of the frontend display (default 960)
-        flip_horizontal: If True, will flip x-coordinates horizontally (mirror effect)
-    
-    Returns:
-        Converted coordinates in the same structure as input
-    """
-    scale_factor = frontend_size / backend_size
-    
-    if isinstance(coords, list):
-        if len(coords) == 2 and all(isinstance(c, (int, float)) for c in coords):
-            # Single [x,y] coordinate pair
-            x, y = coords
-            
-            # Flip horizontally if requested
-            if flip_horizontal:
-                x = backend_size - x
-                
-            # Scale the coordinates
-            x_scaled = x * scale_factor
-            y_scaled = y * scale_factor
-            
-            return [int(x_scaled), int(y_scaled)]
-        else:
-            # Nested list structure
-            return [backend_to_frontend_coords(item, backend_size, frontend_size, flip_horizontal) for item in coords]
-    elif isinstance(coords, dict):
-        # Dictionary structure
-        return {k: backend_to_frontend_coords(v, backend_size, frontend_size, flip_horizontal) for k, v in coords.items()}
-    else:
-        # Return non-coordinate values unchanged
-        return coords
+    if panel and panel.jumpped:
+        controller = panel.controller
+        return jsonify({'jump': True})
+    try:
+        carm_data = calibrate.get_carms(carm_folder)
+        return jsonify(carm_data)
+    except Exception as e:
+        logger.error(f"Error fetching C-arm data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
+@app.route('/carm-images/<filename>', methods=['GET'])
+def serve_carm_image(filename):
+    """Endpoint to serve C-arm images"""
+    global select
+    global controller
+    global logger
+
+    if controller: 
+        controller = None
+    try:
+        select = calibrate.serve_carm_select(carm_folder, filename)
+        image_base64 = calibrate.serve_carm_image(carm_folder, filename)
+        
+        return jsonify({
+            'image': f'data:image/jpeg;base64,{image_base64}',
+            'imu_on': select['IMU']['imu_on']
+        })
+    except Exception as e:
+        logger.error(f"Error serving image {filename}: {str(e)}")
+        return jsonify({"error": str(e)}), 404
+
+
+@app.route('/check-video-connection', methods=['GET'])
+def check_video_connection():
+    """Endpoint to simulate checking video connection"""
+    global controller
+    global select
+    global panel
+    global logger
+    
+    with server_lock:
+        if controller is None:
+            controller = Controller(config, select, panel, logger)
+        
+        # Get the connection result
+        result = controller.connect_video()
+        
+        return jsonify(result)
+
+@app.route('/check-tilt-sensor', methods=['GET'])
+def check_tilt_sensor():
+    """Endpoint to check tilt sensor status using actual IMU values"""
+    global controller
+    
+    with server_lock:
+        if controller is None:
+            controller = Controller(config)
+        
+        return jsonify(controller.imu_sensor.check_tilt_sensor())
+        
+@app.route('/run2', methods=['POST'])
+def start_processing():
+    """Start video capture and frame processing"""
+    global controller
+    global logger
+
+    try:
+        with server_lock:
+            if controller is None:
+                controller = Controller(config)
+
+            # Connect to the video device and start processing
+            result = controller.start_processing()
+            if not result:
+                return jsonify({"error": "Processing is already running"}), 400
+            templates = controller.load()
+            return jsonify({"message": f"Started processing on device", "templates": templates})
+    except Exception as e:
+        logger.error(f"Fail to start controller loop: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/states')
+def get_states():
+    global controller
+    global logger
+
+    try:
+        return jsonify(controller.get_states())
+    except Exception as e:
+        logger.error(f"Fail to get states: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/setting', methods=['POST'])
+def set_ai_autocollect_modes():
+    global controller
+    global logger
+    
+    try:
+        if controller is None:
+            controller = Controller()
+        data = request.get_json()
+        controller.set_ai_autocollect_modes(data)
+
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Setting: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/image-with-metadata')
+def get_image_with_metadata():
+    global controller
+    global logger
+
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        image_data = controller.get_image_with_metadata()
+        
+        # Return both image and converted metadata in JSON
+        return jsonify(image_data)
+    except Exception as e:
+        logger.error(f"Update UI error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/landmarks', methods=['POST'])
+def save_landmarks():
+    global controller
+    global logger
+
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        stage = request.json.get('stage')
+        l = request.json.get('leftMetadata')
+        r = request.json.get('rightMetadata')
+        limgside = request.json.get('limgside')
+        rimgside = request.json.get('rimgside')
+        brightness = request.json.get('brightness')
+        contrast = request.json.get('contrast')
+        
+        controller.update_landmarks(l, r, limgside, rimgside, brightness, contrast, stage)
+        
+        return jsonify({"message": "update landmarks"})
+    except Exception as e:
+        logger.error(f"Update landmarks error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/cap', methods=['POST'])
+def manual_framecap():
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        state = request.json.get('cap')
+        controller.do_capture = state
+        return jsonify({"message": "do capture"})
+    except Exception as e:
+        logger.error(f"Manual capture error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/label', methods=['POST'])
+def switch_side():
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        label = request.json.get('label')
+        controller.active_side = label
+        return jsonify({"message": "click label switch active side"})
+    except Exception as e:
+        logger.error(f"Manual switch side error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/edit', methods=['POST'])
+def edit():
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        state = request.json.get('uistates')
+        controller.pause_states = state
+        return jsonify({"message": "pause_states updated"})
+    except Exception as e:
+        logger.error(f"Edit/pause error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/next', methods=['POST'])
+def next():
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        state = request.json.get('uistates')
+        stage = request.json.get('stage')
+        controller.next(state, stage)
+
+        return jsonify({"message": "uistates updated"})
+    except Exception as e:
+        logger.error(f"Moving next error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/restart', methods=['POST'])
+def restart():
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        controller.restart()
+
+        return jsonify({"message": "uistate restart"})
+    except Exception as e:
+        logger.error(f"Restart error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/screenshot/<int:stage>', methods=['POST'])
+def save_screen(stage):
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+
+        if 'image' not in request.files:
+            return jsonify({"error": "No file part"}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+        controller.save_screen(stage, file)
+        
+        return jsonify({"message": f"screenshot saved successfully"})
+    except Exception as e:
+        logger.error(f"Save screenshot error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/screenshot/<int:stage>')
+def get_screen(stage):
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        return jsonify(controller.get_screen(stage))
+    except Exception as e:
+        logger.error(f"Load screenshot error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/stitch/<int:stage>')
+def get_stitch(stage):
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+        
+        return jsonify(controller.get_stitch(stage))
+    except Exception as e:
+        logger.error(f"Load stitch error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/patient', methods=['POST'])
+def patient():
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+
+        controller.patient(request.get_json())
+
+        return jsonify({"message": f"patient saved successfully"})
+    except Exception as e:
+        logger.error(f"Save patient error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/pdf')
+def pdf():
+    global controller
+    global logger
+    try:
+        if controller is None:
+            return jsonify({"error": "Controller not initialized"}), 404
+
+        controller.savepdf()
+
+        return jsonify({"message": f"pdf saved successfully"})
+    except Exception as e:
+        logger.error(f"Save report error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+'''
 @app.route('/check-running-state', methods=['GET'])
 def check_running_state():
     """Check if controller is running and return necessary state data including all image data"""
@@ -240,7 +486,7 @@ def check_running_state():
             "current_stage": controller.current_stage,  # 0-indexed for frontend
             "all_stage_data": all_stage_data,
             "move_next": move_next,
-            "tilt_angle": states.get('angle', 0),
+            "tilt_angle": states.get('tilt_angle', 0),
             "rotation_angle": states.get('rotation_angle', 0),
             "ap_rotation_angle": getattr(controller, 'ap_rotation_angle', None),
             "ob_rotation_angle": getattr(controller, 'ob_rotation_angle', None),
@@ -249,319 +495,7 @@ def check_running_state():
             "measurements": measurements,
             "error": ap_error or ob_error
         })
-        
-CARM_DATA_PATH = './carm.json'
-
-@app.route('/get-carms', methods=['GET'])
-def get_carms():
-    """Endpoint to retrieve C-arm data from JSON file"""
-    try:
-        with open(CARM_DATA_PATH, 'r') as file:
-            carm_data = json.load(file)
-        
-        # Add full image URLs to the data
-        base_url = request.url_root
-        for carm_name, carm_info in carm_data.items():
-            # Update the image path to be a full URL
-            image_filename = os.path.basename(carm_info['image'])
-            carm_info['image'] = f"http://localhost:5000/carm-images/{image_filename}"
-        
-        return jsonify(carm_data)
-    except Exception as e:
-        print(f"Error fetching C-arm data: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/carm-images/<filename>', methods=['GET'])
-def serve_carm_image(filename):
-    """Endpoint to serve C-arm images"""
-    try:
-        return send_from_directory(config.get("carm_folder", "./carm"), filename)
-    except Exception as e:
-        print(f"Error serving image {filename}: {str(e)}")
-        return jsonify({"error": str(e)}), 404
-
-
-@app.route('/check-video-connection', methods=['GET'])
-def check_video_connection():
-    """Endpoint to simulate checking video connection"""
-    global controller
-    
-    with server_lock:
-        if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
-        
-        # Get the connection result
-        result = controller.connect_video()
-        
-        # If connection successful, try to get the first frame
-        if result.get('connected', False):
-            try:
-                # Wait a brief moment for the video to stabilize
-                time.sleep(0.5)
-                
-                # Fetch the first frame
-                frame = controller.frame_grabber.fetchFrame()
-                
-                if frame is not None:
-                    # Convert numpy array to JPEG
-                    retval, buffer = cv2.imencode('.jpg', frame)
-                    
-                    if retval:
-                        # Convert to base64
-                        jpg_bytes = buffer.tobytes()
-                        base64_str = base64.b64encode(jpg_bytes).decode('utf-8')
-                        
-                        # Add the frame to the result as a data URI
-                        result['frame'] = f"data:image/jpeg;base64,{base64_str}"
-                    else:
-                        controller.logger.warning("Failed to encode frame to JPEG")
-                else:
-                    controller.logger.warning("No frame available after connection")
-                    
-            except Exception as e:
-                controller.logger.error(f"Error getting initial frame: {str(e)}")
-                # Still return success but without the frame
-                pass
-        
-        return jsonify(result)
-
-@app.route('/check-tilt-sensor', methods=['GET'])
-def check_tilt_sensor():
-    """Endpoint to check tilt sensor status using actual IMU values"""
-    global controller
-    
-    with server_lock:
-        if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
-        
-        # Get IMU connection status and battery level
-        is_connected = False
-        battery_level = 100
-        
-        if hasattr(controller, 'imu'):
-            is_connected = getattr(controller.imu, 'is_connected', False)
-            battery_level = getattr(controller.imu, 'battery_level', 100)
-        
-        # Determine battery_low status
-        battery_low = battery_level <= 20
-        
-        if not is_connected:
-            message = "Tilt sensor disconnected. Please check the connection."
-        elif battery_low:
-            message = "Tilt sensor connected but battery is low. Consider replacing batteries soon."
-        else:
-            message = "Tilt sensor connected successfully."
-        
-        return jsonify({
-            "connected": is_connected,
-            "battery_low": battery_low,
-            "message": message
-        })
-        
-@app.route('/run2', methods=['POST'])
-def start_processing2():
-    """Start video capture and frame processing"""
-    global controller
-    
-    with server_lock:
-        if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox(), config)
-        
-        if controller.is_running:
-            return jsonify({"error": "Processing is already running"}), 400
-        
-        # Connect to the video device and start processing
-        result = controller.run2()
-        if isinstance(result, str):
-            return jsonify({"error": result}), 500
-        
-        return jsonify({"message": f"Started processing on device"})
-
-@app.route('/api/states')
-def get_states():
-    global controller
-    if controller is None:
-            controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
-    
-    return jsonify(controller.get_states())
-
-@app.route('/api/setting', methods=['POST'])
-def set_ai_mode():
-    global controller
-    if controller is None:
-        controller = ImageProcessingController(FrameGrabber(), AnalyzeBox())
-    
-    try:
-        data = request.get_json()
-        if 'ai_mode' in data:
-            ai_mode = data.get('ai_mode', True)
-            controller.ai_mode = ai_mode
-            controller.model.ai_mode = ai_mode
-        if 'autocollect' in data:
-            autocollect = data.get('autocollect', True)
-            controller.autocollect = autocollect
-        if 'tracking' in data:
-            tracking = data.get('tracking', True)
-            controller.tracking = tracking
-
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-import base64
-@app.route('/api/image-with-metadata')
-def get_image_with_metadata():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    
-    image_data = controller.get_image_with_metadata()
-    
-    if image_data['image'] is None:
-        return jsonify({"error": "No image available"}), 404
-    
-    # Convert the image to base64 encoding
-    _, buffer = cv2.imencode('.jpg', image_data['image'])
-    image_base64 = base64.b64encode(buffer).decode('utf-8')
-    
-    # Convert metadata coordinates from backend to frontend scale
-    converted_metadata = backend_to_frontend_coords(image_data['metadata'])
-    
-    # Return both image and converted metadata in JSON
-    return jsonify({
-        'image': f'data:image/jpeg;base64,{image_base64}',
-        'metadata': converted_metadata,
-        'checkmark': image_data['checkmark'],
-        'recon': image_data['recon'],
-        'error': image_data['error'],
-        'next': image_data['next'],
-        'measurements': image_data['measurements'],
-        'side': image_data['side']
-    })
-
-@app.route('/landmarks', methods=['POST'])
-def landmarks():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    stage = request.json.get('stage')
-    
-    # Convert landmarks from frontend to backend scale
-    l = request.json.get('leftMetadata')
-    r = request.json.get('rightMetadata')
-    
-    converted_l = frontend_to_backend_coords(l) if l else None
-    # Apply horizontal flipping for right metadata
-    converted_r = frontend_to_backend_coords(r, flip_horizontal=False) if r else None
-    
-    controller.update_landmarks(converted_l, converted_r, stage)
-    
-    return jsonify({"message": "update landmarks"})
-
-
-@app.route('/cap', methods=['POST'])
-def cap():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    state = request.json.get('cap')
-    controller.do_capture = state
-    return jsonify({"message": "do capture"})
-
-@app.route('/label', methods=['POST'])
-def label():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    label = request.json.get('label')
-    controller.viewmodel.states['active_side'] = label
-    return jsonify({"message": "click label switch active side"})
-    
-@app.route('/edit', methods=['POST'])
-def edit():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    state = request.json.get('uistates')
-    controller.pause_states = state
-    return jsonify({"message": "pause_states updated"})
-
-@app.route('/next', methods=['POST'])
-def next():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    state = request.json.get('uistates')
-    stage = request.json.get('stage')
-
-    controller.uistates = state
-    controller.viewmodel.states['stage'] = stage
-
-    return jsonify({"message": "uistates updated"})
-
-@app.route('/restart', methods=['POST'])
-def restart():
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    controller.uistates = 'restart'
-    controller.model.resetdata()
-    controller.scn = 'init'
-    return jsonify({"message": "uistate restart"})
-
-@app.route('/screenshot/<int:stage>', methods=['POST'])
-def save_screen(stage):
-    if 'image' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    
-    # Create directory if it doesn't exist
-    save_dir = f'exam/viewpairs'
-    os.makedirs(save_dir, exist_ok=True)
-    
-    # Save the file
-    filename = f'screenshot{stage}.png'
-    file_path = os.path.join(save_dir, filename)
-    file.save(file_path)
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    image = Image.open(file)
-    image_array = np.array(image)
-    controller.model.viewpairs[stage] = image_array
-    print(controller.model.viewpairs[stage])
-    
-    return jsonify({"message": f"screenshot saved successfully"})
-
-@app.route('/stitch/<int:stage>')
-def get_stitch(stage):
-    global controller
-    if controller is None:
-        return jsonify({"error": "Controller not initialized"}), 404
-    
-    if stage == 0:
-        return jsonify({
-        'img': None,
-        })
-    if stage == 1:
-        stitch = controller.model.data['pelvis']['stitch']
-    if stage == 2:
-        stitch = controller.model.data['regcup']['stitch']
-    if stage == 3:
-        stitch = controller.model.data['regtri']['stitch']
-    
-    
-    # Convert the image to base64 encoding
-    _, buffer = cv2.imencode('.jpg', stitch)
-    image_base64 = base64.b64encode(buffer).decode('utf-8')
-    
-    # Return both image and metadata in JSON
-    return jsonify({
-        'img': f'data:image/jpeg;base64,{image_base64}',
-    })
+'''
 
 if __name__ == '__main__':
     app.run(debug=False, use_reloader=False)

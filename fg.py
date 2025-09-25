@@ -9,11 +9,14 @@ from datetime import datetime
 import pythoncom
 
 class FrameGrabber:
-    def __init__(self):
+    def __init__(self, panel, calib = None, fg_simulation = False, logger = None):
         self.device_name: str = ""
         self.device_index: int = -1
         self.capture = None
+        self.panel = panel
+
         self.is_connected: bool = False
+        self.fg_simulation = fg_simulation
         
         self._check_frequency: float = 30.0
         self._is_initialized: bool = False
@@ -26,8 +29,7 @@ class FrameGrabber:
         self.last_frame = None
         self.frame_lock = threading.Lock()
         
-        self.logger = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
+        self.logger = logger
 
     def get_available_devices(self) -> Dict[str, int]:
         """
@@ -128,6 +130,23 @@ class FrameGrabber:
         
         return mean_diff > threshold
 
+    def mock_video_loop(self, frequency: float):
+        """Main loop for checking video frames"""
+        period = 1.0 / frequency
+        
+        while self.is_running:
+            
+            self.is_connected = self.panel.fg_is_connected
+            self.is_running = self.panel.fg_is_running
+            self.last_frame = self.panel.image
+
+            if self.panel.available:
+                self._is_new_frame_available = True 
+                self.panel.available = False
+            time.sleep(period)
+
+
+
     # Modified check_video_loop to update new properties
     def check_video_loop(self, frequency: float):
         """Main loop for checking video frames"""
@@ -180,6 +199,14 @@ class FrameGrabber:
         Returns:
             Union[bool, str]: True if started successfully, error message if failed
         """
+        if self.fg_simulation:
+            self.check_thread = threading.Thread(
+                target=self.mock_video_loop,
+                args=(frequency,),
+                #daemon=True
+            )
+            self.check_thread.start()
+            return True
         try:
             if not self.is_connected:
                 return "Video is not initiated. Call initiateVideo first."
@@ -310,6 +337,54 @@ class FrameGrabber:
         except Exception as e:
             self.logger.error(f"Error restarting video: {str(e)}")
             return f"Error restarting video: {str(e)}"
+
+    def connect(self, device, frequency = 30):
+        if self.fg_simulation:
+            self.is_connected = self.panel.fg_is_connected
+            self.is_running = self.panel.fg_is_running
+            self.startVideo(frequency)
+            return {
+                "connected": self.is_connected and self.is_running,
+                "message": f"Successfully connected to mock"
+            }
+        if self.is_running:
+            return {
+                "connected": True,
+                "message": f"Successfully connected to {device}"
+            }
+        try: 
+            # Initiate video connection
+            result = self.initiateVideo(device)
+            if isinstance(result, str):
+                return {
+                    "connected": False,
+                    "message": f"Failed to connect to video device: {result}"
+                }
+            
+            # Start video capture
+            start_result = self.startVideo(frequency)
+            if isinstance(start_result, str):
+                return {
+                    "connected": False,
+                    "message": f"Failed to start video capture: {start_result}"
+                }
+            
+            return {
+                "connected": True,
+                "message": f"Successfully connected to {device}"
+            }
+        
+        except Exception as e:
+            self.logger.error(f"Error connecting to video: {str(e)}")
+            return {
+                "connected": False,
+                "message": f"Error connecting to video: {str(e)}"
+            }
+
+    def get_fg_states(self):
+        is_connected = getattr(self, 'is_connected', False)
+        is_running = getattr(self, 'is_running', False)
+        return {'video_on': is_connected and is_running}
 
 if __name__=="__main__":
     frame_grabber = FrameGrabber()

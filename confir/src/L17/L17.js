@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function L17({handlerestart, setExit}) {
+function L17({handlerestart, setExit, handleDl, capturing}) {
     const handleClose = () => {
       window.close()
     }
     return(
       <div>
-        <img src={require('./ExitWindow.png')} alt="ExitWindow" style={{position:'absolute', top:'281px', left:'217px', zIndex:13}}/>
-        <img src={require('./NewCaseBtn.png')} alt="NewCaseBtn" style={{position:'absolute', top:'522px', left:'640px', zIndex:13}} onClick={()=>{
+        <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:17, aspectRatio:'1920/1080',height:'1080px'}}/>
+        <img src={require('./ExitWindow.png')} alt="ExitWindow" style={{position:'absolute', top:'358px', left:'498px', zIndex:17}}/>
+        <img className="image-button" src={require('./NewCaseBtn.png')} alt="NewCaseBtn" style={{position:'absolute', top:'539px', left:'785px', zIndex:17}} onClick={()=>{
+          if(capturing.current) return
           handlerestart()
           setExit(false)
         }}/>
-        <img src={require('./CancelBtn.png')} alt="CancelBtn" style={{position:'absolute', top:'522px', left:'1330px', zIndex:13}} onClick={()=>setExit(false)}/>
-        <img src={require('./SaveReportBtn.png')} alt="SaveReportBtn" style={{position:'absolute', top:'522px', left:'296px', zIndex:13}} />
-        <img src={require('./ShutDownBtn.png')} alt="ShutDownBtn" style={{position:'absolute', top:'522px', left:'985px', zIndex:13}} onClick={handleClose}/>
+        <img className="image-button" src={require('../L23/CancelBtn.png')} alt="CancelBtn" style={{position:'absolute', top:'539px', left:'1241px', zIndex:17}} onClick={()=>setExit(false)}/>
+        <img className="image-button" src={require('./SaveReportBtn.png')} alt="SaveReportBtn" style={{position:'absolute', top:'539px', left:'557px', zIndex:17}} onClick={handleDl}/>
+        <img className="image-button" src={require('./ShutDownBtn.png')} alt="ShutDownBtn" style={{position:'absolute', top:'539px', left:'1013px', zIndex:17}} onClick={handleClose}/>
       </div>
     )
 }
