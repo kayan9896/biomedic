@@ -150,7 +150,7 @@ function App() {
   
   const getTemplate = (stage, pelvis, scaleFactor = 960 / 1024)=> {
     if (stage === 0 || stage === 1){
-      return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[6])) : JSON.parse(JSON.stringify(templates[1]));
+      return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[0])) : JSON.parse(JSON.stringify(templates[1]));
     }
     if (stage === 2){
       return pelvis === 'l' ? JSON.parse(JSON.stringify(templates[2])) : JSON.parse(JSON.stringify(templates[3]));
@@ -161,7 +161,7 @@ function App() {
     return
   }
 
-  const [takeAP, setTakeAP] = useState('Move the C-arm to the AP View')
+  const [takeAP, setTakeAP] = useState(null)
 
   useEffect(() => {
     const checkBackendState = async () => {
@@ -263,7 +263,7 @@ function App() {
           if(tiltAngle !== 360 && rotationAngle !== 360 && (data.tilt_angle !== tiltAngle || data.rotation_angle !== rotationAngle)){
             console.log(data.tilt_angle, tiltAngle, data.rotation_angle, rotationAngle)
             setShowCarm(true)
-            setTakeAP(null)
+            if(data.active_side === 'ap') setTakeAP(null)
           }
         }else setShowCarm(false)
         setAngle(data.tilt_angle);
@@ -299,7 +299,7 @@ function App() {
         setScn(data.scn)
         setBugs(data.bugs)
         if(data.unexpected_error){
-          generalError.current = `Backend Loop Error.`
+          generalError.current = `Error 320: Backend Loop Error.`
           setGe(true)
         }
         
@@ -311,12 +311,12 @@ function App() {
         if (data.measurements) {
           setMeasurements(data.measurements);
         }
-        if(generalError.current === "Error connecting to server") setGe(false)
+        if(generalError.current === "Error 310: Error connecting to server") setGe(false)
       } catch (e) {
         console.error('Error fetching states:', e);
         window.electronAPI?.logError(e);
-        if(generalError.current !== "Error connecting to server"){
-          generalError.current = "Error connecting to server"
+        if(generalError.current !== "Error 310: Error connecting to server"){
+          generalError.current = "Error 310: Error connecting to server"
           setGe(true)
         }
       }
@@ -434,7 +434,14 @@ function App() {
         }
         setTestmeas(null)
         
-        setError(data.error)
+        setError(data.error) 
+        if(data.error==='140') {
+          generalError.current = null
+          setError('Error 140: Wrong backend data format')
+          setGe(true)
+          capturing.current = false
+          return
+        }
         if(data.error==='glyph' || data.error === 'ref') {
           setShowglyph(data.error)
           setErrImage(data.image)
@@ -502,7 +509,7 @@ function App() {
     } catch (error) {
         console.error('Error fetching image:', error);
         generalError.current = null
-        setError('Backend API error')
+        setError('Error 330: Backend API error')
         setGe(true)
         capturing.current = false
     }
@@ -525,7 +532,7 @@ function App() {
     } catch (err) {
       console.log('Error connecting to device: ' + err.message);
       generalError.current = null
-      setError('Backend API error')
+      setError('Error 330: Backend API error')
       setGe(true)
     }
   };
@@ -577,7 +584,7 @@ function App() {
     } catch (error) {
       console.error('Error going next:', error);
       generalError.current = null
-      setError('Backend API error')
+      setError('Error 330: Backend API error')
       setGe(true)
     }
   };
@@ -595,7 +602,7 @@ function App() {
     } catch (error) {
       console.log(error)
       generalError.current = null
-      setError('Backend API error')
+      setError('Error 330: Backend API error')
       setGe(true)
     }
   };
@@ -643,7 +650,7 @@ function App() {
     } catch (error) {
       console.error('Error restart:', error);
       generalError.current = null
-      setError('Backend API error')
+      setError('Error 330: Backend API error')
       setGe(true)
     }
   };
@@ -735,7 +742,7 @@ function App() {
     } catch (error) {
       console.error('Error saving landmarks:', error);
       generalError.current = null
-      setError('Backend API error')
+      setError('Error 330: Backend API error')
       setGe(true)
       capturing.current = false
     }
@@ -806,8 +813,8 @@ function App() {
         capturing.current = false
         capturetxt.current = ""
         generalError.current = null
-        window.electronAPI?.logError('Backend API error');
-        setError('Backend API error')
+        window.electronAPI?.logError('Error 330: Backend API error');
+        setError('Error 330: Backend API error')
         setGe(true)
       }
       }, 'image/png');
@@ -818,7 +825,7 @@ function App() {
       window.electronAPI?.logError(`Error capturing and saving frame: ${err}`);
       console.error('Error capturing and saving frame:', err);
       generalError.current = null
-      setError('Backend API error')
+      setError('Error 330: Backend API error')
       setGe(true)
     }
   };
@@ -890,7 +897,7 @@ function App() {
           setGe(true)
         }
       }catch(error){
-        console.error('Error saving report:', error);
+        console.error('Error 340: Error saving report:', error);
         alert(error)
       }
     }

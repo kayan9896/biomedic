@@ -71,10 +71,11 @@ class ViewModel:
                     dataforvm['measurements'] = None
                     dataforvm['next'] = False
                     dataforvm['side'] = data_for_model['side']
-                if data_for_model['analysis_error_code'] in {'110', '111', '112', '113'}:
+                if data_for_model['analysis_error_code'] in {'110', '111', '112', '113', '140'}:
                     image = data_for_model['processed_frame']
                     dataforvm['error'] = 'glyph' if data_for_model['analysis_error_code'] == '110' else 'ref'
-                if data_for_model['analysis_error_code'] == '114':
+                    if data_for_model['analysis_error_code'] == '140': dataforvm['error'] = data_for_model['analysis_error_code']
+                if data_for_model['analysis_error_code'] in {'114'}:
                     image = data_for_model['processed_frame']
                     dataforvm['metadata'] = None
                     dataforvm['checkmark'] = 0

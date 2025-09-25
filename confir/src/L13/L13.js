@@ -27,7 +27,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
         const data = await response.json();
         if(data.jump) setIsConnected(true)
         setCArms(data);
-        setError(null)
+        //setError(null)
       } catch (err) {
         setError('Error loading C-arm data: ' + err.message);
         console.error(err);
@@ -43,17 +43,20 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
 
   useEffect(() => {
     const fetchCArmimg = async () => {
+      if(selectedCArm === '') return
       try {
         const response = await fetch(cArms[selectedCArm].image);
         if (!response.ok) {
-          throw new Error('Failed to fetch C-arm img');
+          throw new Error('Failed to fetch C-arm img or calib data');
         }
         const data = await response.json();
         setCarmimg(data.image);
         setTracking(data.imu_on)
         setError(null)
       } catch (err) {
-        setError('Error loading C-arm img: ' + err.message);
+        setError(`Error ${err.message === 'signal timed out' ? 900 : 210}: ${err.message}`);
+        setCarmimg('')
+        setGe(true)
         console.error(err);
       }
     };
@@ -61,6 +64,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   }, [selectedCArm]);
 
   const handleCarmChange = (e) => {
+    console.log(e.target.value)
     setSelectedCArm(e.target.value);
     setCarmSelected(e.target.value !== '');
   };
@@ -81,7 +85,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       }
       setLoading(false)
     } catch (err) {
-      setError('Error checking video connection: ' + err.message);
+      setError(`Error ${err.message === 'signal timed out' ? 900 : 220}: ${err.message}`);
       setGe(true)
       setLoading(false)
       console.error(err);
@@ -101,7 +105,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
       setTiltSensorBatteryLow(data.battery_low);
       setLoading(false)
     } catch (err) {
-      setError('Error checking tilt sensor: ' + err.message);
+      setError(`Error ${err.message === 'signal timed out' ? 900 : 230}: ${err.message}`);
       setGe(true)
       setLoading(false)
       console.error(err);
@@ -130,7 +134,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   // Determine if the current step is completed
   const isCurrentStepComplete = () => {
     switch (currentStep) {
-      case 1: return cArmSelected;
+      case 1: return carmimg;
       case 2: return videoConnected;
       case 3: return (tiltSensorConnected && !tiltSensorBatteryLow); // Only complete if connected AND battery OK
       case 4: return true; // For the reference bodies step

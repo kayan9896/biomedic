@@ -213,6 +213,7 @@ class Model:
         self.sim_data = testdata
 
     def analyzeframe_sim(self, section, image, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
+        print(len(image),len(image[0]),len(image[0][0]))
         section_type = section[-2:]  # ap, ob
         test_entry = self.sim_data.get(section[:-3]).get(section_type)
         if test_entry and test_entry.get('json_path'):
@@ -246,7 +247,7 @@ class Model:
                     self.progress = (k + 1) / 30000
                     k += 1
 
-
+        if not self.verify_result(metadata)[0]: error_code = '140'
         if error_code is None and self.ai_mode:
             metadata['analysis_success'] = True
         else:
@@ -301,6 +302,7 @@ class Model:
         else:
             metadata = None
 
+        if not self.verify_result(metadata['shot_1'])[0] or not self.verify_result(metadata['shot_2'])[0]: error_code = '140'
         if error_code is None:
             metadata['analysis_success'] = True
             metadata['shot_1'] = self.data[curap]['framedata']
@@ -372,7 +374,7 @@ class Model:
             section = data['section']
         
             if analysis_type == 'frame':
-                if data['analysis_error_code'] not in {'110', '111', '112', '113'}:
+                if data['analysis_error_code'] not in {'110', '111', '112', '113', '140'}:
                     section_type = section[-2:]  # ap, ob
                     # reset the 'ob' view if 'ap' image is repeated:
                     if section_type == 'ap':
@@ -755,8 +757,70 @@ class Model:
     def get_model_states(self):
         return {'progress': self.progress}
 
-    # controller
-    #>> keep active_side as a controller parameter
-    #>> make viewmodel.states['active_side'] update based on controller.active_side in the controller.update_vm_states?
+    def verify_result(self, result):
+        """
+        Verifies the structure and data types of a result dictionary.
+        Ensures 'arc' type landmarks have exactly 3 points.
+        Returns a tuple (is_valid, errors) where is_valid is a boolean and errors is a list of error messages.
+        """
+        errors = []
 
-    
+        # Check if result is a dictionary
+        if not isinstance(result, dict):
+            errors.append("Result must be a dictionary")
+            return False, errors
+
+        # Validate landmarks
+        if not isinstance(result["landmarks"], dict):
+            errors.append("landmarks must be a dictionary")
+        else:
+            # Required landmark sections
+            for section in result["landmarks"].keys():
+                if not isinstance(result["landmarks"][section], list):
+                    errors.append(f"landmarks.{section} must be a list")
+                else:
+                    for i, entry in enumerate(result["landmarks"][section]):
+                        # Validate entry structure
+                        if not isinstance(entry, dict):
+                            errors.append(f"landmarks.{section}[{i}] must be a dictionary")
+                            continue
+
+                        # Validate type
+                        if "type" not in entry or not isinstance(entry["type"], str):
+                            errors.append(f"landmarks.{section}[{i}].type must be a string")
+                        else:
+                            # Validate points
+                            if "points" not in entry or not isinstance(entry["points"], list):
+                                errors.append(f"landmarks.{section}[{i}].points must be a list")
+                            else:
+                                # Check arc has exactly 3 points
+                                if entry["type"] == "arc" and len(entry["points"]) != 3:
+                                    errors.append(f"landmarks.{section}[{i}].points must have exactly 3 points for type 'arc'")
+                                if entry["type"] == "ellipse" and len(entry["points"]) != 4:
+                                    errors.append(f"landmarks.{section}[{i}].points must have exactly 4 points for type 'ellipse'")
+                                for j, point in enumerate(entry["points"]):
+                                    if not isinstance(point, list) or len(point) != 2:
+                                        errors.append(f"landmarks.{section}[{i}].points[{j}] must be a list of 2 numbers")
+                                    else:
+                                        for k, coord in enumerate(point):
+                                            if not isinstance(coord, (int, float)):
+                                                errors.append(f"landmarks.{section}[{i}].points[{j}][{k}] must be a number")
+
+                        # Validate handle (optional)
+                        if "handle" in entry:
+                            if not isinstance(entry["handle"], list) or len(entry["handle"]) != 2:
+                                errors.append(f"landmarks.{section}[{i}].handle must be a list of 2 numbers")
+                            else:
+                                for k, coord in enumerate(entry["handle"]):
+                                    if not isinstance(coord, (int, float)):
+                                        errors.append(f"landmarks.{section}[{i}].handle[{k}] must be a number")
+
+                        # Validate colour
+                        if "colour" not in entry or not isinstance(entry["colour"], str):
+                            errors.append(f"landmarks.{section}[{i}].colour must be a string")
+                        elif not all(c in "0123456789ABCDEF" for c in entry["colour"]):
+                            errors.append(f"landmarks.{section}[{i}].colour must be a valid hex colour code")
+        self.logger.error(f'Error in {self.__class__.__name__}: {errors}')
+        return len(errors) == 0, errors
+
+        
