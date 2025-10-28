@@ -140,7 +140,7 @@ def check_tilt_sensor():
         if controller is None:
             controller = Controller(config)
         
-        return jsonify(controller.imu_sensor.check_tilt_sensor())
+        return jsonify(controller.imu_handler.sensor.check_tilt_sensor())
         
 @app.route('/run2', methods=['POST'])
 def start_processing():

@@ -13,7 +13,6 @@ import json
 import shutil
 from glob import glob
 import datetime
-from imu import IMU_sensor
 from imu2 import IMU_handler
 from exam import Exam
 import base64
@@ -54,13 +53,11 @@ class Controller:
         
         self.logger = logger
         self.imu_handler = None
-        self.imu_sensor = None
         
         # Initialize IMU if enabled in config
         self.tracking = self.calib['IMU'].get("imu_on", True)
         if self.tracking: 
-            self.imu_handler = IMU_handler(self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
-            self.imu_sensor = IMU_sensor(self.calib['IMU'].get("imu_port", "COM3"), self.imu_handler, panel, config.get("imu_simulation", False))
+            self.imu_handler = IMU_handler(self.calib["IMU"], self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"], sim = config.get("imu_simulation", False), panel = panel)
 
         if self.on_simulation:
             self.panel = panel
@@ -74,8 +71,9 @@ class Controller:
         self.scn = 'init'
         self.stage = 0
         if self.tracking:
-            self.imu_handler = IMU_handler(self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"])
-            self.imu_sensor.handler = self.imu_handler
+            cur_sensor = self.imu_handler.sensor
+            self.imu_handler = IMU_handler(self.calib["IMU"], self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"], sim = self.config.get("imu_simulation", False), sensor = cur_sensor, panel = self.panel)
+            cur_sensor.handler = self.imu_handler
 
     def get_controller_states(self):
         tmp = self.bugs[0] if self.bugs[0] else None
@@ -98,14 +96,13 @@ class Controller:
         self.viewmodel.update_state(self.model.get_model_states())
 
         # Update video_on based on frame_grabber state
-        if hasattr(self, 'frame_grabber'):
-            self.viewmodel.update_state(self.fg_handler.get_fg_states())
+        self.viewmodel.update_state(self.fg_handler.get_fg_states())
         
         # Update imu_on based on IMU is_connected
         
         if self.tracking and not self.lockside:
             imu_states = self.imu_handler.get_all(self.stage, self.model.data)
-            imu_states['imu_on'] = False if not hasattr(self, 'imu_sensor') else getattr(self.imu_sensor, 'is_connected', True)  # Default to True if property not found
+            imu_states['imu_on'] = False if not hasattr(self, 'imu_handler') else getattr(self.imu_handler.sensor, 'is_connected', True)  
             if not imu_states['imu_on']:
                 imu_states['active_side'] = None
             self.active_side = imu_states['active_side'] 
@@ -392,7 +389,7 @@ class Controller:
                 self.lockside = True
                 if self.tracking: 
                     self.imu_handler.handle_window_close(self.stage)
-                    analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_sensor.tilt_angle, self.imu_sensor.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
+                    analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_handler.tilt_angle, self.imu_handler.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
                 else: 
                     analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame)
                 

@@ -2,8 +2,6 @@ import threading
 import time
 import logging
 import math
-import sys
-sys.path.append("C:/")
 import openzen
 
 openzen.set_log_level(openzen.ZenLogLevel.Warning)
@@ -79,21 +77,10 @@ class IMU_sensor:
                     if time.time() - t > 5:
                         self.is_connected = False
                     continue
-                self.battery_level = self.sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1]
+                #self.battery_level = self.sensor.get_float_property(openzen.ZenSensorProperty.BatteryLevel)[1]
                 self.set_tilt(zenEvent.data.imu_data.r[0])
                 self.set_rotation(zenEvent.data.imu_data.r[1])
                 t = time.time()
-                print(self.battery_level, zenEvent.data.imu_data.r)
-            
-        else:
-            self.is_connected = self.panel.is_connected
-            while self.is_connected:
-                self.is_connected = self.panel.is_connected
-                self.battery_level = self.panel.battery_level
-                noise = self.panel.noise * math.sin(time.time()**2)
-                self.set_tilt(self.panel.tilt_angle + noise)
-                self.set_rotation(self.panel.rotation_angle + noise)
-                time.sleep(period)
 
     def check_tilt_sensor(self):
         self.start()        

@@ -2,11 +2,10 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import os
+import time
 import cv2
-from model import Model
-from fg import FrameGrabber
+import math
 from controller import Controller
-from imu import IMU_sensor
 from imu2 import IMU_handler
 import json
 
@@ -17,6 +16,7 @@ class Panel:
         self.rotation_angle = 0
         self.is_connected = False
         self.battery_level = 0
+        self.imu_handler = None
 
         self.fg_is_connected = False
         self.fg_is_running = False
@@ -263,13 +263,12 @@ class Panel:
             self.controller = Controller(self.config, select, self, self.logger) 
             self.controller.start_processing() 
             self.controller.connect_video()
-            if select['IMU'].get("imu_on", True): self.controller.imu_sensor.start()
+            if select['IMU'].get("imu_on", True): self.controller.imu_handler.sensor.check_tilt_sensor()
         else:
             if select['IMU'].get("imu_on", True): 
                 self.controller.tracking = select['IMU'].get("imu_on", True)
-                self.controller.imu_handler = IMU_handler(select["IMU"]["ApplyTarget"], select["IMU"]["CarmRangeTilt"], select["IMU"]["CarmRangeRotation"], select["IMU"]["CarmTargetTilt"], select["IMU"]["CarmTargetRot"], tol = select["IMU"]["tol"])
-                self.controller.imu_sensor = IMU_sensor(select['IMU'].get("imu_port", "COM3"), self.controller.imu_handler, self, self.config.get("imu_simulation", False))
-                self.controller.imu_sensor.start()
+                self.controller.imu_handler = IMU_handler(select['IMU'], select["IMU"]["ApplyTarget"], select["IMU"]["CarmRangeTilt"], select["IMU"]["CarmRangeRotation"], select["IMU"]["CarmTargetTilt"], select["IMU"]["CarmTargetRot"], tol = select["IMU"]["tol"], sim = True, panel = self)
+                self.controller.imu_handler.sensor.check_tilt_sensor()
         
         self._test_with_selected_files()
         self.controller.jumpped = True
@@ -518,6 +517,35 @@ class Panel:
         self.tab_widgets[tab_type]['error_lists'][section].config(state='normal')
         self.tab_widgets[tab_type]['error_lists'][section].select_set(0)
         self._test_with_selected_files()
+
+    def check_tilt_sensor(self):
+        self.check_thread = threading.Thread(
+                target=self.imu_loop
+            )
+        self.check_thread.start()
+            
+        self.logger.info(f"Started imu checking")        
+        if not self.is_connected:
+            message = "Tilt sensor disconnected. Please check the connection."
+        elif self.battery_level < 30:
+            message = "Tilt sensor connected but battery is low. Consider replacing batteries soon."
+        else:
+            message = "Tilt sensor connected successfully."
+        return {
+            "connected": self.is_connected,
+            "battery_low": self.battery_level < 30,
+            "message": message
+        }
+
+    def imu_loop(self, frequency: float = 30):
+        """Main loop for checking video frames"""
+        period = 1.0 / frequency
+        
+        while self.is_connected:
+            noise = self.noise * math.sin(time.time()**2)
+            self.imu_handler.set_tilt(self.tilt_angle + noise)
+            self.imu_handler.set_rotation(self.rotation_angle + noise)
+            time.sleep(period)
 
     def _update_imu_state(self, event=None):
         """Update the IMU properties based on UI settings"""

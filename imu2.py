@@ -1,9 +1,8 @@
-import threading
 import time
-import keyboard  # You'll need to install this: pip install keyboard
+from imu import IMU_sensor
 
 class IMU_handler:
-    def __init__(self, ApplyTarget, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20, tol = 0.2):
+    def __init__(self, imu_calib, ApplyTarget, CarmRangeTilt = [-10, 10], CarmRangeRotation = [-25, -10, 10, 25], CarmTargetTilt = None, CarmTargetRot = [None, None, None], scale = 10/20, tol = 0.2, sim = False, sensor = None, panel = None):
         self.tilt_angle = 0
         self.rotation_angle = 0
         self.tiltl = CarmRangeTilt[0]
@@ -43,6 +42,12 @@ class IMU_handler:
         self.prev_rotation_angle = 0
         self.icon_shown = False
         self.window_shown = not (self.is_rot_valid(0) and self.is_tilt_valid(0))
+
+        if not sim:
+            self.sensor = IMU_sensor(imu_calib.get("imu_port", "COM3"), self, panel) if not sensor else sensor
+        else:
+            self.sensor = panel
+            self.sensor.imu_handler = self
 
     def set_tilt(self, a):
         if abs(self.tilt_angle - a) > self.tol: 
