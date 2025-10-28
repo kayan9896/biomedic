@@ -6,7 +6,8 @@ from PIL import Image
 import cv2
 import os
 from model import Model
-from fg import FrameGrabber
+
+from fg_handler import FrameGrabber_handler
 from viewmodel import ViewModel
 import json
 import shutil
@@ -21,14 +22,11 @@ class Controller:
     def __init__(self, config = None, calib = None,  panel = None, logger = None):
         self.calib = calib
         self.config = config
-        self.frame_grabber = FrameGrabber(panel, self.calib["FrameGrabber"], self.config.get("fg_simulation", False), logger)
+        self.fg_handler = FrameGrabber_handler(calib, panel, self.config.get("fg_simulation", False), logger)
 
         self.is_running = False
         self.process_thread = None
         self.lock = threading.Lock()
-        
-        # Get configuration
-        
         
         self.panel = None
         # Initialize based on configuration
@@ -101,7 +99,7 @@ class Controller:
 
         # Update video_on based on frame_grabber state
         if hasattr(self, 'frame_grabber'):
-            self.viewmodel.update_state(self.frame_grabber.get_fg_states())
+            self.viewmodel.update_state(self.fg_handler.get_fg_states())
         
         # Update imu_on based on IMU is_connected
         
@@ -234,12 +232,12 @@ class Controller:
         # Get device name from config
         device = self.config.get("framegrabber_device", "OBS Virtual Camera")
         
-        result = self.frame_grabber.connect(device)
+        result = self.fg_handler.connect(device)
         time.sleep(1)
         if result.get('connected', False):
 
             # Fetch the first frame
-            frame = self.frame_grabber.fetchFrame()
+            frame = self.fg_handler.fetchFrame()
             
             if frame is not None:
                 # Convert numpy array to JPEG
@@ -352,7 +350,7 @@ class Controller:
         while self.is_running:
             try:
                 if self.do_capture:
-                    frame = self.frame_grabber.last_frame
+                    frame = self.fg_handler.last_frame
                     self.do_capture = False
                 else:
                     # Normal processing
@@ -417,9 +415,9 @@ class Controller:
 
     def update_backendstates(self):
         try:
-            if not self.frame_grabber._is_new_frame_available:
+            if not self.fg_handler._is_new_frame_available:
                 return None
-            f = self.frame_grabber.fetchFrame()
+            f = self.fg_handler.fetchFrame()
             return f if not self.is_processing else None
         except Exception as e:
             self.bugs[0] = str(e)

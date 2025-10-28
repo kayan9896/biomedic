@@ -20,6 +20,7 @@ class Panel:
 
         self.fg_is_connected = False
         self.fg_is_running = False
+        self.fg_handler = None
         self.image = None
         self.available = False
 
@@ -219,9 +220,10 @@ class Panel:
         transfer_button = tk.Button(main_frame, text="TRANSFER", command=self._test_with_selected_files)
         transfer_button.pack(fill=tk.X)
 
-        # Single test button
-        test_button = tk.Button(main_frame, text="TRIGGER", command=self._test)
-        test_button.pack(fill=tk.X, pady=(10, 5))
+        if self.config.get("fg_simulation", True):
+            # Single test button
+            test_button = tk.Button(main_frame, text="TRIGGER", command=self._test)
+            test_button.pack(fill=tk.X, pady=(10, 5))
         
         tk.Label(main_frame, text="Jump to:").pack(side=tk.LEFT)
         jump_var = tk.StringVar()
@@ -409,8 +411,8 @@ class Panel:
         tab_names = ['hp1', 'hp2', 'cup', 'tri']
         current_tab = tab_names[self.controller.stage]
         self.image_path = self.test_data[current_tab]['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data[current_tab]['ob']['image_path']
-        self.image = cv2.imread(self.image_path)
-        self.available = True
+        self.fg_handler.last_frame = cv2.imread(self.image_path)
+        self.fg_handler._is_new_frame_available = True
         
     def _get_files_for_tab_section(self, tab_type, section):
         """Get files filtered by tab type and section"""
@@ -491,6 +493,12 @@ class Panel:
         
         print(f"Framegrabber updated: connected={self.fg_is_connected}, running={self.fg_is_running}, video_on={video_on}")
 
+    def connect(self, devive):
+        return {
+                "connected": self.fg_is_connected and self.fg_is_running,
+                "message": f"Successfully connected to mock"
+            }
+    
     def _update_step(self, event=None):
         """Update the IMU properties based on UI settings"""
         

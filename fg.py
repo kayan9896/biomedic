@@ -14,8 +14,9 @@ class FrameGrabber:
         self.device_index: int = -1
         self.capture = None
         self.panel = panel
+        self.fg_handler = None
 
-        self.is_connected: bool = False
+        self.fg_is_connected: bool = False
         self.fg_simulation = fg_simulation
         
         self._check_frequency: float = 30.0
@@ -24,7 +25,7 @@ class FrameGrabber:
         self._last_capture_time: Optional[datetime] = None
         self._last_fetch_time: Optional[datetime] = None
         
-        self.is_running: bool = False
+        self.fg_is_running: bool = False
         self.check_thread: Optional[threading.Thread] = None
         self.last_frame = None
         self.frame_lock = threading.Lock()
@@ -91,14 +92,14 @@ class FrameGrabber:
             
 
             self._is_initialized = True
-            self.is_connected = True
+            self.fg_is_connected = True
             self.logger.info(f"Successfully connected to {device_name}")
             
             return True
             
         except Exception as e:
             self._is_initialized = False
-            self.is_connected = False
+            self.fg_is_connected = False
             self.logger.error(f"Error initiating video: {str(e)}")
             return f"Error initiating video: {str(e)}"
 
@@ -134,10 +135,10 @@ class FrameGrabber:
         """Main loop for checking video frames"""
         period = 1.0 / frequency
         
-        while self.is_running:
+        while self.fg_is_running:
             
-            self.is_connected = self.panel.fg_is_connected
-            self.is_running = self.panel.fg_is_running
+            self.fg_is_connected = self.panel.fg_is_connected
+            self.fg_is_running = self.panel.fg_is_running
             self.last_frame = self.panel.image
 
             if self.panel.available:
@@ -152,7 +153,7 @@ class FrameGrabber:
         """Main loop for checking video frames"""
         period = 1.0 / frequency
         
-        while self.is_running:
+        while self.fg_is_running:
             loop_start = time.time()
             
             if self.capture is None or not self.capture.isOpened():
@@ -166,14 +167,7 @@ class FrameGrabber:
                 continue
                 
             with self.frame_lock:
-                if self.last_frame is None:
-                    self.last_frame = current_frame
-                    continue
-                if self.compare_frames(current_frame, self.last_frame):
-                    self.last_frame = current_frame.copy()
-                    self._last_capture_time = datetime.now()
-                    self._is_new_frame_available = True
-                    self.logger.debug("Frame updated")
+                self.fg_handler.handdle_frame(current_frame)
             
             elapsed = time.time() - loop_start
             sleep_time = period - elapsed
@@ -208,13 +202,13 @@ class FrameGrabber:
             self.check_thread.start()
             return True
         try:
-            if not self.is_connected:
+            if not self.fg_is_connected:
                 return "Video is not initiated. Call initiateVideo first."
                 
-            if self.is_running:
+            if self.fg_is_running:
                 return "Video checking is already running"
                 
-            self.is_running = True
+            self.fg_is_running = True
             self.check_thread = threading.Thread(
                 target=self.check_video_loop,
                 args=(frequency,),
@@ -237,10 +231,10 @@ class FrameGrabber:
             Union[bool, str]: True if stopped successfully, error message if failed
         """
         try:
-            if not self.is_running:
+            if not self.fg_is_running:
                 return "Video checking is not running"
                 
-            self.is_running = False
+            self.fg_is_running = False
             
             if self.check_thread is not None:
                 self.check_thread.join(timeout=1.0)
@@ -266,7 +260,7 @@ class FrameGrabber:
         """
         try:
             # First stop the video checking if it's running
-            if self.is_running:
+            if self.fg_is_running:
                 result = self.stopVideo()
                 if isinstance(result, str):
                     return result
@@ -277,7 +271,7 @@ class FrameGrabber:
                 self.capture = None
                 
             # Reset all variables
-            self.is_connected = False
+            self.fg_is_connected = False
             
             with self.frame_lock:
                 self.last_frame = None
@@ -285,7 +279,7 @@ class FrameGrabber:
             self.logger.info(f"Closed connection to {self.device_name}")
             
             self._is_initialized = False
-            self.is_connected = False
+            self.fg_is_connected = False
             self._is_new_frame_available = False
             self._last_capture_time = None
             self._last_fetch_time = None
@@ -308,7 +302,7 @@ class FrameGrabber:
                 return "No device name stored. Cannot restart."
                 
             # Store current frequency if video is running
-            was_running = self.is_running
+            was_running = self.fg_is_running
             frequency = None
             if was_running:
                 # Estimate the actual frequency from the period between frames
@@ -340,14 +334,14 @@ class FrameGrabber:
 
     def connect(self, device, frequency = 30):
         if self.fg_simulation:
-            self.is_connected = self.panel.fg_is_connected
-            self.is_running = self.panel.fg_is_running
+            self.fg_is_connected = self.panel.fg_is_connected
+            self.fg_is_running = self.panel.fg_is_running
             self.startVideo(frequency)
             return {
-                "connected": self.is_connected and self.is_running,
+                "connected": self.fg_is_connected and self.fg_is_running,
                 "message": f"Successfully connected to mock"
             }
-        if self.is_running:
+        if self.fg_is_running:
             return {
                 "connected": True,
                 "message": f"Successfully connected to {device}"
@@ -382,9 +376,9 @@ class FrameGrabber:
             }
 
     def get_fg_states(self):
-        is_connected = getattr(self, 'is_connected', False)
-        is_running = getattr(self, 'is_running', False)
-        return {'video_on': is_connected and is_running}
+        fg_is_connected = getattr(self, 'fg_is_connected', False)
+        fg_is_running = getattr(self, 'fg_is_running', False)
+        return {'video_on': fg_is_connected and fg_is_running}
 
 if __name__=="__main__":
     frame_grabber = FrameGrabber()
@@ -402,8 +396,8 @@ if __name__=="__main__":
     try:
         while True:
             # Check status
-            if not frame_grabber.is_connected:
-                print("Video device dis_connected!")
+            if not frame_grabber.fg_is_connected:
+                print("Video device dfg_is_connected!")
                 break
 
             if frame_grabber._is_new_frame_available:
