@@ -51,6 +51,33 @@ class FrameGrabber:
         except Exception as e:
             self.logger.error(f"Error getting available devices: {str(e)}")
             return {}
+        
+    def compare_frames(self, frame1, frame2, threshold=10) -> bool:
+        """
+        Compare two frames and determine if they are different enough
+        
+        Args:
+            frame1: First frame
+            frame2: Second frame
+            threshold: Minimum difference threshold (0-255)
+            
+        Returns:
+            bool: True if frames are different enough, False otherwise
+        """
+        if frame1 is None or frame2 is None:
+            return True
+            
+        # Convert frames to grayscale
+        gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+        gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+        
+        # Calculate absolute difference
+        diff = cv2.absdiff(gray1, gray2)
+        
+        # Calculate mean difference
+        mean_diff = np.mean(diff)
+        
+        return mean_diff > threshold
 
     def initiateVideo(self, device_name: str) -> Union[bool, str]:
         """
@@ -123,7 +150,14 @@ class FrameGrabber:
                 continue
                 
             with self.frame_lock:
-                self.fg_handler.handdle_frame(current_frame)
+                if self.fg_handler.last_frame is None:
+                    self.fg_handler.last_frame = current_frame
+                    continue
+                if self.compare_frames(current_frame, self.fg_handler.last_frame):
+                    self.fg_handler.last_frame = current_frame.copy()
+                    self._last_capture_time = datetime.now()
+                    self.fg_handler._is_new_frame_available = True
+                    self.logger.debug("Frame updated")
             
             elapsed = time.time() - loop_start
             sleep_time = period - elapsed

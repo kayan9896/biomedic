@@ -1,0 +1,7 @@
+2025-10-31 15:17:19,520 - werkzeug - WARNING - No frame available after connection
+2025-10-31 15:17:19,976 - werkzeug - INFO - Started imu checking
+2025-10-31 15:17:20,892 - werkzeug - INFO - Started image processing
+2025-10-31 15:17:25,797 - werkzeug - ERROR - Error in Model: []
+2025-10-31 15:17:34,576 - werkzeug - ERROR - Error in Model: []
+2025-10-31 15:17:34,612 - werkzeug - ERROR - Error in Model: []
+2025-10-31 15:17:34,612 - werkzeug - ERROR - Error in Model: []

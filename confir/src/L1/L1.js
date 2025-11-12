@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 function L1({tracking, handlLabelClick, editing}) {
     return(
-        <>
+        <div data-testid='l1-background'>
         <img src={require('./NavBarBg.png')} alt ="NavBarBg" style={{'position':'absolute', top:'962px', left:'0px'}}/>
         <img src={require('./ProgressBarBg.png')} alt ="ProgressBarBg" style={{'position':'absolute', top:'970px', left:'432px'}}/>
         <img src={require('./NavMeasurementsBG.png')} alt ="NavMeasurementsBG" style={{'position':'absolute', top:'970px', left:'960px'}}/>
@@ -25,7 +25,7 @@ function L1({tracking, handlLabelClick, editing}) {
             )}
         </>}
 
-        </>
+        </div>
     )
 }
 

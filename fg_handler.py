@@ -15,45 +15,6 @@ class FrameGrabber_handler:
         self.sensor.fg_handler = self
         self.logger = logger
 
-    def compare_frames(self, frame1, frame2, threshold=10) -> bool:
-        """
-        Compare two frames and determine if they are different enough
-        
-        Args:
-            frame1: First frame
-            frame2: Second frame
-            threshold: Minimum difference threshold (0-255)
-            
-        Returns:
-            bool: True if frames are different enough, False otherwise
-        """
-        if frame1 is None or frame2 is None:
-            return True
-            
-        # Convert frames to grayscale
-        gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-        gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
-        
-        # Calculate absolute difference
-        diff = cv2.absdiff(gray1, gray2)
-        
-        # Calculate mean difference
-        mean_diff = np.mean(diff)
-        
-        return mean_diff > threshold
-
-
-    # Modified check_video_loop to update new properties
-    def handdle_frame(self, current_frame):
-        if self.last_frame is None:
-            self.last_frame = current_frame
-            return
-        if self.compare_frames(current_frame, self.last_frame):
-            self.last_frame = current_frame.copy()
-            self._last_capture_time = datetime.now()
-            self._is_new_frame_available = True
-            self.logger.debug("Frame updated")
-
     # Modified fetchFrame to update frame availability status
     def fetchFrame(self) -> Optional[np.ndarray]:
         """Get the most recent frame"""

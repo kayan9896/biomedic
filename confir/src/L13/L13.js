@@ -14,6 +14,17 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   const [carmimg, setCarmimg] = useState(false)
   const [loading, setLoading] = useState(false)
   
+  const TestSetup = (carmlist, carm, img, video, frame, imu, battery, step, restartwarn) => {
+    setCArms(carmlist)
+    setCarmSelected(carm)
+    setCarmimg(img)
+    setVideoConnected(video)
+    setVideoFrame(frame)
+    setTiltSensorConnected(imu)
+    setTiltSensorBatteryLow(battery)
+    setCurrentStep(step)
+    setWarning()
+  }
   
   // Fetch C-arm data when component mounts
   useEffect(() => {
@@ -246,6 +257,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
         } 
       />}
       <img 
+      data-testid='ctnbtn'
         className={isCurrentStepComplete() ? "image-button" : null}
         src={isCurrentStepComplete() ? require('./SetupContinueBtn.png') : require('./SetupContinueBtnDisable.png')} 
         alt="SetupReturn" 

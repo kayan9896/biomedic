@@ -9,6 +9,7 @@
     "electron-is-dev": "^1.2.0",
     "electron-log": "^5.4.3",
     "html2canvas": "^1.4.1",
+    "jest-preview": "^0.3.2",
     "msw": "^2.7.0",
     "paper": "^0.12.18",
     "react": "^19.0.0",

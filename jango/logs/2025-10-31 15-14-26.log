@@ -1,0 +1,4 @@
+2025-10-31 15:14:39,112 - werkzeug - WARNING - No frame available after connection
+2025-10-31 15:14:39,584 - werkzeug - INFO - Started imu checking
+2025-10-31 15:14:41,944 - werkzeug - INFO - Started imu checking
+2025-10-31 15:14:45,058 - werkzeug - INFO - Started image processing

@@ -1,0 +1,60 @@
+{
+    "Carm":{
+        "C-arm Model": "ATEC>OEC9902 E9-0284",
+        "C-arm Manufacturer": "OEC 9900 Elite"
+    },
+    "FrameGrabber":{
+        "DeviceName": "OBS Virtual Camera",
+        "OutputImageSize": [
+            1024,
+            1024
+        ],
+        
+        "InputImageSize": [
+            1280,
+            1024
+        ],
+        "ForceOriginalResolution": false,
+        "AutoCheckImageThreshold": 0.1,
+        "AutoCheckTimeThreshold": 1.0,
+        "AutoCheckLoopNumber": 5
+    },
+    "IMU":{
+        "DeviceName": "WT901BLECL",
+        "PortName": "COM3",
+        "Baudrate": 9600,
+        "ReadFrequency": 10,
+        "MinBatteryVolts": 1.0,
+        "MaxBatteryVolts": 5.0,
+        "ImuCalibMatrix": [[4],[4],[],[]],
+        "ResetRotation": 0.0,
+        "ResetTilt": 0.0,
+
+        "ApplyTarget": true,
+        "CarmRangeTilt": [-15, 15],
+        "CarmRangeRotation": [-25, -10, 10, 25],
+        "CarmTargetTilt": 5.4,
+        "CarmTargetRot": [-5, -15, 20],
+        "tol": 0.2,
+        "imu_on": false
+    },
+    "Model":{
+        "ExtractDistortion": false,
+        "CorrectDistortion": false,
+        "ExtractGlyph": false,
+        "ExtractTracking": false,
+        "ExtractCameraCalib": false,
+
+        "PixelScale": 0.21093,
+        "CropTopLeft": [
+            267,
+            18
+        ],
+        "CropSize": [
+            996,
+            996
+        ],
+        "ImageRotation": 90,
+        "ImageFlip": false
+    }
+}
