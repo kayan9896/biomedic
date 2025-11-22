@@ -27,6 +27,7 @@ import L18 from './L18/L18';
 import L24 from './L24/L24';
 import L26 from './L26/L26';
 import CircularProgress2 from './CircularProgress2';
+import Window from './Window';
 
 function App() {
   const [patient, setPatient] = useState('');
@@ -120,6 +121,36 @@ function App() {
   const [brightness, setBrightness] = useState([100, 100]);
   const [contrast, setContrast] = useState([100, 100]);
 
+  const renderMain = (stage = 2, side = 'ap', track = true, processing = false, percent = 90, video = true, imu = true, autoshot = true, leftimg = null, rightimg = null, 
+    apmeta = null, obmeta = null, lefticon = null, righticon = null, reconicon = null, isrecon = false, pelreg = false, cupreg = false, trireg = false, meas = null
+  ) => {
+    setIsConnected(true)
+    setStage(stage)
+    setActiveLeft(side === 'ap' ? true: false)
+    setActiveRight(side === 'ob' ? true: false)
+    setTracking(track)
+    setIsProcessing(processing);
+    setProgress(percent);
+    setVideo_on(video)
+    setImuon(imu)
+    setAutocollect(autoshot)
+    setOriLeft(leftimg?leftimg:getInstruction(stage,'AP'))
+    setOriRight(rightimg?rightimg:getInstruction(stage,'OB'))
+    setLeftImageMetadata(apmeta)
+    setRightImageMetadata(obmeta)
+    setLeftCheckMark(lefticon)
+    setRightCheckMark(righticon)
+    setRecon(reconicon)
+    setIsRecon(isrecon)
+    setIsPelReg(pelreg)
+    setIsCupReg(cupreg)
+    setIsTriReg(trireg)
+    setMeasurements(meas)
+    setTiltValid(true)
+    setRotValid(true)
+
+  }
+
   const handleBrightnessChange = (value) => {
     setBrightness(prev => {
       const newBrightness = [...prev];
@@ -163,95 +194,10 @@ function App() {
 
   const [takeAP, setTakeAP] = useState(null)
 
-  useEffect(() => {
-    const checkBackendState = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/check-running-state');
-        const data = await response.json();
-        
-        if (data.running) {
-          // Backend is already running, restore the state
-          setIsConnected(true);
-          
-          // Restore basic states
-          if (data.states) {
-            setAngle(data.states.tilt_angle);
-            setRotationAngle(data.states.rotation_angle);
-            setImuon(data.states.imu_on);
-            setVideo_on(data.states.video_on);
-            setIsProcessing(data.states.is_processing);
-            setProgress(data.states.progress);
-            setStage(data.states.stage);
-          }
-          
-          
-          // Restore tilt_angle related states
-          if (data.target_tilt_angle !== null) setTargetTiltAngle(data.states.target_tilt_angle);
-          if (data.ap_rotation_angle !== null) setAPRotationAngle(data.states.ap_rotation_angle);
-          if (data.ob_rotation_angle !== null) setOBRotationAngle(data.states.ob_rotation_angle);
-          if (data.ob_rotation_angle2 !== null) setOBRotationAngle2(data.states.ob_rotation_angle2);
-          
-          const currentStageData = data.all_stage_data[data.states.stage]
-          // IMPORTANT: Always reset both images to default first
-          previousImgCountRef.current = data.states.img_count
-
-          setLeftImage(getInstruction(stage,'AP'));
-          setRightImage(getInstruction(stage,'OB'));
-          setLeftImageMetadata(null);
-          setRightImageMetadata(null);
-          setLeftCheckMark(null);
-          setRightCheckMark(null);
-          
-          
-          if (currentStageData.ap_has_data && currentStageData.ap_image) {
-            setLeftImage(currentStageData.ap_image);
-            if (currentStageData.ap_metadata) {
-              setLeftImageMetadata(currentStageData.ap_metadata);
-            }
-            setLeftCheckMark(currentStageData.ap_checkmark);
-            
-            // Update AP side of pelvis if we have side data
-            if (currentStageData.ap_side) {
-              setPelvis(prev => {
-                const newPelvis = [...prev];
-                newPelvis[0] = currentStageData.ap_side;
-                return newPelvis;
-              });
-            }
-            console.log('Restored AP image and metadata for current stage');
-          }
-          
-          // Only update right (OB) image if the current stage has valid OB data
-          if (currentStageData.ob_has_data && currentStageData.ob_image) {
-            setRightImage(currentStageData.ob_image);
-            if (currentStageData.ob_metadata) {
-              setRightImageMetadata(currentStageData.ob_metadata);
-            }
-            setRightCheckMark(currentStageData.ob_checkmark);
-            
-            // Update OB side of pelvis if we have side data
-            if (currentStageData.ob_side) {
-              setPelvis(prev => {
-                const newPelvis = [...prev];
-                newPelvis[1] = currentStageData.ob_side;
-                return newPelvis;
-              });
-            }
-            console.log('Restored OB image and metadata for current stage');
-          }
-          setMoveNext(data.move_next);
-        }
-      } catch (error) {
-        window.electronAPI?.logError(error);
-        console.error('Error checking backend state:', error);
-      }
-    };
-    
-    checkBackendState();
-  }, []);
+  
 
   useEffect(() => {
-    if(!isConnected) return;
+    if(!isConnected||test) return;
     const fetchStates = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/states');
@@ -905,10 +851,12 @@ function App() {
   const [usb, setUsb] = useState(false)
   const [ge, setGe] = useState(false)
   const [splash, setSplash] = useState(false)
+  const [test, setTest] = useState(false)
+  const refSetup = useRef()
 
   return (
     <div className="app">
-      <div style={{position:'absolute',zIndex:2000,top:'0px',color:'yellow'}}>{scn},{stage}</div>
+      <div style={{position:'absolute',zIndex:2000,top:'0px',color:'yellow'}} onClick={() => {setTest(!test)}}>{scn},{stage}</div>
       <div style={{position:'absolute',zIndex:2000,top:'20px',color:'yellow'}} onClick={() => {setFullBugs(!fullBugs)}}>Exceptions:
         {fullBugs ? ((bugs.length > 0 ? (
           <div>
@@ -918,11 +866,12 @@ function App() {
           </div>) : 'None')
         ) : bugs.length}
       </div>
+      {test && <Window renderSetup={refSetup.current.renderSetup} renderMain={renderMain} setIsConnected={setIsConnected}/>}
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
           {splash ? <L24 setSplash={setSplash}/> : 
-          <L13 setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected} tracking={tracking} setTracking={setTracking} setGe={setGe} setError={setError}/>
+          <L13 refSetup={(ref) => {refSetup.current=ref}} setPause={setPause} selectedCArm={selectedCArm} setSelectedCArm={setSelectedCArm} handleConnect={handleConnect} setIsConnected={setIsConnected} setGe={setGe} setError={setError}/>
           }
         </div>
       ) : (
@@ -1158,3 +1107,90 @@ function App() {
 }
 
 export default App;
+
+// useEffect(() => {
+//     const checkBackendState = async () => {
+//       try {
+//         const response = await fetch('http://localhost:5000/check-running-state');
+//         const data = await response.json();
+        
+//         if (data.running) {
+//           // Backend is already running, restore the state
+//           setIsConnected(true);
+          
+//           // Restore basic states
+//           if (data.states) {
+//             setAngle(data.states.tilt_angle);
+//             setRotationAngle(data.states.rotation_angle);
+//             setImuon(data.states.imu_on);
+//             setVideo_on(data.states.video_on);
+//             setIsProcessing(data.states.is_processing);
+//             setProgress(data.states.progress);
+//             setStage(data.states.stage);
+//           }
+          
+          
+//           // Restore tilt_angle related states
+//           if (data.target_tilt_angle !== null) setTargetTiltAngle(data.states.target_tilt_angle);
+//           if (data.ap_rotation_angle !== null) setAPRotationAngle(data.states.ap_rotation_angle);
+//           if (data.ob_rotation_angle !== null) setOBRotationAngle(data.states.ob_rotation_angle);
+//           if (data.ob_rotation_angle2 !== null) setOBRotationAngle2(data.states.ob_rotation_angle2);
+          
+//           const currentStageData = data.all_stage_data[data.states.stage]
+//           // IMPORTANT: Always reset both images to default first
+//           previousImgCountRef.current = data.states.img_count
+
+//           setLeftImage(getInstruction(stage,'AP'));
+//           setRightImage(getInstruction(stage,'OB'));
+//           setLeftImageMetadata(null);
+//           setRightImageMetadata(null);
+//           setLeftCheckMark(null);
+//           setRightCheckMark(null);
+          
+          
+//           if (currentStageData.ap_has_data && currentStageData.ap_image) {
+//             setLeftImage(currentStageData.ap_image);
+//             if (currentStageData.ap_metadata) {
+//               setLeftImageMetadata(currentStageData.ap_metadata);
+//             }
+//             setLeftCheckMark(currentStageData.ap_checkmark);
+            
+//             // Update AP side of pelvis if we have side data
+//             if (currentStageData.ap_side) {
+//               setPelvis(prev => {
+//                 const newPelvis = [...prev];
+//                 newPelvis[0] = currentStageData.ap_side;
+//                 return newPelvis;
+//               });
+//             }
+//             console.log('Restored AP image and metadata for current stage');
+//           }
+          
+//           // Only update right (OB) image if the current stage has valid OB data
+//           if (currentStageData.ob_has_data && currentStageData.ob_image) {
+//             setRightImage(currentStageData.ob_image);
+//             if (currentStageData.ob_metadata) {
+//               setRightImageMetadata(currentStageData.ob_metadata);
+//             }
+//             setRightCheckMark(currentStageData.ob_checkmark);
+            
+//             // Update OB side of pelvis if we have side data
+//             if (currentStageData.ob_side) {
+//               setPelvis(prev => {
+//                 const newPelvis = [...prev];
+//                 newPelvis[1] = currentStageData.ob_side;
+//                 return newPelvis;
+//               });
+//             }
+//             console.log('Restored OB image and metadata for current stage');
+//           }
+//           setMoveNext(data.move_next);
+//         }
+//       } catch (error) {
+//         window.electronAPI?.logError(error);
+//         console.error('Error checking backend state:', error);
+//       }
+//     };
+    
+//     checkBackendState();
+//   }, []);

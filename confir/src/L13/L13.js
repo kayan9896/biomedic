@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress2 from '../CircularProgress2';
+import { randInt } from 'three/src/math/MathUtils.js';
 
-function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected, tracking, setTracking, setGe, setError }) {
+function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected, setGe, setError }) {
   const [cArms, setCArms] = useState({});
   const [cArmSelected, setCarmSelected] = useState(false);
   const [videoConnected, setVideoConnected] = useState(false);
@@ -9,22 +10,30 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   const [tiltSensorConnected, setTiltSensorConnected] = useState(false);
   const [tiltSensorBatteryLow, setTiltSensorBatteryLow] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [allChecksComplete, setAllChecksComplete] = useState(false);
+  const [tracking, setTracking] = useState(false);
   const [warning, setWarning] = useState(false)
   const [carmimg, setCarmimg] = useState(false)
   const [loading, setLoading] = useState(false)
   
-  const TestSetup = (carmlist, carm, img, video, frame, imu, battery, step, restartwarn) => {
+  const renderSetup = (carmlist, carm, img, video, frame, imu, lowbattery, step, restartwarning, loadcircle, track) => {
+    
     setCArms(carmlist)
-    setCarmSelected(carm)
+    setCarmSelected(carm!='')
+    setSelectedCArm(carm)
     setCarmimg(img)
     setVideoConnected(video)
     setVideoFrame(frame)
     setTiltSensorConnected(imu)
-    setTiltSensorBatteryLow(battery)
+    setTiltSensorBatteryLow(lowbattery)
     setCurrentStep(step)
-    setWarning()
+    setWarning(restartwarning)
+    setLoading(loadcircle)
+    setTracking(track)
   }
+
+  useEffect(() => {
+    refSetup({renderSetup: renderSetup})
+  })
   
   // Fetch C-arm data when component mounts
   useEffect(() => {
@@ -54,7 +63,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
 
   useEffect(() => {
     const fetchCArmimg = async () => {
-      if(selectedCArm === '') return
+      if(selectedCArm === '' || !cArms[selectedCArm]?.image) return
       try {
         const response = await fetch(cArms[selectedCArm].image);
         if (!response.ok) {
@@ -235,7 +244,7 @@ function L13({ setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConn
   };
 
   return (
-    <div>
+    <div >
       <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'6px', left:'240px', zIndex:13}}/>
       {(currentStep ===2 || currentStep ===3) && <img 
         className={(currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? "image-button" : null}

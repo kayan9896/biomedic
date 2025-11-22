@@ -27,7 +27,7 @@ def setup_logging():
     if not os.path.exists('logs'):
         os.makedirs('logs')
 
-    logger = logging.getLogger('uvicorn')
+    logger = logging.getLogger('uvicorn.access')
     logger.setLevel(logging.DEBUG)
     logger.addFilter(Filter())
 
@@ -118,7 +118,7 @@ def check_tilt_sensor():
     with server_lock:
         if controller is None:
             controller = Controller(config)
-        return controller.imu_sensor.check_tilt_sensor()
+        return controller.imu_handler.sensor.check_tilt_sensor()
 
 @app.post("/run2")
 def start_processing():
@@ -219,7 +219,8 @@ async def switch_side(request: Request):
     try:
         if controller is None:
             raise HTTPException(status_code=404, detail="Controller not initialized")
-        label = await request.json().get('label')
+        dt = await request.json()
+        label = dt.get('label')
         controller.active_side = label
         return {"message": "click label switch active side"}
     except Exception as e:

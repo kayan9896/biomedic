@@ -1,0 +1,11 @@
+{
+        "name": "step:1,carm:null",
+        "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "null", "img": null, "video": true, "frame": null, "imu": true, "lowbattery": true, "step":1, "restartwarning": false, "loadcircle": false, "track": true,
+        "description": "Test inital setup page without selected carm", 
+        "action": ["The first item is in white text and blue background while other items are in grey text without bakground", "The first item has a white cross while others have grey crosses", 
+        "The combobox does not show the selected carm", "The continue button is disabled and greyed out", 
+        "Select a carm from the combobox to call the API and get the carm image", "Check the mock server if the \"/carm-images\" API is called with the selected carm1"],
+        "eval_api": true,
+        "route": "/carm-images/1",
+        "api_data": "1"
+        }
