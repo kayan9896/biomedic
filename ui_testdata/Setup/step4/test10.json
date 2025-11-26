@@ -1,0 +1,12 @@
+{
+        "name": "step:4,track:false",
+        "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "carm1", "img": null, "video": true, "frame": null, "imu": false, "lowbattery": false, "step":4, "restartwarning": false, "loadcircle": false, "track": false,
+        "description": "Test setup page last step ready to move to main page when no imu tracking", 
+        "action": ["The first two items are in blue text and have no background.", "The last item is in white text with blue background", "The third item is in grey text without bakground", 
+        "The first two items have a blue tick, the last item has a white cross, and the third item has a grey cross", 
+        "An carm image is rendered on the right side", "The continue button is blue and clickable",
+        "Click the try again button to reconnect the imu", "Check the mock server if the \"/run2\" API is called"],
+        "eval_api": true,
+        "route": "/run2",
+        "api_data": null
+        }

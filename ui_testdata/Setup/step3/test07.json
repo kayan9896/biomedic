@@ -1,0 +1,10 @@
+{
+        "name": "step:3,imu:true,lowbattery:false",
+        "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "carm1", "img": null, "video": true, "frame": null, "imu": true, "lowbattery": false, "step":3, "restartwarning": false, "loadcircle": false, "track": true,
+        "description": "Test setup page imu connected", 
+        "action": ["The first two items are in blue text and have no background.", "The third item is in white text with blue background", "The last item is in grey text without bakground", 
+        "The first two items have a blue tick, the second item has a white tick, and the last item has a grey cross", "The white text under the blue background states the the imu is connected",
+        "A sensor connected image is rendered on the right side", "The continue button is blue and clickable",
+        "Click the continue button to move forward", "Ensure the blue background moves to the last item after the click"],
+        "eval_api": false
+        }

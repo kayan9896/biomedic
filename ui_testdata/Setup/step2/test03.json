@@ -1,11 +1,12 @@
 {
         "name": "step:2,video:true",
         "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "carm1", "img": null, "video": true, "frame": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC", "imu": true, "lowbattery": true, "step":2, "restartwarning": false, "loadcircle": false, "track": true, 
-        "description": "Test inital setup page with carm selected", 
-        "action": ["The first item is in white text and blue background while other items are in grey text without bakground", "The first item has a white tick while others have grey crosses", 
-        "The combobox shows the carm1", "The text under the combobox states carm model is confirmed", "An image is rendered on the right side", "The continue button becomes clickable",
-        "Click the continue button to move forward", "Check the mock server if the \"/check-video-connection\" API is called", "Check if the blue background moves to the second item"],
+        "description": "Test video setup page with video connected", 
+        "action": ["The first item is in blue text withot background.", "The second item is in white text and blue background.", "Other items are in grey text without bakground", 
+        "The first two items have a tick icon while others have a grey cross", 
+        "The combobox shows the carm1", "The text under the combobox is blue and states carm model is confirmed", "A frame image is rendered on the right side", "The continue button becomes clickable",
+        "Click the continue button to move forward", "Check the mock server if the \"/check-tilt-sensor\" API is called", "Check if the blue background moves to the third item"],
         "eval_api": true,
-        "route": "/check-video-connection",
+        "route": "/check-tilt-sensor",
         "api_data": null
         }

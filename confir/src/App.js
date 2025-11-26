@@ -150,6 +150,31 @@ function App() {
     setRotValid(true)
 
   }
+    const mainParam = ()=>{
+    return{
+      stage: stage,
+      activeLeft: activeLeft,
+      activeRight: activeRight,
+      tracking: tracking,
+      isProcessing: isProcessing,
+      progress: progress,
+      video_on: video_on,
+      imuon: imuon,
+      autocollect: autocollect,
+      oriLeft: oriLeft,
+      oriRight: oriRight,
+      leftImageMetadata: leftImageMetadata,
+      rightImageMetadata: rightImageMetadata,
+      leftCheckMark: leftCheckMark,
+      rightCheckMark: rightCheckMark,
+      recon: recon,
+      isRecon: isRecon,
+      isPelReg: isPelReg,
+      isCupReg: isCupReg,
+      isTriReg: isTriReg,
+      measurements: measurements,
+    }
+  }
 
   const handleBrightnessChange = (value) => {
     setBrightness(prev => {
@@ -853,6 +878,24 @@ function App() {
   const [splash, setSplash] = useState(false)
   const [test, setTest] = useState(false)
   const refSetup = useRef()
+  const save = () => {
+    let a = refSetup.current?.saveParam?.()
+    let b = mainParam()
+    return {'Setup': a, 'Main': b}
+  }
+
+  useEffect(() => {
+  const call = async() => {
+    try{
+      const res = await fetch(`http://localhost:5000/cases`)
+      const data = await res.json()
+      setTest(data)
+    }catch(e){
+      console.log(e)
+    }
+  }
+  call()
+}, [])
 
   return (
     <div className="app">
@@ -866,7 +909,16 @@ function App() {
           </div>) : 'None')
         ) : bugs.length}
       </div>
-      {test && <Window renderSetup={refSetup.current.renderSetup} renderMain={renderMain} setIsConnected={setIsConnected}/>}
+      <a
+        style={{position:'absolute',zIndex:2000,top:'40px',color:'yellow'}}
+        href={`data:text/json;charset=utf-8,${encodeURIComponent(
+          JSON.stringify(save())
+        )}`}
+        download="param.json"
+      >
+        {`save`}
+      </a>
+      {test && <Window renderSetup={refSetup.current.renderSetup} renderMain={renderMain} setIsConnected={setIsConnected} test={test}/>}
       {!isConnected ? (
         <div>
           {/*L13 Setup, render when iscoonected false*/}
@@ -1104,6 +1156,7 @@ function App() {
       {!splash && <img src={exit ? require('./L2/ExitIconOn.png') : require('./L2/ExitIcon.png')} style={{'position':'absolute', top:'1016px', left:'1853px'}} onClick={()=>{setExit(true)}}/>}
     </div>
   );
+
 }
 
 export default App;

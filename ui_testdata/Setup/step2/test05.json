@@ -1,0 +1,8 @@
+{
+        "name": "step:2,video:false,loadcircle:true",
+        "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "carm1", "img": null, "video": false, "frame": null, "imu": true, "lowbattery": true, "step":2, "restartwarning": false, "loadcircle": true, "track": true,
+        "description": "Test setup page with video connection try again loading circle", 
+        "action": ["The first item is in blue text and has no background.", "The second item is in white text with blue background", "Other items are in grey text without bakground", "The first item has a white tick, the second item has a white cross, and the remaining items have a grey cross", 
+        "A DVI cable video image is rendered on the right side", "The continue button is grey and disabled", "The loading circle shows up and the blurs the setup page. Nothing can be clicked."],
+        "eval_api": false
+        }

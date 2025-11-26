@@ -1,0 +1,11 @@
+{
+        "name": "step:4,",
+        "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "carm1", "img": null, "video": true, "frame": null, "imu": true, "lowbattery": false, "step":4, "restartwarning": false, "loadcircle": false, "track": true,
+        "description": "Test setup page last step ready to move to main page", 
+        "action": ["The first three items are in blue text and have no background.", "The last item is in white text with blue background", 
+        "The first three items have a blue tick, while the last item has a grey cross", "The continue button is blue and clickable",
+        "Click the continue button to move to main page", "Check the mock server if the \"/run2\" API is called", "Check if the setup page changes to the main page"],
+        "eval_api": true,
+        "route": "/run2",
+        "api_data": null
+        }

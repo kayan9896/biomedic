@@ -1,0 +1,10 @@
+{
+        "name": "step:4,restartwarning:true",
+        "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "carm1", "img": null, "video": true, "frame": null, "imu": true, "lowbattery": false, "step":4, "restartwarning": true, "loadcircle": false, "track": true,
+        "description": "Test setup page last step ready to move to main page when no imu tracking", 
+        "action": ["The first three items are in blue text and have no background.", "The last item is in white text with blue background", "There is a warning window to confirm restart", 
+        "The setup page is blurred and nothing outside the window can be clicked",
+        "A c-arm image with a sentence starting with \"Check the placement\" is rendered on the right side", "The yes button is blue while the no button is grey",
+        "Click the yes button to restart the setup"],
+        "eval_api": false
+        }

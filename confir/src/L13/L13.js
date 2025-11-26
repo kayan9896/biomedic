@@ -18,7 +18,7 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
   const renderSetup = (carmlist, carm, img, video, frame, imu, lowbattery, step, restartwarning, loadcircle, track) => {
     
     setCArms(carmlist)
-    setCarmSelected(carm!='')
+    setCarmSelected(carm !== '')
     setSelectedCArm(carm)
     setCarmimg(img)
     setVideoConnected(video)
@@ -30,9 +30,24 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
     setLoading(loadcircle)
     setTracking(track)
   }
+  const saveParam = () => {
+    return{
+      cArms: cArms,
+      selectedCArm: selectedCArm,
+      carmimg: carmimg,
+      videoConnected: videoConnected,
+      videoFrame: videoFrame,
+      tiltSensorConnected: tiltSensorConnected,
+      tiltSensorBatteryLow: tiltSensorBatteryLow,
+      currentStep: currentStep,
+      warning: warning,
+      loading: loading,
+      tracking: tracking
+    }
+  }
 
   useEffect(() => {
-    refSetup({renderSetup: renderSetup})
+    refSetup({renderSetup: renderSetup, saveParam: saveParam})
   })
   
   // Fetch C-arm data when component mounts

@@ -1,45 +1,65 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 
-function Window({renderSetup, renderMain, setIsConnected}) {
-    useEffect(() => {
-      const call = async() => {
-        try{
-          const res = await fetch(`http://localhost:5000/cases`)
-          const data = await res.json()
-          setCases(data)
-        }catch(e){
-          console.log(e)
-        }
-      }
-      call()
-    }, [])
+function Window({renderSetup, renderMain, setIsConnected, test}) {
+const [messages, setMessages] = useState([]);
+  const [ws, setWs] = useState(null);
+
+  useEffect(() => {
+    // Establish connection (consider using a library like Socket.IO or a custom hook for more robust handling)
+    const socket = new WebSocket('ws://localhost:5000/ws'); 
+    setWs(socket);
+
+    socket.onopen = () => {
+      console.log('WebSocket Connected');
+    };
+
+    socket.onmessage = (event) => {
+      const newData = JSON.parse(event.data);
+      
+      // Use the functional update to ensure you have the latest messages
+      //setMessages(prevMessages => [...prevMessages, newData]); 
+      setEvalpass(newData.result)
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket Disconnected');
+    };
+
+    // Cleanup function to close the WebSocket connection when the component unmounts
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+
 
     const handleRender = () => {
-      //window.location.reload()
+      if (!caseSelected) return
       let data = casedata
       
       if(pageSelected === 'Setup'){
-        console.log(data)
         setIsConnected(false)
         renderSetup(data['carmlist'], data['carm'], data['img'], data['video'], data['frame'], data['imu'], data['lowbattery'], data['step'], data['restartwarning'], data['loadcircle'], data['track'])}
-      if(pageSelected === 'Main') renderMain(data['stage'], data['side'], data['track'], data['processing'], data['percent'], data['video'], data['imu'], data['autoshot'], 
+      if(pageSelected === 'Main') 
+        renderMain(data['stage'], data['side'], data['track'], data['processing'], data['percent'], data['video'], data['imu'], data['autoshot'], 
         data['leftimg'], data['rightimg'], data['apmeta'], data['obmeta'], data['lefticon'], data['righticon'], data['recon'], data['isrecon'], data['pelreg'], data['cupreg'], data['trireg'], 
       data['meas'])
     }
 
-    const [record, setRecord] = useState({})
-    const [comment, setComment] = useState({})
+    const [record, setRecord] = useState(test.record)
     const handleComment = (e) => {
-      setComment((prev) => {
+      setRecord((prev) => {
         const tmp = {...prev}
-        tmp[caseSelected] = e.target.value
+        if (caseSelected in tmp == false) tmp[caseSelected] = {}
+        tmp[caseSelected]['comment'] = e.target.value
         return tmp
       })
     }
     const handleRecord = async (result) => {
       let n = {...record}
-      n[caseSelected] = {'result': result, 'comment': comment[caseSelected]}
+      if (caseSelected in n == false) n[caseSelected] = {}
+      n[caseSelected]['result'] = result
       setRecord((prev) => {
         return n
       })
@@ -50,34 +70,13 @@ function Window({renderSetup, renderMain, setIsConnected}) {
       })
     }
 
-    const [cases, setCases] = useState({'Setup': {
+    const [cases, setCases] = useState(test.files)
+    const copy = {'Setup': {
 
-        'step:2,video:false': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': false, 'frame': null, 'imu': true, 'lowbattery': true, 'step':2, 'restartwarning': false, 'loadcircle': false, 'track': true},
-        'step:2,video:false,loadcircle:true': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': false, 'frame': null, 'imu': true, 'lowbattery': true, 'step':2, 'restartwarning': false, 'loadcircle': true, 'track': true},
-        'step:3,imu:true,lowbattery:true': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': true, 'frame': null, 'imu': true, 'lowbattery': true, 'step':3, 'restartwarning': false, 'loadcircle': false, 'track': true},
-        'step:3,imu:true,lowbattery:false': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': true, 'frame': null, 'imu': true, 'lowbattery': false, 'step':3, 'restartwarning': false, 'loadcircle': false, 'track': true},
-        'step:3,imu:false,': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': true, 'frame': null, 'imu': false, 'lowbattery': true, 'step':3, 'restartwarning': false, 'loadcircle': false, 'track': true},
-        'step:4,': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': true, 'frame': null, 'imu': true, 'lowbattery': false, 'step':4, 'restartwarning': false, 'loadcircle': false, 'track': true},
-        'step:4,track:false': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': true, 'frame': null, 'imu': true, 'lowbattery': false, 'step':4, 'restartwarning': false, 'loadcircle': false, 'track': false},
-        'step:4,restartwarning:true': 
-        {'carmlist': {'carm1': {'image':'http://localhost:5000/carm-images/1'}, 'carm2': {'image':'http://localhost:5000/carm-images/2'}}, 'carm': 'carm1', 'img': null, 'video': true, 'frame': null, 'imu': true, 'lowbattery': false, 'step':4, 'restartwarning': true, 'loadcircle': false, 'track': true},
-        
       }, 
         'Main':
         {
-          'stage:0,side:ap':
-            {'stage' : 0, 'side' : 'ap', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage on ap side.', 
-             'action': ['There active side blue border is on ap side', 'The imu icon is green']
-            },
+          
           'stage:0,side:ob':
             {'stage' : 0, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
              'lefticon': null, 'righticon': null,
@@ -253,14 +252,14 @@ function Window({renderSetup, renderMain, setIsConnected}) {
             },
 
         }
-      })
+      }
 
-    const [pageSelected, setPageSelected] = useState(null);
+    const [pageSelected, setPageSelected] = useState(test.page);
     const handlePageChange = (e) => {
       setPageSelected(e.target.value);
     };
 
-    const [groupSelected, setGroupSelected] = useState(null);
+    const [groupSelected, setGroupSelected] = useState(test.group);
     const handleGroupChange = (e) => {
       setGroupSelected(e.target.value);
     };
@@ -269,6 +268,7 @@ function Window({renderSetup, renderMain, setIsConnected}) {
     const [casedata, setCasedata] = useState(null)
     const handleCaseChange = async (e) => {
       setCaseSelected(e.target.value);
+      setEvalpass(null)
       try{
         const response = await fetch(`http://localhost:5000/casedata/${pageSelected}/${groupSelected}/${e.target.value}`)
         const data = await response.json()
@@ -279,11 +279,6 @@ function Window({renderSetup, renderMain, setIsConnected}) {
     };
 
     const [evalpass, setEvalpass] = useState(null)
-    const handleEval = async() => {
-      const res = await fetch('http://localhost:5000/result')
-      const data = await res.json()
-      setEvalpass(data.result)
-    }
 
     const [coord, setCoord] = useState([0, 0])
     const [dragStart, setDragStart] = useState([0, 0])
@@ -436,14 +431,13 @@ function Window({renderSetup, renderMain, setIsConnected}) {
         {casedata?.['eval_api'] && <div
           className="handle"
           style={{
-            position:'absolute', fontSize:'10px', zIndex:13, width: '60px', height:'15px', bottom:'80px', left:'10px',
+            position:'absolute', fontSize:'10px', zIndex:13, width: '60px', height:'15px', bottom:'80px', left:'100px',
             backgroundColor: evalpass === null ? '#40c4253f' : (evalpass ? '#06df11ff' : '#e90707ff'),
             padding: '8px',
             borderBottom: '1px solid #eee',
             cursor: 'grab',
             fontWeight: 'bold',
           }}
-          onClick={() => {handleEval()}}
           >
             {evalpass === null ? 'Eval API' : (evalpass ? 'API passed' : 'API failed')}
           </div>}
@@ -452,7 +446,7 @@ function Window({renderSetup, renderMain, setIsConnected}) {
           className="handle"
           style={{
             position:'absolute', fontSize:'10px', zIndex:13, width: '40px', height:'15px', bottom:'40px', left:'110px',
-            backgroundColor: record[caseSelected]?.result === 'Pass' ? '#06df11ff' : '#40c4253f',
+            backgroundColor: record?.[caseSelected]?.result === 'Pass' ? '#06df11ff' : '#40c4253f',
             padding: '8px',
             borderBottom: '1px solid #eee',
             cursor: 'grab',
@@ -466,7 +460,7 @@ function Window({renderSetup, renderMain, setIsConnected}) {
             className="handle"
             style={{
               position:'absolute', fontSize:'10px', zIndex:13, width: '40px', height:'15px', bottom:'40px', left:'180px',
-              backgroundColor: record[caseSelected]?.result === 'Fail' ? '#e90707ff' : '#dd1d1d63',
+              backgroundColor: record?.[caseSelected]?.result === 'Fail' ? '#e90707ff' : '#dd1d1d63',
               padding: '8px',
               borderBottom: '1px solid #eee',
               cursor: 'grab',
@@ -476,6 +470,20 @@ function Window({renderSetup, renderMain, setIsConnected}) {
           >
             {'Fail'}
           </div>
+        </div>
+        <div
+          className="handle"
+          style={{
+            position:'absolute', fontSize:'10px', zIndex:13, width: '40px', height:'15px', bottom:'80px', left:'10px',
+            backgroundColor: '#f0f0f0',
+            padding: '8px',
+            borderBottom: '1px solid #eee',
+            cursor: 'grab',
+            fontWeight: 'bold',
+          }}
+          onClick={() => {window.location.reload()}}
+        >
+          {'Reset'}
         </div>
         <div
           className="handle"
@@ -491,7 +499,7 @@ function Window({renderSetup, renderMain, setIsConnected}) {
         >
           {'Render'}
         </div>
-        <textarea key={caseSelected} value={comment[caseSelected]} onChange={handleComment} style={{position: 'absolute', bottom: '0px', width: '100%', height: '30px', backgroundColor: '#eee', resize: 'none'}} placeholder="Add comment here..."></textarea>
+        <textarea key={caseSelected} value={record?.[caseSelected]?.comment} onChange={handleComment} style={{position: 'absolute', bottom: '-20px', width: '100%', height: '40px', backgroundColor: '#eee', resize: 'none'}} placeholder="Add comment here..."></textarea>
       </div>
     )
 }

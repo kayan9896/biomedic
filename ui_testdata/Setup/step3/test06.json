@@ -1,0 +1,11 @@
+{
+        "name": "step:3,imu:true,lowbattery:true",
+        "carmlist": {"carm1": {"image":"http://localhost:5000/carm-images/1"}, "carm2": {"image":"http://localhost:5000/carm-images/2"}}, "carm": "carm1", "img": null, "video": true, "frame": null, "imu": true, "lowbattery": true, "step":3, "restartwarning": false, "loadcircle": false, "track": true,
+        "description": "Test setup page imu battery low", 
+        "action": ["The first two items are in blue text and have no background.", "The third item is in white text with blue background", "The last item is in grey text without bakground", "The first two items have a blue tick, the second item has a white cross, and the last item has a grey cross", 
+        "A battery low image is rendered on the right side", "The continue button is grey and disabled", "The try again button is blue and clickable",
+        "Click the try again button to retry imu reconnection", "Check the mock server if the \"/check-tilt-sensor\" API is called"],
+        "eval_api": true,
+        "route": "/check-tilt-sensor",
+        "api_data": null
+        }
