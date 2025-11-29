@@ -30,7 +30,33 @@ const PatternDisplay = ({ group, fulldata, isLeftSquare, imageUrl, editing, filt
 
 
   const renderDashedLines = (patterns) => {
+
+    let prev = {}
+    for (let i = 0; i < patterns.length; i++) {
+      if (patterns[i]['next']) prev[patterns[i]['next']] = patterns[i]     
+    }
+
+    if (Object.keys(prev).length !== 0){
+
+      let tail = null
+      for (let i = 0; i < patterns.length ; i++){
+          if ((patterns[i]['id'] in prev) && (patterns[i]['next'] === null)) tail = patterns[i]
+      }
+      let connect = [tail]
+      
+      while (tail?.['id'] in prev){
+          let p = prev[tail['id']]
+          connect.push(p)
+          tail = p
+      }
+
+      patterns = connect.reverse()
+
+    }else{patterns = []}
+
+    
     const lines = [];
+
   
     for (let i = 0; i < patterns.length - 1; i++) {
       const currentPattern = patterns[i];

@@ -1,0 +1,8 @@
+{
+        "name": "stage:0,side:null,video:true,imu:false",
+            "stage" : 0, "side" : null, "track" : true, "processing" : false, "percent" : 90, "video" : true, "imu" : false, "autoshot" : true, "leftimg" : null, "rightimg" : null,
+             "lefticon": null, "righticon": null,
+             "description": "Test any(hp1 in this case) stage showing the disconnected imu icons.", 
+             "action": ["There is no blue border indicating the active side", "The video icon is green", "The imu icon is red"],
+        "eval_api": false
+        }

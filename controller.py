@@ -183,15 +183,17 @@ class Controller:
             self.model.data[stages[stage][0]]['framedata']['landmarks'] = l
             self.model.data[stages[stage][0]]['framedata']['brightness'] = brightness[0]
             self.model.data[stages[stage][0]]['framedata']['contrast'] = contrast[0]
+            self.model.data[stages[stage][0]]['framedata']['tb'] = self.model.update_tb(l)
         else:
-            self.model.data[stages[stage][0]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0]}
+            self.model.data[stages[stage][0]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0], 'tb': self.model.update_tb(l)}
 
         if self.model.data[stages[stage][1]]['framedata']:
             self.model.data[stages[stage][1]]['framedata']['landmarks'] = r
             self.model.data[stages[stage][1]]['framedata']['brightness'] = brightness[1]
             self.model.data[stages[stage][1]]['framedata']['contrast'] = contrast[1]
+            self.model.data[stages[stage][1]]['framedata']['tb'] = self.model.update_tb(r)
         else:
-            self.model.data[stages[stage][0]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0]}
+            self.model.data[stages[stage][1]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0], 'tb': self.model.update_tb(r)}
    
         
         if l:

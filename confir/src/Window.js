@@ -77,30 +77,9 @@ const [messages, setMessages] = useState([]);
         'Main':
         {
           
-          'stage:0,side:ob':
-            {'stage' : 0, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage on ob side.', 
-             'action': ['There active side blue border is on ob side', 'The imu icon is green']
-            },
-          'stage:0,side:null,video:true,imu:false':
-            {'stage' : 0, 'side' : null, 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : false, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage showing the disconnected imu icons.', 
-             'action': ['There is no blue border indicating the active side', 'The video icon is green', 'The imu icon is red']
-            },
-          'stage:0,side:ap,video:false,imu:true':
-            {'stage' : 0, 'side' : 'ap', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : false, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage showing the disconnected video icons.', 
-             'action': ['The blue border is on the ap side', 'The video icon is red', 'The imu icon is green']
-            },
-          'stage:0,side:null,video:false,imu:false':
-            {'stage' : 0, 'side' : null, 'track' : true, 'processing' : false, 'percent' : 90, 'video' : false, 'imu' : false, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage showing the disconnected video and imu icons.', 
-             'action': ['There is no blue border indicating the active side', 'The video icon is red', 'The imu icon is red']
-            },
+          
+          
+          
           'stage:0,side:ap,track:false':
             {'stage' : 0, 'side' : 'ap', 'track' : false, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : null, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
              'lefticon': null, 'righticon': null,

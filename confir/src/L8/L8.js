@@ -26,8 +26,10 @@ function L8({
   const [showBrightnessBar, setShowBrightnessBar] = useState(false);
   const [showContrastBar, setShowContrastBar] = useState(false);
   const [confirmSave, setConfirmSave] = useState(false);
+  const [offset, setOffset] = useState(editing === 'left' ? 20 : -20)
   const brightRef = useRef(null)
   const contraRef = useRef(null)
+  
 
   const handleBrightnessClick = () => {
     setShowBrightnessBar(!showBrightnessBar);
@@ -38,6 +40,8 @@ function L8({
     setShowContrastBar(!showContrastBar);
     if (!showContrastBar) setShowBrightnessBar(false); // Close brightness bar if open
   };
+
+  useEffect(() => {setOffset(editing === 'left' ? 40 : -40)}, [editing])
 
   useEffect(() => {
       const handleClickOutside = (e) => {
@@ -60,12 +64,12 @@ function L8({
       <img
         src={require('./EditModeBlueBorder.png')}
         alt="EditModeBlueBorder"
-        style={{ position: 'absolute', top: '0px', left: '0px', zIndex: 7, pointerEvents: 'none' }}
+        style={{ position: 'absolute', top: '0px', left: `0px`, zIndex: 7, pointerEvents: 'none' }}
       />
       <img
         src={require('./EditToolbarBg.png')}
         alt="EditToolbarBg"
-        style={{ position: 'absolute', top: '264px', left: '920px', zIndex: 7 }}
+        style={{ position: 'absolute', top: '264px', left: `${offset + 920}px`, zIndex: 7 }}
       />
 
       {/* Brightness icon and adjustment bar */}
@@ -86,7 +90,7 @@ function L8({
         style={{
           position: 'absolute',
           top: '272px',
-          left: '927px',
+          left: `${offset + 927}px`,
           zIndex: 7,
           cursor: 'pointer',
         }}
@@ -111,7 +115,7 @@ function L8({
         style={{
           position: 'absolute',
           top: '352px',
-          left: '927px',
+          left: `${offset + 927}px`,
           zIndex: 7,
           cursor: 'pointer',
         }}
@@ -123,7 +127,7 @@ function L8({
           className="image-button" 
           src={require('./ResetIcon.png')} 
           alt="ResetIcon" 
-          style={{position:'absolute', top:'457px', left:'927px', zIndex:7, cursor:'pointer'}}
+          style={{position:'absolute', top:'457px', left:`${offset + 927}px`, zIndex:7, cursor:'pointer'}}
           onClick={()=>setResetWarning(true)}
         />
         
@@ -133,7 +137,7 @@ function L8({
           src={require('./SaveIcon.png')}
           alt="SaveIcon" 
           className="image-button"
-          style={{position:'absolute', top:'552px', left:'927px', zIndex:7, cursor:'pointer'}}
+          style={{position:'absolute', top:'552px', left:`${offset + 927}px`, zIndex:7, cursor:'pointer'}}
           onClick={()=>{
             if(checkTmp()) setConfirmSave(true)
             else onSave()
@@ -145,7 +149,7 @@ function L8({
           src={require('./ExitIcon.png')} 
           alt="ExitIcon" 
           className="image-button"
-          style={{position:'absolute', top:'633px', left:'927px', zIndex:7, cursor:'pointer'}}
+          style={{position:'absolute', top:'633px', left:`${offset + 927}px`, zIndex:7, cursor:'pointer'}}
           onClick={onExit}
         />
 

@@ -369,11 +369,49 @@ class Model:
 
         return reg_result
 
+    def convert(self, tb, temp):
+        rt = {}
+        for g in temp:
+            rt[g] = []
+            handle = None
+            
+            for s in temp[g]:
+                if s['type'] == 'handle':
+                    handle = [400, 400]
+                else:
+                    for i in range(len(s['keys'])):
+                        s['points'].append(tb[s['keys'][i]])
+                        s['type'] = 'lines' if 'line' in s['type'] or 'point' in s['type'] else s['type']
+                        
+                    rt[g].append(s)
+
+            rt[g][0]['handle'] = handle
+
+        return rt
+
+    def update_tb(self, landmarks):
+        tb = {}
+        for g in landmarks:
+            for s in landmarks[g]:
+                for i in range(len(s['points'])):
+                    tb[s['keys'][i]] = s['points'][i]
+        return tb
+
+
     def update(self, analysis_type, data):
         try:
             section = data['section']
-        
+
+
             if analysis_type == 'frame':
+                with open('./landmarks 1.json', 'r') as f:
+                    data['tb'] = json.load(f)
+
+                with open('./template 4.json', 'r') as f:
+                    data['temp'] = json.load(f)
+
+                data['landmarks'] = self.convert(data['tb'], data['temp']['landmarks'])
+                data['processed_frame'] = cv2.imread("C:/Users/Torus_Dev/Downloads/drr (4).png")
                 if data['analysis_error_code'] not in {'110', '111', '112', '113', '140'}:
                     section_type = section[-2:]  # ap, ob
                     # reset the 'ob' view if 'ap' image is repeated:
