@@ -1,0 +1,51 @@
+{
+    "fg_device_config": {
+        "device_name": "Unassigned"
+    },
+    "imu_device_config": {
+        "device_name": null,
+        "port_name": null,
+        "baudrate": 9600,
+        "read_frequency": 10
+    },
+    "frame_prediction_config": {
+        "ai_mode": true,
+        "classifier_model_path": "later_class_model.pth",
+        "ref_annotator_model_path": "ref_lm_model.pth",
+        "ref_segmentor_model_path": "ref_seg_model.pth",
+        "cup_annotator_model_path": "cup_lm_model.pth",
+        "cup_segmentor_model_path": "cup_seg_model.pth",
+        "trl_annotator_model_path": "trial_lm_model.pth",
+        "trl_segmentor_model_path": "trial_seg_model.pth"
+    },
+    "reconreg_config": {
+        "recon_method_name": null,
+        "reg_method_name": null
+    },
+    "testpanel_config": {
+        "panel_on": true,
+        "imu_sim": true,
+        "fg_simulation": true,
+        "testdata_exam_path": "/exam0",
+        "testdata_calib_path": null
+    },
+    "reference_config": {
+        "distortion_refname": "DistCamCal_Reference_01",
+        "glyph_refname": "Glyph_Reference_01",
+        "camcalib_refname": "DistCamCal_Reference_01",
+        "detect_distortion": false,
+        "correct_distortion": false,
+        "detect_glyph_tilt": false,
+        "correct_glyph_rotation": false,
+        "detect_camcalib": false
+    },
+    "frontend_config": {
+        "templates_path": "/templates"
+    },
+    "log_config": {
+        "backend_log_path": null
+    },
+    "report_config": {
+        "report_save_path": null
+    }
+}

@@ -1,4 +1,5 @@
 /build
 /dist
 /logs
+/config/models
 proto.exe

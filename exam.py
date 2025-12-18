@@ -2,6 +2,7 @@ import cv2
 import os
 import json
 import shutil
+import base64
 
 class Exam:
     def __init__(self, calib_folder, bugs = None, logger = None):
@@ -134,3 +135,57 @@ class Exam:
         json_filename = 'patient.json'
         json_path = os.path.join(self.exam_folder, json_filename)
         self.save_json(data, json_path)
+
+    @classmethod
+    def get_carms(self, carm_folder):
+        carm_data = {}
+        for name in os.listdir(carm_folder):
+            carm_data[name] = {'image': f"http://localhost:5000/carm-images/{name}"}
+        return carm_data
+
+    @classmethod
+    def serve_carm_select(self, carm_folder, filename):
+        with open(f"{carm_folder}/{filename}/hardware.json", 'r') as file:
+            select = json.load(file)
+        try:
+            from carm_calib.confirmap_data import CarmConfigClass 
+            s = CarmConfigClass(**select)
+            print(s)
+
+        except Exception as e:
+            print(e)
+            raise Exception('Wrong calib data')
+            
+
+        #if not self.verify_config(select)[0]: raise Exception('Wrong calib data')
+        
+        distortion = {}
+        for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/distortion"):
+            with open(f"{carm_folder}/{filename}/calib_arcs/distortion/{fname}", 'r') as file:
+                t = int(fname[6 : 11]) / 10
+                r = int(fname[-10 : -5]) / 10
+                distortion[(t,r)] = json.load(file)
+
+        gantry = {}
+        for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/gantry"):
+            with open(f"{carm_folder}/{filename}/calib_arcs/gantry/{fname}", 'r') as file:
+                t = int(fname[6 : 11]) / 10
+                r = int(fname[-10 : -5]) / 10
+                gantry[(t,r)] = json.load(file)
+        
+        select.update({'distortion': distortion})
+        select.update({'gantry': gantry})
+        select.update({'folder': f"{carm_folder}/{filename}"})
+
+        return select
+
+    @classmethod
+    def serve_carm_image(self, carm_folder, filename):
+        image = cv2.imread(f"{carm_folder}/{filename}/carm_photo.png")
+        _, buffer = cv2.imencode('.jpg', image)
+        image_base64 = base64.b64encode(buffer).decode('utf-8') 
+
+        return image_base64
+    
+
+

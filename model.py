@@ -4,6 +4,9 @@ import time
 import threading
 import json
 import datetime
+import copy
+from calibrate import Calibrate
+from hip_ml_models.hip_models import HipModels
 
 class Frm:
     def __init__(self):
@@ -32,20 +35,14 @@ class Reg:
         self.next_ob = None
 
 class Model:
-    def __init__(self, ai_mode = True, on_simulation = False, calib = None, distortion = None , gantry = None, bugs = None, logger = None):
+    def __init__(self, ai_mode = True, on_simulation = False, config = None, calib = None, distortion = {}, gantry = {}, bugs = None, logger = None):
 
-        self.calib = None
-        if calib is not None:
-            self.extract_distortion = calib["ExtractDistortion"]
-            self.correct_distortion = calib["CorrectDistortion"]
-            self.extract_glyph = calib["ExtractGlyph"]
-            self.extract_tracking = calib["ExtractTracking"]
-            self.extract_camcalib = calib["ExtractCameraCalib"]
-            self.calib={}
-            self.calib['pixel_scale'] = calib["PixelScale"]
-            self.calib['distortion'] = distortion
-            self.calib['gantry'] = gantry
+        self.calib = calib
+        self.calib['distortion'] = distortion
+        self.calib['gantry'] = gantry
+        print(self.calib)
 
+        self.config = config
 
         self.ai_mode = ai_mode
         self.on_simulation = on_simulation
@@ -62,6 +59,9 @@ class Model:
         self.bugs = bugs
         self.logger = logger
 
+        self.default_templates = []
+        self.default_tables = []
+
         self._lock = threading.Lock()
         self._stitch_thread = None
         # wait in seconds: use this values for waiting in seconds during analysis
@@ -70,6 +70,9 @@ class Model:
             'recon': 2,
             'reg': 2
         }
+
+        self.calibrate = Calibrate()
+        self.cnn = self.load_cnn() #self.cnn = CNN()
 
 
     def _resetdata(self):
@@ -212,8 +215,27 @@ class Model:
     def settest(self, testdata):
         self.sim_data = testdata
 
-    def analyzeframe_sim(self, section, image, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
-        print(len(image),len(image[0]),len(image[0][0]))
+    def load_cnn(self):
+        p = self.config.get('frame_prediction_config')
+        return HipModels('./config/models', 
+                         later_cls_name = p["classifier_model_path"], 
+                         ref_lm_name = p["ref_annotator_model_path"], 
+                         ref_seg_name = p["ref_segmentor_model_path"], 
+                         cup_lm_name = p["cup_annotator_model_path"],
+                         cup_seg_name = p["cup_segmentor_model_path"],
+                         trial_lm_name = p["trl_annotator_model_path"],
+                         trial_seg_name = p["trl_segmentor_model_path"],
+                         phase="all")
+
+    def pre_process(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
+        #self.calib['distortion'].update({(5, 20): {'data': {}}})
+        #self.calib['gantry'].update({(1.5, 0.2): {'data': {}}})
+        framecalib = {}
+        framecalib['distortion'] = self.calib['distortion']
+        framecalib['gantry'] = self.calib['gantry']
+        return framecalib, frame, None
+    
+    def process(self, section, image, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         section_type = section[-2:]  # ap, ob
         test_entry = self.sim_data.get(section[:-3]).get(section_type)
         if test_entry and test_entry.get('json_path'):
@@ -226,26 +248,14 @@ class Model:
             except Exception as e:
                 print(f"Error loading test JSON: {e}")
                 metadata = None
+                
         else:
             metadata = None
 
         metadata['processed_frame'] = image
         metadata['imuangles'] = [tilt_angle, rotation_angle, act_tilt, act_rot]
 
-        self.calib['distortion'].update({(5, 20): {'data': {}}})
-        self.calib['gantry'].update({(1.5, 0.2): {'data': {}}})
-        framecalib = {}
-        framecalib['distortion'] = self.calib['distortion']
-        framecalib['gantry'] = self.calib['gantry']
-
-        # simulate wait:
-        #>> wait (self.sim_wait_values['frame_analysis'])?
-        k = 0
-        for i in range(1000):
-            for j in range(3000):
-                with self._lock:
-                    self.progress = (k + 1) / 30000
-                    k += 1
+        
 
         if not self.verify_result(metadata)[0]: error_code = '140'
         if error_code is None and self.ai_mode:
@@ -260,12 +270,73 @@ class Model:
                 metadata['side'] = self.data[section]['side']
         metadata['analysis_error_code'] = error_code
 
+
+        #Assume that
+        
+        metadata['processed_frame'] = cv2.imread("C:/Users/Torus_Dev/Downloads/drr (4).png")
+        class_name = self.cnn.classify(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY))
+        print(f"Predicted class name: {class_name}")
+        self.progress = 10
+
+        seg = self.cnn.segment(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="ref")
+        self.propress = 50
+        #metadata['Segmentation'] = seg
+
+        metadata['landmarks'] = copy.deepcopy(self.default_tables[0])
+        pred = self.cnn.annotate(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="cup" if "cup" in section else "trial" if "tri" in section else "ref")
+        print("Predicted points:")
+        for k, v in pred.get("points", {}).items():
+            print(f"  {k}: {v}")
+
+        print("\nPredicted vectors:")
+        for k, v in pred.get("vectors", {}).items():
+            print(f"  {k}: {v}")
+        if error_code is not None: return metadata
+        if class_name == 'RIGHT HIP':
+            metadata['side'] = 'r'
+        else:
+            metadata['side'] = 'l'
+
+        return metadata
+
+
+
+    def analyzeframe_sim(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
+
+        framecalib, image, error_code = self.pre_process(section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None)
+        if error_code is not None:
+            return {}
+        if not self.ai_mode:
+            return {}
+        
+        metadata = self.process(section, image, tilt_angle, rotation_angle, act_tilt, act_rot)
+
+        if metadata['side'] == 'r':
+            for k, v in metadata['landmarks'].items(): v[0] = 1024 - v[0]
+        
+        num = 2 if 'cup' in section else 4 if 'tri' in section else 0
+        metadata['ui_objects'] = self.update_ui_objects(metadata['landmarks'], self.default_templates[num])
+
         return metadata, framecalib
 
 
     def analyzeframe_act(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         # actual frame analysis
-        return (None, None)
+        
+        framecalib, image, error_code = self.calibrate.pre_process(section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None)
+        if error_code is not None:
+            return {}
+        if not self.ai_mode:
+            return {}
+        
+        metadata = self.cnn.process(section, image)
+
+        
+        num = 2 if 'cup' in section else 4 if 'tri' in section else 0
+        metadata['ui_objects'] = self.update_ui_objects(metadata['landmarks'], self.default_templates[num])
+
+        return metadata, framecalib
+
 
     def analyzeframe(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         if self.on_simulation:
@@ -273,12 +344,13 @@ class Model:
         else:
             framedata, framecalib = self.analyzeframe_act(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
 
+        fig = self.config.get("reference_config")
         analysis_parameters = {
-            'extract_distortion': self.extract_distortion,
-            'correct_distortion': self.correct_distortion,
-            'extract_glyph': self.extract_glyph,
-            'extract_tracking': self.extract_tracking,
-            'extract_camcalib': self.extract_camcalib,
+            'extract_distortion': fig["detect_distortion"],
+            'correct_distortion': fig["correct_distortion"],
+            'extract_glyph': fig["detect_glyph_tilt"],
+            'extract_tracking': fig["correct_glyph_rotation"],
+            'extract_camcalib': fig["detect_camcalib"],
             'ai_mode': self.ai_mode
         }
 
@@ -369,17 +441,20 @@ class Model:
 
         return reg_result
 
-    def convert(self, tb, temp):
+    def update_ui_objects(self, tb, tp, red = False):
+
+        temp = copy.deepcopy(tp)
         rt = {}
         for g in temp:
             rt[g] = []
             handle = None
-            
+
             for s in temp[g]:
                 if s['type'] == 'handle':
                     handle = [400, 400]
                 else:
                     for i in range(len(s['keys'])):
+                        if red: s['template'] = 1
                         s['points'].append(tb[s['keys'][i]])
                         s['type'] = 'lines' if 'line' in s['type'] or 'point' in s['type'] else s['type']
                         
@@ -389,7 +464,7 @@ class Model:
 
         return rt
 
-    def update_tb(self, landmarks):
+    def update_landmarks(self, landmarks):
         tb = {}
         for g in landmarks:
             for s in landmarks[g]:
@@ -404,14 +479,7 @@ class Model:
 
 
             if analysis_type == 'frame':
-                with open('./landmarks 1.json', 'r') as f:
-                    data['tb'] = json.load(f)
 
-                with open('./template 4.json', 'r') as f:
-                    data['temp'] = json.load(f)
-
-                data['landmarks'] = self.convert(data['tb'], data['temp']['landmarks'])
-                data['processed_frame'] = cv2.imread("C:/Users/Torus_Dev/Downloads/drr (4).png")
                 if data['analysis_error_code'] not in {'110', '111', '112', '113', '140'}:
                     section_type = section[-2:]  # ap, ob
                     # reset the 'ob' view if 'ap' image is repeated:

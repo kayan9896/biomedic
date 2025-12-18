@@ -10,9 +10,6 @@ from model import Model
 from fg_handler import FrameGrabber_handler
 from viewmodel import ViewModel
 import json
-import shutil
-from glob import glob
-import datetime
 from imu2 import IMU_handler
 from exam import Exam
 import base64
@@ -21,7 +18,7 @@ class Controller:
     def __init__(self, config = None, calib = None,  panel = None, logger = None):
         self.calib = calib
         self.config = config
-        self.fg_handler = FrameGrabber_handler(calib, panel, self.config.get("fg_simulation", False), logger)
+        self.fg_handler = FrameGrabber_handler(calib, panel, self.config.get("testpanel_config", False).get("fg_simulation", False), logger)
 
         self.is_running = False
         self.process_thread = None
@@ -29,9 +26,9 @@ class Controller:
         
         self.panel = None
         # Initialize based on configuration
-        self.on_simulation = self.config.get("on_simulation", False) 
+        self.on_simulation = self.config.get("testpanel_config", False).get("panel_on", False) 
         self.autocollect = self.config.get('framegrabber_autocollect', True)
-        self.ai_mode = self.config.get("ai_mode", True)
+        self.ai_mode = self.config.get("frame_prediction_config").get("ai_mode", True)
         self.is_processing = False
         self.active_side = None
         self.stage = 0
@@ -41,7 +38,7 @@ class Controller:
         #self.unexpected_error = None
         self.bugs = [None]
 
-        self.model = Model(self.ai_mode, self.on_simulation, self.calib["Model"], self.calib["distortion"], self.calib["gantry"], self.bugs, logger)
+        self.model = Model(self.ai_mode, self.on_simulation, self.config, self.calib.get("frame_analysis_config"), self.calib.get("distortion", {}), self.calib.get("gantry", {}), self.bugs, logger)
         
         
         self.viewmodel = ViewModel(config, self.bugs, logger)
@@ -55,9 +52,9 @@ class Controller:
         self.imu_handler = None
         
         # Initialize IMU if enabled in config
-        self.tracking = self.calib['IMU'].get("imu_on", True)
+        self.tracking = self.config.get('testpanel_config').get("imu_sim", True)
         if self.tracking: 
-            self.imu_handler = IMU_handler(self.calib["IMU"], self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"], sim = config.get("imu_simulation", False), panel = panel)
+            self.imu_handler = IMU_handler(self.config.get("imu_device_config"), self.calib["imu_handler_config"]["apply_target"], self.calib["imu_handler_config"]["carm_range_tilt"], self.calib["imu_handler_config"]["carm_range_rotation"], self.calib["imu_handler_config"]["carm_target_tilt"], self.calib["imu_handler_config"]["carm_target_rotation"], tol = self.calib["imu_handler_config"]["stable_movement_tol"], sim = config.get('testpanel_config').get("imu_sim", False), panel = panel)
 
         if self.on_simulation:
             self.panel = panel
@@ -72,7 +69,7 @@ class Controller:
         self.stage = 0
         if self.tracking:
             cur_sensor = self.imu_handler.sensor
-            self.imu_handler = IMU_handler(self.calib["IMU"], self.calib["IMU"]["ApplyTarget"], self.calib["IMU"]["CarmRangeTilt"], self.calib["IMU"]["CarmRangeRotation"], self.calib["IMU"]["CarmTargetTilt"], self.calib["IMU"]["CarmTargetRot"], tol = self.calib["IMU"]["tol"], sim = self.config.get("imu_simulation", False), sensor = cur_sensor, panel = self.panel)
+            self.imu_handler = IMU_handler(self.config.get("imu_device_config"), self.calib["imu_handler_config"]["apply_target"], self.calib["imu_handler_config"]["carm_range_tilt"], self.calib["imu_handler_config"]["carm_range_rotation"], self.calib["imu_handler_config"]["carm_target_tilt"], self.calib["imu_handler_config"]["carm_target_rotation"], tol = self.calib["imu_handler_config"]["stable_movement_tol"], sim = self.config.get('testpanel_config').get("imu_sim", False), panel = self.panel)
             cur_sensor.handler = self.imu_handler
 
     def get_controller_states(self):
@@ -92,7 +89,7 @@ class Controller:
 
     def get_states(self):
         self.viewmodel.update_state(self.get_controller_states())
-        self.viewmodel.update_state({"C-arm Model": self.calib['Carm'].get("C-arm Model", None)})
+        self.viewmodel.update_state({"C-arm Model": self.calib['carm_id'].get("name", None)})
         self.viewmodel.update_state(self.model.get_model_states())
 
         # Update video_on based on frame_grabber state
@@ -183,17 +180,17 @@ class Controller:
             self.model.data[stages[stage][0]]['framedata']['landmarks'] = l
             self.model.data[stages[stage][0]]['framedata']['brightness'] = brightness[0]
             self.model.data[stages[stage][0]]['framedata']['contrast'] = contrast[0]
-            self.model.data[stages[stage][0]]['framedata']['tb'] = self.model.update_tb(l)
+            self.model.data[stages[stage][0]]['framedata']['tb'] = self.model.update_landmarks(l)
         else:
-            self.model.data[stages[stage][0]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0], 'tb': self.model.update_tb(l)}
+            self.model.data[stages[stage][0]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0], 'tb': self.model.update_landmarks(l)}
 
         if self.model.data[stages[stage][1]]['framedata']:
             self.model.data[stages[stage][1]]['framedata']['landmarks'] = r
             self.model.data[stages[stage][1]]['framedata']['brightness'] = brightness[1]
             self.model.data[stages[stage][1]]['framedata']['contrast'] = contrast[1]
-            self.model.data[stages[stage][1]]['framedata']['tb'] = self.model.update_tb(r)
+            self.model.data[stages[stage][1]]['framedata']['tb'] = self.model.update_landmarks(r)
         else:
-            self.model.data[stages[stage][1]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0], 'tb': self.model.update_tb(r)}
+            self.model.data[stages[stage][1]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0], 'tb': self.model.update_landmarks(r)}
    
         
         if l:
@@ -338,9 +335,16 @@ class Controller:
     def load(self):
         rt = []
         fl = ['template-l.json', 'template-r.json', 'cuptemplate-l.json', 'cuptemplate-r.json', 'tritemplate-l.json', 'tritemplate-r.json']
-        for fn in fl:
-            with open(f'./templates/{fn}', 'r') as f:
-                metadata = json.load(f)
+         
+        for i in range(len(fl)):
+            with open(f'./config/{self.config.get("frontend_config").get("templates_path")}/{fl[i]}', 'r') as f:
+                tp = json.load(f)
+                tp = tp['landmarks']
+            with open(f'./config/{self.config.get("frontend_config").get("templates_path")}/landmarks {i}.json', 'r') as f:
+                tb = json.load(f)
+            self.model.default_templates.append(tp)
+            self.model.default_tables.append(tb)
+            metadata = self.model.update_ui_objects(tb, tp, red = True)
             rt.append(self.backend_to_frontend_coords(metadata))
         return rt
 

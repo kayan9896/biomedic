@@ -1,0 +1,11 @@
+{
+    "section": "regcup",
+    "analysis_success": true,
+    "analysis_error_code": null,
+    "regresult": null,
+    "measurements": {
+        "Inclination": "41",
+        "Anteversion": "31"
+    },
+    "RegIndex": 1
+}

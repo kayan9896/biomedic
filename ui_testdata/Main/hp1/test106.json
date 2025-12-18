@@ -1,0 +1,8 @@
+{
+        "name": "stage:0,side:ap,track:false",
+            "stage" : 0, "side" : "ap", "track" : false, "processing" : false, "percent" : 90, "video" : true, "imu" : null, "autoshot" : true, "leftimg" : null, "rightimg" : null,
+             "lefticon": null, "righticon": null,
+             "description": "Test any(hp1 in this case) stage on the ap side when using carm without imu tracking", 
+             "action": ["The blue border is on the ap side", "The imu icon should disappear"],
+        "eval_api": false
+        }

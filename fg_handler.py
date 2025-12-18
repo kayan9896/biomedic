@@ -11,7 +11,7 @@ class FrameGrabber_handler:
         self.last_frame = None
         self.fg_simulation = fg_simulation
 
-        self.sensor = panel if fg_simulation else FrameGrabber(panel, calib["FrameGrabber"], fg_simulation, logger)
+        self.sensor = panel if fg_simulation else FrameGrabber(panel, calib["fg_handler_config"], fg_simulation, logger)
         self.sensor.fg_handler = self
         self.logger = logger
 

@@ -45,7 +45,7 @@ class Panel:
         self.noise = 0
         
         # Get the exam folder path from config
-        self.sim_data_path = config.get("model_simdata_path", "exam") if config else "exam"
+        self.sim_data_path = './ui_testdata' + config.get("testpanel_config").get("testdata_exam_path", "./exam0")
         
 
         # Launch the GUI in a separate thread
@@ -86,7 +86,7 @@ class Panel:
         controls_container = tk.Frame(main_frame)
         controls_container.pack(fill=tk.X, pady=(0, 10))
         
-        if self.config.get("imu_simulation", True):
+        if self.config.get('testpanel_config').get("imu_sim", False):
             # Left column - IMU frame
             imu_frame = tk.LabelFrame(controls_container, text="IMU Control")
             imu_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
@@ -149,7 +149,7 @@ class Panel:
             step_entry.grid(row=2, column=3, sticky=tk.W, padx=(5, 10))
             step_entry.bind("<Return>", self._update_noise)
 
-        if self.config.get("fg_simulation", True):
+        if self.config.get("testpanel_config", False).get("fg_simulation", False):
             # Right column - Framegrabber frame
             framegrabber_frame = tk.LabelFrame(controls_container, text="Framegrabber Control")
             framegrabber_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
@@ -220,7 +220,7 @@ class Panel:
         transfer_button = tk.Button(main_frame, text="TRANSFER", command=self._test_with_selected_files)
         transfer_button.pack(fill=tk.X)
 
-        if self.config.get("fg_simulation", True):
+        if self.config.get("testpanel_config", False).get("fg_simulation", False):
             # Single test button
             test_button = tk.Button(main_frame, text="TRIGGER", command=self._test)
             test_button.pack(fill=tk.X, pady=(10, 5))

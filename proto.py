@@ -8,7 +8,7 @@ from model import Model
 from fg import FrameGrabber
 from controller import Controller
 from config_manager import ConfigManager
-from calibrate import Calibrate
+from exam import Exam
 from panel import Panel
 from flask_cors import CORS
 import numpy as np
@@ -68,8 +68,7 @@ analyze_box = None
 controller = None
 
 config = ConfigManager()
-calibrate = Calibrate()
-panel = Panel(config, logger) if config.get('on_simulation') else None
+panel = Panel(config, logger) if config.get('testpanel_config').get('panel_on') else None
 server_lock = threading.Lock()
 
 
@@ -86,7 +85,7 @@ def get_carms():
         controller = panel.controller
         return jsonify({'jump': True})
     try:
-        carm_data = calibrate.get_carms(carm_folder)
+        carm_data = Exam.get_carms(carm_folder)
         return jsonify(carm_data)
     except Exception as e:
         logger.error(f"Error fetching C-arm data: {str(e)}")
@@ -102,12 +101,12 @@ def serve_carm_image(filename):
     if controller: 
         controller = None
     try:
-        select = calibrate.serve_carm_select(carm_folder, filename)
-        image_base64 = calibrate.serve_carm_image(carm_folder, filename)
+        select = Exam.serve_carm_select(carm_folder, filename)
+        image_base64 = Exam.serve_carm_image(carm_folder, filename)
         
         return jsonify({
             'image': f'data:image/jpeg;base64,{image_base64}',
-            'imu_on': select['IMU']['imu_on']
+            'imu_on': select['imu_handler_config']['imu_on']
         })
     except Exception as e:
         logger.error(f"Error serving image {filename}: {str(e)}")
@@ -148,20 +147,18 @@ def start_processing():
     global controller
     global logger
 
-    try:
-        with server_lock:
-            if controller is None:
-                controller = Controller(config)
 
-            # Connect to the video device and start processing
-            result = controller.start_processing()
-            if not result:
-                return jsonify({"error": "Processing is already running"}), 400
-            templates = controller.load()
-            return jsonify({"message": f"Started processing on device", "templates": templates})
-    except Exception as e:
-        logger.error(f"Fail to start controller loop: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+    with server_lock:
+        if controller is None:
+            controller = Controller(config)
+
+        # Connect to the video device and start processing
+        result = controller.start_processing()
+        if not result:
+            return jsonify({"error": "Processing is already running"}), 400
+        templates = controller.load()
+        return jsonify({"message": f"Started processing on device", "templates": templates})
+
 
 @app.route('/api/states')
 def get_states():

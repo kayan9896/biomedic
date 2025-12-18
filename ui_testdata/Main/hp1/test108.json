@@ -1,0 +1,12 @@
+{
+        "name": "stage:0,side:null,track:false",
+            "stage" : 0, "side" : null, "track" : false, "processing" : false, "percent" : 90, "video" : true, "imu" : null, "autoshot" : true, "leftimg" : null, "rightimg" : null,
+             "lefticon": null, "righticon": null,
+             "description": "Test any(hp1 in this case) stage using carm without imu tracking and neither sides is selected.", 
+             "action": ["There is no blue border indicating the active side", "The imu icon should disappear", 
+              "Click the OB label to send an API request with value \"ob\"", "Check if the route \"/label\" is called with the data \"ob'\""],
+        "eval_api": true,
+        "route": "/label",
+        "api_data": "ob"
+
+        }

@@ -1,0 +1,128 @@
+{
+    "landmarks": 
+    {
+        "pelvis": 
+        [
+            {
+                "id": "pelvis anchor",
+                "type": "handle",
+                "colour": "D55E00",
+                "visible": true,
+                "next": null,
+                "keys": ["pelvis anchor point"],
+                "points": []
+            },
+            {
+                "id": "p1",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": "p2",
+                "keys": ["p1"],
+                "points": []
+            },
+            {
+                "id": "p2",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": "p7",
+                "keys": ["p2"],
+                "points": []
+            },
+            {
+                "id": "p3",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": null,
+                "keys": ["p3"],
+                "points": []
+            },
+            {
+                "id": "p4",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": null,
+                "keys": ["p4"],
+                "points": []
+            },
+            {
+                "id": "p5",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": null,
+                "keys": ["p5"],
+                "points": []
+            },
+            {
+                "id": "p6",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": null,
+                "keys": ["p6"],
+                "points": []
+            },
+            {
+                "id": "p7",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": null,
+                "keys": ["p7"],
+                "points": []
+            },
+            {
+                "id": "p8",
+                "type": "point",
+                "colour": "CC79A7",
+                "visible": true,
+                "next": null,
+                "keys": ["p8"],
+                "points": []
+            }
+        ],
+        "femur":
+        [
+            {
+                "id": "femur anchor",
+                "type": "handle",
+                "colour": "D55E00",
+                "visible": true,
+                "next": null,
+                "keys": ["femur anchor point"],
+                "points": []
+            },
+            {
+                "id": "lesser trochanter",
+                "type": "point",
+                "colour": "56B4E9",
+                "visible": true,
+                "next": null,
+                "keys": ["lesser_trochanter_point_on_mesh"],
+                "points": []
+            },            
+            {
+                "id": "proximal shaft",
+                "type": "line",
+                "colour": "56B4E9",
+                "visible": true,
+                "next": null,
+                "keys": ["shaft_spline_proximal_point", "shaft_spline_distal_point"],
+                "points": []
+            },
+            {
+                "id": "neck shaft",
+                "type": "line",
+                "colour": "56B4E9",
+                "visible": true,
+                "next": null,
+                "keys": ["neck_axis_superior_point", "neck_axis_inferior_point"],
+                "points": []
+            }
+        ]
+    }
+}
