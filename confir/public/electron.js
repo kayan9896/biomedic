@@ -88,7 +88,8 @@ app.on('quit', async () => {
 });
 
 const fs = require('fs');
-const logDir = './logs';
+var obj = JSON.parse(fs.readFileSync(path.join(process.resourcesPath, './config/config.json'), 'utf8'));
+const logDir = obj.log_config.backend_log_path;
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
@@ -110,7 +111,7 @@ const logname = `${toAsctime(new Date()).replace(/[: ]/g, '')}.log`
 
 
 function logError(source, error) {
-  const logPath = path.join('./logs', logname);
+  const logPath = path.join(logDir, logname);
   const message = `${toAsctime(new Date())} [${source}] ${error.stack || error}\n`;
   fs.appendFileSync(logPath, message);
 }
@@ -123,7 +124,7 @@ process.on('uncaughtException', (error) => {
 const { ipcMain } = require('electron');
 
 ipcMain.on('renderer-error', (event, errorMsg) => {
-  const logPath = path.join('./logs', logname);
+  const logPath = path.join(logDir, logname);
   const message = `${toAsctime(new Date())} [Renderer] ${errorMsg}\n`;
   console.log(logPath, message)
   fs.appendFileSync(logPath, message);

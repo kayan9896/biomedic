@@ -11,7 +11,7 @@
             1280,
             1024
         ],
-        "image_mask_path": "mask.png",
+        "image_mask_path": "./Calibration/02OEC9900-9in-II/carm_mask.png",
         "autocollect_threshold": 0.3,
         "autocollect_mintimegap": 2.0,
         "autocollect_loops": 4

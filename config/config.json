@@ -43,9 +43,9 @@
         "templates_path": "/templates"
     },
     "log_config": {
-        "backend_log_path": null
+        "backend_log_path": "%PROGRAMDATA%/confir/logs"
     },
     "report_config": {
-        "report_save_path": null
+        "report_save_path": "./pdf"
     }
 }

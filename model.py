@@ -273,7 +273,7 @@ class Model:
 
         #Assume that
         
-        metadata['processed_frame'] = cv2.imread("C:/Users/Torus_Dev/Downloads/drr (4).png")
+        #metadata['processed_frame'] = cv2.imread("C:/Users/Torus_Dev/Downloads/drr (4).png")
         class_name = self.cnn.classify(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY))
         print(f"Predicted class name: {class_name}")
         self.progress = 10
@@ -282,8 +282,10 @@ class Model:
         self.propress = 50
         #metadata['Segmentation'] = seg
 
-        metadata['landmarks'] = copy.deepcopy(self.default_tables[0])
-        pred = self.cnn.annotate(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="cup" if "cup" in section else "trial" if "tri" in section else "ref")
+        #metadata['landmarks'] = copy.deepcopy(self.default_tables[0])
+        pred = self.cnn.annotate(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="cup" if "cup" in section else "trial" if "tri" in section else "ref", only_if_hip = False)
+        
+        metadata['landmarks'] = pred
         print("Predicted points:")
         for k, v in pred.get("points", {}).items():
             print(f"  {k}: {v}")
@@ -291,6 +293,7 @@ class Model:
         print("\nPredicted vectors:")
         for k, v in pred.get("vectors", {}).items():
             print(f"  {k}: {v}")
+        
         if error_code is not None: return metadata
         if class_name == 'RIGHT HIP':
             metadata['side'] = 'r'
@@ -311,8 +314,8 @@ class Model:
         
         metadata = self.process(section, image, tilt_angle, rotation_angle, act_tilt, act_rot)
 
-        if metadata['side'] == 'r':
-            for k, v in metadata['landmarks'].items(): v[0] = 1024 - v[0]
+        '''if metadata['side'] == 'r':
+            for k, v in metadata['landmarks'].items(): v[0] = 1024 - v[0]'''
         
         num = 2 if 'cup' in section else 4 if 'tri' in section else 0
         metadata['ui_objects'] = self.update_ui_objects(metadata['landmarks'], self.default_templates[num])
@@ -455,7 +458,11 @@ class Model:
                 else:
                     for i in range(len(s['keys'])):
                         if red: s['template'] = 1
-                        s['points'].append(tb[s['keys'][i]])
+                        k = f'_{s['keys'][i]}'
+                        if k not in tb.get("points", {}): 
+                            print(1111, k, tb)
+                            continue
+                        s['points'].append(tb.get("points", {})[k])
                         s['type'] = 'lines' if 'line' in s['type'] or 'point' in s['type'] else s['type']
                         
                     rt[g].append(s)

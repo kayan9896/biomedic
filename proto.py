@@ -19,6 +19,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 
+config = ConfigManager()
+
 class Filter(logging.Filter):
     def filter(self, record):  
         return "api/states" not in record.getMessage()
@@ -27,6 +29,8 @@ logger = None
 # Configure logging
 def setup_logging():
     global logger
+    global config
+
     # Create logs directory if it doesn't exist
     if not os.path.exists('logs'):
         os.makedirs('logs')
@@ -37,7 +41,9 @@ def setup_logging():
     logger.addFilter(Filter())
     
     # Create a file handler
-    file_handler = RotatingFileHandler(f'logs/{time.strftime("%Y-%m-%d %H-%M-%S", time.localtime(time.time()))}.log', maxBytes=10000000, backupCount=5)
+    path_with_vars = config.get("log_config").get("backend_log_path")
+    expanded_path = os.path.expandvars(path_with_vars)
+    file_handler = RotatingFileHandler(f'{expanded_path}/{time.strftime("%Y-%m-%d %H-%M-%S", time.localtime(time.time()))}.log', maxBytes=10000000, backupCount=5)
     file_handler.setLevel(logging.DEBUG)
     
     # Create a console handler
@@ -63,11 +69,11 @@ CORS(app)
 #app.logger.setLevel(logging.DEBUG)
 
 # Global variables
-frame_grabber = None
-analyze_box = None
+carm_data = None
+combobox = None
 controller = None
 
-config = ConfigManager()
+
 panel = Panel(config, logger) if config.get('testpanel_config').get('panel_on') else None
 server_lock = threading.Lock()
 
@@ -80,13 +86,15 @@ def get_carms():
     global panel
     global controller
     global logger
+    global carm_data
+    global combobox
 
     if panel and panel.jumpped:
         controller = panel.controller
         return jsonify({'jump': True})
     try:
-        carm_data = Exam.get_carms(carm_folder)
-        return jsonify(carm_data)
+        if carm_data is None: carm_data, combobox = Exam.get_carms(carm_folder)
+        return jsonify(combobox)
     except Exception as e:
         logger.error(f"Error fetching C-arm data: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -97,11 +105,12 @@ def serve_carm_image(filename):
     global select
     global controller
     global logger
+    global carm_data
 
     if controller: 
         controller = None
     try:
-        select = Exam.serve_carm_select(carm_folder, filename)
+        select = Exam.serve_carm_select(carm_folder, filename, carm_data)
         image_base64 = Exam.serve_carm_image(carm_folder, filename)
         
         return jsonify({

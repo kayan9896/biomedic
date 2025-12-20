@@ -435,9 +435,9 @@ class Controller:
 
     def savepdf(self):
         images = [Image.fromarray(np.uint8(data)).convert('RGB') for data in self.model.viewpairs if data is not None]
-        if not os.path.exists(self.config.get('pdf_path')):
+        if not os.path.exists(self.config.get('report_config').get('report_save_path')):
             raise Exception('No path')
-        pdf_path = f'{self.config.get('pdf_path')}bbd1.pdf'
+        pdf_path = f'{self.config.get('report_config').get('report_save_path')}/bbd1.pdf'
             
         images[0].save(
             pdf_path, "PDF" ,resolution=100.0, save_all=True, append_images=images[1:]

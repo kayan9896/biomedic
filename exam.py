@@ -139,42 +139,49 @@ class Exam:
     @classmethod
     def get_carms(self, carm_folder):
         carm_data = {}
+        combobox = {}
         for name in os.listdir(carm_folder):
-            carm_data[name] = {'image': f"http://localhost:5000/carm-images/{name}"}
-        return carm_data
+            try:
+                with open(f"{carm_folder}/{name}/hardware.json", 'r') as file:
+                    select = json.load(file)
+            
+                from carm_calib.confirmap_data import CarmConfigClass 
+                s = CarmConfigClass(**select)
+                print(s)
+                carm_data[name] = select
+                combobox[select.get("carm_id").get("name",name)] = {'image': f"http://localhost:5000/carm-images/{name}"}
+
+            except Exception as e:
+                print(e)
+                
+            
+        return carm_data, combobox
 
     @classmethod
-    def serve_carm_select(self, carm_folder, filename):
-        with open(f"{carm_folder}/{filename}/hardware.json", 'r') as file:
-            select = json.load(file)
-        try:
-            from carm_calib.confirmap_data import CarmConfigClass 
-            s = CarmConfigClass(**select)
-            print(s)
+    def serve_carm_select(self, carm_folder, filename, carm_data):
 
-        except Exception as e:
-            print(e)
-            raise Exception('Wrong calib data')
-            
+        select = carm_data.get(filename)
 
         #if not self.verify_config(select)[0]: raise Exception('Wrong calib data')
-        
-        distortion = {}
-        for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/distortion"):
-            with open(f"{carm_folder}/{filename}/calib_arcs/distortion/{fname}", 'r') as file:
-                t = int(fname[6 : 11]) / 10
-                r = int(fname[-10 : -5]) / 10
-                distortion[(t,r)] = json.load(file)
+        try:
+            distortion = {}
+            for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/distortion"):
+                with open(f"{carm_folder}/{filename}/calib_arcs/distortion/{fname}", 'r') as file:
+                    t = int(fname[6 : 11]) / 10
+                    r = int(fname[-10 : -5]) / 10
+                    distortion[(t,r)] = json.load(file)
 
-        gantry = {}
-        for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/gantry"):
-            with open(f"{carm_folder}/{filename}/calib_arcs/gantry/{fname}", 'r') as file:
-                t = int(fname[6 : 11]) / 10
-                r = int(fname[-10 : -5]) / 10
-                gantry[(t,r)] = json.load(file)
-        
-        select.update({'distortion': distortion})
-        select.update({'gantry': gantry})
+            gantry = {}
+            for fname in os.listdir(f"{carm_folder}/{filename}/calib_arcs/gantry"):
+                with open(f"{carm_folder}/{filename}/calib_arcs/gantry/{fname}", 'r') as file:
+                    t = int(fname[6 : 11]) / 10
+                    r = int(fname[-10 : -5]) / 10
+                    gantry[(t,r)] = json.load(file)
+            
+            select.update({'distortion': distortion})
+            select.update({'gantry': gantry})
+        except Exception as e:
+            print(e)
         select.update({'folder': f"{carm_folder}/{filename}"})
 
         return select

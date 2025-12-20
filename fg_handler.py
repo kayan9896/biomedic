@@ -10,6 +10,7 @@ class FrameGrabber_handler:
         self._last_fetch_time: Optional[datetime] = None
         self.last_frame = None
         self.fg_simulation = fg_simulation
+        self.calib = calib
 
         self.sensor = panel if fg_simulation else FrameGrabber(panel, calib["fg_handler_config"], fg_simulation, logger)
         self.sensor.fg_handler = self
@@ -21,7 +22,7 @@ class FrameGrabber_handler:
 
         self._is_new_frame_available = False  # Reset flag when frame is fetched
         self._last_fetch_time = datetime.now()
-        return self.last_frame.copy() if self.last_frame is not None else None
+        return self.mask(self.last_frame.copy()) if self.last_frame is not None else None
 
     def connect(self, device) -> Union[bool, str]:
         return self.sensor.connect(device)
@@ -31,6 +32,13 @@ class FrameGrabber_handler:
         is_connected = getattr(self.sensor, 'fg_is_connected', False)
         is_running = getattr(self.sensor, 'fg_is_running', False)
         return {'video_on': is_connected and is_running}
+    
+    def mask(self, frame):
+        m = cv2.imread(self.calib.get("fg_handler_config").get("image_mask_path"))
+        m = cv2.resize(m, None, fx=0.25, fy=0.25, interpolation=cv2.INTER_AREA)
+        w, h = m.shape[:2]
+        frame[:h, :w] = m
+        return frame
 
 
 
