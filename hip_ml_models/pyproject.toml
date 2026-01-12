@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hip_ml_models"
+version = "0.1.0"
+description = "HIP ML models for classification, segmentation, and annotation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "torch==2.7.1",
+    "torchvision==0.22.1",
+    "opencv-python==4.12.0.88",
+    "numpy==2.2.6",
+    "Pillow==11.3.0",
+    "matplotlib==3.10.6",
+]
+
+[tool.setuptools]
+packages = ["hip_ml_models"]
+
+[tool.setuptools.package-dir]
+hip_ml_models = "."
+
+[tool.setuptools.exclude-package-data]
+hip_ml_models = [
+    "inference_ui.py",
+    "onnx_exporter.py",
+    "*_usage.py"
+]
