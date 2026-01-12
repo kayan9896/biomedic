@@ -6,7 +6,7 @@ import json
 import datetime
 import copy
 from calibrate import Calibrate
-from hip_ml_models.hip_models import HipModels
+from hip_ml_models.hip_models import HipModels, HipModelConfig
 
 class Frm:
     def __init__(self):
@@ -217,7 +217,7 @@ class Model:
 
     def load_cnn(self):
         p = self.config.get('frame_prediction_config')
-        return HipModels('./config/models', 
+        cfg = HipModelConfig('./config/models', 
                          later_cls_name = p["classifier_model_path"], 
                          ref_lm_name = p["ref_annotator_model_path"], 
                          ref_seg_name = p["ref_segmentor_model_path"], 
@@ -226,6 +226,7 @@ class Model:
                          trial_lm_name = p["trl_annotator_model_path"],
                          trial_seg_name = p["trl_segmentor_model_path"],
                          phase="all")
+        return HipModels(config = cfg)
 
     def pre_process(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         #self.calib['distortion'].update({(5, 20): {'data': {}}})
@@ -274,28 +275,24 @@ class Model:
         #Assume that
         
         #metadata['processed_frame'] = cv2.imread("C:/Users/Torus_Dev/Downloads/drr (4).png")
-        class_name = self.cnn.classify(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY))
-        print(f"Predicted class name: {class_name}")
-        self.progress = 10
 
-        seg = self.cnn.segment(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="ref")
         self.propress = 50
         #metadata['Segmentation'] = seg
 
         #metadata['landmarks'] = copy.deepcopy(self.default_tables[0])
-        pred = self.cnn.annotate(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="cup" if "cup" in section else "trial" if "tri" in section else "ref", only_if_hip = False)
+        pred = self.cnn.predict(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="cup" if "cup" in section else "trial" if "tri" in section else "ref")
         
         metadata['landmarks'] = pred
         print("Predicted points:")
-        for k, v in pred.get("points", {}).items():
+        for k, v in pred.get("annotation_points", {}).items():
             print(f"  {k}: {v}")
 
         print("\nPredicted vectors:")
-        for k, v in pred.get("vectors", {}).items():
+        for k, v in pred.get("annotation_vectors", {}).items():
             print(f"  {k}: {v}")
         
         if error_code is not None: return metadata
-        if class_name == 'RIGHT HIP':
+        if pred.get("laterality_name") == 'RIGHT HIP':
             metadata['side'] = 'r'
         else:
             metadata['side'] = 'l'
@@ -459,10 +456,10 @@ class Model:
                     for i in range(len(s['keys'])):
                         if red: s['template'] = 1
                         k = f'_{s['keys'][i]}'
-                        if k not in tb.get("points", {}): 
+                        if k not in tb.get("annotation_points", {}): 
                             print(1111, k, tb)
                             continue
-                        s['points'].append(tb.get("points", {})[k])
+                        s['points'].append(tb.get("annotation_points", {})[k])
                         s['type'] = 'lines' if 'line' in s['type'] or 'point' in s['type'] else s['type']
                         
                     rt[g].append(s)

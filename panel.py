@@ -45,7 +45,7 @@ class Panel:
         self.noise = 0
         
         # Get the exam folder path from config
-        self.sim_data_path = './ui_testdata' + config.get("testpanel_config").get("testdata_exam_path", "./exam0")
+        self.sim_data_path = './testdata' + config.get("testpanel_config").get("testdata_exam_path", "./exam0")
         
 
         # Launch the GUI in a separate thread

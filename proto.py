@@ -18,6 +18,7 @@ import base64
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+from pathlib import Path
 
 config = ConfigManager()
 
@@ -42,8 +43,8 @@ def setup_logging():
     
     # Create a file handler
     path_with_vars = config.get("log_config").get("backend_log_path")
-    expanded_path = os.path.expandvars(path_with_vars)
-    file_handler = RotatingFileHandler(f'{expanded_path}/{time.strftime("%Y-%m-%d %H-%M-%S", time.localtime(time.time()))}.log', maxBytes=10000000, backupCount=5)
+    #expanded_path = os.path.expandvars(path_with_vars)
+    file_handler = RotatingFileHandler(f'{Path.home()}/AppData/Local/confir/logs/{time.strftime("%Y-%m-%d %H-%M-%S", time.localtime(time.time()))}.log', maxBytes=10000000, backupCount=5)
     file_handler.setLevel(logging.DEBUG)
     
     # Create a console handler

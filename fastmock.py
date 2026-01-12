@@ -14,11 +14,11 @@ group = None
 test_result = False
 
 test_case = {}
-for p in os.listdir('ui_testdata'):
+for p in os.listdir('testdata/ui_testdata'):
     test_case[p] = {}
-    for g in os.listdir(f'ui_testdata/{p}'):
+    for g in os.listdir(f'testdata/ui_testdata/{p}'):
         test_case[p][g] = {}
-        for c in os.listdir(f'ui_testdata/{p}/{g}'):
+        for c in os.listdir(f'testdata/ui_testdata/{p}/{g}'):
             test_case[p][g][c[:-5]] = {}
 current_case = {}
 # Logging filter
@@ -118,6 +118,7 @@ async def switch_side(request: Request):
     dt = await request.json()
     print(f'Sent data: {dt}')
     print(f'API called: /label')
+    await manager.broadcast(json.dumps({"result": test_result}))
     return {"connected": True}
 
 @app.post("/next")
@@ -151,7 +152,7 @@ async def cases(p, g, c):
     global page
     page = p
     group = g
-    with open(f'ui_testdata/{p}/{g}/{c}.json', 'r') as f:
+    with open(f'testdata/ui_testdata/{p}/{g}/{c}.json', 'r') as f:
         current_case = json.load(f)
 
     return current_case

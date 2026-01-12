@@ -88,8 +88,9 @@ app.on('quit', async () => {
 });
 
 const fs = require('fs');
-var obj = JSON.parse(fs.readFileSync(path.join(process.resourcesPath, './config/config.json'), 'utf8'));
-const logDir = obj.log_config.backend_log_path;
+const os = require('os')
+//var obj = JSON.parse(fs.readFileSync(path.join('', '../config/config.json'), 'utf8'));
+const logDir = path.join(os.homedir(), "AppData/Local/confir/logs")
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }

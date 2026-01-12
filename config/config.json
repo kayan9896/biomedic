@@ -43,7 +43,7 @@
         "templates_path": "/templates"
     },
     "log_config": {
-        "backend_log_path": "%PROGRAMDATA%/confir/logs"
+        "backend_log_path": "C:/ProgramData/confir/logs"
     },
     "report_config": {
         "report_save_path": "./pdf"

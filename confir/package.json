@@ -51,7 +51,7 @@
     ],
     "extraResources": [
       {
-        "from": "../dist/proto.exe",
+        "from": "../dist/proto/proto.exe",
         "to": "proto.exe"
       },
       {
@@ -63,12 +63,12 @@
         "to": "../exam0"
       },
       {
-        "from": "../config.json",
-        "to": "../config.json"
+        "from": "../config",
+        "to": "../config"
       },
       {
-        "from": "../templates",
-        "to": "../templates"
+        "from": "../ui_testdata",
+        "to": "../ui_testdata"
       }
     ],
     "directories": {
