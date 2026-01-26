@@ -80,18 +80,18 @@ class Model:
             'hp1-ob': dataclass.Frame(),
             'hmplv1': {'success': False, 'metadata': None, 'error_code': None},
 
-            'hp2-ap': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
-            'hp2-ob': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
+            'hp2-ap': dataclass.Frame(),
+            'hp2-ob': dataclass.Frame(),
             'hmplv2': {'success': False, 'metadata': None, 'error_code': None},
             'pelvis': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None},
 
-            'cup-ap': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
-            'cup-ob': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
+            'cup-ap': dataclass.Frame(),
+            'cup-ob': dataclass.Frame(),
             'acecup': {'success': False, 'metadata': None, 'error_code': None},
             'regcup': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None},
 
-            'tri-ap': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
-            'tri-ob': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
+            'tri-ap': dataclass.Frame(),
+            'tri-ob': dataclass.Frame(),
             'tothip': {'success': False, 'metadata': None, 'error_code': None},
             'regtri': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None}
         }
