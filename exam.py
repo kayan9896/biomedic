@@ -42,7 +42,7 @@ class Exam:
         try:
             if analysis_type == 'frame':
 
-                framedata = data_for_exam['framedata']
+                '''framedata = data_for_exam['framedata']
                 analysis_parameters = data_for_exam['analysis_parameters']
                 framecalib = data_for_exam['framecalib']
                 data_type = framedata.get('section', 'unknown')  # Get type or default to 'unknown'
@@ -85,9 +85,11 @@ class Exam:
                 # Save JSON with 'S' prefix
                 json_filename = self.get_formatted_filename('S', data_type, self.shot_count) + '.json'
                 json_path = os.path.join(self.exam_folder, 'shots', json_filename)
-                self.save_json(framedata, json_path)
+                self.save_json(framedata, json_path)'''
 
                 self.shot_count += 1
+                os.makedirs(os.path.join(f'{self.exam_folder}/{self.shot_count}'), exist_ok=True)
+                data_for_exam.save(f'{self.exam_folder}/{self.shot_count}')
 
             elif analysis_type == 'recon':
                 m = {'hmplv1': 'hp1', 'hmplv2': 'hp2', 'acecup': 'cup', 'tothip': 'tri'}
@@ -145,7 +147,7 @@ class Exam:
                 with open(f"{carm_folder}/{name}/hardware.json", 'r') as file:
                     select = json.load(file)
             
-                from carm_calib.confirmap_data import CarmConfigClass 
+                from confirmap_dataclasses.confirmap_data import CarmConfigClass 
                 s = CarmConfigClass(**select)
                 print(s)
                 carm_data[name] = select

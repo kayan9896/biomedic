@@ -9,7 +9,8 @@ Provides:
  - `predict(image)` to get normalized and pixel coordinates for centers and vectors
  - `visualize(image_path, ...)` to overlay predicted centers and anchored vectors on the image
 
- 
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+
 Supports:
 - Multiple axis representations
 - Metadata-driven decoding
@@ -161,91 +162,203 @@ def _clip_line_to_image(point, direction, w, h):
 
     return p1, p2
 
-def _line_endpoints_from_anchor(anchor_xy, vec_xy, w, h, length=0.2):
+# def _line_endpoints_from_anchor(anchor_xy, vec_xy, w, h, length=0.2):
+#     """
+#     Anchor is normalized coords [0..1], vec is unit vector.
+#     length: fraction of image width/height for displayed arrow (fraction of min dimension)
+#     """
+#     ax = anchor_xy[0] * w
+#     ay = anchor_xy[1] * h
+#     # use fraction of min(w,h)
+#     Lpx = length * min(w, h)
+#     ex = ax + vec_xy[0] * Lpx
+#     ey = ay + vec_xy[1] * Lpx
+#     return (ax, ay), (ex, ey)
+
+def replace_bn_with_in(module):
     """
-    Anchor is normalized coords [0..1], vec is unit vector.
-    length: fraction of image width/height for displayed arrow (fraction of min dimension)
+    Recursively replace all BatchNorm2d layers with InstanceNorm2d.
     """
-    ax = anchor_xy[0] * w
-    ay = anchor_xy[1] * h
-    # use fraction of min(w,h)
-    Lpx = length * min(w, h)
-    ex = ax + vec_xy[0] * Lpx
-    ey = ay + vec_xy[1] * Lpx
-    return (ax, ay), (ex, ey)
+    for name, child in module.named_children():
+        if isinstance(child, nn.BatchNorm2d):
+            setattr(
+                module,
+                name,
+                nn.InstanceNorm2d(
+                    child.num_features,
+                    affine=True,
+                    track_running_stats=False
+                )
+            )
+        else:
+            replace_bn_with_in(child)
+
+def infer_model_config_from_checkpoint(state_dict):
+    """
+    Infer LandmarkRegressor normalization/attention configuration
+    from checkpoint keys (old vs new models).
+    """
+    keys = set(state_dict.keys())
+
+    config = {
+        "use_instance_norm": False,
+        "norm_before_attention": False,
+        "use_pre_fc_layernorm": False,
+    }
+
+    # ---------------------------------
+    # Detect InstanceNorm backbone
+    # ---------------------------------
+    # BatchNorm has running stats; InstanceNorm(track_running_stats=False) does not
+    has_running_stats = any(
+        k.endswith("running_mean") or k.endswith("running_var")
+        for k in keys
+    )
+    if not has_running_stats:
+        config["use_instance_norm"] = True
+
+    # ---------------------------------
+    # Detect attention pre-normalization
+    # ---------------------------------
+    if any(k.startswith("att.norm.") for k in keys):
+        config["norm_before_attention"] = True
+
+    # ---------------------------------
+    # Detect pre-FC LayerNorm
+    # ---------------------------------
+    if any(k.startswith("pre_fc_norm.") for k in keys):
+        config["use_pre_fc_layernorm"] = True
+
+    return config
 
 # -----------------------------
 # Model
 # -----------------------------
 
 class ChannelAttention(nn.Module):
-    """Squeeze-and-Excitation style attention block."""
-    def __init__(self, in_channels: int, reduction: int = 8):
+    def __init__(
+        self,
+        in_channels: int,
+        reduction: int = 8,
+        norm_before_attention: bool = False
+    ):
         super().__init__()
+        self.norm_before_attention = norm_before_attention
+
+        if norm_before_attention:
+            self.norm = nn.InstanceNorm2d(in_channels, affine=True)
+        else:
+            self.norm = None
+
         self.fc = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(in_channels, in_channels // reduction, kernel_size=1),
+            nn.Conv2d(in_channels, in_channels // reduction, 1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels // reduction, in_channels, kernel_size=1),
+            nn.Conv2d(in_channels // reduction, in_channels, 1),
             nn.Sigmoid()
         )
+
     def forward(self, x):
-        return x * self.fc(x)
+        if self.norm is not None:
+            w = self.fc(self.norm(x))
+        else:
+            w = self.fc(x)
+        return x * w
+
 
 class LandmarkRegressor(nn.Module):
-    """
-    ResNet18-based regressor:
-      - flexible in_channels (1 or 1+M)
-      - predicts n_centers*2 + n_axes*axis_dim outputs
-    """
-    def __init__(self, in_channels=1, n_centers=0, n_axes=0, axis_dim=2, pretrained=True, dropout=0.3):
+    def __init__(
+        self,
+        in_channels=1,
+        n_centers=0,
+        n_axes=0,
+        axis_dim=2,
+        pretrained=True,
+        dropout=0.3,
+        use_instance_norm=False,
+        norm_before_attention=False,
+        use_pre_fc_layernorm=False,
+    ):
         super().__init__()
+
         self.n_centers = n_centers
         self.n_axes = n_axes
         self.axis_dim = axis_dim
 
-        res = resnet18(weights='IMAGENET1K_V1' if pretrained else None)
-        old_conv = res.conv1
-        # Replace conv1 to accept in_channels
-        res.conv1 = nn.Conv2d(in_channels, old_conv.out_channels,
-                              kernel_size=old_conv.kernel_size, stride=old_conv.stride,
-                              padding=old_conv.padding, bias=False)
-        if pretrained and in_channels == 1:
-            # average RGB weights to initialize the single-channel conv
-            with torch.no_grad():
-                res.conv1.weight = nn.Parameter(old_conv.weight.mean(dim=1, keepdim=True))
-        # if in_channels > 1 and pretrained, first conv will be randomly initialized (training adapts)
-        self.backbone = nn.Sequential(*list(res.children())[:-2])  # remove avgpool & fc
+        res = resnet18()  # weights='IMAGENET1K_V1' if pretrained else None
 
-        self.att = ChannelAttention(512)
+        if use_instance_norm:
+            replace_bn_with_in(res)
+
+        old_conv = res.conv1
+        res.conv1 = nn.Conv2d(
+            in_channels,
+            old_conv.out_channels,
+            kernel_size=old_conv.kernel_size,
+            stride=old_conv.stride,
+            padding=old_conv.padding,
+            bias=False,
+        )
+
+        if pretrained and in_channels == 1:
+            with torch.no_grad():
+                res.conv1.weight.copy_(old_conv.weight.mean(dim=1, keepdim=True))
+
+        self.backbone = nn.Sequential(*list(res.children())[:-2])
+
+        self.att = ChannelAttention(
+            512,
+            norm_before_attention=norm_before_attention
+        )
+
         self.pool1 = nn.AdaptiveAvgPool2d(1)
         self.pool2 = nn.AdaptiveAvgPool2d(2)
-        self.flatten_dim = 512 * (1*1 + 2*2)  # 512*(1 + 4) = 2560
+        self.flatten_dim = 512 * (1 + 4)
+
+        if use_pre_fc_layernorm:
+            self.pre_fc_norm = nn.LayerNorm(self.flatten_dim)
+        else:
+            self.pre_fc_norm = None
+
         self.dropout = nn.Dropout(dropout)
+
         self.fc = nn.Sequential(
             nn.Linear(self.flatten_dim, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(dropout),
-            nn.Linear(256, (self.n_centers * 2) + (self.n_axes * self.axis_dim))
+            nn.Linear(
+                256,
+                (self.n_centers * 2) + (self.n_axes * self.axis_dim)
+            )
         )
 
     def forward(self, x):
-        feat = self.backbone(x)  # [B, 512, H/32, W/32]
+        feat = self.backbone(x)
         feat = self.att(feat)
-        pooled = torch.cat([self.pool1(feat).flatten(1), self.pool2(feat).flatten(1)], dim=1)
+
+        pooled = torch.cat(
+            [self.pool1(feat).flatten(1),
+            self.pool2(feat).flatten(1)],
+            dim=1
+        )
+
+        if self.pre_fc_norm is not None:
+            pooled = self.pre_fc_norm(pooled)
+
         out = self.fc(self.dropout(pooled))
-        # split centers and vectors explicitly
-        if self.n_centers > 0:
-            # centers = torch.sigmoid(out[:, :self.n_centers*2])  # normalized [0..1]
-            centers = out[:, :self.n_centers*2]   # unrestricted regression to allow points outside the image
-        else:
-            centers = out.new_zeros((out.size(0), 0))
-        if self.n_axes > 0:
-            vecs = out[:, self.n_centers*2:]
-            vecs = vecs.view(-1, self.n_axes, self.axis_dim)
-            vecs = vecs.view(-1, self.n_axes * self.axis_dim)
-        else:
-            vecs = out.new_zeros((out.size(0), 0))
+
+        centers = (
+            out[:, :self.n_centers * 2]
+            if self.n_centers > 0
+            else out.new_zeros((out.size(0), 0))
+        )
+
+        vecs = (
+            out[:, self.n_centers * 2:]
+            if self.n_axes > 0
+            else out.new_zeros((out.size(0), 0))
+        )
+
         return torch.cat([centers, vecs], dim=1)
 
 class AnnotationModel:
@@ -303,7 +416,8 @@ class AnnotationModel:
         self.axis_dim = self.axis_repr.dim
 
         # instantiate model (don't attempt to load pretrained weights here)
-        model = LandmarkRegressor(in_channels=in_ch, n_centers=n_centers, n_axes=n_axes, axis_dim=self.axis_dim, pretrained=False)
+        arch_cfg = infer_model_config_from_checkpoint(state_dict)
+        model = LandmarkRegressor(in_channels=in_ch, n_centers=n_centers, n_axes=n_axes, axis_dim=self.axis_dim, pretrained=False, **arch_cfg)
         model = model.to(self.device)
 
         # load state dict (handle DataParallel 'module.' prefix)

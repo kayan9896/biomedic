@@ -18,7 +18,7 @@ class ConfigManager:
             if os.path.exists(config_path):
                 with open(config_path, 'r') as f:
                     self._config = json.load(f)
-                from carm_calib.confirmap_data import SystemConfigClass 
+                from confirmap_dataclasses.confirmap_data import SystemConfigClass 
                 s = SystemConfigClass(**self._config)
                 print(f"Configuration loaded from {config_path}", s)
             else:

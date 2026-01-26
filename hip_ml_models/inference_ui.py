@@ -2,6 +2,8 @@
 Inference UI with deterministic transforms, resizable square crop with handles,
 per-degree rotation, prediction & GT contour overlays, keyboard shortcuts, and saving.
 
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+
 Place next to your `segmentation_prediction_v1.py` which must define:
 - load_trained_model(model_path_or_None) -> model (callable) or None
 - IMAGE_SIZE constant (width, height) used by your model
@@ -24,6 +26,7 @@ import torch
 from segment import UNet, ConvBlock, AttentionGate
 from classify import ClassificationModel
 from annotate import AnnotationModel
+from hip_models import dice_coeff, keep_largest_cc, segmentation_stability_confidence
 
 # Ground-truth label mapping and default keys used to find masks in per-image NPZs.
 # These may be updated from a model checkpoint (see `load_trained_model`).
@@ -206,6 +209,66 @@ def find_contours_binary(bin_mask):
     # Use RETR_TREE to get both outer and inner contours (for masks with holes)
     cnts, _ = cv2.findContours(bin_mask.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     return cnts
+
+def calculate_dice_score(pred_mask, gt_mask, eps=1e-8):
+    """
+    Calculate Dice coefficient between two binary masks (uint8 0/255 or 0/1).
+    Works with both 2D (single channel) and 3D (multi-channel) masks.
+    
+    Args:
+        pred_mask: prediction mask (2D or 3D numpy array)
+        gt_mask: ground truth mask (2D or 3D numpy array, same shape as pred_mask)
+        eps: small epsilon for numerical stability
+    
+    Returns:
+        dict: {channel_idx: dice_score} for multi-channel, or {0: dice_score} for single-channel
+        Returns None if masks are invalid
+    """
+    if pred_mask is None or gt_mask is None:
+        return None
+    
+    if pred_mask.shape != gt_mask.shape:
+        return None
+    
+    dice_scores = {}
+    
+    # Handle both 2D (single-channel) and 3D (multi-channel) masks
+    if pred_mask.ndim == 2:
+        # Single-channel: shape (H, W)
+        pred = (pred_mask > 127.5).astype(np.float32)
+        gt = (gt_mask > 127.5).astype(np.float32)
+        
+        pred_flat = pred.flatten()
+        gt_flat = gt.flatten()
+        
+        intersection = np.sum(pred_flat * gt_flat)
+        denom = np.sum(pred_flat) + np.sum(gt_flat)
+        
+        if denom == 0:
+            dice_scores[0] = 1.0 if intersection == 0 else 0.0
+        else:
+            dice = (2.0 * intersection + eps) / (denom + eps)
+            dice_scores[0] = dice
+    else:
+        # Multi-channel: shape (C, H, W)
+        for c in range(pred_mask.shape[0]):
+            pred = (pred_mask[c] > 127.5).astype(np.float32)
+            gt = (gt_mask[c] > 127.5).astype(np.float32)
+            
+            pred_flat = pred.flatten()
+            gt_flat = gt.flatten()
+            
+            intersection = np.sum(pred_flat * gt_flat)
+            denom = np.sum(pred_flat) + np.sum(gt_flat)
+            
+            if denom == 0:
+                dice_scores[c] = 1.0 if intersection == 0 else 0.0
+            else:
+                dice = (2.0 * intersection + eps) / (denom + eps)
+                dice_scores[c] = dice
+    
+    return dice_scores
+
 
 def draw_contours_on_image(bgr_img, contours, color_bgr, thickness=2, alpha=1.0):
     # draw contours on a copy using blending with alpha
@@ -414,7 +477,7 @@ def apply_transforms_to_landmark_point(raw_image_size, landmark_point, angle_deg
     if 0 <= px_int < raw_w and 0 <= py_int < raw_h:
         dummy_arr[py_int, px_int] = 255
     
-    dummy_pil = Image.fromarray(dummy_arr, mode="L")
+    dummy_pil = Image.fromarray(dummy_arr)
     
     # Apply transforms in same order as apply_transforms_to_image
     if angle_deg % 360 != 0:
@@ -478,10 +541,17 @@ class SegmentationUI:
         # prediction / GT overlay state
         self.last_pred_probs = None      # float32 numpy in crop-size resolution (square)
         self.last_pred_bin = None        # uint8 0/255 binary crop mask
+        self.last_gt_bin = None          # uint8 0/255 binary ground truth crop mask
         self.pred_canvas_image = None    # cached PhotoImage for overlayed display
         self.show_prediction_var = tk.BooleanVar(value=False)
         self.show_gt_var = tk.BooleanVar(value=False)
         self.threshold_var = tk.DoubleVar(value=self.threshold)
+        self.dice_score_var = tk.StringVar(value="N/A")  # Display dice score or N/A if not available
+        self.confidence_score_var = tk.StringVar(value="N/A")  # Display confidence score or N/A if not available
+
+        # Mask display mode: determines how prediction masks are rendered
+        # Options: "Filled", "Contours", "Both"
+        self.mask_display_mode_var = tk.StringVar(value="Both")
 
         # Option to use classifier guidance: when enabled, classifier output will
         # guide whether to mirror inputs and whether to run predictions.
@@ -581,19 +651,52 @@ class SegmentationUI:
         # Options
         opt = ttk.LabelFrame(right, text="Overlays")
         opt.pack(fill=tk.X, padx=6, pady=6)
-        seg_frame = ttk.Frame(opt)
-        seg_frame.pack(fill=tk.X, padx=6, pady=2)
-        ttk.Checkbutton(seg_frame, text="Seg Pred", variable=self.show_prediction_var, command=self.on_toggle_prediction).pack(side=tk.LEFT, padx=2)
-        ttk.Checkbutton(seg_frame, text="Seg GT", variable=self.show_gt_var, command=self.redraw).pack(side=tk.LEFT, padx=2)
-        lm_frame = ttk.Frame(opt)
-        lm_frame.pack(fill=tk.X, padx=6, pady=2)
-        ttk.Checkbutton(lm_frame, text="LM Pred", variable=self.show_landmarks_var, command=self.on_toggle_landmarks).pack(side=tk.LEFT, padx=2)
-        ttk.Checkbutton(lm_frame, text="LM GT", variable=self.show_landmarks_gt_var, command=self.redraw).pack(side=tk.LEFT, padx=2)
+
+        row = ttk.Frame(opt)
+        row.pack(fill=tk.X, padx=6, pady=4)
+
+        # Predictions group
+        ttk.Label(row, text="Predictions:").pack(side=tk.LEFT, padx=(0, 4))
+
+        ttk.Checkbutton(row, text="Seg", variable=self.show_prediction_var, command=self.on_toggle_prediction).pack(side=tk.LEFT, padx=2)
+        ttk.Checkbutton(row, text="LM", variable=self.show_landmarks_var, command=self.on_toggle_landmarks).pack(side=tk.LEFT, padx=6)
+        
+        # Mask display mode dropdown
+        # mode_frame = ttk.Frame(opt)
+        # mode_frame.pack(fill=tk.X, padx=6, pady=4)
+        ttk.Label(row, text="Mask display:").pack(side=tk.LEFT, padx=(0, 4))
+        mask_combo = ttk.Combobox(row, textvariable=self.mask_display_mode_var, 
+                     values=["Filled", "Contours", "Both"], state="readonly", 
+                     width=12)
+        mask_combo.pack(side=tk.LEFT, padx=2)
+        mask_combo.bind("<<ComboboxSelected>>", lambda e: self.on_mask_display_mode_changed())
+        
+        # Separator
+        ttk.Label(row, text="|").pack(side=tk.LEFT, padx=6)
+
+        # Ground truth group
+        ttk.Label(row, text="Ground Truth:").pack(side=tk.LEFT, padx=(0, 4))
+
+        ttk.Checkbutton(row, text="Seg", variable=self.show_gt_var, command=self.redraw).pack(side=tk.LEFT, padx=2)
+        ttk.Checkbutton(row, text="LM", variable=self.show_landmarks_gt_var, command=self.redraw).pack(side=tk.LEFT, padx=2)
+        
+        # Dice score display row
+        dice_frame = ttk.Frame(opt)
+        dice_frame.pack(fill=tk.X, padx=6, pady=(2, 4))
+        ttk.Label(dice_frame, text="Dice Score:").pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Label(dice_frame, textvariable=self.dice_score_var, foreground="blue").pack(side=tk.LEFT, padx=2)
+        
+        # Confidence score display row
+        conf_frame = ttk.Frame(opt)
+        conf_frame.pack(fill=tk.X, padx=6, pady=(2, 4))
+        ttk.Label(conf_frame, text="Seg Confidence:").pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Label(conf_frame, textvariable=self.confidence_score_var, foreground="green").pack(side=tk.LEFT, padx=2)
+        
         # Checkboxes for classifier guidance and circular border
         guidance_frame = ttk.Frame(opt)
-        guidance_frame.pack(fill=tk.X, padx=6, pady=(4,2))
-        ttk.Checkbutton(guidance_frame, text="Use classifier to guide predictions", variable=self.mirror_left_var, command=self.on_toggle_mirror).pack(side=tk.LEFT, padx=2)
-        ttk.Checkbutton(guidance_frame, text="Circular border", variable=self.circular_border_var, command=self.on_toggle_circular_border).pack(side=tk.LEFT, padx=2)
+        guidance_frame.pack(fill=tk.X, padx=6, pady=(4, 2))
+        ttk.Checkbutton(guidance_frame, text="Classifier guided predictions", variable=self.mirror_left_var, command=self.on_toggle_mirror).pack(side=tk.LEFT, padx=2)
+        ttk.Checkbutton(guidance_frame, text="Circular border", variable=self.circular_border_var, command=self.on_toggle_circular_border).pack(side=tk.LEFT, padx=8)
 
         # Transform controls
         trans_frame = ttk.LabelFrame(right, text="Transforms")
@@ -828,7 +931,30 @@ class SegmentationUI:
         self.current_path = path
         self.input_path_var.set(path)
         try:
-            pil = Image.open(path).convert("L")  # load grayscale
+            pil_raw = Image.open(path)
+
+            if pil_raw.mode == "F":
+                arr = np.array(pil_raw, dtype=np.float32)
+                arr = np.nan_to_num(arr)
+
+                # Detect normalized float images
+                if arr.max() <= 1.5:
+                    arr -= arr.min()
+                    if arr.max() > 0:
+                        arr /= arr.max()
+                else:
+                    p_low, p_high = np.percentile(arr, (2, 98))
+                    arr = np.clip(arr, p_low, p_high)
+                    arr = (arr - p_low) / (p_high - p_low + 1e-8)
+
+                # --- GAMMA (this is what Windows Photos does) ---
+                arr = np.power(arr, 1 / 2.2)
+
+                arr = (arr * 255.0).astype(np.uint8)
+                pil = Image.fromarray(arr)
+             
+            else:
+                pil = pil_raw.convert("L")
         except Exception as e:
             self.log("Failed to open image:", e)
             return
@@ -925,6 +1051,19 @@ class SegmentationUI:
         # draw GT and prediction contours on top if available
         # We'll create an overlay image in display-image coords for accuracy, then place onto canvas.
         overlay_bgr = pil_to_bgr_np(resized)  # BGR numpy (now includes circular mask if enabled)
+        
+        # Extract GT binary masks if needed (for dice score calculation)
+        if self.show_gt_var.get():
+            self._extract_gt_binary_masks()
+        else:
+            self.last_gt_bin = None
+        
+        # Update dice score display
+        self._update_dice_score()
+        
+        # Update confidence score display
+        self._update_confidence_score()
+        
         # overlay GT (red contours)
         if self.show_gt_var.get():
             self._overlay_ground_truth_on_bgr(overlay_bgr, (s, xoff, yoff))
@@ -954,6 +1093,191 @@ class SegmentationUI:
             for i, (hx, hy) in enumerate(corners):
                 self.canvas.create_rectangle(hx - HANDLE_SIZE, hy - HANDLE_SIZE, hx + HANDLE_SIZE, hy + HANDLE_SIZE,
                                              fill="yellow", outline="black", tags=(f"H{i}",))
+
+    def _extract_gt_binary_masks(self):
+        """
+        Extract ground truth binary masks in crop coordinates from transformed_masks.npz.
+        Handles both single-channel and multi-channel masks.
+        Returns True if GT masks were successfully extracted, False otherwise.
+        Sets self.last_gt_bin to the binary mask(s) or None.
+        """
+        if not self.current_path or self.crop is None:
+            self.last_gt_bin = None
+            return False
+        
+        folder = os.path.dirname(self.current_path)
+        mask_npz = os.path.join(folder, "transformed_masks.npz")
+        config_json = os.path.join(folder, "image_config.json")
+        
+        if not (os.path.exists(mask_npz) and os.path.exists(config_json)):
+            self.last_gt_bin = None
+            return False
+        
+        try:
+            data = np.load(mask_npz)
+            with open(config_json, "r") as f:
+                cfg = json.load(f)
+            prefix = "left" if cfg.get("left", False) else "right"
+            
+            # Get crop coordinates
+            x, y, side = self.crop
+            
+            global GT_KEYS, LABELS
+            keys = [k for k in getattr(data, 'files', list(data.keys()))]
+            
+            # Extract masks for each GT_KEYS pattern
+            bin_masks = []
+            for pattern in GT_KEYS:
+                found_key = _match_key(keys, pattern, prefix)
+                if found_key is None:
+                    # GT pattern not found, stop extraction
+                    self.last_gt_bin = None
+                    return False
+                
+                try:
+                    mask = data[found_key].astype(np.float32, copy=True)
+                    if mask.max() > 1.0:
+                        mask = mask / 255.0
+                    mask_u8 = (mask * 255.0).astype(np.uint8)
+                    
+                    # Apply same transforms (rotation + flip)
+                    mask_trans = apply_transforms_to_mask(mask_u8, self.angle, self.flip_h)
+                    
+                    # Extract crop region in transformed image coordinates
+                    # Crop coordinates (x, y, side) are in transformed image coordinates
+                    H, W = mask_trans.shape
+                    x1 = max(0, int(x))
+                    y1 = max(0, int(y))
+                    x2 = min(W, int(x + side))
+                    y2 = min(H, int(y + side))
+                    
+                    # Extract crop
+                    crop_mask = mask_trans[y1:y2, x1:x2]
+                    
+                    # Pad if necessary to ensure square crop of size 'side'
+                    if crop_mask.shape != (side, side):
+                        padded = np.zeros((side, side), dtype=np.uint8)
+                        dy = y1
+                        dx = x1
+                        padded[max(0, -dy):side+min(0, H-y2), max(0, -dx):side+min(0, W-x2)] = crop_mask
+                        crop_mask = padded
+                    
+                    # Convert to binary (threshold at 128)
+                    bin_mask = (crop_mask >= 128).astype(np.uint8) * 255
+                    bin_masks.append(bin_mask)
+                except Exception as ex:
+                    self.log(f"GT extraction error for key {found_key}: {ex}")
+                    self.last_gt_bin = None
+                    return False
+            
+            # Stack masks if multiple channels, otherwise keep 2D
+            if len(bin_masks) == 0:
+                self.last_gt_bin = None
+                return False
+            elif len(bin_masks) == 1:
+                self.last_gt_bin = bin_masks[0]
+            else:
+                self.last_gt_bin = np.stack(bin_masks, axis=0)  # shape (C, side, side)
+            
+            return True
+        except Exception as e:
+            self.log(f"GT extraction error: {e}")
+            self.last_gt_bin = None
+            return False
+
+    def _update_dice_score(self):
+        """
+        Calculate and update per-class dice score display.
+        Only calculates dice if both predictions and GT are available and both checkboxes are checked.
+        Displays scores for each class using LABELS mapping.
+        """
+        # Conditions: both checkboxes must be checked, and both masks must exist
+        if not (self.show_prediction_var.get() and self.show_gt_var.get()):
+            self.dice_score_var.set("N/A")
+            return
+        
+        if self.last_pred_bin is None or self.last_gt_bin is None:
+            self.dice_score_var.set("N/A")
+            return
+        
+        # Ensure masks have same shape
+        if self.last_pred_bin.shape != self.last_gt_bin.shape:
+            self.dice_score_var.set("N/A")
+            return
+        
+        # Calculate per-class dice scores
+        dice_dict = calculate_dice_score(self.last_pred_bin, self.last_gt_bin)
+        
+        if dice_dict is None:
+            self.dice_score_var.set("N/A")
+            return
+        
+        # Format per-class scores using LABELS mapping
+        global GT_KEYS, LABELS
+        score_strings = []
+        
+        for class_idx, dice_val in sorted(dice_dict.items()):
+            # Get class name from GT_KEYS pattern
+            if class_idx < len(GT_KEYS):
+                pattern = GT_KEYS[class_idx]
+                # Get the display name from LABELS
+                class_name = LABELS.get(pattern, f"Class{class_idx}")
+            else:
+                class_name = f"Class{class_idx}"
+            
+            score_strings.append(f"{class_name}: {dice_val * 100:.2f}%")
+        
+        if score_strings:
+            self.dice_score_var.set(" | ".join(score_strings))
+        else:
+            self.dice_score_var.set("N/A")
+
+    def _update_confidence_score(self):
+        """
+        Calculate and update segmentation confidence using segmentation stability.
+        Evaluates variability of the mask using two extreme thresholds (0.001, 0.999).
+        Only calculates confidence if segmentation prediction checkbox is checked.
+        """
+        # Only show confidence if segmentation prediction is enabled
+        if not self.show_prediction_var.get():
+            self.confidence_score_var.set("N/A")
+            return
+        
+        # Need segmentation probabilities to calculate confidence
+        if self.last_pred_probs is None:
+            self.confidence_score_var.set("N/A")
+            return
+        
+        # Calculate per-class confidence scores
+        try:
+            # Handle single-channel and multi-channel predictions
+            if self.last_pred_probs.ndim == 2:
+                # Single-channel prediction (femur only)
+                conf = segmentation_stability_confidence(probs=self.last_pred_probs)
+                self.confidence_score_var.set(f"{conf * 100:.2f}%")
+            else:
+                # Multi-channel prediction: calculate confidence for each class
+                global GT_KEYS, LABELS
+                conf_strings = []
+                for c in range(self.last_pred_probs.shape[0]):
+                    probs_c = self.last_pred_probs[c]
+                    conf = segmentation_stability_confidence(probs=probs_c)
+                    # Get class name from GT_KEYS pattern
+                    if c < len(GT_KEYS):
+                        pattern = GT_KEYS[c]
+                        class_name = LABELS.get(pattern, f"Class{c}")
+                    else:
+                        class_name = f"Class{c}"
+                    
+                    conf_strings.append(f"{class_name}: {conf * 100:.2f}%")
+                
+                if conf_strings:
+                    self.confidence_score_var.set(" | ".join(conf_strings))
+                else:
+                    self.confidence_score_var.set("N/A")
+        except Exception as e:
+            self.log(f"Confidence calculation error: {e}")
+            self.confidence_score_var.set("N/A")
 
     def _overlay_ground_truth_on_bgr(self, overlay_bgr, mapping):
         """
@@ -1019,9 +1343,20 @@ class SegmentationUI:
         Use last_pred_bin (which is a square crop binary 0/255, in crop-size resolution).
         Supports both single-channel (femur) and multi-channel (femur+pelvis) predictions.
         We need to place it into overlay_bgr at crop location scaled to display size.
+        
+        Display mode is controlled by self.mask_display_mode_var which can be:
+        - "Filled": only draw filled masks
+        - "Contours": only draw contours
+        - "Both": draw both filled masks and contours
         """
         if self.last_pred_bin is None:
             return
+        
+        # Get the display mode from the dropdown
+        display_mode = self.mask_display_mode_var.get()
+        show_filled = display_mode in ["Filled", "Both"]
+        show_contours = display_mode in ["Contours", "Both"]
+        
         s, xoff, yoff, disp_w, disp_h = self.get_display_mapping()
         x, y, side = self.crop
         # crop coords in transformed image, scaled
@@ -1034,18 +1369,23 @@ class SegmentationUI:
         if self.last_pred_bin.ndim == 2:
             # Single-channel prediction (femur only): shape (side, side)
             pred_resized = cv2.resize(self.last_pred_bin, (cW, cH), interpolation=cv2.INTER_NEAREST)
-            cnts = find_contours_binary(pred_resized)
-            if not cnts:
-                return
-            # Offset contours by (cx1, cy1)
-            shifted = []
-            for c in cnts:
-                c2 = c.copy()
-                c2[:, 0, 0] += cx1
-                c2[:, 0, 1] += cy1
-                shifted.append(c2)
-            # draw green contours for femur predictions
-            cv2.drawContours(overlay_bgr, shifted, -1, (0, 255, 0), thickness=CONTOUR_THICKNESS)
+            
+            if show_filled:
+                # Draw filled mask
+                self.alpha_blend_mask(overlay_bgr, pred_resized, (cx1, cy1), color=(0, 255, 0), alpha=0.3)
+            
+            if show_contours:
+                cnts = find_contours_binary(pred_resized)
+                if cnts:
+                    # Offset contours by (cx1, cy1)
+                    shifted = []
+                    for c in cnts:
+                        c2 = c.copy()
+                        c2[:, 0, 0] += cx1
+                        c2[:, 0, 1] += cy1
+                        shifted.append(c2)
+                    # draw green contours for femur predictions
+                    cv2.drawContours(overlay_bgr, shifted, -1, (0, 255, 0), thickness=CONTOUR_THICKNESS)
         else:
             # Multi-channel prediction: shape (C, side, side)
             # All predictions drawn in green
@@ -1053,18 +1393,59 @@ class SegmentationUI:
             for c in range(min(self.last_pred_bin.shape[0], len(colors))):
                 pred_bin_c = self.last_pred_bin[c]  # shape (side, side)
                 pred_resized = cv2.resize(pred_bin_c, (cW, cH), interpolation=cv2.INTER_NEAREST)
-                cnts = find_contours_binary(pred_resized)
-                if not cnts:
-                    continue
-                # Offset contours by (cx1, cy1)
-                shifted = []
-                for cnt in cnts:
-                    cnt2 = cnt.copy()
-                    cnt2[:, 0, 0] += cx1
-                    cnt2[:, 0, 1] += cy1
-                    shifted.append(cnt2)
-                # Draw contours in green for predictions (includes inner contours)
-                cv2.drawContours(overlay_bgr, shifted, -1, colors[c], thickness=CONTOUR_THICKNESS)
+
+                if show_filled:
+                    # Draw filled mask
+                    self.alpha_blend_mask(overlay_bgr, pred_resized, (cx1, cy1), color=colors[c], alpha=0.3)
+
+                if show_contours:
+                    cnts = find_contours_binary(pred_resized)
+                    if not cnts:
+                        continue
+                    # Offset contours by (cx1, cy1)
+                    shifted = []
+                    for cnt in cnts:
+                        cnt2 = cnt.copy()
+                        cnt2[:, 0, 0] += cx1
+                        cnt2[:, 0, 1] += cy1
+                        shifted.append(cnt2)
+                    # Draw contours in green for predictions (includes inner contours)
+                    cv2.drawContours(overlay_bgr, shifted, -1, colors[c], thickness=CONTOUR_THICKNESS)
+
+    def alpha_blend_mask(self, dst_bgr, mask, top_left, color, alpha):
+        x, y = top_left
+        H, W = dst_bgr.shape[:2]
+        h, w = mask.shape
+
+        # --- compute clipped region ---
+        x1 = max(x, 0)
+        y1 = max(y, 0)
+        x2 = min(x + w, W)
+        y2 = min(y + h, H)
+
+        if x1 >= x2 or y1 >= y2:
+            return
+
+        # corresponding mask slice
+        mx1 = x1 - x
+        my1 = y1 - y
+        mx2 = mx1 + (x2 - x1)
+        my2 = my1 + (y2 - y1)
+
+        roi = dst_bgr[y1:y2, x1:x2]
+        mask_crop = mask[my1:my2, mx1:mx2]
+
+        mask_bool = mask_crop > 0
+        if not mask_bool.any():
+            return
+
+        color_img = np.zeros_like(roi, dtype=np.uint8)
+        color_img[:] = color
+
+        roi[mask_bool] = (
+            roi[mask_bool] * (1 - alpha) +
+            color_img[mask_bool] * alpha
+        ).astype(np.uint8)
 
     def _overlay_landmarks_gt_on_bgr(self, overlay_bgr, mapping):
         """
@@ -1623,6 +2004,11 @@ class SegmentationUI:
             self.last_landmarks_pred = None
             self.redraw()
 
+    def on_mask_display_mode_changed(self):
+        """Handler for the mask display mode dropdown. Redraw if prediction is enabled."""
+        if self.show_prediction_var.get():
+            self.redraw()
+
     # handler for circular border checkbox
     def on_toggle_circular_border(self):
         """Handler for the Circular Border checkbox. Re-run classification and dependent predictions."""
@@ -1939,7 +2325,7 @@ class SegmentationUI:
 # run application
 def main():
     root = tk.Tk()
-    root.geometry("1500x830")
+    root.geometry("1500x1000")
     app = SegmentationUI(root)
     root.mainloop()
 

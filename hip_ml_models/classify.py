@@ -2,6 +2,8 @@
 Classification Model Wrapper
 A self-contained module for loading and running inference with a trained classification model.
 
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+
 Usage:
     from classify import ClassificationModel
     
@@ -134,7 +136,7 @@ class ClassificationModel:
     
     def _build_model(self, num_classes: int) -> nn.Module:
         """Build ResNet18 model with single-channel input."""
-        model = models.resnet18(weights="IMAGENET1K_V1")
+        model = models.resnet18()  # weights="IMAGENET1K_V1"
         
         # Adapt for single-channel (grayscale) input
         model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)

@@ -38,7 +38,7 @@ class Controller:
         #self.unexpected_error = None
         self.bugs = [None]
 
-        self.model = Model(self.ai_mode, self.on_simulation, self.config, self.calib.get("frame_analysis_config"), self.calib.get("distortion", {}), self.calib.get("gantry", {}), self.bugs, logger)
+        self.model = Model(self.ai_mode, self.on_simulation, self.config, self.calib, self.bugs, logger)
         
         
         self.viewmodel = ViewModel(config, self.bugs, logger)
@@ -344,7 +344,7 @@ class Controller:
                 tb = json.load(f)
             self.model.default_templates.append(tp)
             self.model.default_tables.append(tb)
-            metadata = self.model.update_ui_objects(tb, tp, red = True)
+            metadata = {}#self.model.update_ui_objects(tb, tp, red = True)
             rt.append(self.backend_to_frontend_coords(metadata))
         return rt
 
@@ -395,9 +395,9 @@ class Controller:
                 self.lockside = True
                 if self.tracking: 
                     self.imu_handler.handle_window_close(self.stage)
-                    analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame, self.imu_handler.tilt_angle, self.imu_handler.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
+                    analysis_type, data_for_model, data_for_vm, data_for_exam = self.model.exec(newscn, frame, self.imu_handler.tilt_angle, self.imu_handler.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
                 else: 
-                    analysis_type, data_for_model, data_for_exam = self.model.exec(newscn, frame)
+                    analysis_type, data_for_model, data_for_vm, data_for_exam = self.model.exec(newscn, frame)
                 
                 
                 # add handling of 'exception:'
@@ -407,8 +407,8 @@ class Controller:
                 self.scn = newscn[:-3] + 'end'
                 self.model.update(analysis_type, data_for_model)
                 print(self.model.data)
-                self.viewmodel.update(analysis_type, data_for_model)
-                self.exam.save(analysis_type, data_for_exam, frame)
+                self.viewmodel.update(analysis_type, data_for_vm)
+                self.exam.save(analysis_type, data_for_exam)
             except Exception as e:
                 self.is_processing = False
                 self.is_running = False

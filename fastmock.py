@@ -115,6 +115,7 @@ async def start_processing():
 
 @app.post("/label")
 async def switch_side(request: Request):
+    test_result = current_case['route'] == f'/label'
     dt = await request.json()
     print(f'Sent data: {dt}')
     print(f'API called: /label')
@@ -156,3 +157,4 @@ async def cases(p, g, c):
         current_case = json.load(f)
 
     return current_case
+    

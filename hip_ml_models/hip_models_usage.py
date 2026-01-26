@@ -2,6 +2,8 @@
 Example usage script for the unified HipModels wrapper.
 It can be used for classification, segmentation, and annotation of hip images.
 
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+
 1) Classification
 label_int = models.classify(IMAGE_PATH)
 label_text = models.classify(IMAGE_PATH, human_readable=True)
@@ -30,38 +32,34 @@ else:
 """
 
 from hip_models import HipModels , HipModelConfig
+from confirmap_dataclasses import *
 
 # -----------------------------------------------------------
 # Configuration
 # -----------------------------------------------------------
-IMAGE_PATH = r"E:\augdrr_data\reference\Patient_1_R101782_borders\0\drr.png"
+IMAGE_PATH = r"\\Torus-NAS\Torus-Data\augdrr_data\reference\Patients_1_to_4_v023\7296\drr.png"
 
-# 0) Define configuration, below are the default model names and directory, so you can use it like this cfg = HipModelConfig()
-cfg = HipModelConfig(
-    model_dir=r"\\Torus-NAS\Torus-Data\models",
-
-    later_cls_name = "later_class_model.pth",
-    phase_cls_name = "phase_class_model.pth",
-
-    ref_seg_name = "ref_seg_model.pth",
-    cup_seg_name = "cup_seg_model.pth",
-    trial_seg_name = "trial_seg_model.pth",
-
-    ref_lm_name = "ref_lm_model.pth",
-    cup_lm_name = "cup_lm_model.pth",
-    trial_lm_name = "trial_lm_model.pth",
-
-    phase="ref",   # "all", "ref", "cup", "trial"
+# 1) Configure
+frame_prediction_config = FramePredictionConfigClass(
+    classifier_model_path=r"\\Torus-NAS\Torus-Data\models\later_class_model.pth",
+    ref_annotator_model_path=r"\\Torus-NAS\Torus-Data\models\ref_lm_model.pth",
+    ref_segmentor_model_path=r"\\Torus-NAS\Torus-Data\models\ref_seg_model.pth",
+    cup_annotator_model_path=r"\\Torus-NAS\Torus-Data\models\cup_lm_model.pth",
+    cup_segmentor_model_path=r"\\Torus-NAS\Torus-Data\models\cup_seg_model.pth",
+    trl_annotator_model_path=r"\\Torus-NAS\Torus-Data\models\trial_lm_model.pth",
+    trl_segmentor_model_path=r"\\Torus-NAS\Torus-Data\models\trial_seg_model.pth",
 )
 
-# 1) Initialize wrapper class
-models = HipModels(config=cfg)        
+# 2) Initialize
+models = HipModels(frame_config=frame_prediction_config, device="cpu")      # device is optional  
 
-# 2) prediction example
-predictions = models.predict(IMAGE_PATH, phase='ref')
-for key, value in predictions.items():
-    print(f"\n{key}: {value}\n", end="="*40 + "\n")
+# --- frame ---
+frame = Frame()
+frame.meta = FrameMeta(
+    op_stage='hp1-ap',   # ref: 'hp1-ap', 'hp1-ob', 'hp2-ap', 'hp2-ob' ||| cup: 'cup-ap', 'cup-ob' ||| trial: 'tri-ap', 'tri-ob'
+    image_filename=IMAGE_PATH,
+)
 
-# 3) Change phase example
-models.update_phase("cup")
-print(f"Phase updated to {models.phase}.")
+# 3) predict
+frame.annotations["predictions"] = models.predict(frame=frame)
+print(frame)

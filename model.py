@@ -7,6 +7,7 @@ import datetime
 import copy
 from calibrate import Calibrate
 from hip_ml_models.hip_models import HipModels, HipModelConfig
+import confirmap_dataclasses.frame_data as dataclass
 
 class Frm:
     def __init__(self):
@@ -35,12 +36,10 @@ class Reg:
         self.next_ob = None
 
 class Model:
-    def __init__(self, ai_mode = True, on_simulation = False, config = None, calib = None, distortion = {}, gantry = {}, bugs = None, logger = None):
+    def __init__(self, ai_mode = True, on_simulation = False, config = None, carm = None, bugs = None, logger = None):
 
-        self.calib = calib
-        self.calib['distortion'] = distortion
-        self.calib['gantry'] = gantry
-        print(self.calib)
+        self.carm = carm
+        self.calib_lookup = {}
 
         self.config = config
 
@@ -74,12 +73,11 @@ class Model:
         self.calibrate = Calibrate()
         self.cnn = self.load_cnn() #self.cnn = CNN()
 
-
     def _resetdata(self):
         self.viewpairs = [None]*4
         self.data = {
-            'hp1-ap': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
-            'hp1-ob': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
+            'hp1-ap': dataclass.Frame(),
+            'hp1-ob': dataclass.Frame(),
             'hmplv1': {'success': False, 'metadata': None, 'error_code': None},
 
             'hp2-ap': {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None},
@@ -97,7 +95,7 @@ class Model:
             'tothip': {'success': False, 'metadata': None, 'error_code': None},
             'regtri': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None}
         }
-
+    '''
     def filldata(self, stage):
         self._resetdata()
         if stage >= 1:
@@ -167,7 +165,7 @@ class Model:
                 tridata = json.load(f)
             self.data['regtri'] = {'success': True, 'stitch': stitch, 'metadata': tridata}
             vp3 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot2.png')
-            self.viewpairs[3] = vp3
+            self.viewpairs[3] = vp3'''
 
 
     def getfrmcase(self, c):
@@ -228,16 +226,47 @@ class Model:
                          phase="all")
         return HipModels(config = cfg)
 
-    def pre_process(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
+    def pre_process(self, obj):
         #self.calib['distortion'].update({(5, 20): {'data': {}}})
         #self.calib['gantry'].update({(1.5, 0.2): {'data': {}}})
-        framecalib = {}
+        '''framecalib = {}
         framecalib['distortion'] = self.calib['distortion']
         framecalib['gantry'] = self.calib['gantry']
-        return framecalib, frame, None
+        return framecalib, frame, None'''
+
+        framecalib = dataclass.CalibrationData(datasource="FrameGrabber", version="v1")
+        framecalib.camera = dataclass.CameraData(
+            intrinsic_matrix=[
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+            ],
+            extrinsic_matrix=[
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+            sensor_width=1024,
+            sensor_height=1024,
+            pixel_size=0.0,
+            source_to_detector_distance=0.0,
+            source_in_world=[0.0, 0.0, 0.0],
+            piercing_point=[0.0, 0.0, 0.0],
+            corners=[
+                [0.0, 0.0, 0.0],
+                [1023.0, 0.0, 0.0],
+                [1023.0, 1023.0, 0.0],
+                [0.0, 1023.0, 0.0],
+            ],
+        )
+
+        return framecalib, obj.raw_image
+
+
     
-    def process(self, section, image, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
-        section_type = section[-2:]  # ap, ob
+    def process(self, obj):
+        '''section_type = section[-2:]  # ap, ob
         test_entry = self.sim_data.get(section[:-3]).get(section_type)
         if test_entry and test_entry.get('json_path'):
             try:
@@ -296,28 +325,47 @@ class Model:
             metadata['side'] = 'r'
         else:
             metadata['side'] = 'l'
+            
+        return metadata    '''
+        section = obj.meta.op_stage
+        ann = self.cnn.predict(frame = obj)
+        
 
-        return metadata
+        return ann
 
 
 
     def analyzeframe_sim(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
+        obj = dataclass.Frame()
+        obj.meta.op_stage = section
+        obj.meta.carm_view = section[-2:]
+        obj.raw_image = frame
+        obj.meta.carm_angles = [tilt_angle, rotation_angle]
+        obj.meta.carm_angles_actual = [act_tilt, act_rot]
 
-        framecalib, image, error_code = self.pre_process(section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None)
+        obj.meta.frame_cropping_config = self.carm.get('frame_cropping_config')
+        #self.config.get('frame_analysis_config').ai_mode = self.ai_mode
+        obj.meta.frame_analysis_config = self.config.get('frame_analysis_config')
+    
+
+        framecalib, crop_image = self.pre_process(obj)
+        obj.image = cv2.cvtColor(crop_image, cv2.COLOR_BGR2GRAY)
+        error_code = framecalib.error_code
         if error_code is not None:
-            return {}
+            return obj.annotations, framecalib, None
         if not self.ai_mode:
-            return {}
+            return obj.annotations, framecalib, None
         
-        metadata = self.process(section, image, tilt_angle, rotation_angle, act_tilt, act_rot)
-
-        '''if metadata['side'] == 'r':
-            for k, v in metadata['landmarks'].items(): v[0] = 1024 - v[0]'''
+        anno = self.process(obj)
         
         num = 2 if 'cup' in section else 4 if 'tri' in section else 0
-        metadata['ui_objects'] = self.update_ui_objects(metadata['landmarks'], self.default_templates[num])
+        ui_objects = self.update_ui_objects(anno.landmarks, self.default_templates[num])
 
-        return metadata, framecalib
+        obj.annotations['default'] = anno
+        obj.calibration = framecalib
+        obj.ui_objects = ui_objects
+
+        return obj
 
 
     def analyzeframe_act(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
@@ -340,21 +388,11 @@ class Model:
 
     def analyzeframe(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
         if self.on_simulation:
-            framedata, framecalib = self.analyzeframe_sim(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
+            tmp_obj = self.analyzeframe_sim(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
         else:
             framedata, framecalib = self.analyzeframe_act(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
 
-        fig = self.config.get("reference_config")
-        analysis_parameters = {
-            'extract_distortion': fig["detect_distortion"],
-            'correct_distortion': fig["correct_distortion"],
-            'extract_glyph': fig["detect_glyph_tilt"],
-            'extract_tracking': fig["correct_glyph_rotation"],
-            'extract_camcalib': fig["detect_camcalib"],
-            'ai_mode': self.ai_mode
-        }
-
-        return framedata, analysis_parameters, framecalib
+        return tmp_obj
 
 
 
@@ -441,8 +479,14 @@ class Model:
 
         return reg_result
 
-    def update_ui_objects(self, tb, tp, red = False):
-
+    def update_ui_objects(self, LandmarksData, tp, red = False):
+        print(11,LandmarksData)
+        tb = {}
+        for g, LandmarkGroup in LandmarksData.groups.items():
+            for l, LandmarkData in LandmarkGroup.items.items():
+                tb[LandmarkData.label] = LandmarkData.coords
+        print(tb)
+        
         temp = copy.deepcopy(tp)
         rt = {}
         for g in temp:
@@ -456,10 +500,9 @@ class Model:
                     for i in range(len(s['keys'])):
                         if red: s['template'] = 1
                         k = f'_{s['keys'][i]}'
-                        if k not in tb.get("annotation_points", {}): 
-                            print(1111, k, tb)
+                        if k not in tb: 
                             continue
-                        s['points'].append(tb.get("annotation_points", {})[k])
+                        s['points'].append(tb[k][0])
                         s['type'] = 'lines' if 'line' in s['type'] or 'point' in s['type'] else s['type']
                         
                     rt[g].append(s)
@@ -479,24 +522,22 @@ class Model:
 
     def update(self, analysis_type, data):
         try:
-            section = data['section']
+            section = data.meta.op_stage
 
 
             if analysis_type == 'frame':
 
-                if data['analysis_error_code'] not in {'110', '111', '112', '113', '140'}:
+                if data.annotations['default'].error_code not in {'110', '111', '112', '113', '140'}:
                     section_type = section[-2:]  # ap, ob
                     # reset the 'ob' view if 'ap' image is repeated:
                     if section_type == 'ap':
                         tmp = section[:-2] + 'ob'
-                        self.data[tmp] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
-                        self.data[tmp]['side'] = self.data[section]['side']
+                        self.data[tmp] = dataclass.Frame()
+                        self.data[tmp].annotations['default'].side = data.annotations['default'].side
                     
-                    self.data[section]['image'] = data['processed_frame']
-                    self.data[section]['framedata'] = data
-                    self.data[section]['success'] = data['analysis_success']
-                    self.data[section]['side'] = data['side']
-                self.data[section]['error_code'] = data['analysis_error_code']
+                    self.data[section] = data
+
+                self.data[section].annotations['default'].error_code = data.annotations['default'].error_code
                 
 
             if analysis_type == 'recon':
@@ -527,19 +568,26 @@ class Model:
             case 'frm:hp1-ap:bgn' | 'frm:hp1-ob:bgn' | 'frm:hp2-ap:bgn' | 'frm:hp2-ob:bgn' | 'frm:cup-ap:bgn' | 'frm:cup-ob:bgn' | 'frm:tri-ap:bgn' | 'frm:tri-ob:bgn':   
 
 
-                framedata, analysis_parameters, framecalib = self.analyzeframe(scn[4:-4], frame, tilt_angle, rotation_angle, act_tilt, act_rot)
+                tmp_obj = self.analyzeframe(scn[4:-4], frame, tilt_angle, rotation_angle, act_tilt, act_rot)
+
+                k = f'T{act_tilt}_R{act_rot}'
+                if tmp_obj.calibration is None:
+                    tmp_obj.calibration = self.calib_lookup[k]
+                else:
+                    self.calib_lookup.update({k: tmp_obj.calibration})
                 
                 # Prepare data for different components
 
-                data_for_model = framedata
-                data_for_calib = framecalib
-                data_for_exam = {
-                    'framedata': framedata, 
-                    'analysis_parameters': analysis_parameters, 
-                    'framecalib': framecalib
+                data_for_model = tmp_obj
+                data_for_vm = {
+                    'processed_frame': tmp_obj.image,
+                    'ui_objects': tmp_obj.ui_objects,
+                    'analysis_error_code': tmp_obj.annotations['default'].error_code,
+                    'side': tmp_obj.annotations['default'].side
                 }
+                data_for_exam = tmp_obj
 
-                return "frame", data_for_model, data_for_exam
+                return "frame", data_for_model, data_for_vm, data_for_exam
                 
 
 
@@ -695,11 +743,11 @@ class Model:
                 case 'skip':
                     scn = ('frm:' + 'tri-ap' + ':end')
                 case 'landmarks':
-                    if self.data[frm.ap]['success'] and self.data[frm.ob]['success']:
+                    if self.data[frm.ap].annotations['default'].success and self.data[frm.ob].annotations['default'].success:
                         scn = ('rcn:' + frm.rcn + ':bgn')
             uistates = None
         else:
-            if self.data[frm.ap]['success'] and self.data[frm.ob]['success'] and (('ap' in scn and self.data[frm.ap]['error_code'] == None) or ('ob' in scn and self.data[frm.ob]['error_code'] == None)):
+            if self.data[frm.ap].annotations['default'].success and self.data[frm.ob].annotations['default'].success and (('ap' in scn and self.data[frm.ap].annotations['default'].error_code == None) or ('ob' in scn and self.data[frm.ob].annotations['default'].error_code == None)):
                 scn = ('rcn:' + frm.rcn + ':bgn')
             else:
                 if frame_not_none:

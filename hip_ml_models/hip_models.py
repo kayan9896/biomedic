@@ -16,6 +16,8 @@ Models expected (default names):
     cup_lm_model.pth
     trial_lm_model.pth
 
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+    
 Phases:
     phase = "all" | "ref" | "cup" | "trial"
 
@@ -30,7 +32,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Optional, Any, Dict, Union
-
+from confirmap_dataclasses import *
+import warnings
 import numpy as np
 import cv2
 
@@ -63,7 +66,7 @@ class HipModelConfig:
     cup_lm_name: str = "cup_lm_model.pth"
     trial_lm_name: str = "trial_lm_model.pth"
 
-    phase: str = "all"   # "all", "ref", "cup", "trial"
+    phase: str = "ref"   # "all", "ref", "cup", "trial"
 
     # ---- helpers ----
     def seg_name(self, phase: str) -> str:
@@ -74,42 +77,37 @@ class HipModelConfig:
     
     def __post_init__(self):
         self.model_dir = Path(self.model_dir)
-    
-
-# create a dataclass for the predict() method
-@dataclass(slots=True)
-class HipModelPrediction:
-    laterality_name: str
-    laterality_probs: Dict[str, float]
-    phase: str
-    segmentation: Optional[np.ndarray]
-    annotation_points: Optional[Dict[str, Any]]
-    annotation_vectors: Optional[Dict[str, Any]]
-    success: bool
 
 # ---------------------------------------------------------------------------
 # Utility helpers
 # ---------------------------------------------------------------------------
 
-# define a helper to get the width of the image for flipping points
-def get_image_width(img):
-    """Get width of input image (path / PIL / numpy / tensor)."""
-    # For numpy case
-    if isinstance(img, np.ndarray):
-        return img.shape[1]  # (H, W) or (C, H, W)
+def get_image_size(img):
+    """Get (height, width) of input image (path / PIL / numpy / tensor)."""
 
-    # For cv2 path → load, return width
+    # NumPy array
+    if isinstance(img, np.ndarray):
+        if img.ndim == 2:          # (H, W)
+            return img.shape
+        elif img.ndim == 3:        # (H, W, C) or (C, H, W)
+            # Heuristic: assume channels-last if last dim is small
+            if img.shape[-1] in (1, 3, 4):
+                return img.shape[0], img.shape[1]
+            else:                  # channels-first
+                return img.shape[1], img.shape[2]
+
+    # Path / string → load with OpenCV
     if isinstance(img, (str, Path)):
         arr = cv2.imread(str(img), cv2.IMREAD_GRAYSCALE)
         if arr is None:
             raise ValueError(f"Failed to read image: {img}")
-        return arr.shape[1]
+        return arr.shape  # (H, W)
 
-    # PIL
+    # PIL Image
     try:
         from PIL import Image
         if isinstance(img, Image.Image):
-            return img.width
+            return img.height, img.width
     except Exception:
         pass
 
@@ -117,14 +115,14 @@ def get_image_width(img):
     try:
         import torch
         if isinstance(img, torch.Tensor):
-            if img.dim() == 3:
-                return img.size(2)  # (C, H, W)
-            elif img.dim() == 2:
-                return img.size(1)  # (H, W)
+            if img.dim() == 2:      # (H, W)
+                return img.size(0), img.size(1)
+            elif img.dim() == 3:    # (C, H, W)
+                return img.size(1), img.size(2)
     except Exception:
         pass
 
-    raise TypeError(f"Unsupported image type for getting width: {type(img)}")
+    raise TypeError(f"Unsupported image type for getting size: {type(img)}")
 
 
 def flip_image(img: Any) -> Any:
@@ -189,6 +187,67 @@ def flip_segmentation_output(mask: np.ndarray) -> np.ndarray:
         raise ValueError("Unsupported segmentation mask shape.")
 
 
+def hip_config_from_frame_prediction(cfg: FramePredictionConfigClass) -> HipModelConfig:
+    """
+    Convert ConfirMap FramePredictionConfigClass → HipModelConfig
+    """
+    def _name(p: Path | None, default: str) -> str:
+        return p.name if p is not None else default
+
+    def _dir(p: Path | None, default: Path) -> Path:
+        return p.parent if p is not None else default
+
+    model_dir = _dir(cfg.classifier_model_path, Path(r"\\Torus-NAS\Torus-Data\models"))
+
+    return HipModelConfig(
+        model_dir=model_dir,
+
+        later_cls_name=_name(cfg.classifier_model_path, "later_class_model.pth"),
+
+        ref_seg_name=_name(cfg.ref_segmentor_model_path, "ref_seg_model.pth"),
+        cup_seg_name=_name(cfg.cup_segmentor_model_path, "cup_seg_model.pth"),
+        trial_seg_name=_name(cfg.trl_segmentor_model_path, "trial_seg_model.pth"),
+
+        ref_lm_name=_name(cfg.ref_annotator_model_path, "ref_lm_model.pth"),
+        cup_lm_name=_name(cfg.cup_annotator_model_path, "cup_lm_model.pth"),
+        trial_lm_name=_name(cfg.trl_annotator_model_path, "trial_lm_model.pth"),
+    )
+
+
+def dice_coeff(a: np.ndarray, b: np.ndarray, eps: float = 1e-6) -> float:
+    a = a.astype(bool)
+    b = b.astype(bool)
+    inter = np.logical_and(a, b).sum()
+    return (2.0 * inter + eps) / (a.sum() + b.sum() + eps)
+
+
+def keep_largest_cc(mask: np.ndarray) -> np.ndarray:
+    num, labels = cv2.connectedComponents(mask.astype(np.uint8))
+    if num <= 1:
+        return mask
+    largest = max(range(1, num), key=lambda i: (labels == i).sum())
+    return (labels == largest).astype(np.uint8)
+
+
+def segmentation_stability_confidence(
+    probs: np.ndarray,
+    thresholds=(0.001, 0.999),
+    postprocess=True,
+) -> float:
+    masks = []
+    for t in thresholds:
+        m = (probs > t).astype(np.uint8)
+        if postprocess:
+            m = keep_largest_cc(m)
+        masks.append(m)
+
+    dices = []
+    for i in range(len(masks)):
+        for j in range(i + 1, len(masks)):
+            dices.append(dice_coeff(masks[i], masks[j]))
+
+    return float(np.mean(dices)) if dices else 0.0
+
 # ---------------------------------------------------------------------------
 # HipModels (Main class)
 # ---------------------------------------------------------------------------
@@ -217,9 +276,19 @@ class HipModels:
     def __init__(
         self,
         *,
-        config: HipModelConfig = HipModelConfig(),
+        config: HipModelConfig | None = None,
+        frame_config: FramePredictionConfigClass | None = None,
         device: Optional[str] = None,
     ):
+        if config is not None and frame_config is not None:
+            warnings.warn("Can't initialize with both config and frame_config, using frame_config..")
+            config = hip_config_from_frame_prediction(frame_config)
+
+        if frame_config is not None:
+            config = hip_config_from_frame_prediction(frame_config)
+
+        if config is None:
+            config = HipModelConfig()
         self.config = config
         self.model_dir = config.model_dir
         self.phase = config.phase
@@ -381,7 +450,11 @@ class HipModels:
             else:
                 return flip_segmentation_output(result)
 
-        return result
+        if return_probs:
+            probs, mask = result
+            return probs, mask
+        else:
+            return result
 
     # ----------------------------------------------------------------------
     # 3) Annotation wrapper
@@ -417,7 +490,7 @@ class HipModels:
 
         # get the width of the image for flipping points (consider return_pixels is True/False)
         if return_pixels:
-            img_width = get_image_width(img2)
+            img_height, img_width = get_image_size(img2)
         else:
             img_width = 1.0  # normalized coords in [0, 1]
 
@@ -432,14 +505,15 @@ class HipModels:
     # ---------------------------------------------------------------------------
     def predict(
         self,
-        image: Any,
+        image: Any | None = None,
         *,
-        phase: str,
+        frame: Frame | None = None,
+        phase: str | None = None,
         seg_threshold: float = 0.5,
         seg_flip_if_left: bool = True,
-        seg_only_if_hip: bool = True,
+        seg_only_if_hip: bool = False,
         ann_flip_if_left: bool = True,
-        ann_only_if_hip: bool = True,
+        ann_only_if_hip: bool = False,
         ann_return_pixels: bool = True,
         **kwargs
     ) -> Dict[str, Any]:
@@ -451,23 +525,54 @@ class HipModels:
             "segmentation": np.ndarray or None
             "annotation": dict or None
         """
+
+        # Resolve inputs (Frame-based OR legacy)
+        if frame is not None:
+            if image is not None:
+                warnings.warn("Both frame and image provided, ignoring image and using frame.meta.image_filename instead.")
+
+            # Image
+            image = frame.meta.image_filename
+            if image is None:
+                image = frame.image
+                if image is None:
+                    raise ValueError("Frame.meta.image_filename and Frame.image are None, cannot proceed.")
+
+            # Phase (priority order)
+            if phase is None:
+                phase = "cup" if "cup" in frame.meta.op_stage else "trial" if "tri" in frame.meta.op_stage else "ref"
+
+        else:
+            # Legacy mode
+            if image is None:
+                raise ValueError("Either image or frame must be provided")
+
+            if phase is None:
+                raise ValueError("phase must be provided when using image input")
+
+
         output: Dict[str, Any] = {}
+
+        if phase != self.phase:
+            self.update_phase(phase)
 
         # 1) Classify
         laterality, probability = self.classify(image, human_readable=True, return_probs=True)
         output["laterality_name"] = laterality
         output["laterality_probs"] = probability
-        output["phase"] = self.phase
+        output["phase"] = phase
 
         # 2) Segment
-        seg_mask = self.segment(
+        probs, masks_bin = self.segment(
             image,
             phase=phase,
             threshold=seg_threshold,
             flip_if_left=seg_flip_if_left,
             only_if_hip=seg_only_if_hip,
+            return_probs=True
         )
-        output["segmentation"] = seg_mask
+        output["segmentation"] = masks_bin if masks_bin is not None else None
+        output["segmentation_probs"] = probs if probs is not None else None
 
         # 3) Annotate
         annot = self.annotate(
@@ -482,19 +587,148 @@ class HipModels:
         output["annotation_points"] = annot["points"] if annot is not None else None
         output["annotation_vectors"] = annot["vectors"] if annot is not None else None
 
-        output["success"] = True if (seg_mask is not None and annot is not None) else False
+        output["success"] = True if (masks_bin is not None and annot is not None) else False
 
-        predictions = HipModelPrediction(
-            laterality_name=output["laterality_name"],
-            laterality_probs=output["laterality_probs"],
-            phase=output["phase"],
-            segmentation=output["segmentation"],
-            annotation_points=output["annotation_points"],
-            annotation_vectors=output["annotation_vectors"],
+        landmarks = [
+            # Femur points
+            "_neck center",
+            "_piriformis entry point",
+            "_head_center",
+            "_lesser_trochanter_point_on_mesh",
+            "_lesser_trochanter_point_on_shaft",
+            "_neck_axis_inferior_point",
+            "_neck_axis_superior_point",
+            "_neck_shaft_ap_intersection_point_on_neck_axis",
+            "_neck_shaft_ap_intersection_point_on_shaft_axis",
+            # Pelvis points
+            "_pt",
+            "_p1",
+            "_p2",
+            "_p3",
+            "_p4",
+            "_p5",
+            "_p6",
+            "_p7",
+            "_p8",
+            "_extracted_teardrop",
+            # cup points
+            "cup_origin",
+            "cup_top",
+        ]
+
+        axes = {
+            ("_head_center", "_neck_axis_inferior_point"): "Femur Neck axis",  
+            ("_lesser_trochanter_point_on_shaft", "_shaft_spline_proximal_point") : "Femur Shaft axis",  
+            ("_lesser_trochanter_point_on_mesh", "_lesser_trochanter_point_on_shaft"): "Lesser Trochanter axis",  
+            ("_head_center", "pelvis_center"): "Pelvis Orientation axis",  
+        }
+
+        # Landmark groups (femur points and axes, pelvis points and axes, cup points and axes, implanted head points and axes)
+        landmark_groups = {
+            "femur_1": {
+                "points": landmarks[:9],
+                "axes": list(axes.keys()),
+            },
+            "pelvis_1": {
+                "points": landmarks[9:19],
+                "axes": [],
+            },
+            "cup": {
+                "points": landmarks[19:],
+                "axes": [],
+            },
+            "implanted head": {
+                "points": [],
+                "axes": [],
+            },
+        }
+
+        ann = FrameAnnotation(
+            datasource="model",
+            version="v1",
+            side=None if output["laterality_name"] == "NO-HIP" else output["laterality_name"].split(' ')[0].lower(),
             success=output["success"],
+            error_code=None,
+            tags={"phase": output["phase"], "side classification": output["laterality_name"], "classification confidence": output["laterality_probs"]},
         )
+
+        landmarks = LandmarksData()
+
+        # Get image size to determine if points are visible (inside image)
+        img_height, img_width = get_image_size(image)
+
+        for group_name, items in landmark_groups.items():
+            group = LandmarkGroup()
+            # Points
+            for point_name in items["points"]:
+                if output["annotation_points"] is not None and point_name in output["annotation_points"]:
+                    x, y = output["annotation_points"][point_name]
+                    group.items[point_name] = LandmarkData(
+                        label=point_name,
+                        type="point",
+                        coords=[(float(x), float(y))],
+                        confidence=[None],
+                        visible=0.0 <= x <= img_width and 0.0 <= y <= img_height,
+                    )
+            # Axes
+            for a, b in items["axes"]:
+                if output["annotation_vectors"] is not None and (a, b) in output["annotation_vectors"]:
+                    ax, ay = output["annotation_vectors"][(a, b)][0]
+                    bx, by = output["annotation_vectors"][(a, b)][1]
+                    group.items[axes[(a, b)]] = LandmarkData(
+                        label=f"{a}->{b}",
+                        type="line",
+                        coords=[(float(ax), float(ay)), (float(bx), float(by))],
+                        confidence=[None, None],
+                        visible=True,
+                    )
+            if group.items:
+                landmarks.groups[group_name] = group
+
+
+        # # Landmarks
+        # if output["annotation_points"] is not None:
+        #     group = LandmarkGroup()
+        #     for k, (x, y) in output["annotation_points"].items():
+        #         group.items[k] = LandmarkData(
+        #             label=k,
+        #             type="point",
+        #             coords=[(float(x), float(y))],
+        #             confidence=[None],
+        #             visible=0.0 <= x <= img_width and 0.0 <= y <= img_height,
+        #         )
+        #     landmarks.groups["points"] = group
+
+        # # Vectors
+        # if output["annotation_vectors"] is not None:
+        #     group = LandmarkGroup()
+        #     for k, (a, b) in output["annotation_vectors"].items():
+        #         ax, ay = a
+        #         bx, by = b
+        #         group.items[str(k)] = LandmarkData(
+        #             label=str(k),
+        #             type="line",
+        #             coords=[(float(ax), float(ay)), (float(bx), float(by))],
+        #             confidence=[None, None],
+        #             visible=True,
+        #         )
+        #     landmarks.groups["vectors"] = group
         
-        return output
+        ann.landmarks = landmarks
+
+        ann.masks = MasksData()
+
+        # Masks
+        if output["segmentation"] is not None:
+            for k, mask in output["segmentation"].items():
+                ann.masks.items[k] = MaskData(
+                    label=k,
+                    type="mask",
+                    data = mask,
+                    confidence=[segmentation_stability_confidence(probs=output["segmentation_probs"][k])],  # prediction reliability
+                )
+        
+        return ann
     
     
 #     # ----------------------------------------------------------------------

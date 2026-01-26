@@ -43,7 +43,7 @@
             null
         ]
     },
-    "frame_analysis_config": {
+    "frame_cropping_config": {
         "output_resolution": [
             1024,
             1024

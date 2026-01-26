@@ -1,3 +1,17 @@
+<!--
+AI Modules Repository
+
+This repository provides modular, production-ready machine learning models for hip imaging analysis, including
+segmentation, classification, and landmark detection. It also includes a unified inference wrapper that combines
+all models into a single interface and an optional graphical user interface for development-time evaluation and
+visualization.
+
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+
+The package is designed for easy installation, CPU-first compatibility, optional CUDA acceleration, and clear,
+example-driven usage for both standalone modules and the unified pipeline.
+-->
+
 # AI Modules Repository
 
 This repository contains machine learning modules under `hip_ml_models` for hip imaging analysis:
@@ -109,6 +123,7 @@ https://pytorch.org/get-started/locally/
 
 ```python
 from segment import SegmentationModel
+# from hip_ml_models import SegmentationModel  # if installed using pip
 
 # Initialize: model_path must point to a saved .pth 
 model = SegmentationModel(model_path=r"path/to_model/mode_name.pth", image_size=(256,256))
@@ -140,6 +155,7 @@ python hip_ml_models/segment_usage.py
 
 ```python
 from classify import ClassificationModel
+# from hip_ml_models import ClassificationModel  # if installed using pip
 
 # Initialize
 classifier = ClassificationModel(model_path=r"path/to_model/mode_name.pth")
@@ -170,6 +186,7 @@ python hip_ml_models/classify_usage.py
 
 ```python
 from annotate import AnnotationModel
+# from hip_ml_models import AnnotationModel  # if installed using pip
 
 # Initialize
 annotator = AnnotationModel(model_path=r"path/to_model/mode_name.pth")
@@ -207,6 +224,7 @@ python hip_ml_models/annotate_usage.py
 ## Unified Modules Wrapper: Usage for Inference
 ```python
 from hip_models import HipModels
+# from hip_ml_models import HipModels  # if installed using pip
 
 IMAGE_PATH = r"path/to/image.png"
 

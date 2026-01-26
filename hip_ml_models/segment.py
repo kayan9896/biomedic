@@ -19,6 +19,8 @@ Example usage:
     # Save mask(s)
     segmenter.save_masks(image_path="path/to/image.png", output_dir="path/to/output")
 
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+
 Dependencies:
     - torch 2.7.1+cu118
     - cv2
@@ -199,8 +201,8 @@ class SegmentationModel:
         self.device = self._select_device(device)
         self.model = None
         self.num_channels = None
-        
-        self._load_model()
+
+        self.keys = self._load_model()
         self._infer_num_channels()
         
     def _select_device(self, device: Optional[str] = None) -> torch.device:
@@ -237,6 +239,7 @@ class SegmentationModel:
             # Load the model checkpoint metadata saved by torch.save
             
             checkpoint = torch.load(str(model_path), map_location=self.device)
+
             self.model = UNet(
                 in_channels=checkpoint.get("in_channels", 1),
                 out_channels=checkpoint.get("out_channels", 1)
@@ -257,6 +260,8 @@ class SegmentationModel:
 
             self.model.eval()
             print(f"Segmentation model loaded from ({model_path}) to ({self.device}): {self.num_channels} output channels (masks).")
+
+            return checkpoint["keys"]
         except Exception as e:
             raise RuntimeError(f"Failed to load model from {model_path}: {e}")
     
@@ -407,6 +412,23 @@ class SegmentationModel:
         # Binarize
         binary_mask = (probs >= threshold).astype(np.uint8) * 255
         
+        # use self.keys to return masks as named dictionary
+        if self.keys is not None:
+            if binary_mask.ndim == 2:
+                # single channel
+                binary_mask_dict = {self.keys[0]: binary_mask}
+                probs_dict = {self.keys[0]: probs}
+            else:
+                binary_mask_dict = {
+                    self.keys[c]: binary_mask[c] for c in range(min(len(self.keys), binary_mask.shape[0]))
+                }
+                probs_dict = {
+                    self.keys[c]: probs[c] for c in range(min(len(self.keys), probs.shape[0]))
+                }
+            if return_probs:
+                return probs_dict, binary_mask_dict
+            return binary_mask_dict
+
         if return_probs:
             return probs, binary_mask
         return binary_mask

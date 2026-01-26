@@ -105,7 +105,7 @@ class IMU_handler:
         active = self.activeside(stage)
         if active == 'ob' and data is not None:
             scn = [('hp1-ap', 'hp1-ob'), ('hp2-ap', 'hp2-ob'), ('cup-ap', 'cup-ob'), ('tri-ap', 'tri-ob')]
-            if data[scn[stage][0]]['image'] is None: 
+            if data[scn[stage][0]].image is None: 
                 return False
         if stage == 0:
             if active == 'ap'and self.aptarget is not None:

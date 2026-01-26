@@ -153,7 +153,7 @@ const [messages, setMessages] = useState([]);
              'action': ['Verify the stage icon blue background is at hp1 stage', 'Active side blue border is on the ob side', 'Both AP and OB images are present', 'The linked recon checkmark is red.',
              ]
             },
-
+ 
           'stage:1,side:ap':
             {'stage' : 1, 'side' : 'ap', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
              'apmeta': null, 'obmeta': null, 'lefticon': null, 'righticon': null, 'recon': null, 'isrecon': true, 'pelreg': false,

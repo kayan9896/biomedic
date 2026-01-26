@@ -1,3 +1,27 @@
+"""
+This script exports a PyTorch (.pth) model checkpoint to ONNX format while
+preserving all non-weight checkpoint metadata inside the resulting ONNX file.
+
+Code by Maad Ebrahim for Torus Biomedical Inc., 2025-2027.
+
+Key features:
+- Loads a PyTorch checkpoint directly from disk (supports legacy raw state_dicts)
+- Instantiates the model via a user-provided wrapper that handles checkpoint logic
+- Infers a safe dummy input shape from checkpoint metadata (with fallbacks)
+- Exports the model to ONNX using a configurable opset version
+- Embeds the full checkpoint metadata (excluding the state_dict) verbatim into
+  the ONNX model's metadata_props as a JSON string
+
+This allows downstream consumers of the ONNX model to recover training-time
+configuration, preprocessing parameters, and other contextual information
+without requiring access to the original .pth file.
+
+Intended use cases:
+- Model deployment pipelines
+- Long-term model archival
+- Interoperability across frameworks while retaining provenance
+"""
+
 import json
 import torch
 import onnx
