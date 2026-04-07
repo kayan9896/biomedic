@@ -6,16 +6,19 @@ from PIL import Image
 import cv2
 import os
 from model import Model
+from exam import Exam
+#from confirmaphip_core.core_model import Model
+#from confirmaphip_core.exam import Exam
 
 from fg_handler import FrameGrabber_handler
 from viewmodel import ViewModel
 import json
 from imu2 import IMU_handler
-from exam import Exam
+
 import base64
 
 class Controller:
-    def __init__(self, config = None, calib = None,  panel = None, logger = None):
+    def __init__(self, config = None, calib = None,  panel = None, logger = None, cpfolder = None):
         self.calib = calib
         self.config = config
         self.fg_handler = FrameGrabber_handler(calib, panel, self.config.get("testpanel_config", False).get("fg_simulation", False), logger)
@@ -42,7 +45,7 @@ class Controller:
         
         
         self.viewmodel = ViewModel(config, self.bugs, logger)
-        self.exam = Exam(self.calib['folder'], self.bugs, logger)
+        self.exam = Exam(cpfolder, self.bugs, logger)
         self.pause_states= None
         self.uistates = None
         self.do_capture = False
@@ -89,7 +92,7 @@ class Controller:
 
     def get_states(self):
         self.viewmodel.update_state(self.get_controller_states())
-        self.viewmodel.update_state({"C-arm Model": self.calib['carm_id'].get("name", None)})
+        self.viewmodel.update_state({"C-arm Model": self.calib['carm_id']})
         self.viewmodel.update_state(self.model.get_model_states())
 
         # Update video_on based on frame_grabber state
@@ -123,7 +126,7 @@ class Controller:
         """
         scale_factor = frontend_size / backend_size if btof else backend_size / frontend_size
         
-        if isinstance(coords, list):
+        if isinstance(coords, (list, tuple)):
             if len(coords) == 2 and all(isinstance(c, (int, float)) for c in coords):
                 # Single [x,y] coordinate pair
                 x, y = coords
@@ -170,12 +173,13 @@ class Controller:
             'jump': image_data['jump'] if 'jump' in image_data else None
         }
 
+
     def update_landmarks(self, ui_l, ui_r, limgside, rimgside, brightness, contrast, stage):
         l = self.backend_to_frontend_coords(ui_l, btof = False) if ui_l else None
         # Apply horizontal flipping for right metadata
         r = self.backend_to_frontend_coords(ui_r, btof = False) if ui_r else None
         stages = [['hp1-ap', 'hp1-ob'], ['hp2-ap', 'hp2-ob'], ['cup-ap', 'cup-ob'], ['tri-ap', 'tri-ob']]
-
+        '''
         if self.model.data[stages[stage][0]]['framedata']:
             self.model.data[stages[stage][0]]['framedata']['landmarks'] = l
             self.model.data[stages[stage][0]]['framedata']['brightness'] = brightness[0]
@@ -191,17 +195,23 @@ class Controller:
             self.model.data[stages[stage][1]]['framedata']['tb'] = self.model.update_landmarks(r)
         else:
             self.model.data[stages[stage][1]]['framedata'] = {'landmarks' : l, 'brightness' : brightness[0], 'contrast' : contrast[0], 'tb': self.model.update_landmarks(r)}
-   
-        
-        if l:
-            self.model.data[stages[stage][0]]['success'] = True
-        if r:
-            self.model.data[stages[stage][1]]['success'] = True
+        '''
 
+        if l:
+            self.model.data['frame'][stages[stage][0]].annotations['default'].landmarks = self.model.uidict_to_landmark(l, self.model.data['frame'][stages[stage][0]].annotations['default'].landmarks)
+        if r:
+            self.model.data['frame'][stages[stage][1]].annotations['default'].landmarks = self.model.uidict_to_landmark(r, self.model.data['frame'][stages[stage][1]].annotations['default'].landmarks)
+        
+        self.model.data['latest_state'][stages[stage][0]]['success'] = True if l else False
+        
+        self.model.data['latest_state'][stages[stage][1]]['success'] = True if r else False
+        
         if limgside:
-            self.model.data[stages[stage][0]]['side'] = limgside
+            self.model.data['frame'][stages[stage][0]].meta.side = 'left' if limgside == 'l' else 'right'
+            self.model.data['frame'][stages[stage][0]].annotations['default'].side = 'left' if limgside == 'l' else 'right'
         if rimgside:
-            self.model.data[stages[stage][1]]['side'] = rimgside
+            self.model.data['frame'][stages[stage][1]].meta.side = 'left' if rimgside == 'l' else 'right'
+            self.model.data['frame'][stages[stage][1]].annotations['default'].side = 'left' if rimgside == 'l' else 'right'
         
         
         with self.lock:
@@ -344,7 +354,7 @@ class Controller:
                 tb = json.load(f)
             self.model.default_templates.append(tp)
             self.model.default_tables.append(tb)
-            metadata = {}#self.model.update_ui_objects(tb, tp, red = True)
+            metadata = self.model.update_ui_objects(tb, tp, red = True, use_table = tb)
             rt.append(self.backend_to_frontend_coords(metadata))
         return rt
 
@@ -395,18 +405,11 @@ class Controller:
                 self.lockside = True
                 if self.tracking: 
                     self.imu_handler.handle_window_close(self.stage)
-                    analysis_type, data_for_model, data_for_vm, data_for_exam = self.model.exec(newscn, frame, self.imu_handler.tilt_angle, self.imu_handler.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
+                    analysis_type, data_for_vm, data_for_exam = self.model.exec(newscn, frame, self.imu_handler.tilt_angle, self.imu_handler.rotation_angle, self.imu_handler.tilttarget, self.imu_handler.act_rot)
                 else: 
-                    analysis_type, data_for_model, data_for_vm, data_for_exam = self.model.exec(newscn, frame)
+                    analysis_type, data_for_vm, data_for_exam = self.model.exec(newscn, frame)
                 
-                
-                # add handling of 'exception:'
-                #if analysis_type == 'exception':
-                #     
-                print(data_for_model, newscn)
                 self.scn = newscn[:-3] + 'end'
-                self.model.update(analysis_type, data_for_model)
-                print(self.model.data)
                 self.viewmodel.update(analysis_type, data_for_vm)
                 self.exam.save(analysis_type, data_for_exam)
             except Exception as e:
@@ -442,3 +445,37 @@ class Controller:
         images[0].save(
             pdf_path, "PDF" ,resolution=100.0, save_all=True, append_images=images[1:]
         )
+
+
+'''
+in frame granbber loop, when new frame is detected and controller.processing = False
+call controller.run(frame) in a new thread
+
+class controller:
+    self.model = Model(landmarks_dict, frame_table)
+
+    def run(frame):
+        self.processing = True
+        #Instead of calling exec(different_scn),
+
+        frame_object = self.model.frameanalysis(frame) #frameanalysis can update model.data or
+        self.model.update(frame_object)
+        if not err:
+            prerun_res = pose.prerun(model.data)
+            if prerun_res is good:
+                bmodel = pose.reconreg(model.data)
+                self.model.update(bmodel)
+            if prerun_res is nothing:
+                pass
+            if prerun_res is reject:
+                err = 'not expected image'
+
+        self.viewmodel.update(frame_object, bmodel, err)
+
+        self.exam.save(frame_object, bmodel)
+        self.processing = False
+            
+
+
+
+'''

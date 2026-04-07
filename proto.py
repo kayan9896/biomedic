@@ -1,14 +1,12 @@
 from flask import Flask, jsonify, request, Response, send_from_directory
-import cv2
 import threading
 import io
 from PIL import Image
 import time
-from model import Model
-from fg import FrameGrabber
 from controller import Controller
 from config_manager import ConfigManager
-from exam import Exam
+#from exam import Exam
+from confirmaphip_core.exam import Exam
 from panel import Panel
 from flask_cors import CORS
 import numpy as np
@@ -73,6 +71,7 @@ CORS(app)
 carm_data = None
 combobox = None
 controller = None
+cpfolder = None
 
 
 panel = Panel(config, logger) if config.get('testpanel_config').get('panel_on') else None
@@ -107,11 +106,12 @@ def serve_carm_image(filename):
     global controller
     global logger
     global carm_data
+    global cpfolder
 
     if controller: 
         controller = None
     try:
-        select = Exam.serve_carm_select(carm_folder, filename, carm_data)
+        select, cpfolder = Exam.serve_carm_select(carm_folder, filename, carm_data)
         image_base64 = Exam.serve_carm_image(carm_folder, filename)
         
         return jsonify({
@@ -133,7 +133,7 @@ def check_video_connection():
     
     with server_lock:
         if controller is None:
-            controller = Controller(config, select, panel, logger)
+            controller = Controller(config, select, panel, logger, cpfolder)
         
         # Get the connection result
         result = controller.connect_video()

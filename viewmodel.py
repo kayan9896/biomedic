@@ -55,7 +55,7 @@ class ViewModel:
             if analysis_type == 'frame':
                 if data_for_model['analysis_error_code'] is None:
                     image = data_for_model['processed_frame']
-                    dataforvm['metadata'] = data_for_model['ui_objects']
+                    dataforvm['metadata'] = data_for_model['ui_objects'] if self.states['ai_mode'] == 1 else None
                     dataforvm['checkmark'] = 1 if self.states['ai_mode'] == 1 else None
                     dataforvm['recon'] = None
                     dataforvm['error'] = None
@@ -206,6 +206,5 @@ class ViewModel:
         """Get all states"""
         return self.states
     
-
 
     

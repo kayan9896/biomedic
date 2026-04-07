@@ -1,0 +1,9 @@
+{
+        "name": "stage:2,side:ap",
+            "stage" : 2, "side" : "ap", "track" : true, "processing" : false, "percent" : 90, "video" : true, "imu" : true, "autoshot" : true, "leftimg" : null, "rightimg" : null,
+            "apmeta": null, "obmeta": null, "lefticon": null, "righticon": null, "recon": null, "isrecon": true, "pelreg": true,
+            "description": "Test cup initial stage on ap side.", 
+            "action": ["Cup instruction images are present", "The active side blue border is on ap side", "The stage icon blue background is at cup.", "Both hp1 and hp2 icons are white.", 
+            "A blue dashed circles shows up for tri icon", "Clicking the dashed circle on tri can go to the tri stage directly."],
+        "eval_api": false
+        }

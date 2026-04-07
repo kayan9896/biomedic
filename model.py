@@ -8,6 +8,10 @@ import copy
 from calibrate import Calibrate
 from hip_ml_models.hip_models import HipModels, HipModelConfig
 import confirmap_dataclasses.frame_data as dataclass
+import confirmap_dataclasses.bmodel_data as bmodel
+import confirmap_dataclasses as cdc
+from frame_process.frame_processor import frame_processor
+import pose as pose
 
 class Frm:
     def __init__(self):
@@ -43,6 +47,11 @@ class Model:
 
         self.config = config
 
+        pose.config.config.update_from_dict(config.get('reconreg_config'))
+
+        self.shot_count = 0
+        self.bm_count = 0 
+
         self.ai_mode = ai_mode
         self.on_simulation = on_simulation
 
@@ -72,100 +81,50 @@ class Model:
 
         self.calibrate = Calibrate()
         self.cnn = self.load_cnn() #self.cnn = CNN()
+  
+        self.fp = frame_processor(cdc.HardwareClass(**carm), config)
 
     def _resetdata(self):
         self.viewpairs = [None]*4
         self.data = {
-            'hp1-ap': dataclass.Frame(),
-            'hp1-ob': dataclass.Frame(),
-            'hmplv1': {'success': False, 'metadata': None, 'error_code': None},
+            'frame':{
+                'hp1-ap': dataclass.FrameData(),
+                'hp1-ob': dataclass.FrameData(),
+                'hp2-ap': dataclass.FrameData(),
+                'hp2-ob': dataclass.FrameData(),
+                'cup-ap': dataclass.FrameData(),
+                'cup-ob': dataclass.FrameData(),
+                'tri-ap': dataclass.FrameData(),
+                'tri-ob': dataclass.FrameData(),
+            },
+            'latest_state':{
+                'hp1-ap': {'success': None, 'error_code': None},
+                'hp1-ob': {'success': None, 'error_code': None},
+                'hmplv1': {'success': None, 'error_code': None},
 
-            'hp2-ap': dataclass.Frame(),
-            'hp2-ob': dataclass.Frame(),
-            'hmplv2': {'success': False, 'metadata': None, 'error_code': None},
-            'pelvis': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None},
+                'hp2-ap': {'success': None, 'error_code': None},
+                'hp2-ob': {'success': None, 'error_code': None},
+                'hmplv2': {'success': None, 'error_code': None},
+                'pelvis': {'success': None, 'error_code': None},
 
-            'cup-ap': dataclass.Frame(),
-            'cup-ob': dataclass.Frame(),
-            'acecup': {'success': False, 'metadata': None, 'error_code': None},
-            'regcup': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None},
+                'cup-ap': {'success': None, 'error_code': None},
+                'cup-ob': {'success': None, 'error_code': None},
+                'acecup': {'success': None, 'error_code': None},
+                'regcup': {'success': None, 'error_code': None},
 
-            'tri-ap': dataclass.Frame(),
-            'tri-ob': dataclass.Frame(),
-            'tothip': {'success': False, 'metadata': None, 'error_code': None},
-            'regtri': {'stitch': None, 'success': False, 'metadata': None, 'error_code': None}
+                'tri-ap': {'success': None, 'error_code': None},
+                'tri-ob': {'success': None, 'error_code': None},
+                'tothip': {'success': None, 'error_code': None},
+                'regtri': {'success': None, 'error_code': None},
+            },
+            'bmodel': bmodel.BModelData(),
+            'report': {},
+            'exp_side':{
+                'hp2-ap': None,
+                'hp2-ob': None,
+                'tri-ap': None,
+                'tri-ob': None}
         }
-    '''
-    def filldata(self, stage):
-        self._resetdata()
-        if stage >= 1:
-            hp1apimage = cv2.imread(self.sim_data['hp1']['ap']['image_path'])
-            with open(self.sim_data['hp1']['ap']['json_path'], 'r') as f:
-                hp1apdata = json.load(f)
-            self.data['hp1-ap'] = {'image': hp1apimage, 'framedata': hp1apdata, 'success': True, 'side': hp1apdata['side']}
-            hp1obimage = cv2.imread(self.sim_data['hp1']['ob']['image_path'])
-            with open(self.sim_data['hp1']['ob']['json_path'], 'r') as f:
-                hp1obdata = json.load(f)
-            self.data['hp1-ob'] = {'image': hp1obimage, 'framedata': hp1obdata, 'success': True, 'side': hp1obdata['side']}
-            with open(self.sim_data['hp1']['recons']['json_path'], 'r') as f:
-                hmplv1 = json.load(f)
-            self.data['hmplv1'] = {'success': True, 'metadata': hmplv1}
-            vp0 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot0.png')
-            self.data['hp2-ap']['side'] = 'l' if self.data['hp1-ap']['side'] == 'r' else 'r'
-            self.data['hp2-ob']['side'] = self.data['hp2-ap']['side']
-            self.viewpairs[0] = vp0
-        if stage >= 3:
-            hp2apimage = cv2.imread(self.sim_data['hp2']['ap']['image_path'])
-            with open(self.sim_data['hp2']['ap']['json_path'], 'r') as f:
-                hp2apdata = json.load(f)
-            self.data['hp2-ap'] = {'image': hp2apimage, 'framedata': hp2apdata, 'success': True, 'side': hp2apdata['side']}
-            hp2obimage = cv2.imread(self.sim_data['hp2']['ob']['image_path'])
-            with open(self.sim_data['hp2']['ob']['json_path'], 'r') as f:
-                hp2obdata = json.load(f)
-            self.data['hp2-ob'] = {'image': hp2obimage, 'framedata': hp2obdata, 'success': True, 'side': hp2obdata['side']}
-            with open(self.sim_data['hp2']['recons']['json_path'], 'r') as f:
-                hmplv2 = json.load(f)
-            self.data['hmplv2'] = {'success': True, 'metadata': hmplv2}
-            stitch = cv2.imread(f'{self.sim_data['hp2']['regs']['json_path'][:-4]}png')
-            self.data['pelvis'] = {'success': True, 'stitch': stitch}
-            vp1 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot1.png')
-            self.viewpairs[1] = vp1
-        if stage >= 5 and stage != 7:
-            cupapimage = cv2.imread(self.sim_data['cup']['ap']['image_path'])
-            with open(self.sim_data['cup']['ap']['json_path'], 'r') as f:
-                cupapdata = json.load(f)
-            self.data['cup-ap'] = {'image': cupapimage, 'framedata': cupapdata, 'success': True, 'side': cupapdata['side']}
-            cupobimage = cv2.imread(self.sim_data['cup']['ob']['image_path'])
-            with open(self.sim_data['cup']['ob']['json_path'], 'r') as f:
-                cupobdata = json.load(f)
-            self.data['cup-ob'] = {'image': cupobimage, 'framedata': cupobdata, 'success': True, 'side': cupobdata['side']}
-            with open(self.sim_data['cup']['recons']['json_path'], 'r') as f:
-                acecup = json.load(f)
-            self.data['acecup'] = {'success': True, 'metadata': acecup}
-            stitch = cv2.imread(f'{self.sim_data['cup']['regs']['json_path'][:-4]}png')
-            with open(self.sim_data['cup']['regs']['json_path'], 'r') as f:
-                cupdata = json.load(f)
-            self.data['regcup'] = {'success': True, 'stitch': stitch, 'metadata': cupdata}
-            vp2 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot2.png')
-            self.viewpairs[2] = vp2
-        if stage == 8:
-            triapimage = cv2.imread(self.sim_data['tri']['ap']['image_path'])
-            with open(self.sim_data['tri']['ap']['json_path'], 'r') as f:
-                triapdata = json.load(f)
-            self.data['tri-ap'] = {'image': triapimage, 'framedata': triapdata, 'success': True, 'side': triapdata['side']}
-            triobimage = cv2.imread(self.sim_data['tri']['ob']['image_path'])
-            with open(self.sim_data['tri']['ob']['json_path'], 'r') as f:
-                triobdata = json.load(f)
-            self.data['tri-ob'] = {'image': triobimage, 'framedata': triobdata, 'success': True, 'side': triobdata['side']}
-            with open(self.sim_data['tri']['recons']['json_path'], 'r') as f:
-                acetri = json.load(f)
-            self.data['acecup'] = {'success': True, 'metadata': acetri}
-            stitch = cv2.imread(f'{self.sim_data['tri']['regs']['json_path'][:-4]}png')
-            with open(self.sim_data['tri']['regs']['json_path'], 'r') as f:
-                tridata = json.load(f)
-            self.data['regtri'] = {'success': True, 'stitch': stitch, 'metadata': tridata}
-            vp3 = cv2.imread(f'{self.sim_data['hp1']['ap']['image_path'][:7]}/viewpairs/screenshot2.png')
-            self.viewpairs[3] = vp3'''
 
 
     def getfrmcase(self, c):
@@ -237,109 +196,109 @@ class Model:
         framecalib = dataclass.CalibrationData(datasource="FrameGrabber", version="v1")
         framecalib.camera = dataclass.CameraData(
             intrinsic_matrix=[
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0],
-                [0.0, 0.0, 1.0],
-            ],
+      [
+        2624.671875,
+        0.0,
+        985.7281494140625
+      ],
+      [
+        0.0,
+        2624.671875,
+        985.3087768554688
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
             extrinsic_matrix=[
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-                [0.0, 0.0, 0.0, 1.0],
-            ],
-            sensor_width=1024,
-            sensor_height=1024,
-            pixel_size=0.0,
-            source_to_detector_distance=0.0,
-            source_in_world=[0.0, 0.0, 0.0],
-            piercing_point=[0.0, 0.0, 0.0],
+      [
+        0.028930891305208206,
+        -0.9657391905784607,
+        -0.25789690017700195,
+        91.86577606201172
+      ],
+      [
+        0.9937665462493896,
+        -3.84761077165674e-11,
+        0.11148080229759216,
+        -32.285743713378906
+      ],
+      [
+        -0.10766137391328812,
+        -0.25951457023620605,
+        0.9597193002700806,
+        513.8992919921875
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+            sensor_width=2000,
+            sensor_height=2000,
+            pixel_size=0.30479999999999996,
+            source_to_detector_distance=800,
+            source_in_world=[
+      84.75384521484375,
+      222.08273315429688,
+      -465.9079284667969
+    ],
+            piercing_point=[
+      -4.350065000668597,
+      -4.477878509684685
+    ],
             corners=[
-                [0.0, 0.0, 0.0],
-                [1023.0, 0.0, 0.0],
-                [1023.0, 1023.0, 0.0],
-                [0.0, 1023.0, 0.0],
-            ],
+      [
+        150.2415313720703,
+        157.44869995117188,
+        357.5380859375
+      ],
+      [
+        159.05966186523438,
+        -136.9086151123047,
+        278.93109130859375
+      ],
+      [
+        -143.8404083251953,
+        -136.9086151123047,
+        244.95175170898438
+      ],
+      [
+        -152.65853881835938,
+        157.44869995117188,
+        323.5587158203125
+      ]
+    ],
         )
 
-        return framecalib, obj.raw_image
+        #crop_obj = self.fp.analyze(obj)
+
+        return framecalib, obj.image
 
 
     
     def process(self, obj):
-        '''section_type = section[-2:]  # ap, ob
-        test_entry = self.sim_data.get(section[:-3]).get(section_type)
-        if test_entry and test_entry.get('json_path'):
-            try:
-                error_code = test_entry['errors']
-                print(f"Simulating error {error_code} for {section}")
-                with open(test_entry['json_path'], 'r') as f:
-                    metadata = json.load(f)
-                print(f"Using test data for {section}: {test_entry['file_name']}")
-            except Exception as e:
-                print(f"Error loading test JSON: {e}")
-                metadata = None
-                
-        else:
-            metadata = None
-
-        metadata['processed_frame'] = image
-        metadata['imuangles'] = [tilt_angle, rotation_angle, act_tilt, act_rot]
-
-        
-
-        if not self.verify_result(metadata)[0]: error_code = '140'
-        if error_code is None and self.ai_mode:
-            metadata['analysis_success'] = True
-        else:
-            metadata['analysis_success'] = False
-            metadata['landmarks'] = None
-            metadata['side'] = None
-            if 'hp2' in section:
-                metadata['side'] = self.data[section]['side']
-            if self.data['regcup']['success']:
-                metadata['side'] = self.data[section]['side']
-        metadata['analysis_error_code'] = error_code
-
-
-        #Assume that
-        
-        #metadata['processed_frame'] = cv2.imread("C:/Users/Torus_Dev/Downloads/drr (4).png")
-
-        self.propress = 50
-        #metadata['Segmentation'] = seg
-
-        #metadata['landmarks'] = copy.deepcopy(self.default_tables[0])
-        pred = self.cnn.predict(cv2.cvtColor(metadata['processed_frame'], cv2.COLOR_BGR2GRAY), phase="cup" if "cup" in section else "trial" if "tri" in section else "ref")
-        
-        metadata['landmarks'] = pred
-        print("Predicted points:")
-        for k, v in pred.get("annotation_points", {}).items():
-            print(f"  {k}: {v}")
-
-        print("\nPredicted vectors:")
-        for k, v in pred.get("annotation_vectors", {}).items():
-            print(f"  {k}: {v}")
-        
-        if error_code is not None: return metadata
-        if pred.get("laterality_name") == 'RIGHT HIP':
-            metadata['side'] = 'r'
-        else:
-            metadata['side'] = 'l'
-            
-        return metadata    '''
-        section = obj.meta.op_stage
+        t0 = time.perf_counter()
         ann = self.cnn.predict(frame = obj)
-        
-
+        dt = time.perf_counter() - t0
+        print("----------------------------",dt)
         return ann
 
 
 
     def analyzeframe_sim(self, section, frame, tilt_angle=None, rotation_angle=None, act_tilt=None, act_rot=None):
-        obj = dataclass.Frame()
+        obj = dataclass.FrameData()
+        obj.meta.index = self.shot_count
+        self.shot_count += 1
         obj.meta.op_stage = section
         obj.meta.carm_view = section[-2:]
         obj.raw_image = frame
+        obj.image = frame
+        #obj.raw_image = self.fp.create_raw_image(obj)
         obj.meta.carm_angles = [tilt_angle, rotation_angle]
         obj.meta.carm_angles_actual = [act_tilt, act_rot]
 
@@ -349,21 +308,46 @@ class Model:
     
 
         framecalib, crop_image = self.pre_process(obj)
+
+        if act_tilt and act_rot:
+            k = f'T{act_tilt}_R{act_rot}'
+            if obj.calibration is None:
+                obj.calibration = self.calib_lookup[k]
+            else:
+                self.calib_lookup.update({k: obj.calibration})
+
         obj.image = cv2.cvtColor(crop_image, cv2.COLOR_BGR2GRAY)
         error_code = framecalib.error_code
+        obj.calibration = framecalib
         if error_code is not None:
-            return obj.annotations, framecalib, None
+            return obj
         if not self.ai_mode:
-            return obj.annotations, framecalib, None
+            return obj
         
         anno = self.process(obj)
+
+        if 'hp2' in section or 'tri' in section:
+            if anno.side != None and self.data['exp_side'][section] != anno.side:
+                anno.success = False
+                anno.error_code = '115'
+                anno.landmarks = {}
+            anno.side = self.data['exp_side'][section]
+
+        if 'ob' in section:
+            apsec = section[:-2] + 'ap'
+            if (anno.side == 'left' and self.data['frame'][apsec].meta.side == 'right') or (anno.side == 'right' and self.data['frame'][apsec].meta.side == 'left'):
+                anno.success = False
+                anno.error_code = '115'
+                anno.landmarks = {}
+        
         
         num = 2 if 'cup' in section else 4 if 'tri' in section else 0
         ui_objects = self.update_ui_objects(anno.landmarks, self.default_templates[num])
 
         obj.annotations['default'] = anno
-        obj.calibration = framecalib
+
         obj.ui_objects = ui_objects
+        obj.meta.side = anno.side
 
         return obj
 
@@ -390,13 +374,14 @@ class Model:
         if self.on_simulation:
             tmp_obj = self.analyzeframe_sim(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
         else:
-            framedata, framecalib = self.analyzeframe_act(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
+            tmp_obj = self.analyzeframe_sim(section, frame, tilt_angle, rotation_angle, act_tilt, act_rot)
 
         return tmp_obj
 
 
 
     def reconstruct_sim(self, section):
+        '''
         curap = self.getfrmcase(section)[0]
         test_entry = self.sim_data.get(curap[:-3]).get('recons')
         if test_entry and test_entry.get('json_path'):
@@ -412,7 +397,6 @@ class Model:
         else:
             metadata = None
 
-        if not self.verify_result(metadata['shot_1'])[0] or not self.verify_result(metadata['shot_2'])[0]: error_code = '140'
         if error_code is None:
             metadata['analysis_success'] = True
             metadata['shot_1'] = self.data[curap]['framedata']
@@ -423,13 +407,27 @@ class Model:
             metadata['recondata'] = None
         metadata['analysis_error_code'] = error_code
         k = 0
-        for i in range(10000):
+        for i in range(10000):p
             for j in range(1000):
                 with self._lock:
                     self.progress = (k + 1) / 100000
                     k += 1
 
         return metadata
+        '''
+        shot_1, shot_2 = 'hp1-ap', 'hp1-ob'
+        if section == 'hmplv2': shot_1, shot_2 = 'hp2-ap', 'hp2-ob'
+        if section == 'acecup': shot_1, shot_2 = 'cup-ap', 'cup-ob'
+        if section == 'tothip': shot_1, shot_2 = 'tri-ap', 'tri-ob'
+        res = pose.analyze(section, bmodel=self.data['bmodel'], frame_ap=self.data['frame'][shot_1], frame_ob=self.data['frame'][shot_2])
+
+        res.metadata.index = self.bm_count
+        res.metadata.last_op = section
+        res.metadata.last_op_data = {'ap': self.data['frame'][shot_1].meta.index, 'ob': self.data['frame'][shot_2].meta.index}
+        self.bm_count += 1
+
+        return res
+    
 
     def reconstruct(self, section):
         # self.is_processing = True
@@ -441,8 +439,8 @@ class Model:
         return recon_result
 
 
-
     def reg_sim(self, section):
+        '''
         curap = self.getfrmcase(section)[0]
         test_entry = self.sim_data.get(curap[:-3]).get('regs')
         if test_entry and test_entry.get('json_path'):
@@ -468,6 +466,22 @@ class Model:
         metadata['analysis_error_code'] = error_code
 
         return metadata
+        '''
+
+        res = pose.analyze(section, bmodel=self.data['bmodel'], patient={})
+        mea = None if section == 'pelvis' else {
+        "Inclination" : "41",
+        "Anteversion" : "31"
+    } if 'cup' in section else {
+        "LLD" : "3mm",
+        "Offset" : "5mm"
+    }#measure()
+        
+        res.metadata.last_op = section
+        res.metadata.last_op_data = {'recon': self.data['bmodel'].metadata.index}
+        res.metadata.index = self.bm_count
+        self.bm_count += 1
+        return res, mea
 
 
     def reg(self, section):
@@ -479,12 +493,15 @@ class Model:
 
         return reg_result
 
-    def update_ui_objects(self, LandmarksData, tp, red = False):
+    def update_ui_objects(self, LandmarksData, tp, red = False, use_table = None):
         print(11,LandmarksData)
+        if not LandmarksData: return {}
         tb = {}
-        for g, LandmarkGroup in LandmarksData.groups.items():
-            for l, LandmarkData in LandmarkGroup.items.items():
-                tb[LandmarkData.label] = LandmarkData.coords
+        if use_table: tb = use_table
+        else:
+            for g, LandmarkGroup in LandmarksData.items():
+                for l, LandmarkData in LandmarkGroup.items():
+                    tb[LandmarkData.label] = LandmarkData.coords
         print(tb)
         
         temp = copy.deepcopy(tp)
@@ -496,6 +513,11 @@ class Model:
             for s in temp[g]:
                 if s['type'] == 'handle':
                     handle = [400, 400]
+                elif s['type'] == 'line':
+                    if red: s['template'] = 1
+                    s['type'] = 'lines'
+                    s['points'] = tb[s['id']]
+                    rt[g].append(s)
                 else:
                     for i in range(len(s['keys'])):
                         if red: s['template'] = 1
@@ -503,7 +525,7 @@ class Model:
                         if k not in tb: 
                             continue
                         s['points'].append(tb[k][0])
-                        s['type'] = 'lines' if 'line' in s['type'] or 'point' in s['type'] else s['type']
+                        s['type'] = 'lines' if 'point' in s['type'] else s['type']
                         
                     rt[g].append(s)
 
@@ -511,52 +533,128 @@ class Model:
 
         return rt
 
-    def update_landmarks(self, landmarks):
-        tb = {}
-        for g in landmarks:
-            for s in landmarks[g]:
-                for i in range(len(s['points'])):
-                    tb[s['keys'][i]] = s['points'][i]
-        return tb
+    def uidict_to_landmark(self, uidict, landmark):
+        if not landmark:
+            newdict = {}
+            for g in uidict:
+                gdict = {}
+                for p in uidict[g]:
+                    gdict[p['id']] = dataclass.Landmark2dData(
+                        label=p['id'],
+                        type="point",
+                        coords=p['points'],
+                        confidence=[1],
+                        visible=True,
+                    )
+                print(p['points'])
+                gdict["Head Center"] = dataclass.Landmark2dData(
+                    label="Head Center",
+                    type="point",
+                    coords=p['points'],
+                    confidence=[1],
+                    visible=True,
+                )
+                gdict["Lesser Trochanter"] = dataclass.Landmark2dData(
+                    label="Lesser Trochanter",
+                    type="point",
+                    coords=p['points'],
+                    confidence=[1],
+                    visible=True,
+                )
+                gdict["Proximal Shaft"] = dataclass.Landmark2dData(
+                    label="proximal shaft",
+                    type="point",
+                    coords=[
+              [
+                645.0086059570312,
+                836.7146606445312
+              ],
+              [
+                613.4690551757812,
+                1039.071533203125
+              ]
+            ],
+                    confidence=[1],
+                    visible=True,
+                )
+                gdict["Neck Shaft"] = dataclass.Landmark2dData(
+                    label="neck shaft",
+                    type="point",
+                    coords=[
+              [
+                523.4983520507812,
+                527.8784790039062
+              ],
+              [
+                645.8402709960938,
+                692.1206665039062
+              ]
+            ],
+                    confidence=[1],
+                    visible=True,
+                )
+                if g == 'pelvis':
+                    newdict['hpelv'] = gdict
+                else: newdict[g] = gdict
+                newdict['cup'] = gdict
+            return newdict
+        
+        for g in uidict:
+            for p in uidict[g]:
+                if p['keys'][0] in landmark[f'{g}_1']:
+                    landmark[f'{g}_1'][p['keys'][0]].coords = p['points']
+                elif p['id'] in landmark[f'{g}_1']:
+                    landmark[f'{g}_1'][p['id']].coords = p['points']
+
+        return landmark
+        
 
 
-    def update(self, analysis_type, data):
+    def update(self, analysis_type, data, section):
         try:
-            section = data.meta.op_stage
-
 
             if analysis_type == 'frame':
 
-                if data.annotations['default'].error_code not in {'110', '111', '112', '113', '140'}:
-                    section_type = section[-2:]  # ap, ob
-                    # reset the 'ob' view if 'ap' image is repeated:
-                    if section_type == 'ap':
-                        tmp = section[:-2] + 'ob'
-                        self.data[tmp] = dataclass.Frame()
-                        self.data[tmp].annotations['default'].side = data.annotations['default'].side
-                    
-                    self.data[section] = data
+                section_type = section[-2:]  # ap, ob
+                # reset the 'ob' view if 'ap' image is repeated:
+                if section_type == 'ap':
+                    tmp = section[:-2] + 'ob'
+                    self.data['latest_state'][tmp] = {'success': None, 'error_code': None}
+                
+                self.data['frame'][section] = data
 
-                self.data[section].annotations['default'].error_code = data.annotations['default'].error_code
+                self.data['latest_state'][section]['error_code'] = data.annotations['default'].error_code
+                self.data['latest_state'][section]['success'] = data.annotations['default'].success
                 
 
             if analysis_type == 'recon':
-                if section == 'hmplv1':
-                    self.data['hp2-ap']['side'] = 'l' if self.data['hp1-ap']['side'] == 'r' else 'r'
-                    self.data['hp2-ob']['side'] = self.data['hp2-ap']['side']
-                if section == 'acecup':
-                    self.data['tri-ap']['side'] = self.data['cup-ap']['side']
-                    self.data['tri-ob']['side'] = self.data['tri-ap']['side']
-                self.data[section]['success'] = data['analysis_success']
-                self.data[section]['metadata'] = data['recondata']
-                self.data[section]['error_code'] = data['analysis_error_code']
-                if 'imuangles' in data['shot_1'] and 'imuangles' in data['shot_2']: self.angles = [data['shot_1']['imuangles'][0], data['shot_1']['imuangles'][1], data['shot_2']['imuangles'][1]]
+                
+                
+                self.data['latest_state'][section]['success'] = data.state['success']
+                self.data['latest_state'][section]['error_code'] = data.state['error_code']
+                if data.state['success']:
+                    self.data['bmodel'] = data
+                    shot_1, shot_2 = 'hp1-ap', 'hp1-ob'
+                    if section == 'hmplv2': shot_1, shot_2 = 'hp2-ap', 'hp2-ob'
+                    if section == 'acecup': shot_1, shot_2 = 'cup-ap', 'cup-ob'
+                    if section == 'tothip': shot_1, shot_2 = 'tri-ap', 'tri-ob'
+
+                    self.angles = [self.data['frame'][shot_1].meta.carm_angles[0], self.data['frame'][shot_1].meta.carm_angles[1], self.data['frame'][shot_2].meta.carm_angles[1]]
+
+                    if section == 'hmplv1':
+                        self.data['exp_side']['hp2-ap'] = 'left' if self.data['frame']['hp1-ap'].meta.side == 'right' else 'right'
+                        self.data['exp_side']['hp2-ob'] = self.data['exp_side']['hp2-ap']
+                    if section == 'acecup':
+                        self.data['exp_side']['tri-ap'] = 'left' if self.data['frame']['cup-ap'].meta.side == 'right' else 'right'
+                        self.data['exp_side']['tri-ob'] = self.data['exp_side']['tri-ap']
 
             if analysis_type == 'reg':
-                self.data[section]['metadata'] = data['regresult']
-                self.data[section]['success'] = data['analysis_success']
-                self.data[section]['error_code'] = data['analysis_error_code']
-                self.data[section]['stitch'] = data['stitched_image']
+                #self.data[section]['metadata'] = data['regresult']
+                self.data['latest_state'][section]['success'] = data.state['success']
+                self.data['latest_state'][section]['error_code'] = data.state['error_code']
+                if data.state['success']:
+                    self.data['bmodel'] = data
+                #self.data[section]['stitch'] = data['stitched_image']
         except Exception as e:
             self.bugs[0] = str(e)
             self.bugs.append(str(e))
@@ -570,11 +668,6 @@ class Model:
 
                 tmp_obj = self.analyzeframe(scn[4:-4], frame, tilt_angle, rotation_angle, act_tilt, act_rot)
 
-                k = f'T{act_tilt}_R{act_rot}'
-                if tmp_obj.calibration is None:
-                    tmp_obj.calibration = self.calib_lookup[k]
-                else:
-                    self.calib_lookup.update({k: tmp_obj.calibration})
                 
                 # Prepare data for different components
 
@@ -587,7 +680,9 @@ class Model:
                 }
                 data_for_exam = tmp_obj
 
-                return "frame", data_for_model, data_for_vm, data_for_exam
+                self.update("frame", data_for_model, scn[4:-4])
+
+                return "frame", data_for_vm, data_for_exam
                 
 
 
@@ -598,23 +693,28 @@ class Model:
 
                 #return dataforsave, dataforvm, processed_frame
                 data_for_model = recon_result
-                data_for_calib = None
+                data_for_vm = {'analysis_error_code': recon_result.state['error_code'][0] if len(recon_result.state['error_code']) > 0 else None}
                 data_for_exam = recon_result
+
+                self.update("recon", data_for_model, scn[4:-4])
                 
-                return 'recon', data_for_model, data_for_exam
+                return 'recon', data_for_vm, data_for_exam
                 
     
             
             case 'reg:pelvis:bgn' | 'reg:regcup:bgn' | 'reg:regtri:bgn':
                 
-                reg_result = self.reg(scn[4:-4])
+                reg_result, mea = self.reg(scn[4:-4])
                 
                 #return dataforsave, dataforvm, processed_frame
                 data_for_model = reg_result
-                data_for_calib = None
+                data_for_vm = {'measurements': mea,
+                               'analysis_error_code': reg_result.state['error_code'][0] if len(reg_result.state['error_code']) > 0 else None}
                 data_for_exam = reg_result
 
-                return 'reg', data_for_model, data_for_exam
+                self.update("reg", data_for_model, scn[4:-4])
+
+                return 'reg', data_for_vm, data_for_exam
 
 
 
@@ -709,14 +809,16 @@ class Model:
             target_ap = (target_stage + '-ap')
             target_ob = (target_stage + '-ob')
 
-            self.data[target_ap] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
-            self.data[target_ob] = {'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
-            self.data[target_ap]['image'] = self.data[source_ap]['image']
-            self.data[target_ob]['image'] = self.data[source_ob]['image']
-            if self.data['regcup']['success']:
-                self.data[target_ap]['side'] = self.data[source_ap]['side']
-                self.data[target_ob]['side'] = self.data[source_ob]['side']
-            return
+            self.data['frame'][target_ap] = dataclass.FrameData()#{'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
+            self.data['frame'][target_ob] = dataclass.FrameData()#{'image': None, 'framedata': None, 'success': False, 'side': None, 'error_code': None}
+            self.data['frame'][target_ap].image = self.data['frame'][source_ap].image
+            self.data['frame'][target_ob].image = self.data['frame'][source_ob].image
+            self.data['latest_state'][target_ap] = {'success': None, 'error_code': None}
+            self.data['latest_state'][target_ob] = {'success': None, 'error_code': None}
+            if self.data['latest_state']['regcup']['success']:
+                self.data['frame'][target_ap].meta.side = self.data['frame'][source_ap].meta.side
+                self.data['frame'][target_ob].meta.side = self.data['frame'][source_ob].meta.side
+            
         except Exception as e:
             self.bugs[0] = str(e)
             self.bugs.append(str(e))
@@ -743,11 +845,11 @@ class Model:
                 case 'skip':
                     scn = ('frm:' + 'tri-ap' + ':end')
                 case 'landmarks':
-                    if self.data[frm.ap].annotations['default'].success and self.data[frm.ob].annotations['default'].success:
+                    if self.data['latest_state'][frm.ap]['success'] and self.data['latest_state'][frm.ob]['success']:
                         scn = ('rcn:' + frm.rcn + ':bgn')
             uistates = None
         else:
-            if self.data[frm.ap].annotations['default'].success and self.data[frm.ob].annotations['default'].success and (('ap' in scn and self.data[frm.ap].annotations['default'].error_code == None) or ('ob' in scn and self.data[frm.ob].annotations['default'].error_code == None)):
+            if self.data['latest_state'][frm.ap]['success'] and self.data['latest_state'][frm.ob]['success']:
                 scn = ('rcn:' + frm.rcn + ':bgn')
             else:
                 if frame_not_none:
@@ -761,7 +863,7 @@ class Model:
         rcn = self.__get_rcn_strs__(scn)
         action = None
         
-        if self.data[rcn.rcn]['success']:
+        if self.data['latest_state'][rcn.rcn]['success']:
             
             #exceptional scenario for hmplv1 only:
             if rcn.rcn == 'hmplv1':
@@ -822,7 +924,7 @@ class Model:
         action = None
 
         # exception if pelvis registration fails:
-        if not self.data[reg.reg]['success']:
+        if not self.data['latest_state'][reg.reg]['success']:
             if uistates == 'restart':
                 if frame_not_none:
                     uistates = None
@@ -834,7 +936,7 @@ class Model:
 
         # additional provisions for pelvis and cup registration (next & skip options)
 
-        if self.data[reg.reg]['success']:
+        if self.data['latest_state'][reg.reg]['success']:
             if reg.reg == 'regcup' or reg.reg == "regtri":
                 #self.__set_imu_setcupreg__()
                 action =('set_imu_setcupreg', '')
@@ -915,70 +1017,6 @@ class Model:
     def get_model_states(self):
         return {'progress': self.progress}
 
-    def verify_result(self, result):
-        """
-        Verifies the structure and data types of a result dictionary.
-        Ensures 'arc' type landmarks have exactly 3 points.
-        Returns a tuple (is_valid, errors) where is_valid is a boolean and errors is a list of error messages.
-        """
-        errors = []
-
-        # Check if result is a dictionary
-        if not isinstance(result, dict):
-            errors.append("Result must be a dictionary")
-            return False, errors
-
-        # Validate landmarks
-        if not isinstance(result["landmarks"], dict):
-            errors.append("landmarks must be a dictionary")
-        else:
-            # Required landmark sections
-            for section in result["landmarks"].keys():
-                if not isinstance(result["landmarks"][section], list):
-                    errors.append(f"landmarks.{section} must be a list")
-                else:
-                    for i, entry in enumerate(result["landmarks"][section]):
-                        # Validate entry structure
-                        if not isinstance(entry, dict):
-                            errors.append(f"landmarks.{section}[{i}] must be a dictionary")
-                            continue
-
-                        # Validate type
-                        if "type" not in entry or not isinstance(entry["type"], str):
-                            errors.append(f"landmarks.{section}[{i}].type must be a string")
-                        else:
-                            # Validate points
-                            if "points" not in entry or not isinstance(entry["points"], list):
-                                errors.append(f"landmarks.{section}[{i}].points must be a list")
-                            else:
-                                # Check arc has exactly 3 points
-                                if entry["type"] == "arc" and len(entry["points"]) != 3:
-                                    errors.append(f"landmarks.{section}[{i}].points must have exactly 3 points for type 'arc'")
-                                if entry["type"] == "ellipse" and len(entry["points"]) != 4:
-                                    errors.append(f"landmarks.{section}[{i}].points must have exactly 4 points for type 'ellipse'")
-                                for j, point in enumerate(entry["points"]):
-                                    if not isinstance(point, list) or len(point) != 2:
-                                        errors.append(f"landmarks.{section}[{i}].points[{j}] must be a list of 2 numbers")
-                                    else:
-                                        for k, coord in enumerate(point):
-                                            if not isinstance(coord, (int, float)):
-                                                errors.append(f"landmarks.{section}[{i}].points[{j}][{k}] must be a number")
-
-                        # Validate handle (optional)
-                        if "handle" in entry:
-                            if not isinstance(entry["handle"], list) or len(entry["handle"]) != 2:
-                                errors.append(f"landmarks.{section}[{i}].handle must be a list of 2 numbers")
-                            else:
-                                for k, coord in enumerate(entry["handle"]):
-                                    if not isinstance(coord, (int, float)):
-                                        errors.append(f"landmarks.{section}[{i}].handle[{k}] must be a number")
-
-                        # Validate colour
-                        if "colour" not in entry or not isinstance(entry["colour"], str):
-                            errors.append(f"landmarks.{section}[{i}].colour must be a string")
-                        elif not all(c in "0123456789ABCDEF" for c in entry["colour"]):
-                            errors.append(f"landmarks.{section}[{i}].colour must be a valid hex colour code")
-        self.logger.error(f'Error in {self.__class__.__name__}: {errors}')
-        return len(errors) == 0, errors
+ 
 
         

@@ -87,12 +87,12 @@ class Exam:
                 json_path = os.path.join(self.exam_folder, 'shots', json_filename)
                 self.save_json(framedata, json_path)'''
 
-                self.shot_count += 1
-                os.makedirs(os.path.join(f'{self.exam_folder}/{self.shot_count}'), exist_ok=True)
-                data_for_exam.save(f'{self.exam_folder}/{self.shot_count}')
+                shot_count = data_for_exam.meta.index
+                os.makedirs(os.path.join(f'{self.exam_folder}/{shot_count}'), exist_ok=True)
+                data_for_exam.save(f'{self.exam_folder}/{shot_count}')
 
             elif analysis_type == 'recon':
-                m = {'hmplv1': 'hp1', 'hmplv2': 'hp2', 'acecup': 'cup', 'tothip': 'tri'}
+                '''m = {'hmplv1': 'hp1', 'hmplv2': 'hp2', 'acecup': 'cup', 'tothip': 'tri'}
                 recon_result = data_for_exam
                 data_type = recon_result.get('section', 'unknown')  # Get type or default to 'unknown'
                 # Save recon with 'R' prefix
@@ -100,10 +100,11 @@ class Exam:
                 json_filename = self.get_formatted_filename('R', m[data_type], self.recon_count) + '.json'
                 json_path = os.path.join(self.exam_folder, 'recons', json_filename)
                 self.save_json(recon_result, json_path)
-                self.recon_count += 1
+                self.recon_count += 1'''
+                self.save_json(data_for_exam.model_dump(), os.path.join(self.exam_folder, 'bmodel', f'bmodel_{data_for_exam.metadata.index}.json'))
 
             elif analysis_type == 'reg':
-                m = {'pelvis': 'hp2', 'regcup': 'cup', 'regtri': 'tri'}
+                '''m = {'pelvis': 'hp2', 'regcup': 'cup', 'regtri': 'tri'}
                 reg_result = data_for_exam
                 data_type = reg_result.get('section', 'unknown')  # Get type or default to 'unknown'
 
@@ -123,7 +124,8 @@ class Exam:
                 # Remove stitch data before saving JSON
                 reg_result.pop('stitched_image', None)  # Use pop with default to avoid KeyError
                 self.save_json(reg_result, json_path)
-                self.reg_count += 1
+                self.reg_count += 1'''
+                self.save_json(data_for_exam.model_dump(), os.path.join(self.exam_folder, 'bmodel', f'bmodel_{data_for_exam.metadata.index}.json'))
             
             # Ensure counter doesn't exceed 999
             if self.shot_count > 999:
@@ -147,11 +149,11 @@ class Exam:
                 with open(f"{carm_folder}/{name}/hardware.json", 'r') as file:
                     select = json.load(file)
             
-                from confirmap_dataclasses.confirmap_data import CarmConfigClass 
-                s = CarmConfigClass(**select)
+                from confirmap_dataclasses.confirmap_data import HardwareClass 
+                s = HardwareClass(**select)
                 print(s)
                 carm_data[name] = select
-                combobox[select.get("carm_id").get("name",name)] = {'image': f"http://localhost:5000/carm-images/{name}"}
+                combobox[select.get("carm_id")] = {'image': f"http://localhost:5000/carm-images/{name}"}
 
             except Exception as e:
                 print(e)
@@ -180,13 +182,13 @@ class Exam:
                     r = int(fname[-10 : -5]) / 10
                     gantry[(t,r)] = json.load(file)
             
-            select.update({'distortion': distortion})
-            select.update({'gantry': gantry})
+            #select.update({'distortion': distortion})
+            #select.update({'gantry': gantry})
         except Exception as e:
             print(e)
-        select.update({'folder': f"{carm_folder}/{filename}"})
+        #select.update({'folder': f"{carm_folder}/{filename}"})
 
-        return select
+        return select, f"{carm_folder}/{filename}"
 
     @classmethod
     def serve_carm_image(self, carm_folder, filename):

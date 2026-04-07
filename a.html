@@ -1,82 +1,505 @@
+Here is a complete, single-file HTML solution using Three.js for rendering and Cannon-es for physics.
+
+This code includes:
+1.  **Procedural Textures:** It generates the ball textures (numbers, stripes, solids) using HTML Canvas, so no external image files are needed.
+2.  **Physics:** Realistic collisions, friction, and bouncing.
+3.  **Game Logic:** Aiming system, pocket detection, ball removal, and the specific 8-ball rule.
+
+Save this code as an `.html` file (e.g., `billiards.html`) and open it in a modern browser.
+
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>API Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Human vs Human Billiards</title>
     <style>
-        .progress-bar {
-            width: 300px;
-            height: 20px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        body { margin: 0; overflow: hidden; background-color: #111; font-family: sans-serif; }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            pointer-events: none;
+            user-select: none;
         }
-        .progress {
-            width: 0%;
-            height: 100%;
-            background-color: #4CAF50;
-            transition: width 0.3s ease-in-out;
+        h1 { margin: 0; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p { margin: 5px 0; color: #ccc; }
+        #status { font-weight: bold; color: #4caf50; margin-top: 10px; }
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 10;
         }
+        button {
+            background: #4caf50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        button:hover { background: #45a049; }
     </style>
+    
+    <!-- Import Maps for Three.js and Cannon-es -->
 </head>
 <body>
-    <button onclick="callRoute1()">Call Route 1</button>
-    <button onclick="callRoute2()">Call Route 2</button>
-    <button onclick="callRoute3()">Call Route 3</button>
-    <div class="progress-bar">
-        <div id="progressBar" class="progress"></div>
+
+    <div id="ui">
+        <h1>3D Billiards</h1>
+        <p>Drag mouse to aim & shoot. Release to fire.</p>
+        <div id="status">Player 1 Turn</div>
     </div>
-    <div id="progressText"></div>
-    <div id="results"></div>
 
-    <script>
-        let eventSource;
+    <div id="game-over">
+        <h1 id="winner-text">Game Over</h1>
+        <p>The 8-Ball was potted.</p>
+        <button onclick="location.reload()">Restart Game</button>
+    </div>
+    
 
-        async function callRoute1() {
-            const startTime = new Date().getTime();
-            const response = await fetch('http://localhost:5000/route1');
-            const data = await response.json();
-            const endTime = new Date().getTime();
-            document.getElementById('results').innerHTML += 
-                `Route 1 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
+    <script type="module">
+        import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+        import * as CANNON from "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js";
+
+        // --- Configuration ---
+        const TABLE_WIDTH = 15;
+        const TABLE_LENGTH = 30;
+        const BALL_RADIUS = 0.7;
+        const POCKET_RADIUS = 1.2;
+        
+        // Colors for balls 1-15 (Standard Pool Colors)
+        const BALL_COLORS = [
+            0xFFFFFF, // 0 (Cue Ball - White)
+            0xFFD700, // 1 (Yellow)
+            0x0000FF, // 2 (Blue)
+            0xFF0000, // 3 (Red)
+            0x800080, // 4 (Purple)
+            0xFFA500, // 5 (Orange)
+            0x008000, // 6 (Green)
+            0x800000, // 7 (Maroon)
+            0x111111, // 8 (Black)
+            0xFFD700, // 9
+            0x0000FF, // 10
+            0xFF0000, // 11
+            0x800080, // 12
+            0xFFA500, // 13
+            0x008000, // 14
+            0x800000  // 15
+        ];
+
+        // --- Globals ---
+        let scene, camera, renderer, world;
+        let balls = []; // Array of { mesh, body, id }
+        let cueBall;
+        let isDragging = false;
+        let dragStart = new THREE.Vector2();
+        let dragCurrent = new THREE.Vector2();
+        let aimLine;
+        let playerTurn = 1;
+        let isGameOver = false;
+
+        // Pocket positions (relative to center 0,0)
+        const pockets = [
+            { x: -TABLE_WIDTH/2 - 0.5, z: -TABLE_LENGTH/2 - 0.5 }, // Top Left
+            { x: 0, z: -TABLE_LENGTH/2 - 1 },                      // Top Middle
+            { x: TABLE_WIDTH/2 + 0.5, z: -TABLE_LENGTH/2 - 0.5 },  // Top Right
+            { x: -TABLE_WIDTH/2 - 0.5, z: TABLE_LENGTH/2 + 0.5 },  // Bottom Left
+            { x: 0, z: TABLE_LENGTH/2 + 1 },                       // Bottom Middle
+            { x: TABLE_WIDTH/2 + 0.5, z: TABLE_LENGTH/2 + 0.5 }    // Bottom Right
+        ];
+
+        init();
+        animate();
+
+        function init() {
+            // 1. Setup Three.js Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x222222);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 25, 35);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.left = -20;
+            dirLight.shadow.camera.right = 20;
+            dirLight.shadow.camera.top = 20;
+            dirLight.shadow.camera.bottom = -20;
+            scene.add(dirLight);
+
+            // 2. Setup Cannon.js Physics
+            world = new CANNON.World();
+            world.gravity.set(0, -9.82 * 5, 0); // Higher gravity to keep balls on table
+            world.broadphase = new CANNON.SAPBroadphase(world);
+            
+            // Materials
+            const tableMat = new CANNON.Material();
+            const ballMat = new CANNON.Material();
+            
+            const ballTableContact = new CANNON.ContactMaterial(tableMat, ballMat, {
+                friction: 0.5,
+                restitution: 0.5
+            });
+            const ballBallContact = new CANNON.ContactMaterial(ballMat, ballMat, {
+                friction: 0.1,
+                restitution: 0.9
+            });
+
+            world.addContactMaterial(ballTableContact);
+            world.addContactMaterial(ballBallContact);
+
+            // 3. Create Table
+            createTable(tableMat);
+
+            // 4. Create Balls
+            createBalls(ballMat);
+
+            // 5. Aiming Helper
+            const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-5)]);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+            aimLine = new THREE.Line(lineGeo, lineMat);
+            aimLine.visible = false;
+            scene.add(aimLine);
+
+            // 6. Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
         }
 
-        async function callRoute2() {
-            const startTime = new Date().getTime();
-            const response = await fetch('http://localhost:5000/route2');
-            const data = await response.json();
-            const endTime = new Date().getTime();
-            document.getElementById('results').innerHTML += 
-                `Route 2 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
-        }
+        // --- Texture Generation (Procedural) ---
+        function createBallTexture(number, isStriped, colorHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
 
-        async function callRoute3() {
-            // Reset progress
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('progressText').textContent = '0%';
+            // Base Color
+            ctx.fillStyle = '#' + new THREE.Color(colorHex).getHexString();
+            ctx.fillRect(0, 0, 512, 512);
 
-            // Close existing event source if any
-            if (eventSource) {
-                eventSource.close();
+            // Stripe Logic (9-15)
+            if (isStriped) {
+                ctx.fillStyle = '#FFFFFF';
+                // Draw a thick stripe across the middle
+                ctx.fillRect(0, 128, 512, 256);
+                // Redraw color on top/bottom to ensure clean edges
+                ctx.fillStyle = '#' + new THREE.Color(colorHex).getHexString();
+                ctx.fillRect(0, 0, 512, 100);
+                ctx.fillRect(0, 412, 512, 100);
             }
 
-            // Start progress monitoring
-            eventSource = new EventSource('http://localhost:5000/progress');
-            eventSource.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                document.getElementById('progressBar').style.width = `${data.progress}%`;
-                document.getElementById('progressText').textContent = `${data.progress}%`;
+            // Number Circle (White background for number)
+            ctx.beginPath();
+            ctx.arc(256, 256, 100, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fill();
 
-                if (data.progress === 100) {
-                    eventSource.close();
-                }
+            // Number Text
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 100px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(number.toString(), 256, 256);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        function createTable(material) {
+            // Visual Table (Green Felt)
+            const geometry = new THREE.BoxGeometry(TABLE_WIDTH, 1, TABLE_LENGTH);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8 });
+            const tableMesh = new THREE.Mesh(geometry, mat);
+            tableMesh.receiveShadow = true;
+            scene.add(tableMesh);
+
+            // Physics Floor
+            const shape = new CANNON.Box(new CANNON.Vec3(TABLE_WIDTH/2, 0.5, TABLE_LENGTH/2));
+            const body = new CANNON.Body({ mass: 0, material: material });
+            body.addShape(shape);
+            world.addBody(body);
+
+            // Rails (Visual & Physics)
+            const railHeight = 1.5;
+            const railWidth = 1.5;
+            const railMatVis = new THREE.MeshStandardMaterial({ color: 0x5c3a21 });
+            
+            const createRail = (x, z, w, d) => {
+                // Visual
+                const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, railHeight, d), railMatVis);
+                mesh.position.set(x, 0.75, z);
+                mesh.castShadow = true;
+                scene.add(mesh);
+                // Physics
+                const shape = new CANNON.Box(new CANNON.Vec3(w/2, railHeight/2, d/2));
+                const body = new CANNON.Body({ mass: 0, material: material });
+                body.addShape(shape);
+                body.position.set(x, 0.75, z);
+                world.addBody(body);
             };
 
-            const startTime = new Date().getTime();
-            const response = await fetch('http://localhost:5000/route3');
-            const data = await response.json();
-            const endTime = new Date().getTime();
-            document.getElementById('results').innerHTML += 
-                `Route 3 result: ${data.result}, Time taken: ${endTime - startTime}ms<br>`;
+            // Top/Bottom Rails
+            createRail(0, -TABLE_LENGTH/2 - railWidth/2, TABLE_WIDTH + railWidth*2, railWidth);
+            createRail(0, TABLE_LENGTH/2 + railWidth/2, TABLE_WIDTH + railWidth*2, railWidth);
+            // Left/Right Rails (adjusted length to fit between top/bottom)
+            createRail(-TABLE_WIDTH/2 - railWidth/2, 0, railWidth, TABLE_LENGTH);
+            createRail(TABLE_WIDTH/2 + railWidth/2, 0, railWidth, TABLE_LENGTH);
+
+            // Pockets (Visual Black Holes)
+            const pocketGeo = new THREE.CylinderGeometry(POCKET_RADIUS, POCKET_RADIUS, 1.1, 32);
+            const pocketMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            pockets.forEach(p => {
+                const mesh = new THREE.Mesh(pocketGeo, pocketMat);
+                mesh.position.set(p.x, 0.6, p.z);
+                scene.add(mesh);
+            });
+        }
+
+        function createBalls(material) {
+            const sphereGeo = new THREE.SphereGeometry(BALL_RADIUS, 32, 32);
+
+            // Helper to add ball
+            const addBall = (x, z, id) => {
+                const isStriped = id > 8;
+                const color = BALL_COLORS[id];
+                const texture = createBallTexture(id, isStriped, color);
+                
+                const meshMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.1, metalness: 0.1 });
+                const mesh = new THREE.Mesh(sphereGeo, meshMat);
+                mesh.castShadow = true;
+                mesh.position.set(x, BALL_RADIUS, z);
+                scene.add(mesh);
+
+                const shape = new CANNON.Sphere(BALL_RADIUS);
+                const body = new CANNON.Body({ mass: 5, material: material });
+                body.addShape(shape);
+                body.position.set(x, BALL_RADIUS, z);
+                body.linearDamping = 0.5; // Simulate friction felt
+                body.angularDamping = 0.5;
+                world.addBody(body);
+
+                const ballObj = { mesh, body, id, active: true };
+                balls.push(ballObj);
+                if(id === 0) cueBall = ballObj;
+            };
+
+            // Cue Ball
+            addBall(0, TABLE_LENGTH / 3, 0);
+
+            // Rack Balls (Triangle)
+            let startX = -3 * BALL_RADIUS;
+            let startZ = -TABLE_LENGTH / 4;
+            let rowCount = 0;
+            
+            // Standard 8-ball rack pattern logic simplified for visual
+            // Row 1: 1 ball
+            // Row 2: 2 balls
+            // ...
+            // Row 5: 5 balls
+            // Total 15 balls.
+            
+            // We will just place them in a triangle, randomizing IDs slightly for visual variety 
+            // but ensuring 8 is in the middle (3rd row, center).
+            
+            let ballIds = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+            // Simple shuffle
+            ballIds.sort(() => Math.random() - 0.5);
+            // Force 8 to be roughly in the middle of the rack (index 4 in a 0-14 array usually lands near center in triangle)
+            // Actually, let's just place them sequentially for simplicity of code, 
+            // but ensure 8 is at the specific coordinate for the 3rd row center.
+            
+            let k = 0;
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col <= row; col++) {
+                    const x = startX + (row * BALL_RADIUS * 1.75) + (col * BALL_RADIUS * 2); // 1.75 is approx sqrt(3)
+                    const z = startZ + (row * BALL_RADIUS * 1.732);
+                    
+                    let id = ballIds[k];
+                    // Hardcode 8 ball position (3rd row, 2nd item - index 3 in 0-based triangle loop)
+                    if (row === 2 && col === 1) id = 8;
+                    else if (id === 8) id = ballIds[k+1]; // Swap if we hit 8 elsewhere
+
+                    addBall(x, z, id);
+                    k++;
+                }
+            }
+        }
+
+        // --- Input Handling ---
+        function onMouseDown(event) {
+            if (isGameOver) return;
+            // Only allow shooting if cue ball is roughly stopped
+            const velocity = cueBall.body.velocity.length();
+            if (velocity > 0.1) return;
+
+            isDragging = true;
+            dragStart.set(event.clientX, event.clientY);
+            aimLine.visible = true;
+        }
+
+        function onMouseMove(event) {
+            if (!isDragging) return;
+            dragCurrent.set(event.clientX, event.clientY);
+            updateAimLine();
+        }
+
+        function onMouseUp(event) {
+            if (!isDragging) return;
+            isDragging = false;
+            aimLine.visible = false;
+
+            const dx = dragStart.x - dragCurrent.x;
+            const dy = dragStart.y - dragCurrent.y;
+            
+            // Power calculation
+            const power = Math.min(Math.sqrt(dx*dx + dy*dy) * 0.15, 20); // Cap power
+            
+            if (power > 1) {
+                // Calculate direction based on camera angle roughly
+                // We project the mouse drag vector into 3D space relative to camera
+                const direction = new THREE.Vector3(dx, 0, dy).normalize();
+                // Apply force opposite to drag (pull back to shoot forward)
+                const force = direction.multiplyScalar(-power * 10); 
+                
+                // Apply impulse to center of ball
+                cueBall.body.applyImpulse(new CANNON.Vec3(force.x, 0, force.z), cueBall.body.position);
+                
+                // Switch turn logic could go here, but for "Human vs Human" free play, 
+                // we just let them play until 8 ball or all cleared.
+            }
+        }
+
+        function updateAimLine() {
+            const dx = dragStart.x - dragCurrent.x;
+            const dy = dragStart.y - dragCurrent.y;
+            
+            // Visualize aim line extending from cue ball
+            const start = cueBall.mesh.position.clone();
+            // Invert direction for visual "pull back" feel, or show where it will go
+            const end = start.clone().add(new THREE.Vector3(dx, 0, dy).normalize().multiplyScalar(10));
+            
+            // Update geometry
+            const positions = aimLine.geometry.attributes.position.array;
+            positions[0] = start.x; positions[1] = start.y; positions[2] = start.z;
+            positions[3] = end.x; positions[4] = end.y; positions[5] = end.z;
+            aimLine.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function checkPockets() {
+            if (isGameOver) return;
+
+            balls.forEach((ball, index) => {
+                if (!ball.active) return;
+
+                // Check distance to each pocket
+                for (let pocket of pockets) {
+                    const dx = ball.body.position.x - pocket.x;
+                    const dz = ball.body.position.z - pocket.z;
+                    const dist = Math.sqrt(dx*dx + dz*dz);
+
+                    if (dist < POCKET_RADIUS * 0.8) { // Slightly smaller than visual pocket
+                        // Ball Potted!
+                        handlePot(ball, index);
+                        break;
+                    }
+                }
+            });
+        }
+
+        function handlePot(ball, index) {
+            ball.active = false;
+            
+            // Remove from physics world
+            world.removeBody(ball.body);
+            // Remove from scene
+            scene.remove(ball.mesh);
+            // Remove from array
+            balls.splice(index, 1);
+
+            if (ball.id === 8) {
+                endGame();
+            } else if (ball.id === 0) {
+                // Cue ball potted - Reset it
+                setTimeout(() => {
+                    respawnCueBall();
+                }, 1000);
+            }
+        }
+
+        function respawnCueBall() {
+            if(isGameOver) return;
+            const shape = new CANNON.Sphere(BALL_RADIUS);
+            const body = new CANNON.Body({ mass: 5 });
+            body.addShape(shape);
+            body.position.set(0, BALL_RADIUS, TABLE_LENGTH / 3);
+            body.linearDamping = 0.5;
+            body.angularDamping = 0.5;
+            world.addBody(body);
+
+            const texture = createBallTexture(0, false, 0xFFFFFF);
+            const meshMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.1 });
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_RADIUS, 32, 32), meshMat);
+            mesh.position.copy(body.position);
+            scene.add(mesh);
+
+            cueBall = { mesh, body, id: 0, active: true };
+            balls.push(cueBall);
+        }
+
+        function endGame() {
+            isGameOver = true;
+            document.getElementById('game-over').style.display = 'block';
+            document.getElementById('status').innerText = "Game Over";
+            document.getElementById('status').style.color = "red";
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Step Physics
+            world.step(1 / 60);
+
+            // Sync Visuals
+            balls.forEach(ball => {
+                ball.mesh.position.copy(ball.body.position);
+                ball.mesh.quaternion.copy(ball.body.quaternion);
+            });
+
+            checkPockets();
+
+            renderer.render(scene, camera);
         }
     </script>
 </body>

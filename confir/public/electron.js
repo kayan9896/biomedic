@@ -1,6 +1,6 @@
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
-const { spawn } = require('child_process');
+const { spawn, execFile } = require('child_process');
 let isDev=false
 const treeKill = require('tree-kill');
 
@@ -29,17 +29,27 @@ function startServer() {
 }
 
 function terminateServer() {
-  return new Promise((resolve) => {
-    if (serverProcess) {
-      treeKill(serverProcess.pid, 'SIGTERM', (err) => {
-        if (err) console.error('Failed to kill server process:', err);
-        resolve(serverProcess.pid);
-      });
-      console.log()
-    } else {
-      resolve();
+  const command = 'C:\\windows\\system32\\shutdown.exe';
+  const args = ['-s', '-f', '-t', '00'];
+
+  execFile(command, args, (err, data) => {
+    if (err) {
+      console.error('Shutdown failed:', err);
+      return;
     }
+    console.log('Windows shutdown command executed.');
   });
+  // return new Promise((resolve) => {
+  //   if (serverProcess) {
+  //     treeKill(serverProcess.pid, 'SIGTERM', (err) => {
+  //       if (err) console.error('Failed to kill server process:', err);
+  //       resolve(serverProcess.pid);
+  //     });
+  //     console.log()
+  //   } else {
+  //     resolve();
+  //   }
+  // });
 }
 
 function createWindow() {

@@ -9,6 +9,7 @@ from controller import Controller
 from imu2 import IMU_handler
 import json
 
+
 class Panel:
     def __init__(self, config=None, logger = None):
         self.controller = None
@@ -545,7 +546,7 @@ class Panel:
             noise = self.noise * math.sin(time.time()**2)
             self.imu_handler.set_tilt(self.tilt_angle + noise)
             self.imu_handler.set_rotation(self.rotation_angle + noise)
-            time.sleep(period)
+            time.sleep(0.03)
 
     def _update_imu_state(self, event=None):
         """Update the IMU properties based on UI settings"""

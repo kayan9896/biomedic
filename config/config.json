@@ -19,8 +19,7 @@
         "trl_segmentor_model_path": "trial_seg_model.pth"
     },
     "reconreg_config": {
-        "recon_method_name": null,
-        "reg_method_name": null
+        "regist_objfun": 3
     },
     "testpanel_config": {
         "panel_on": true,

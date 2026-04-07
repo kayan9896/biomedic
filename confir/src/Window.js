@@ -80,25 +80,6 @@ const [messages, setMessages] = useState([]);
           
           
           
-          'stage:0,side:ap,track:false':
-            {'stage' : 0, 'side' : 'ap', 'track' : false, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : null, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage on the ap side when using carm without imu tracking', 
-             'action': ['The blue border is on the ap side', 'The imu icon should disappear']
-            },
-          'stage:0,side:ob,track:false':
-            {'stage' : 0, 'side' : 'ob', 'track' : false, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : null, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage on the ob side when using carm without imu tracking', 
-             'action': ['The blue border is on the ob side', 'The imu icon should disappear']
-            },
-          'stage:0,side:null,track:false':
-            {'stage' : 0, 'side' : null, 'track' : false, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : null, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'lefticon': null, 'righticon': null,
-             'description': 'Test any(hp1 in this case) stage using carm without imu tracking and neither sides is selected.', 
-             'action': ['There is no blue border indicating the active side', 'The imu icon should disappear', 
-              'Click the OB label to send an API request with value \'ob\'', 'Check if the data and the route \'/label\' are printed in the mock server']
-            },
           'stage:0,side:ap,processing:true,percent:90':
             {'stage' : 0, 'side' : 'ap', 'track' : true, 'processing' : true, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
              'lefticon': null, 'righticon': null,
@@ -154,81 +135,6 @@ const [messages, setMessages] = useState([]);
              ]
             },
  
-          'stage:1,side:ap':
-            {'stage' : 1, 'side' : 'ap', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'apmeta': null, 'obmeta': null, 'lefticon': null, 'righticon': null, 'recon': null, 'isrecon': true, 'pelreg': false,
-             'description': 'Test hp2 initial stage on ap side.', 
-             'action': ['The active side blue border is on ap side', 'The stage icon blue background is at hp2.', 'The hp1 icon is white.']
-            },
-          'stage:1,side:ob,leftimg,rightimg,lefticon:1,righticon:1,recon:pass,pelreg:true':
-            {'stage' : 1, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : apshot, 'rightimg' : obshot,
-             'apmeta': apmeta, 'obmeta': obmeta, 'lefticon': 1, 'righticon': 1, 'recon': 2, 'isrecon': true, 'pelreg': true,
-             'description': 'Test hp2 successful registraion, ready to move to the next stage.', 
-             'action': ['The active side blue border is on ob side', 'The stage icon blue background is at hp2.', 'Both sides have images and landmarks', 'The linked recon icon is green', 
-              'Both hp1 and hp2 icons are white.', 'Blue dashed circles show up for both cup and tri', 'Click either dashed icons can show a pause window highlighting the selected stage.'
-             ]
-            },
-          'stage:2,side:ap':
-            {'stage' : 2, 'side' : 'ap', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'apmeta': null, 'obmeta': null, 'lefticon': null, 'righticon': null, 'recon': null, 'isrecon': true, 'pelreg': true,
-             'description': 'Test cup initial stage on ap side.', 
-             'action': ['Cup instruction images are present', 'The active side blue border is on ap side', 'The stage icon blue background is at cup.', 'Both hp1 and hp2 icons are white.', 
-              'A blue dashed circles shows up for tri icon', 'Clicking the dashed circle on tri can go to the tri stage directly.']
-            },
-          'stage:2,side:ob,leftimg,rightimg,lefticon:1,righticon:1,recon:fail':
-            {'stage' : 2, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : apshot, 'rightimg' : obshot,
-             'apmeta': apmeta, 'obmeta': obmeta, 'lefticon': 1, 'righticon': 1, 'recon': 3, 'isrecon': true, 'pelreg': true,
-             'description': 'Test cup reconstruction failure.', 
-             'action': ['Both cup images and landmarks are present', 'The active side blue border is on ob side', 'The stage icon blue background is at cup.', 
-              'Both hp1 and hp2 icons are white.', 'The linked recon icon is red',
-              'A blue dashed circles shows up for tri icon', 'Clicking the dashed circle on tri can pop up a window confirming landmarks removal while keeping images.']
-            },
-          'stage:2,side:ob,leftimg,rightimg,lefticon:1,righticon:1,recon:pass,cupreg:true':
-            {'stage' : 2, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : apshot, 'rightimg' : obshot,
-             'apmeta': apmeta, 'obmeta': obmeta, 'lefticon': 1, 'righticon': 1, 'recon': 2, 'isrecon': true, 'pelreg': true, 'cupreg': true, 'meas': {
-        "Inclination" : "41",
-        "Anteversion" : "31"
-    },
-             'description': 'Test cup successful registration.', 
-             'action': ['Both cup images and landmarks are present', 'The active side blue border is on ob side', 'The stage icon blue background is at cup.', 
-              'Both hp1 and hp2 icons are white.', 'The linked recon icon is green',
-              'A blue dashed circles shows up for tri icon', 'Clicking the dashed circle on tri can show a pause window to going to trial.']
-            },
-          'stage:3,side:ap,cupreg:false':
-            {'stage' : 3, 'side' : 'ap', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : null, 'rightimg' : null,
-             'apmeta': null, 'obmeta': null, 'lefticon': null, 'righticon': null, 'recon': null, 'isrecon': true, 'pelreg': true, 'cupreg': false,
-             'description': 'Test tri initial page without cup and tri registrations.', 
-             'action': ['Both sides display the tri instruction images', 'The active side blue border is on ap side', 'The stage icon blue background is at tri.', 
-              'Both hp1 and hp2 icons are white.', 'The cup icon is dark with a blue dashed circle',
-              'Clicking the dashed circle on cup can go back to the cup stage', 'Verify the blue background moves to the cup icon and cup instructions display after the click']
-            },
-          'stage:3,side:ob,leftimg,rightimg,lefticon:1,righticon:1,recon:pass,cupreg:false':
-            {'stage' : 3, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : apshot, 'rightimg' : obshot,
-             'apmeta': null, 'obmeta': null, 'lefticon': null, 'righticon': null, 'recon': null, 'isrecon': true, 'pelreg': true, 'cupreg': false,
-             'description': 'Test tri initial page with cup registration but no tri registration.', 
-             'action': ['Both sides display the tri instruction images', 'The active side blue border is on ob side', 'The stage icon blue background is at tri', 
-              'Both hp1 and hp2 icons are white.', 'The cup icon is white with a blue dashed circle',
-              'Clicking the dashed circle on cup can go back to the cup stage', 'Verify the blue background moves to the cup icon and cup instructions display after the click']
-            },
-          'stage:3,side:ob,leftimg,rightimg,lefticon:1,righticon:1,recon:pass,cupreg:true,trireg:false':
-            {'stage' : 3, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : apshot, 'rightimg' : obshot,
-             'apmeta': null, 'obmeta': null, 'lefticon': 1, 'righticon': 1, 'recon': 2, 'isrecon': true, 'pelreg': true, 'cupreg': true, 'trireg': false, 'meas': null,
-             'description': 'Test tri registration failure', 
-             'action': ['Both sides display the images with data', 'The active side blue border is on ob side', 'The stage icon blue background is at tri', 
-              'Both hp1 and hp2 icons are white.', 'The cup icon is white with a blue dashed circle', 'The linked recon icon is green',
-              'Clicking the dashed circle on cup can show a window warning going back to cup with images but no landmarks ']
-            },
-          'stage:3,side:ob,leftimg,rightimg,lefticon:1,righticon:1,recon:pass,cupreg:true,trireg:true':
-            {'stage' : 3, 'side' : 'ob', 'track' : true, 'processing' : false, 'percent' : 90, 'video' : true, 'imu' : true, 'autoshot' : true, 'leftimg' : apshot, 'rightimg' : obshot,
-             'apmeta': apmeta, 'obmeta': obmeta, 'lefticon': 1, 'righticon': 1, 'recon': 2, 'isrecon': true, 'pelreg': true, 'cupreg': true, 'trireg': true, 'meas': {
-                "LLD" : "3mm",
-                "Offset" : "5mm"
-            },
-             'description': 'Test tri successful registration', 
-             'action': ['Both sides display the images with data', 'The active side blue border is on ob side', 'The stage icon blue background is at tri', 
-              'All icons are white.', 'No dashed circle shows up for any stage icons', 'The linked recon icon is green',
-              ]
-            },
 
         }
       }

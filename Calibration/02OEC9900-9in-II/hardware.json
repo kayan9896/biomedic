@@ -1,6 +1,6 @@
 {
-    "carm_id": {
-        "name": "FMC-Philips_II",
+    "carm_id": "FMC-Philips_II",
+    "carm_config": {
         "model": "Unknown",
         "manufacturer": "Unknown",
         "is_flat": false,

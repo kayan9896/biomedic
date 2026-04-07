@@ -67,8 +67,8 @@
         "to": "../config"
       },
       {
-        "from": "../ui_testdata",
-        "to": "../ui_testdata"
+        "from": "../testdata",
+        "to": "../testdata"
       }
     ],
     "directories": {
