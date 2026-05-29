@@ -5,16 +5,21 @@ from fg import FrameGrabber
 from datetime import datetime
 
 class FrameGrabber_handler:
-    def __init__(self, calib, panel, fg_simulation, logger = None):
+    def __init__(self, calib, panel, fg_simulation, logger = None, controller = None):
         self._is_new_frame_available: bool = False
         self._last_fetch_time: Optional[datetime] = None
         self.last_frame = None
         self.fg_simulation = fg_simulation
         self.calib = calib
 
-        self.sensor = panel if fg_simulation else FrameGrabber(panel, calib["fg_handler_config"], fg_simulation, logger)
+        self.sensor = panel if fg_simulation else FrameGrabber(panel, calib.get("fg_handler_config", None), fg_simulation, logger)
         self.sensor.fg_handler = self
         self.logger = logger
+        self.controller = controller
+
+    def update_select(self, calib):
+        self.calib = calib
+        self.sensor.calib = calib.get("fg_handler_config", None)
 
     # Modified fetchFrame to update frame availability status
     def fetchFrame(self) -> Optional[np.ndarray]:
@@ -22,8 +27,9 @@ class FrameGrabber_handler:
 
         self._is_new_frame_available = False  # Reset flag when frame is fetched
         self._last_fetch_time = datetime.now()
-        return self.mask(self.last_frame.copy()) if self.last_frame is not None else None
-
+        if self.last_frame is not None:
+            self.controller.run2(self.mask(self.last_frame.copy()) )
+                             
     def connect(self, device) -> Union[bool, str]:
         return self.sensor.connect(device)
  

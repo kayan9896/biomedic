@@ -5,7 +5,7 @@ import os
 import time
 import cv2
 import math
-from controller import Controller
+from controller_copy import Controller
 from imu2 import IMU_handler
 import json
 
@@ -410,9 +410,10 @@ class Panel:
         # Trigger the test 
         tab_names = ['hp1', 'hp2', 'cup', 'tri']
         current_tab = tab_names[self.controller.stage]
-        self.image_path = self.test_data[current_tab]['ap']['image_path'] if self.controller.viewmodel.states['active_side'] == 'ap' else self.test_data[current_tab]['ob']['image_path']
+        self.image_path = self.test_data[current_tab]['ap']['image_path'] 
         self.fg_handler.last_frame = cv2.imread(self.image_path)
         self.fg_handler._is_new_frame_available = True
+        self.fg_handler.fetchFrame()
         
     def _get_files_for_tab_section(self, tab_type, section):
         """Get files filtered by tab type and section"""

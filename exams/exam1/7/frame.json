@@ -1,0 +1,709 @@
+{
+  "meta": {
+    "index": 1,
+    "op_stage": "hp1-ob",
+    "carm_view": "ob",
+    "carm_angles": [
+      0.0,
+      -15.0
+    ],
+    "carm_angles_actual": [
+      0.0,
+      null
+    ],
+    "carm_id": null,
+    "side": "right",
+    "frame_cropping_config": {
+      "output_resolution": [
+        1024,
+        1024
+      ],
+      "crop_topleft": [
+        128,
+        0
+      ],
+      "crop_size": [
+        1024,
+        1024
+      ],
+      "image_rotation": 0,
+      "image_horiz_flip": false,
+      "force_resize_to": null
+    },
+    "frame_analysis_config": null,
+    "datetime": "2026-04-13T14:16:40.227121"
+  },
+  "annotations": {
+    "default": {
+      "datasource": "model",
+      "version": "v1",
+      "side": "right",
+      "success": true,
+      "error_code": null,
+      "tags": {
+        "phase": "ref",
+        "side classification": "RIGHT HIP",
+        "classification confidence": 1.0
+      },
+      "landmarks": {
+        "femur_1": {
+          "_neck center": {
+            "label": "_neck center",
+            "type": "point",
+            "coords": [
+              [
+                512.9686279296875,
+                636.2532958984375
+              ]
+            ],
+            "confidence": [
+              0.9727702068750058
+            ],
+            "visible": true
+          },
+          "_piriformis entry point": {
+            "label": "_piriformis entry point",
+            "type": "point",
+            "coords": [
+              [
+                590.6950073242188,
+                606.1119995117188
+              ]
+            ],
+            "confidence": [
+              0.9659379022589482
+            ],
+            "visible": true
+          },
+          "_head_center": {
+            "label": "_head_center",
+            "type": "point",
+            "coords": [
+              [
+                438.70074462890625,
+                532.4073486328125
+              ]
+            ],
+            "confidence": [
+              0.9648301695475565
+            ],
+            "visible": true
+          },
+          "_lesser_trochanter_point_on_mesh": {
+            "label": "_lesser_trochanter_point_on_mesh",
+            "type": "point",
+            "coords": [
+              [
+                401.5168151855469,
+                824.8541870117188
+              ]
+            ],
+            "confidence": [
+              0.967220262412941
+            ],
+            "visible": true
+          },
+          "_lesser_trochanter_point_on_shaft": {
+            "label": "_lesser_trochanter_point_on_shaft",
+            "type": "point",
+            "coords": [
+              [
+                547.8839721679688,
+                835.306884765625
+              ]
+            ],
+            "confidence": [
+              0.9620015277133628
+            ],
+            "visible": true
+          },
+          "_neck_axis_inferior_point": {
+            "label": "_neck_axis_inferior_point",
+            "type": "point",
+            "coords": [
+              [
+                656.6392211914062,
+                838.4808959960938
+              ]
+            ],
+            "confidence": [
+              0.9523794079900015
+            ],
+            "visible": true
+          },
+          "_neck_axis_superior_point": {
+            "label": "_neck_axis_superior_point",
+            "type": "point",
+            "coords": [
+              [
+                373.65582275390625,
+                442.3205871582031
+              ]
+            ],
+            "confidence": [
+              0.9557369594176831
+            ],
+            "visible": true
+          },
+          "_neck_shaft_ap_intersection_point_on_neck_axis": {
+            "label": "_neck_shaft_ap_intersection_point_on_neck_axis",
+            "type": "point",
+            "coords": [
+              [
+                589.8116455078125,
+                744.66162109375
+              ]
+            ],
+            "confidence": [
+              0.9530164201604935
+            ],
+            "visible": true
+          },
+          "_neck_shaft_ap_intersection_point_on_shaft_axis": {
+            "label": "_neck_shaft_ap_intersection_point_on_shaft_axis",
+            "type": "point",
+            "coords": [
+              [
+                559.049560546875,
+                749.8587646484375
+              ]
+            ],
+            "confidence": [
+              0.9562030537276797
+            ],
+            "visible": true
+          },
+          "neck shaft": {
+            "label": "neck shaft",
+            "type": "line",
+            "coords": [
+              [
+                438.70074462890625,
+                532.4073486328125
+              ],
+              [
+                555.9214477539062,
+                700.3428955078125
+              ]
+            ],
+            "confidence": [
+              0.9648301695475565,
+              0.9775759299709161
+            ],
+            "visible": true
+          },
+          "proximal shaft": {
+            "label": "proximal shaft",
+            "type": "line",
+            "coords": [
+              [
+                547.8839721679688,
+                835.306884765625
+              ],
+              [
+                530.3274536132812,
+                1039.35302734375
+              ]
+            ],
+            "confidence": [
+              0.9620015277133628,
+              0.9578388034762294
+            ],
+            "visible": true
+          },
+          "Lesser Trochanter axis": {
+            "label": "Lesser Trochanter axis",
+            "type": "line",
+            "coords": [
+              [
+                401.5168151855469,
+                824.8541870117188
+              ],
+              [
+                605.8355102539062,
+                838.8864135742188
+              ]
+            ],
+            "confidence": [
+              0.967220262412941,
+              0.9539521190592811
+            ],
+            "visible": true
+          },
+          "Pelvis Orientation axis": {
+            "label": "Pelvis Orientation axis",
+            "type": "line",
+            "coords": [
+              [
+                438.70074462890625,
+                532.4073486328125
+              ],
+              [
+                235.47674560546875,
+                557.765625
+              ]
+            ],
+            "confidence": [
+              0.9648301695475565,
+              0.9642264476433128
+            ],
+            "visible": true
+          }
+        },
+        "pelvis_1": {
+          "_pt": {
+            "label": "_pt",
+            "type": "point",
+            "coords": [
+              [
+                152.89524841308594,
+                627.0145263671875
+              ]
+            ],
+            "confidence": [
+              0.9322391086264851
+            ],
+            "visible": true
+          },
+          "_p1": {
+            "label": "_p1",
+            "type": "point",
+            "coords": [
+              [
+                157.81358337402344,
+                622.5504150390625
+              ]
+            ],
+            "confidence": [
+              0.9408759535690504
+            ],
+            "visible": true
+          },
+          "_p2": {
+            "label": "_p2",
+            "type": "point",
+            "coords": [
+              [
+                137.772705078125,
+                667.9299926757812
+              ]
+            ],
+            "confidence": [
+              0.9484376967189235
+            ],
+            "visible": true
+          },
+          "_p3": {
+            "label": "_p3",
+            "type": "point",
+            "coords": [
+              [
+                123.51251220703125,
+                735.29638671875
+              ]
+            ],
+            "confidence": [
+              0.9476216084724791
+            ],
+            "visible": true
+          },
+          "_p4": {
+            "label": "_p4",
+            "type": "point",
+            "coords": [
+              [
+                241.28643798828125,
+                573.7168579101562
+              ]
+            ],
+            "confidence": [
+              0.9509455791698233
+            ],
+            "visible": true
+          },
+          "_p5": {
+            "label": "_p5",
+            "type": "point",
+            "coords": [
+              [
+                191.866455078125,
+                809.3150024414062
+              ]
+            ],
+            "confidence": [
+              0.927863659775786
+            ],
+            "visible": true
+          },
+          "_p6": {
+            "label": "_p6",
+            "type": "point",
+            "coords": [
+              [
+                303.79901123046875,
+                523.04736328125
+              ]
+            ],
+            "confidence": [
+              0.9676003393075994
+            ],
+            "visible": true
+          },
+          "_p7": {
+            "label": "_p7",
+            "type": "point",
+            "coords": [
+              [
+                267.5636291503906,
+                591.3466796875
+              ]
+            ],
+            "confidence": [
+              0.9599218375205822
+            ],
+            "visible": true
+          },
+          "_p8": {
+            "label": "_p8",
+            "type": "point",
+            "coords": [
+              [
+                247.4868621826172,
+                794.3167724609375
+              ]
+            ],
+            "confidence": [
+              0.9347735677105038
+            ],
+            "visible": true
+          },
+          "_extracted_teardrop": {
+            "label": "_extracted_teardrop",
+            "type": "point",
+            "coords": [
+              [
+                281.7545166015625,
+                599.5364990234375
+              ]
+            ],
+            "confidence": [
+              0.9592478697028695
+            ],
+            "visible": true
+          }
+        },
+        "cup": {},
+        "implanted head": {}
+      },
+      "masks": {
+        "_femur": {
+          "label": "_femur",
+          "type": "mask",
+          "data": [],
+          "confidence": [
+            0.9566840601318279
+          ]
+        },
+        "pelvis_mesh_hemi_": {
+          "label": "pelvis_mesh_hemi_",
+          "type": "mask",
+          "data": [],
+          "confidence": [
+            0.931934688245974
+          ]
+        }
+      }
+    }
+  },
+  "calibration": {
+    "datasource": "FrameGrabber",
+    "version": "v1",
+    "success": null,
+    "error_code": null,
+    "tags": {},
+    "glyph": {},
+    "camera": {
+      "intrinsic_matrix": [
+        [
+          2624.671875,
+          0.0,
+          985.7281494140625
+        ],
+        [
+          0.0,
+          2624.671875,
+          985.3087768554688
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "extrinsic_matrix": [
+        [
+          0.028930891305208206,
+          -0.9657391905784607,
+          -0.25789690017700195,
+          91.86577606201172
+        ],
+        [
+          0.9937665462493896,
+          -3.84761077165674e-11,
+          0.11148080229759216,
+          -32.285743713378906
+        ],
+        [
+          -0.10766137391328812,
+          -0.25951457023620605,
+          0.9597193002700806,
+          513.8992919921875
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "sensor_height": 2000,
+      "sensor_width": 2000,
+      "pixel_size": 0.30479999999999996,
+      "source_to_detector_distance": 800.0,
+      "source_in_world": [
+        84.75384521484375,
+        222.08273315429688,
+        -465.9079284667969
+      ],
+      "piercing_point": [
+        -4.350065000668597,
+        -4.477878509684685
+      ],
+      "corners": [
+        [
+          150.2415313720703,
+          157.44869995117188,
+          357.5380859375
+        ],
+        [
+          159.05966186523438,
+          -136.9086151123047,
+          278.93109130859375
+        ],
+        [
+          -143.8404083251953,
+          -136.9086151123047,
+          244.95175170898438
+        ],
+        [
+          -152.65853881835938,
+          157.44869995117188,
+          323.5587158203125
+        ]
+      ]
+    },
+    "distortion": {}
+  },
+  "ui_objects": {
+    "pelvis": [
+      {
+        "id": "p1",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": "p2",
+        "keys": [
+          "p1"
+        ],
+        "points": [
+          [
+            157.81358337402344,
+            622.5504150390625
+          ]
+        ],
+        "handle": [
+          400,
+          400
+        ]
+      },
+      {
+        "id": "p2",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": "p7",
+        "keys": [
+          "p2"
+        ],
+        "points": [
+          [
+            137.772705078125,
+            667.9299926757812
+          ]
+        ]
+      },
+      {
+        "id": "p3",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "p3"
+        ],
+        "points": [
+          [
+            123.51251220703125,
+            735.29638671875
+          ]
+        ]
+      },
+      {
+        "id": "p4",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "p4"
+        ],
+        "points": [
+          [
+            241.28643798828125,
+            573.7168579101562
+          ]
+        ]
+      },
+      {
+        "id": "p5",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "p5"
+        ],
+        "points": [
+          [
+            191.866455078125,
+            809.3150024414062
+          ]
+        ]
+      },
+      {
+        "id": "p6",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "p6"
+        ],
+        "points": [
+          [
+            303.79901123046875,
+            523.04736328125
+          ]
+        ]
+      },
+      {
+        "id": "p7",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "p7"
+        ],
+        "points": [
+          [
+            267.5636291503906,
+            591.3466796875
+          ]
+        ]
+      },
+      {
+        "id": "p8",
+        "type": "lines",
+        "colour": "CC79A7",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "p8"
+        ],
+        "points": [
+          [
+            247.4868621826172,
+            794.3167724609375
+          ]
+        ]
+      }
+    ],
+    "femur": [
+      {
+        "id": "lesser trochanter",
+        "type": "lines",
+        "colour": "56B4E9",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "lesser_trochanter_point_on_mesh"
+        ],
+        "points": [
+          [
+            401.5168151855469,
+            824.8541870117188
+          ]
+        ],
+        "handle": [
+          400,
+          400
+        ]
+      },
+      {
+        "id": "proximal shaft",
+        "type": "lines",
+        "colour": "56B4E9",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "shaft_spline_proximal_point",
+          "shaft_spline_distal_point"
+        ],
+        "points": [
+          [
+            547.8839721679688,
+            835.306884765625
+          ],
+          [
+            530.3274536132812,
+            1039.35302734375
+          ]
+        ]
+      },
+      {
+        "id": "neck shaft",
+        "type": "lines",
+        "colour": "56B4E9",
+        "visible": true,
+        "next": null,
+        "keys": [
+          "neck_axis_superior_point",
+          "neck_axis_inferior_point"
+        ],
+        "points": [
+          [
+            438.70074462890625,
+            532.4073486328125
+          ],
+          [
+            555.9214477539062,
+            700.3428955078125
+          ]
+        ]
+      }
+    ]
+  },
+  "image": [],
+  "raw_image": []
+}

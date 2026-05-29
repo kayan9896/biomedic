@@ -1,0 +1,128 @@
+{
+  "frm_preprocess": {
+    "data_type": "frames",
+    "current": 4,
+    "order": [
+      0,
+      1,
+      2,
+      3,
+      0,
+      1,
+      2,
+      3
+    ],
+    "increment": true
+  },
+  "frm_annotate": {
+    "data_type": "frames",
+    "current": -1,
+    "order": [
+      0,
+      1,
+      2,
+      3,
+      0,
+      1,
+      2,
+      3
+    ],
+    "increment": false
+  },
+  "rec-hnl": {
+    "data_type": "bmodel",
+    "current": -1,
+    "order": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "increment": true
+  },
+  "rec-hnr": {
+    "data_type": "bmodel",
+    "current": -1,
+    "order": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "increment": true
+  },
+  "rec-hcl": {
+    "data_type": "bmodel",
+    "current": -1,
+    "order": [
+      1,
+      1
+    ],
+    "increment": true
+  },
+  "rec-hcr": {
+    "data_type": "bmodel",
+    "current": -1,
+    "order": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "increment": true
+  },
+  "rec-htl": {
+    "data_type": "bmodel",
+    "current": -1,
+    "order": [
+      0,
+      0
+    ],
+    "increment": true
+  },
+  "rec-htr": {
+    "data_type": "bmodel",
+    "current": -1,
+    "order": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "increment": true
+  },
+  "reg-hn": {
+    "data_type": "bmodel",
+    "current": -1,
+    "order": [
+      4,
+      4,
+      4,
+      4
+    ],
+    "increment": true
+  },
+  "rep-hn": {
+    "data_type": "report",
+    "current": -1,
+    "order": [
+      4,
+      4,
+      4,
+      4
+    ],
+    "increment": true
+  },
+  "rep-hcl": {
+    "data_type": "report",
+    "current": -1,
+    "order": [
+      1
+    ],
+    "increment": true
+  }
+}

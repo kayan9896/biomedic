@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "index": 4,
+    "view_key": "hnl",
+    "carm_angles": [],
+    "carm_angles_actual": [],
+    "carm_id": null,
+    "frame_cropping_config": {
+      "output_resolution": [
+        1024,
+        1024
+      ],
+      "crop_topleft": [
+        128,
+        0
+      ],
+      "crop_size": [
+        1024,
+        1024
+      ],
+      "image_rotation": 0,
+      "image_horiz_flip": false,
+      "force_resize_to": null
+    },
+    "frame_analysis_config": null,
+    "datetime": "2026-04-29T15:30:37.939616"
+  },
+  "annotations": {
+    "default": {
+      "datasource": "confirmap",
+      "version": "v1",
+      "success": true,
+      "error_code": null,
+      "tags": {
+        "operator": "Shahram",
+        "note": "manual left-side"
+      },
+      "landmarks": {
+        "F001U1": {
+          "id": "F001U1",
+          "caption": "f_lesstroch_pnt_l1",
+          "label": "lesstroch_pnt",
+          "source": "PRJTBX",
+          "parent": "femur",
+          "side": "left",
+          "type": "point",
+          "coords": [],
+          "confidence": [],
+          "visible": true,
+          "within": false,
+          "requirement": "mandatory",
+          "tags": {}
+        },
+        "F013U1": {
+          "id": "F013U1",
+          "caption": "f_shaftprx_vec_u1",
+          "label": "shaftprx_vec",
+          "source": "PRJTBX",
+          "parent": "femur",
+          "side": "left",
+          "type": "vector",
+          "coords": [],
+          "confidence": [],
+          "visible": true,
+          "within": true,
+          "requirement": "mandatory",
+          "tags": {}
+        },
+        "H014U1": {
+          "id": "H014U1",
+          "caption": "h_teardrop_inf_u1",
+          "label": "teardrop_inf",
+          "source": "CLCTBX_1",
+          "parent": "pelvis",
+          "side": "right",
+          "type": "point",
+          "coords": [],
+          "confidence": [],
+          "visible": false,
+          "within": true,
+          "requirement": "mandatory",
+          "tags": {}
+        }
+      },
+      "masks": {
+        "femur": {
+          "label": "femur",
+          "type": "mask",
+          "data": [],
+          "confidence": 0.93
+        },
+        "_femur": {
+          "label": "_femur",
+          "type": "mask",
+          "data": [],
+          "confidence": null
+        },
+        "pelvis_mesh_hemi_": {
+          "label": "pelvis_mesh_hemi_",
+          "type": "mask",
+          "data": [],
+          "confidence": null
+        }
+      }
+    }
+  },
+  "calibration": {
+    "datasource": "FrameGrabber",
+    "version": "v1",
+    "success": null,
+    "error_code": null,
+    "tags": {},
+    "glyph": {},
+    "camera": {
+      "source_x": 0.0,
+      "source_y": 0.0,
+      "source_z": 0.0,
+      "alpha": 0.0,
+      "beta": 0.0,
+      "gamma": 0.0,
+      "resolution": 1,
+      "sensor_size": 1.0,
+      "source_to_detector_distance": 0.0,
+      "piercing_point": [
+        1.0,
+        1.0
+      ],
+      "source_in_world": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sensor_height": 1.0,
+      "sensor_width": 1.0,
+      "pixel_size": 25.4,
+      "intrinsic_matrix": [
+        [
+          0.0,
+          0.0,
+          0.5393700787401575
+        ],
+        [
+          0.0,
+          0.0,
+          0.5393700787401575
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "extrinsic_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "corners": [
+        [
+          -13.7,
+          11.7,
+          0.0
+        ],
+        [
+          11.7,
+          11.7,
+          0.0
+        ],
+        [
+          11.7,
+          -13.7,
+          0.0
+        ],
+        [
+          -13.7,
+          -13.7,
+          0.0
+        ]
+      ]
+    },
+    "distortion": {}
+  },
+  "image": [],
+  "raw_image": []
+}

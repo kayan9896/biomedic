@@ -5,10 +5,10 @@ import numpy as np
 from PIL import Image
 import cv2
 import os
-from model import Model
-from exam import Exam
-#from confirmaphip_core.core_model import Model
-#from confirmaphip_core.exam import Exam
+#from model import Model
+#from exam import Exam
+from confirmaphip_core.core_model import Model
+from confirmaphip_core.exam import Exam
 
 from fg_handler import FrameGrabber_handler
 from viewmodel import ViewModel
@@ -18,7 +18,7 @@ from imu2 import IMU_handler
 import base64
 
 class Controller:
-    def __init__(self, config = None, calib = None,  panel = None, logger = None, cpfolder = None):
+    def __init__(self, config = None, calib = None,  panel = None, logger = None, cpfolder = None, scaf = None, workflow = None):
         self.calib = calib
         self.config = config
         self.fg_handler = FrameGrabber_handler(calib, panel, self.config.get("testpanel_config", False).get("fg_simulation", False), logger)
@@ -41,7 +41,8 @@ class Controller:
         #self.unexpected_error = None
         self.bugs = [None]
 
-        self.model = Model(self.ai_mode, self.on_simulation, self.config, self.calib, self.bugs, logger)
+        self.model = Model(self.ai_mode, self.on_simulation, self.config, self.calib, self.bugs, logger, scaf)
+        self.workflow = workflow
         
         
         self.viewmodel = ViewModel(config, self.bugs, logger)
@@ -445,37 +446,3 @@ class Controller:
         images[0].save(
             pdf_path, "PDF" ,resolution=100.0, save_all=True, append_images=images[1:]
         )
-
-
-'''
-in frame granbber loop, when new frame is detected and controller.processing = False
-call controller.run(frame) in a new thread
-
-class controller:
-    self.model = Model(landmarks_dict, frame_table)
-
-    def run(frame):
-        self.processing = True
-        #Instead of calling exec(different_scn),
-
-        frame_object = self.model.frameanalysis(frame) #frameanalysis can update model.data or
-        self.model.update(frame_object)
-        if not err:
-            prerun_res = pose.prerun(model.data)
-            if prerun_res is good:
-                bmodel = pose.reconreg(model.data)
-                self.model.update(bmodel)
-            if prerun_res is nothing:
-                pass
-            if prerun_res is reject:
-                err = 'not expected image'
-
-        self.viewmodel.update(frame_object, bmodel, err)
-
-        self.exam.save(frame_object, bmodel)
-        self.processing = False
-            
-
-
-
-'''

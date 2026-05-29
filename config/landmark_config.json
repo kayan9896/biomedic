@@ -1,0 +1,5696 @@
+{
+    "MasterListVer": 1,
+    "CreationDate": "2026-04-08 00:00:00",
+    "landmarks": {
+        "hnl": {
+            "P001X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_org",
+                "caption": "p_csys_org_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P001X1"
+            },
+            "P002X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_pav",
+                "caption": "p_csys_pav_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P002X1"
+            },
+            "P003X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_mlv",
+                "caption": "p_csys_mlv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P003X1"
+            },
+            "P004X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_isv",
+                "caption": "p_csys_isv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P004X1"
+            },
+            "H017X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_pnt",
+                "caption": "h_pubsym_pnt_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H017X1"
+            },
+            "H018X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_vec",
+                "caption": "h_pubsym_vec_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H018X1"
+            },
+            "H004L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004L1"
+            },
+            "H005L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005L1"
+            },
+            "H006L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006L1"
+            },
+            "H007L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007L1"
+            },
+            "H008L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008L1"
+            },
+            "H009L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009L1"
+            },
+            "H010L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010L1"
+            },
+            "H011L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011L1"
+            },
+            "H012L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012L1"
+            },
+            "H013L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013L1"
+            },
+            "H014L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014L1"
+            },
+            "H015L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015L1"
+            },
+            "H016L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016L1"
+            },
+            "F001L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001L1"
+            },
+            "F002L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002L1"
+            },
+            "F003L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003L1"
+            },
+            "F007L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007L1"
+            },
+            "F010L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010L1"
+            },
+            "F013L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013L1"
+            },
+            "F016L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016L1"
+            },
+            "F017L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017L1"
+            },
+            "F027L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027L1"
+            },
+            "F028L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028L1"
+            },
+            "F029L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029L1"
+            },
+            "B001L1": {
+                "parent": "ball",
+                "side": "left",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001L1"
+            },
+            "C001L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001L1"
+            },
+            "C002L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002L1"
+            }
+        },
+        "hnr": {
+            "P001X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_org",
+                "caption": "p_csys_org_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P001X1"
+            },
+            "P002X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_pav",
+                "caption": "p_csys_pav_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P002X1"
+            },
+            "P003X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_mlv",
+                "caption": "p_csys_mlv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P003X1"
+            },
+            "P004X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_isv",
+                "caption": "p_csys_isv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P004X1"
+            },
+            "H017X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_pnt",
+                "caption": "h_pubsym_pnt_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H017X1"
+            },
+            "H018X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_vec",
+                "caption": "h_pubsym_vec_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H018X1"
+            },
+            "H004R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004R1"
+            },
+            "H005R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005R1"
+            },
+            "H006R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006R1"
+            },
+            "H007R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007R1"
+            },
+            "H008R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008R1"
+            },
+            "H009R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009R1"
+            },
+            "H010R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010R1"
+            },
+            "H011R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011R1"
+            },
+            "H012R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012R1"
+            },
+            "H013R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013R1"
+            },
+            "H014R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014R1"
+            },
+            "H015R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015R1"
+            },
+            "H016R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016R1"
+            },
+            "F001R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001R1"
+            },
+            "F002R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002R1"
+            },
+            "F003R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003R1"
+            },
+            "F007R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007R1"
+            },
+            "F010R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010R1"
+            },
+            "F013R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013R1"
+            },
+            "F016R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016R1"
+            },
+            "F017R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017R1"
+            },
+            "F027R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027R1"
+            },
+            "F028R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028R1"
+            },
+            "F029R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029R1"
+            },
+            "B001R1": {
+                "parent": "ball",
+                "side": "right",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001R1"
+            },
+            "C001R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001R1"
+            },
+            "C002R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002R1"
+            }
+        },
+        "hcl": {
+            "P001X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_org",
+                "caption": "p_csys_org_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P001X1"
+            },
+            "P002X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_pav",
+                "caption": "p_csys_pav_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P002X1"
+            },
+            "P003X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_mlv",
+                "caption": "p_csys_mlv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P003X1"
+            },
+            "P004X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_isv",
+                "caption": "p_csys_isv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P004X1"
+            },
+            "H017X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_pnt",
+                "caption": "h_pubsym_pnt_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H017X1"
+            },
+            "H018X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_vec",
+                "caption": "h_pubsym_vec_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H018X1"
+            },
+            "H004L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004L1"
+            },
+            "H005L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005L1"
+            },
+            "H006L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006L1"
+            },
+            "H007L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007L1"
+            },
+            "H008L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008L1"
+            },
+            "H009L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009L1"
+            },
+            "H010L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010L1"
+            },
+            "H011L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011L1"
+            },
+            "H012L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012L1"
+            },
+            "H013L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013L1"
+            },
+            "H014L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014L1"
+            },
+            "H015L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015L1"
+            },
+            "H016L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016L1"
+            },
+            "F001L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001L1"
+            },
+            "F002L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002L1"
+            },
+            "F003L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003L1"
+            },
+            "F007L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007L1"
+            },
+            "F010L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010L1"
+            },
+            "F013L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013L1"
+            },
+            "F016L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016L1"
+            },
+            "F017L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017L1"
+            },
+            "F027L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027L1"
+            },
+            "F028L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028L1"
+            },
+            "F029L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029L1"
+            },
+            "B001L1": {
+                "parent": "ball",
+                "side": "left",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001L1"
+            },
+            "C001L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001L1"
+            },
+            "C002L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002L1"
+            }
+        },
+        "hcr": {
+            "P001X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_org",
+                "caption": "p_csys_org_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P001X1"
+            },
+            "P002X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_pav",
+                "caption": "p_csys_pav_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P002X1"
+            },
+            "P003X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_mlv",
+                "caption": "p_csys_mlv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P003X1"
+            },
+            "P004X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_isv",
+                "caption": "p_csys_isv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P004X1"
+            },
+            "H017X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_pnt",
+                "caption": "h_pubsym_pnt_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H017X1"
+            },
+            "H018X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_vec",
+                "caption": "h_pubsym_vec_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H018X1"
+            },
+            "H004R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004R1"
+            },
+            "H005R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005R1"
+            },
+            "H006R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006R1"
+            },
+            "H007R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007R1"
+            },
+            "H008R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008R1"
+            },
+            "H009R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009R1"
+            },
+            "H010R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010R1"
+            },
+            "H011R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011R1"
+            },
+            "H012R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012R1"
+            },
+            "H013R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013R1"
+            },
+            "H014R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014R1"
+            },
+            "H015R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015R1"
+            },
+            "H016R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016R1"
+            },
+            "F001R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001R1"
+            },
+            "F002R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002R1"
+            },
+            "F003R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003R1"
+            },
+            "F007R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007R1"
+            },
+            "F010R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010R1"
+            },
+            "F013R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013R1"
+            },
+            "F016R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016R1"
+            },
+            "F017R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017R1"
+            },
+            "F027R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027R1"
+            },
+            "F028R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028R1"
+            },
+            "F029R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029R1"
+            },
+            "B001R1": {
+                "parent": "ball",
+                "side": "right",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001R1"
+            },
+            "C001R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001R1"
+            },
+            "C002R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002R1"
+            }
+        },
+        "htl": {
+            "P001X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_org",
+                "caption": "p_csys_org_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P001X1"
+            },
+            "P002X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_pav",
+                "caption": "p_csys_pav_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P002X1"
+            },
+            "P003X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_mlv",
+                "caption": "p_csys_mlv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P003X1"
+            },
+            "P004X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_isv",
+                "caption": "p_csys_isv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P004X1"
+            },
+            "H017X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_pnt",
+                "caption": "h_pubsym_pnt_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H017X1"
+            },
+            "H018X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_vec",
+                "caption": "h_pubsym_vec_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H018X1"
+            },
+            "H004L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004L1"
+            },
+            "H005L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005L1"
+            },
+            "H006L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006L1"
+            },
+            "H007L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007L1"
+            },
+            "H008L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008L1"
+            },
+            "H009L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009L1"
+            },
+            "H010L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010L1"
+            },
+            "H011L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011L1"
+            },
+            "H012L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012L1"
+            },
+            "H013L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013L1"
+            },
+            "H014L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014L1"
+            },
+            "H015L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015L1"
+            },
+            "H016L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016L1"
+            },
+            "F001L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001L1"
+            },
+            "F002L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002L1"
+            },
+            "F003L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003L1"
+            },
+            "F007L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007L1"
+            },
+            "F010L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010L1"
+            },
+            "F013L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013L1"
+            },
+            "F016L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016L1"
+            },
+            "F017L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017L1"
+            },
+            "F027L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027L1"
+            },
+            "F028L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028L1"
+            },
+            "F029L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029L1"
+            },
+            "B001L1": {
+                "parent": "ball",
+                "side": "left",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001L1"
+            },
+            "C001L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001L1"
+            },
+            "C002L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002L1"
+            }
+        },
+        "htr": {
+            "P001X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_org",
+                "caption": "p_csys_org_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P001X1"
+            },
+            "P002X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_pav",
+                "caption": "p_csys_pav_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P002X1"
+            },
+            "P003X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_mlv",
+                "caption": "p_csys_mlv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P003X1"
+            },
+            "P004X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_isv",
+                "caption": "p_csys_isv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P004X1"
+            },
+            "H017X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_pnt",
+                "caption": "h_pubsym_pnt_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H017X1"
+            },
+            "H018X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_vec",
+                "caption": "h_pubsym_vec_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H018X1"
+            },
+            "H004R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004R1"
+            },
+            "H005R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005R1"
+            },
+            "H006R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006R1"
+            },
+            "H007R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007R1"
+            },
+            "H008R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008R1"
+            },
+            "H009R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009R1"
+            },
+            "H010R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010R1"
+            },
+            "H011R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011R1"
+            },
+            "H012R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012R1"
+            },
+            "H013R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013R1"
+            },
+            "H014R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014R1"
+            },
+            "H015R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015R1"
+            },
+            "H016R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016R1"
+            },
+            "F001R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001R1"
+            },
+            "F002R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002R1"
+            },
+            "F003R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003R1"
+            },
+            "F007R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007R1"
+            },
+            "F010R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010R1"
+            },
+            "F013R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013R1"
+            },
+            "F016R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016R1"
+            },
+            "F017R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017R1"
+            },
+            "F027R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027R1"
+            },
+            "F028R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028R1"
+            },
+            "F029R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029R1"
+            },
+            "B001R1": {
+                "parent": "ball",
+                "side": "right",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001R1"
+            },
+            "C001R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001R1"
+            },
+            "C002R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002R1"
+            }
+        },
+        "pcx": {
+            "P001X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_org",
+                "caption": "p_csys_org_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P001X1"
+            },
+            "P002X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_pav",
+                "caption": "p_csys_pav_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P002X1"
+            },
+            "P003X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_mlv",
+                "caption": "p_csys_mlv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P003X1"
+            },
+            "P004X1": {
+                "parent": "pelvis",
+                "side": "none",
+                "label": "csys_isv",
+                "caption": "p_csys_isv_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "P004X1"
+            },
+            "H017X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_pnt",
+                "caption": "h_pubsym_pnt_x1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H017X1"
+            },
+            "H018X1": {
+                "parent": "hemipelvis",
+                "side": "none",
+                "label": "pubsym_vec",
+                "caption": "h_pubsym_vec_x1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H018X1"
+            },
+            "H004L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004L1"
+            },
+            "H005L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005L1"
+            },
+            "H006L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006L1"
+            },
+            "H007L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007L1"
+            },
+            "H008L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008L1"
+            },
+            "H009L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009L1"
+            },
+            "H010L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010L1"
+            },
+            "H011L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011L1"
+            },
+            "H012L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012L1"
+            },
+            "H013L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013L1"
+            },
+            "H014L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014L1"
+            },
+            "H015L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015L1"
+            },
+            "H016L1": {
+                "parent": "hemipelvis",
+                "side": "left",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_l1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016L1"
+            },
+            "F001L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001L1"
+            },
+            "F002L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002L1"
+            },
+            "F003L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003L1"
+            },
+            "F007L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007L1"
+            },
+            "F010L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010L1"
+            },
+            "F013L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013L1"
+            },
+            "F016L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016L1"
+            },
+            "F017L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017L1"
+            },
+            "F027L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027L1"
+            },
+            "F028L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028L1"
+            },
+            "F029L1": {
+                "parent": "femur",
+                "side": "left",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_l1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029L1"
+            },
+            "B001L1": {
+                "parent": "ball",
+                "side": "left",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001L1"
+            },
+            "C001L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001L1"
+            },
+            "C002L1": {
+                "parent": "cup",
+                "side": "left",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_l1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002L1"
+            },
+            "H004R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "pubtub_pnt",
+                "caption": "h_pubtub_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H004R1"
+            },
+            "H005R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for1_pnt",
+                "caption": "h_for1_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H005R1"
+            },
+            "H006R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for2_pnt",
+                "caption": "h_for2_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H006R1"
+            },
+            "H007R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for3_pnt",
+                "caption": "h_for3_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H007R1"
+            },
+            "H008R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for4_pnt",
+                "caption": "h_for4_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H008R1"
+            },
+            "H009R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for5_pnt",
+                "caption": "h_for5_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H009R1"
+            },
+            "H010R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for6_pnt",
+                "caption": "h_for6_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H010R1"
+            },
+            "H011R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for7_pnt",
+                "caption": "h_for7_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H011R1"
+            },
+            "H012R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "for8_pnt",
+                "caption": "h_for8_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H012R1"
+            },
+            "H013R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_cnr",
+                "caption": "h_teardrop_cnr_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H013R1"
+            },
+            "H014R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_inf",
+                "caption": "h_teardrop_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H014R1"
+            },
+            "H015R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "teardrop_ext",
+                "caption": "h_teardrop_ext_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H015R1"
+            },
+            "H016R1": {
+                "parent": "hemipelvis",
+                "side": "right",
+                "label": "obtfor_inf",
+                "caption": "h_obtfor_inf_r1",
+                "type": "point",
+                "source": "CLCTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "H016R1"
+            },
+            "F001R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pnt",
+                "caption": "f_lesstroch_pnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F001R1"
+            },
+            "F002R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neck_cnt",
+                "caption": "f_neck_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F002R1"
+            },
+            "F003R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "piriformis_ent",
+                "caption": "f_piriformis_ent_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F003R1"
+            },
+            "F007R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "head_cnt",
+                "caption": "f_head_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F007R1"
+            },
+            "F010R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "neckaxis_vec",
+                "caption": "f_neckaxis_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F010R1"
+            },
+            "F013R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "shaftprx_vec",
+                "caption": "f_shaftprx_vec_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F013R1"
+            },
+            "F016R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_pos",
+                "caption": "f_lesstroch_pos_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F016R1"
+            },
+            "F017R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "lesstroch_vec",
+                "caption": "f_lesstroch_vec_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F017R1"
+            },
+            "F027R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_pav",
+                "caption": "f_csprx_pav_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F027R1"
+            },
+            "F028R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_mlv",
+                "caption": "f_csprx_mlv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F028R1"
+            },
+            "F029R1": {
+                "parent": "femur",
+                "side": "right",
+                "label": "csprx_isv",
+                "caption": "f_csprx_isv_r1",
+                "type": "vector",
+                "source": "PRJTBX_1",
+                "requirement": "optional",
+                "visible": false,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "F029R1"
+            },
+            "B001R1": {
+                "parent": "ball",
+                "side": "right",
+                "label": "ball_cnt",
+                "caption": "b_ball_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "B001R1"
+            },
+            "C001R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_cnt",
+                "caption": "c_shell_cnt_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C001R1"
+            },
+            "C002R1": {
+                "parent": "cup",
+                "side": "right",
+                "label": "shell_sup",
+                "caption": "c_shell_sup_r1",
+                "type": "point",
+                "source": "PRJTBX_1",
+                "requirement": "mandatory",
+                "visible": true,
+                "within": false,
+                "coords": [
+                    [
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "confidence": [
+                    0.0
+                ],
+                "tags": {},
+                "id": "C002R1"
+            }
+        }
+    }
+}

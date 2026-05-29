@@ -1,0 +1,144 @@
+{
+  "meta": {
+    "index": 0,
+    "op_stage": "hp1-ap",
+    "carm_view": "ap",
+    "carm_angles": [
+      0.0,
+      0.0
+    ],
+    "carm_angles_actual": [
+      0.0,
+      null
+    ],
+    "carm_id": null,
+    "side": null,
+    "frame_cropping_config": {
+      "output_resolution": [
+        1024,
+        1024
+      ],
+      "crop_topleft": [
+        128,
+        0
+      ],
+      "crop_size": [
+        1024,
+        1024
+      ],
+      "image_rotation": 0,
+      "image_horiz_flip": false,
+      "force_resize_to": null
+    },
+    "frame_analysis_config": null,
+    "datetime": "2026-04-13T16:39:31.766434"
+  },
+  "annotations": {
+    "default": {
+      "datasource": "model",
+      "version": "v1",
+      "side": null,
+      "success": false,
+      "error_code": "114",
+      "tags": {
+        "phase": "ref",
+        "side classification": "NO-HIP",
+        "classification confidence": 0.9999806880950928
+      },
+      "landmarks": {},
+      "masks": {}
+    }
+  },
+  "calibration": {
+    "datasource": "FrameGrabber",
+    "version": "v1",
+    "success": null,
+    "error_code": null,
+    "tags": {},
+    "glyph": {},
+    "camera": {
+      "intrinsic_matrix": [
+        [
+          2624.671875,
+          0.0,
+          985.7281494140625
+        ],
+        [
+          0.0,
+          2624.671875,
+          985.3087768554688
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "extrinsic_matrix": [
+        [
+          0.028930891305208206,
+          -0.9657391905784607,
+          -0.25789690017700195,
+          91.86577606201172
+        ],
+        [
+          0.9937665462493896,
+          -3.84761077165674e-11,
+          0.11148080229759216,
+          -32.285743713378906
+        ],
+        [
+          -0.10766137391328812,
+          -0.25951457023620605,
+          0.9597193002700806,
+          513.8992919921875
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "sensor_height": 2000,
+      "sensor_width": 2000,
+      "pixel_size": 0.30479999999999996,
+      "source_to_detector_distance": 800.0,
+      "source_in_world": [
+        84.75384521484375,
+        222.08273315429688,
+        -465.9079284667969
+      ],
+      "piercing_point": [
+        -4.350065000668597,
+        -4.477878509684685
+      ],
+      "corners": [
+        [
+          150.2415313720703,
+          157.44869995117188,
+          357.5380859375
+        ],
+        [
+          159.05966186523438,
+          -136.9086151123047,
+          278.93109130859375
+        ],
+        [
+          -143.8404083251953,
+          -136.9086151123047,
+          244.95175170898438
+        ],
+        [
+          -152.65853881835938,
+          157.44869995117188,
+          323.5587158203125
+        ]
+      ]
+    },
+    "distortion": {}
+  },
+  "ui_objects": {},
+  "image": [],
+  "raw_image": []
+}

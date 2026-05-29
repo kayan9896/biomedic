@@ -1,0 +1,119 @@
+{
+    "frame": [],
+    "pose": {
+        "rec-hnl": {
+            "RequiredViews": "hnl",
+            "RequiredRecons": "-",
+            "RequiredRegs": "-",
+            "RequiredCount": 2,
+            "RequiredAngularDiff": 30
+        },
+        "rec-hnr": {
+            "RequiredViews": "hnr",
+            "RequiredRecons": "-",
+            "RequiredRegs": "-",
+            "RequiredCount": 2,
+            "RequiredAngularDiff": 30
+        },
+        "rec-hcl": {
+            "RequiredViews": "hcl",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": 2,
+            "RequiredAngularDiff": 30
+        },
+        "rec-hcr": {
+            "RequiredViews": "hcr",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": 2,
+            "RequiredAngularDiff": 30
+        },
+        "rec-htl": {
+            "RequiredViews": "htl",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": 2,
+            "RequiredAngularDiff": 30
+        },
+        "rec-htr": {
+            "RequiredViews": "htr",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": 2,
+            "RequiredAngularDiff": 30
+        },
+        "reg-hn": {
+            "RequiredViews": "-",
+            "RequiredRecons": "rec-hnl, rec-hnr",
+            "RequiredRegs": "-",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "reg-hcl": {
+            "RequiredViews": "-",
+            "RequiredRecons": "rec-hcl",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "reg-hcr": {
+            "RequiredViews": "-",
+            "RequiredRecons": "rec-hcr",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "reg-htl": {
+            "RequiredViews": "-",
+            "RequiredRecons": "rec-htl",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "reg-htr": {
+            "RequiredViews": "-",
+            "RequiredRecons": "rec-htr",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        }
+    },
+    "report": {
+        "rep-hn": {
+            "RequiredViews": "-",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-hn",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "rep-hcl": {
+            "RequiredViews": "-",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-hcl",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "rep-hcr": {
+            "RequiredViews": "-",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-hcr",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "rep-htl": {
+            "RequiredViews": "-",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-htl",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        },
+        "rep-htr": {
+            "RequiredViews": "-",
+            "RequiredRecons": "-",
+            "RequiredRegs": "reg-htr",
+            "RequiredCount": "-",
+            "RequiredAngularDiff": "-"
+        }
+    }
+}

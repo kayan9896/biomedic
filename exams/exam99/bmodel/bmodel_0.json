@@ -1,0 +1,351 @@
+{
+    "metadata": {
+        "index": 0,
+        "last_op": "hnl",
+        "last_op_data": {
+            "ap": 0,
+            "ob": 1
+        }
+    },
+    "ref_frame": {
+        "matrix": [
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                1.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                1.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        ]
+    },
+    "left_femur": {
+        "type": "femur",
+        "side": "left",
+        "label": "",
+        "cs": {
+            "matrix": [
+                [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ]
+        },
+        "lm": {
+            "proximal shaft": {
+                "label": "proximal shaft",
+                "type": "point",
+                "coords": [
+                    [
+                        5.6192778434443085,
+                        209.54937843025039,
+                        -61.38587016589713
+                    ]
+                ],
+                "confidence": null
+            },
+            "neck shaft": {
+                "label": "neck shaft",
+                "type": "point",
+                "coords": [
+                    [
+                        -38.072174727467335,
+                        186.73668729469267,
+                        -72.45588595800086
+                    ]
+                ],
+                "confidence": null
+            },
+            "Head Center": {
+                "label": "Head Center",
+                "type": "point",
+                "coords": [
+                    [
+                        -38.072174727467335,
+                        186.73668729469267,
+                        -72.45588595800086
+                    ]
+                ],
+                "confidence": null
+            },
+            "lesser trochanter": {
+                "label": "lesser trochanter",
+                "type": "point",
+                "coords": [
+                    [
+                        8.218624982947027,
+                        188.502831122881,
+                        -66.78540353157067
+                    ]
+                ],
+                "confidence": null
+            },
+            "Neck Shaft": {
+                "label": "Neck Shaft",
+                "type": "point",
+                "coords": [
+                    [
+                        -34.14186295586135,
+                        186.36898320623993,
+                        -72.11441296710274
+                    ]
+                ],
+                "confidence": null
+            },
+            "Proximal Shaft": {
+                "label": "Proximal Shaft",
+                "type": "point",
+                "coords": [
+                    [
+                        13.167132380822238,
+                        168.48526776975007,
+                        -71.643163731355
+                    ]
+                ],
+                "confidence": null
+            },
+            "Lesser Trochanter": {
+                "label": "Lesser Trochanter",
+                "type": "point",
+                "coords": [
+                    [
+                        -38.072174727467335,
+                        186.73668729469267,
+                        -72.45588595800086
+                    ]
+                ],
+                "confidence": null
+            }
+        },
+        "success": false,
+        "quality": 1.520766474545052e-12,
+        "error_code": null,
+        "error_msg": null
+    },
+    "right_femur": null,
+    "left_hpelv": {
+        "type": "hpelv",
+        "side": "left",
+        "label": "",
+        "cs": {
+            "matrix": [
+                [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            ]
+        },
+        "lm": {
+            "p3": {
+                "label": "p3",
+                "type": "point",
+                "coords": [
+                    [
+                        0.4968928020384453,
+                        137.87337466373629,
+                        -81.3421744337279
+                    ]
+                ],
+                "confidence": null
+            },
+            "Head Center": {
+                "label": "Head Center",
+                "type": "point",
+                "coords": [
+                    [
+                        6.827362577150424,
+                        169.22242764564675,
+                        -72.15502656054298
+                    ]
+                ],
+                "confidence": null
+            },
+            "p7": {
+                "label": "p7",
+                "type": "point",
+                "coords": [
+                    [
+                        -25.691844436306866,
+                        162.74656693697696,
+                        -77.55414993548249
+                    ]
+                ],
+                "confidence": null
+            },
+            "p4": {
+                "label": "p4",
+                "type": "point",
+                "coords": [
+                    [
+                        -28.078446673541016,
+                        151.4138106946939,
+                        -80.88633285276404
+                    ]
+                ],
+                "confidence": null
+            },
+            "p2": {
+                "label": "p2",
+                "type": "point",
+                "coords": [
+                    [
+                        -10.670727645641357,
+                        136.54876679168325,
+                        -82.95314179586126
+                    ]
+                ],
+                "confidence": null
+            },
+            "p5": {
+                "label": "p5",
+                "type": "point",
+                "coords": [
+                    [
+                        10.992793154039166,
+                        156.56506353062457,
+                        -75.11038486857751
+                    ]
+                ],
+                "confidence": null
+            },
+            "p8": {
+                "label": "p8",
+                "type": "point",
+                "coords": [
+                    [
+                        6.827362577150424,
+                        169.22242764564675,
+                        -72.15502656054298
+                    ]
+                ],
+                "confidence": null
+            },
+            "Proximal Shaft": {
+                "label": "Proximal Shaft",
+                "type": "point",
+                "coords": [
+                    [
+                        13.167132380822238,
+                        168.48526776975007,
+                        -71.643163731355
+                    ]
+                ],
+                "confidence": null
+            },
+            "Neck Shaft": {
+                "label": "Neck Shaft",
+                "type": "point",
+                "coords": [
+                    [
+                        -34.14186295586135,
+                        186.36898320623993,
+                        -72.11441296710274
+                    ]
+                ],
+                "confidence": null
+            },
+            "p1": {
+                "label": "p1",
+                "type": "point",
+                "coords": [
+                    [
+                        -18.653488439498226,
+                        135.07698026700848,
+                        -84.2466294741356
+                    ]
+                ],
+                "confidence": null
+            },
+            "p6": {
+                "label": "p6",
+                "type": "point",
+                "coords": [
+                    [
+                        -37.019733048607705,
+                        161.71631636992686,
+                        -79.10349999160204
+                    ]
+                ],
+                "confidence": null
+            },
+            "Lesser Trochanter": {
+                "label": "Lesser Trochanter",
+                "type": "point",
+                "coords": [
+                    [
+                        6.827362577150424,
+                        169.22242764564675,
+                        -72.15502656054298
+                    ]
+                ],
+                "confidence": null
+            }
+        },
+        "success": false,
+        "quality": 2.602140692893963e-12,
+        "error_code": null,
+        "error_msg": null
+    },
+    "right_hpelv": null,
+    "pelvis": null,
+    "cup_process": null,
+    "cup": null,
+    "trial_process": null,
+    "resect_femur": null
+}

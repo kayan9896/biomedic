@@ -11,10 +11,13 @@ class Exam:
         self.shot_count = 0
         self.recon_count = 0
         self.reg_count = 0  
-        self.carm = os.path.basename(calib_folder)
-        self.copyfile(calib_folder)
+
         self.bugs = bugs
         self.logger = logger
+
+    def set_folder(self, calib_folder):
+        self.carm = os.path.basename(calib_folder)
+        self.copyfile(calib_folder)
 
     def checkmax(self):
         mx = 0
@@ -39,7 +42,7 @@ class Exam:
     #self.exam.save(analysis_type, data_for_exam, frame)
     def save(self, analysis_type, data_for_exam, rawframe=None):
 
-        try:
+        
             if analysis_type == 'frame':
 
                 '''framedata = data_for_exam['framedata']
@@ -101,7 +104,7 @@ class Exam:
                 json_path = os.path.join(self.exam_folder, 'recons', json_filename)
                 self.save_json(recon_result, json_path)
                 self.recon_count += 1'''
-                self.save_json(data_for_exam.model_dump(), os.path.join(self.exam_folder, 'bmodel', f'bmodel_{data_for_exam.metadata.index}.json'))
+                self.save_json(data_for_exam.model_dump(exclude_computed_fields=True), os.path.join(self.exam_folder, 'bmodel', f'bmodel_{data_for_exam.metadata.index}.json'))
 
             elif analysis_type == 'reg':
                 '''m = {'pelvis': 'hp2', 'regcup': 'cup', 'regtri': 'tri'}
@@ -130,10 +133,7 @@ class Exam:
             # Ensure counter doesn't exceed 999
             if self.shot_count > 999:
                 raise Exception("Maximum save count (999) exceeded")
-        except Exception as e:
-            self.bugs[0] = str(e)
-            self.bugs.append(str(e))
-            self.logger.error(f'Exception in {self.__class__.__name__}: {str(e)}')
+        
 
     def save_patient(self, data):
         json_filename = 'patient.json'

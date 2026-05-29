@@ -1,189 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress2 from '../CircularProgress2';
-import { randInt } from 'three/src/math/MathUtils.js';
 
-function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect, setIsConnected, setGe, setError }) {
-  const [cArms, setCArms] = useState({});
-  const [cArmSelected, setCarmSelected] = useState(false);
-  const [videoConnected, setVideoConnected] = useState(false);
-  const [videoFrame, setVideoFrame] = useState(null);
-  const [tiltSensorConnected, setTiltSensorConnected] = useState(false);
-  const [tiltSensorBatteryLow, setTiltSensorBatteryLow] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [tracking, setTracking] = useState(false);
+function L13({data, setStage, setError, fetchCarm, checkVideo, setcurrentStep }) {
+
   const [warning, setWarning] = useState(false)
-  const [carmimg, setCarmimg] = useState(false)
-  const [loading, setLoading] = useState(false)
   
-  const renderSetup = (carmlist, carm, img, video, frame, imu, lowbattery, step, restartwarning, loadcircle, track) => {
-    
-    setCArms(carmlist)
-    setCarmSelected(carm !== '')
-    setSelectedCArm(carm)
-    setCarmimg(img)
-    setVideoConnected(video)
-    setVideoFrame(frame)
-    setTiltSensorConnected(imu)
-    setTiltSensorBatteryLow(lowbattery)
-    setCurrentStep(step)
-    setWarning(restartwarning)
-    setLoading(loadcircle)
-    setTracking(track)
-  }
-  const saveParam = () => {
-    return{
-      cArms: cArms,
-      selectedCArm: selectedCArm,
-      carmimg: carmimg,
-      videoConnected: videoConnected,
-      videoFrame: videoFrame,
-      tiltSensorConnected: tiltSensorConnected,
-      tiltSensorBatteryLow: tiltSensorBatteryLow,
-      currentStep: currentStep,
-      warning: warning,
-      loading: loading,
-      tracking: tracking
-    }
-  }
-
-  useEffect(() => {
-    refSetup({renderSetup: renderSetup, saveParam: saveParam})
-  })
-  
-  // Fetch C-arm data when component mounts
-  useEffect(() => {
-    if(currentStep > 1) return
-    const fetchCArms = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/get-carms');
-        if (!response.ok) {
-          throw new Error('Failed to fetch C-arm data');
-        }
-        const data = await response.json();
-        if(data.jump) setIsConnected(true)
-        setCArms(data);
-        //setError(null)
-      } catch (err) {
-        setError('Error loading C-arm data: ' + err.message);
-        console.error(err);
-      }
-    };
-    const intervalId = setInterval(fetchCArms, 100);
-    
-    return () => {
-      clearInterval(intervalId);
-
-    };
-  });
-
-  useEffect(() => {
-    const fetchCArmimg = async () => {
-      if(selectedCArm === '' || !cArms[selectedCArm]?.image) return
-      try {
-        const response = await fetch(cArms[selectedCArm].image);
-        if (!response.ok) {
-          throw new Error('Failed to fetch C-arm img or calib data');
-        }
-        const data = await response.json();
-        setCarmimg(data.image);
-        setTracking(data.imu_on)
-        setError(null)
-      } catch (err) {
-        setError(`Error ${err.message === 'signal timed out' ? 900 : 210}: ${err.message}`);
-        setCarmimg('')
-        setGe(true)
-        console.error(err);
-      }
-    };
-    fetchCArmimg()
-  }, [selectedCArm]);
 
   const handleCarmChange = (e) => {
-    console.log(e.target.value)
-    setSelectedCArm(e.target.value);
-    setCarmSelected(e.target.value !== '');
+    fetchCarm(e.target.value, data.carm_model[e.target.value].image)
   };
 
   const checkVideoConnection = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('http://localhost:5000/check-video-connection',{ signal: AbortSignal.timeout(20000) });
-      if (!response.ok) {
-        throw new Error('Failed to check video connection');
-      }
-      const data = await response.json();
-      setVideoConnected(data.connected);
-      
-      // If connected and frame is provided, store it
-      if (data.connected && data.frame) {
-        setVideoFrame(data.frame); // data.frame is a data URI (e.g., "data:image/jpeg;base64,...")
-      }
-      setLoading(false)
-    } catch (err) {
-      setError(`Error ${err.message === 'signal timed out' ? 900 : 220}: ${err.message}`);
-      setGe(true)
-      setLoading(false)
-      console.error(err);
-    }
+    checkVideo()
   };
 
-  // Simulate tilt sensor check
-  const checkTiltSensor = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('http://localhost:5000/check-tilt-sensor',{ signal: AbortSignal.timeout(20000) });
-      if (!response.ok) {
-        throw new Error('Failed to check tilt sensor');
-      }
-      const data = await response.json();
-      setTiltSensorConnected(data.connected);
-      setTiltSensorBatteryLow(data.battery_low);
-      setLoading(false)
-    } catch (err) {
-      setError(`Error ${err.message === 'signal timed out' ? 900 : 230}: ${err.message}`);
-      setGe(true)
-      setLoading(false)
-      console.error(err);
-    }
-  };
 
   // Function to handle continue/next button
   const handleContinue = () => {
-    if (currentStep === 1 && cArmSelected) {
-      setCurrentStep(2);
+    if (data.currentStep === 1 && data.selectedCArm) {
+      setcurrentStep(2);
       checkVideoConnection(); // Automatically check video when advancing to step 2
-    } else if (currentStep === 2 && videoConnected) {
-      if(!tracking) setCurrentStep(4);
-      else{
-        setCurrentStep(3);
-        checkTiltSensor();
-      } // Automatically check tilt sensor when advancing to step 3
-    } else if (currentStep === 3 && isCurrentStepComplete()) {
-      setCurrentStep(4);
-    } else if (currentStep === 4) {
-      handleConnect()
-      setPause(10); // When all checks complete, proceed to next screen
+    } else if (data.currentStep === 2 && data.is_connected) {
+        setcurrentStep(4);
+      
+    } else if (data.currentStep === 3 && isCurrentStepComplete()) {
+      setcurrentStep(4);
+    } else if (data.currentStep === 4) {
+      setStage(1)
     }
   };
 
   // Determine if the current step is completed
   const isCurrentStepComplete = () => {
-    switch (currentStep) {
-      case 1: return carmimg;
-      case 2: return videoConnected;
-      case 3: return (tiltSensorConnected && !tiltSensorBatteryLow); // Only complete if connected AND battery OK
+    switch (data.currentStep) {
+      case 1: return data.carm_img;
+      case 2: return data.is_connected;
+      case 3: return (null && !null); // Only complete if connected AND battery OK
       case 4: return true; // For the reference bodies step
       default: return false;
     }
   };
 
   const getSelectedCArmImage = () => {
-    if (!selectedCArm || !cArms[selectedCArm] || !carmimg) return null;
+    if (!data.selectedCArm || !data.carm_model[data.selectedCArm] || !data.carm_img) return null;
     
     return (
       <img 
-        src={carmimg}
-        alt={`${selectedCArm} preview`} 
+        src={data.carm_img}
+        alt={`${data.selectedCArm} preview`} 
         style={{
           position: 'absolute', 
           zIndex: 14, 
@@ -200,29 +64,29 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
     let background = 'StatusBg.png';
     let textColor, icon, isComplete = false;
 
-    if (step < currentStep) {
+    if (step < data.currentStep) {
       // Completed step
       background = '';
       textColor = '#00B0F0';
-      if (step === 3 && !tracking){
+      if (step === 3){
         background = '';
         textColor = '#686868';
         icon = 'CrossGray.png';
       }
-      else if ((step === 1 && cArmSelected) || 
-          (step === 2 && videoConnected) || 
-          (step === 3 && tiltSensorConnected)) {
+      else if ((step === 1 && data.selectedCArm) || 
+          (step === 2 && data.is_connected) || 
+          (step === 3 && null)) {
         icon = 'CheckmarkBlue.png';
         isComplete = true;
       } else {
         icon = 'CrossWhite.png'; // Fallback to white cross if needed
       }
-    } else if (step === currentStep) {
+    } else if (step === data.currentStep) {
       // Current step
       textColor = '#FFFFFF';
-      if ((step === 1 && cArmSelected) || 
-          (step === 2 && videoConnected) || 
-          (step === 3 && tiltSensorConnected) || step === 4) {
+      if ((step === 1 && data.selectedCArm) || 
+          (step === 2 && data.is_connected) || 
+          (step === 3 && null) || step === 4) {
         icon = 'CheckmarkWhite.png';
         isComplete = true;
       } else {
@@ -249,7 +113,7 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
         <div style={{position:'absolute', fontFamily:'abel', fontSize:'46px', color: status.textColor, width: '538px', zIndex:13, top:`${yPos+5}px`, left:'385px'}}>
           {title}
         </div>
-        {content && step <= currentStep && (
+        {content && step <= data.currentStep && (
           <div style={{position:'absolute', fontFamily:'abel', fontSize:'30px', color: status.textColor, width: '498px', zIndex:13, top:`${yPos2}px`, left:'385px'}}>
             {content}
           </div>
@@ -261,23 +125,21 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
   return (
     <div >
       <img src={require('./SetupWindow.png')} alt="SetupWindow" style={{position:'absolute', top:'6px', left:'240px', zIndex:13}}/>
-      {(currentStep ===2 || currentStep ===3) && <img 
-        className={(currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? "image-button" : null}
-        src={(currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? require('./SetupTryAgainBtn.png') : require('./SetupTryAgainBtnDisable.png')} 
+      {(data.currentStep ===2 || data.currentStep ===3) && <img 
+        className={(data.currentStep === 2 && !data.is_connected) || (data.currentStep === 3 && (!null || null)) ? "image-button" : null}
+        src={(data.currentStep === 2 && !data.is_connected) || (data.currentStep === 3 && (!null || null)) ? require('./SetupTryAgainBtn.png') : require('./SetupTryAgainBtnDisable.png')} 
         alt="SetupTryAgain" 
         style={{
           position:'absolute', 
           top:'839px', 
           left:'1002px', 
           zIndex:13, 
-          cursor: (currentStep === 2 && !videoConnected) || (currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow)) ? 'pointer' : 'default'
+          cursor: (data.currentStep === 2 && !data.is_connected) || (data.currentStep === 3 && (!null || null)) ? 'pointer' : 'default'
         }} 
         onClick={
-          currentStep === 2 && !videoConnected 
+          data.currentStep === 2 && !data.is_connected 
             ? checkVideoConnection 
-            : currentStep === 3 && (!tiltSensorConnected || tiltSensorBatteryLow) 
-              ? checkTiltSensor 
-              : null
+            : null
         } 
       />}
       <img 
@@ -288,7 +150,7 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
         style={{
           position:'absolute', 
           top:'839px', 
-          left: (currentStep ===2 || currentStep ===3) ? '1327px' : '1164px', 
+          left: (data.currentStep ===2 || data.currentStep ===3) ? '1327px' : '1164px', 
           zIndex:13, 
           cursor: isCurrentStepComplete() ? 'pointer' : 'default'
         }} 
@@ -297,17 +159,17 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
       
       {/* Check 1: C-ARM EQUIPMENT */}
       {renderCheck(1, 'C-ARM EQUIPMENT', 144, 289,
-        cArmSelected ? 'C-arm model is confirmed.' : 'Please select the C-arm model.'
+        data.selectedCArm ? 'C-arm model is confirmed.' : 'Please select the C-arm model.'
       )}
       
       {(
         <select 
-          value={selectedCArm}
+          value={data.selectedCArm}
           onChange={handleCarmChange}
-          disabled={currentStep>1}
+          disabled={data.currentStep>1}
           style={{position:'absolute', paddingLeft:'10px',fontFamily:'abel', fontSize:'30px', zIndex:13, width: '546px', height:'58px', top:'224px', left:'329px', border: '1px solid #E5E5E5', borderRadius:'7.5px'}}>
-            <option value="" >Select a C-arm model</option>
-            {Object.keys(cArms).map(carmName => (
+            <option value={null} >Select a C-arm model</option>
+            {Object.keys(data.carm_model).map(carmName => (
               <option key={carmName} value={carmName}>{carmName}</option>
             ))}
         </select>
@@ -315,55 +177,55 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
       
       {/* Check 2: VIDEO CONNECTION */}
       {renderCheck(2, 'VIDEO CONNECTION', 356, 435,
-        videoConnected ? 'Video input detected successfully.' : 'Video input not detected.'
+        data.is_connected ? 'Video input detected successfully.' : 'Video input not detected.'
       )}
       
       {/* Check 3: TILT SENSOR */}
       {renderCheck(3, 'TILT SENSOR', 501, 578,
-        tiltSensorConnected ? (tiltSensorBatteryLow ? 'Tilt Sensor connected but battery is low.' : 'Tilt Sensor connected successfully.') : 'Tilt Sensor not connected.'
+        null ? (null ? 'Tilt Sensor connected but battery is low.' : 'Tilt Sensor connected successfully.') : 'Tilt Sensor not connected.'
       )}
       
       {/* Check 4: REFERENCE BODIES */}
       {renderCheck(4, 'REFERENCE BODIES', 647, 649, null)}
       
       {/* Instructions based on current step */}
-      {currentStep === 1 && (
+      {data.currentStep === 1 && (
         <img src={require('./C-armEquipmentInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 2 && videoConnected && (
+      {data.currentStep === 2 && data.is_connected && (
         <img src={require('./VideoConnectionSucceedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 2 && !videoConnected && (
+      {data.currentStep === 2 && !data.is_connected && (
         <img src={require('./VideoConnectionFailedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 3 && !tiltSensorConnected && (
+      {data.currentStep === 3 && !null && (
         <img src={require('./TiltSensorFailedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 3 && tiltSensorConnected && (
-        <img src={tiltSensorBatteryLow ? require('./TiltSensorLowBatteryInstruction.png') : require('./TiltSensorSucceedInstruction.png')} 
+      {data.currentStep === 3 && null && (
+        <img src={null ? require('./TiltSensorLowBatteryInstruction.png') : require('./TiltSensorSucceedInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
-      {currentStep === 4 && (
+      {data.currentStep === 4 && (
         <img src={require('./ReferenceBodiesInstruction.png')} 
              style={{position:'absolute', zIndex:13, top:'134px', left:'1015px'}} />
       )}
       
       {/* Selected C-arm Image */}
-      {currentStep === 1 && cArmSelected && getSelectedCArmImage()}
+      {data.currentStep === 1 && data.selectedCArm && getSelectedCArmImage()}
       
       {/* Video frame */}
-      {currentStep === 2 && videoConnected && videoFrame && (
+      {data.currentStep === 2 && data.is_connected && data.first_frame && (
         <img 
-          src={videoFrame}
+          src={data.first_frame}
           alt="Video feed"
           style={{
             position: 'absolute', 
@@ -381,11 +243,11 @@ function L13({ refSetup, setPause, selectedCArm, setSelectedCArm, handleConnect,
       {warning&&<>
         <img src={require('../L10/BgBlur.png')} style={{position:'absolute', top:'0px', zIndex:15, aspectRatio:'1920/1080',height:'1080px'}}/>
         <img src={require('./RestartWarningWindow.png')} style={{position:'absolute', top:'358px', left:'612px', zIndex:15}} />
-        <img className="image-button" src={require('../L23/YesBtn.png')} style={{position:'absolute', top:'539px', left:'761px', zIndex:15}} onClick={()=>{setCurrentStep(1); setWarning(false)}}/>
+        <img className="image-button" src={require('../L23/YesBtn.png')} style={{position:'absolute', top:'539px', left:'761px', zIndex:15}} onClick={()=>{setcurrentStep(1); setWarning(false)}}/>
         <img className="image-button" src={require('../L23/NoBtn.png')} style={{position:'absolute', top:'539px', left:'1035px', zIndex:15}} onClick={()=>setWarning(false)}/>
       </>}
       <img src={require('../L1/Logo.png')} style={{position:'absolute', top:'1041px', left:'13px'}} />
-      {loading && <CircularProgress2/>}
+      {data.loading && !data.is_connected && <CircularProgress2/>}
     </div>
   );
 }

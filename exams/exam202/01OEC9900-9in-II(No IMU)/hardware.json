@@ -1,0 +1,63 @@
+{
+    "carm_id": "FMC-Philips_II(No IMU)",
+    "carm_config": {
+        "model": "Unknown",
+        "manufacturer": "Unknown",
+        "is_flat": false,
+        "size_inch": 9
+    },
+    "fg_handler_config": {
+        "input_resolution": [
+            1280,
+            1024
+        ],
+        "image_mask_path": "./Calibration/02OEC9900-9in-II/carm_mask.png",
+        "autocollect_threshold": 0.3,
+        "autocollect_mintimegap": 2.0,
+        "autocollect_loops": 4
+    },
+    "imu_handler_config": {
+        "imu_on": false,
+        "min_battery_volts": 1.0,
+        "max_battery_volts": 5.0,
+        "calibration_data": null,
+        "home_tilt": 0.0,
+        "home_rotation": 0.0,
+        "stable_movement_tol": 0.2,
+        "stable_time_tol": 3.0,
+        "apply_target": false,
+        "carm_range_tilt": [
+            -15.0,
+            15.0
+        ],
+        "carm_range_rotation": [
+            -25.0,
+            -10.0,
+            10.0,
+            25.0
+        ],
+        "carm_target_tilt": null,
+        "carm_target_rotation": [
+            null,
+            null,
+            null
+        ]
+    },
+    "frame_cropping_config": {
+        "output_resolution": [
+            1024,
+            1024
+        ],
+        "crop_topleft": [
+            128,
+            0
+        ],
+        "crop_size": [
+            1024,
+            1024
+        ],
+        "image_rotation": 0,
+        "image_horiz_flip": false,
+        "force_resize_to": null
+    }
+}

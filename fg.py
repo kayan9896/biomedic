@@ -15,6 +15,7 @@ class FrameGrabber:
         self.capture = None
         self.panel = panel
         self.fg_handler = None
+        self.calib = calib
 
         self.fg_is_connected: bool = False
         self.fg_simulation = fg_simulation
@@ -157,6 +158,7 @@ class FrameGrabber:
                     self.fg_handler.last_frame = current_frame.copy()
                     self._last_capture_time = datetime.now()
                     self.fg_handler._is_new_frame_available = True
+                    self.fg_handler.fetchFrame()
                     self.logger.debug("Frame updated")
             
             elapsed = time.time() - loop_start

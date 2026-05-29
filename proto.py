@@ -1,12 +1,12 @@
 from flask import Flask, jsonify, request, Response, send_from_directory
+from flask_socketio import SocketIO, emit
 import threading
 import io
 from PIL import Image
 import time
-from controller import Controller
+from controller_copy import Controller
 from config_manager import ConfigManager
-#from exam import Exam
-from confirmaphip_core.exam import Exam
+from exam import Exam
 from panel import Panel
 from flask_cors import CORS
 import numpy as np
@@ -19,6 +19,10 @@ import os
 from pathlib import Path
 
 config = ConfigManager()
+with open('config/landmark_config.json', 'r') as f:
+    scaf = json.load(f)
+with open('config/workflow_config.json', 'r') as f:
+    workflow = json.load(f)
 
 class Filter(logging.Filter):
     def filter(self, record):  
@@ -58,144 +62,23 @@ def setup_logging():
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
     
-
-# Call this function at the start of your script
+    
 setup_logging()
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
-#app.logger.setLevel(logging.DEBUG)
 
-# Global variables
 carm_data = None
-combobox = None
-controller = None
 cpfolder = None
 
-
 panel = Panel(config, logger) if config.get('testpanel_config').get('panel_on') else None
-server_lock = threading.Lock()
-
 
 carm_folder = config.get("carm_folder", "./Calibration")
 select = {}
-@app.route('/get-carms', methods=['GET'])
-def get_carms():
-    """Endpoint to retrieve C-arm data from JSON file"""
-    global panel
-    global controller
-    global logger
-    global carm_data
-    global combobox
+controller = Controller(config, select, panel, logger, cpfolder, scaf, workflow, socketio)
 
-    if panel and panel.jumpped:
-        controller = panel.controller
-        return jsonify({'jump': True})
-    try:
-        if carm_data is None: carm_data, combobox = Exam.get_carms(carm_folder)
-        return jsonify(combobox)
-    except Exception as e:
-        logger.error(f"Error fetching C-arm data: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/carm-images/<filename>', methods=['GET'])
-def serve_carm_image(filename):
-    """Endpoint to serve C-arm images"""
-    global select
-    global controller
-    global logger
-    global carm_data
-    global cpfolder
-
-    if controller: 
-        controller = None
-    try:
-        select, cpfolder = Exam.serve_carm_select(carm_folder, filename, carm_data)
-        image_base64 = Exam.serve_carm_image(carm_folder, filename)
-        
-        return jsonify({
-            'image': f'data:image/jpeg;base64,{image_base64}',
-            'imu_on': select['imu_handler_config']['imu_on']
-        })
-    except Exception as e:
-        logger.error(f"Error serving image {filename}: {str(e)}")
-        return jsonify({"error": str(e)}), 404
-
-
-@app.route('/check-video-connection', methods=['GET'])
-def check_video_connection():
-    """Endpoint to simulate checking video connection"""
-    global controller
-    global select
-    global panel
-    global logger
-    
-    with server_lock:
-        if controller is None:
-            controller = Controller(config, select, panel, logger, cpfolder)
-        
-        # Get the connection result
-        result = controller.connect_video()
-        
-        return jsonify(result)
-
-@app.route('/check-tilt-sensor', methods=['GET'])
-def check_tilt_sensor():
-    """Endpoint to check tilt sensor status using actual IMU values"""
-    global controller
-    
-    with server_lock:
-        if controller is None:
-            controller = Controller(config)
-        
-        return jsonify(controller.imu_handler.sensor.check_tilt_sensor())
-        
-@app.route('/run2', methods=['POST'])
-def start_processing():
-    """Start video capture and frame processing"""
-    global controller
-    global logger
-
-
-    with server_lock:
-        if controller is None:
-            controller = Controller(config)
-
-        # Connect to the video device and start processing
-        result = controller.start_processing()
-        if not result:
-            return jsonify({"error": "Processing is already running"}), 400
-        templates = controller.load()
-        return jsonify({"message": f"Started processing on device", "templates": templates})
-
-
-@app.route('/api/states')
-def get_states():
-    global controller
-    global logger
-
-    try:
-        return jsonify(controller.get_states())
-    except Exception as e:
-        logger.error(f"Fail to get states: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/setting', methods=['POST'])
-def set_ai_autocollect_modes():
-    global controller
-    global logger
-    
-    try:
-        if controller is None:
-            controller = Controller()
-        data = request.get_json()
-        controller.set_ai_autocollect_modes(data)
-
-        return jsonify({'success': True})
-    except Exception as e:
-        logger.error(f"Setting: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/image-with-metadata')
@@ -240,47 +123,6 @@ def save_landmarks():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-@app.route('/cap', methods=['POST'])
-def manual_framecap():
-    global controller
-    global logger
-    try:
-        if controller is None:
-            return jsonify({"error": "Controller not initialized"}), 404
-        state = request.json.get('cap')
-        controller.do_capture = state
-        return jsonify({"message": "do capture"})
-    except Exception as e:
-        logger.error(f"Manual capture error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/label', methods=['POST'])
-def switch_side():
-    global controller
-    global logger
-    try:
-        if controller is None:
-            return jsonify({"error": "Controller not initialized"}), 404
-        label = request.json.get('label')
-        controller.active_side = label
-        return jsonify({"message": "click label switch active side"})
-    except Exception as e:
-        logger.error(f"Manual switch side error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/edit', methods=['POST'])
-def edit():
-    global controller
-    global logger
-    try:
-        if controller is None:
-            return jsonify({"error": "Controller not initialized"}), 404
-        state = request.json.get('uistates')
-        controller.pause_states = state
-        return jsonify({"message": "pause_states updated"})
-    except Exception as e:
-        logger.error(f"Edit/pause error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/next', methods=['POST'])
 def next():
@@ -298,19 +140,7 @@ def next():
         logger.error(f"Moving next error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/restart', methods=['POST'])
-def restart():
-    global controller
-    global logger
-    try:
-        if controller is None:
-            return jsonify({"error": "Controller not initialized"}), 404
-        controller.restart()
 
-        return jsonify({"message": "uistate restart"})
-    except Exception as e:
-        logger.error(f"Restart error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/screenshot/<int:stage>', methods=['POST'])
 def save_screen(stage):
@@ -389,120 +219,54 @@ def pdf():
         logger.error(f"Save report error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-'''
-@app.route('/check-running-state', methods=['GET'])
-def check_running_state():
-    """Check if controller is running and return necessary state data including all image data"""
+
+@socketio.on('connect')
+def handle_connect():
+    global carm_data
     global controller
-    
-    with server_lock:
-        if controller is None or not controller.is_running:
-            return jsonify({"running": False})
-        
-        # Get basic states
-        states = controller.get_states()
-        current_stage_idx = states.get('stage', 0)
-        
-        # Determine which data keys to check based on current stage
-        stage_data_mapping = {
-            0: ['hp1-ap', 'hp1-ob'],
-            1: ['hp2-ap', 'hp2-ob'],
-            2: ['cup-ap', 'cup-ob'],
-            3: ['tri-ap', 'tri-ob']
-        }
-        
-        # Create a map of all stage data to check the full state
-        all_stage_data = {}
-        for stage_idx, keys in stage_data_mapping.items():
-            all_stage_data[stage_idx] = {
-                'ap_key': keys[0],
-                'ob_key': keys[1],
-                'ap_has_data': False,
-                'ob_has_data': False,
-                'ap_image': None,
-                'ob_image': None,
-                'ap_metadata': None,
-                'ob_metadata': None,
-                'ap_checkmark': None,
-                'ob_checkmark': None,
-                'ap_side': None,
-                'ob_side': None
-            }
-            
-            # Check if this stage has valid data
-            ap_data = controller.model.data.get(keys[0], {})
-            ob_data = controller.model.data.get(keys[1], {})
-            
-            # Determine if each side has valid data
-            ap_has_data = ap_data.get('image') is not None 
-            ob_has_data = ob_data.get('image') is not None 
-            
-            # Store the evaluation results
-            all_stage_data[stage_idx]['ap_has_data'] = ap_has_data
-            all_stage_data[stage_idx]['ob_has_data'] = ob_has_data
-            
-            # Only prepare image data if the side has valid data
-            if ap_has_data:
-                _, buffer = cv2.imencode('.jpg', ap_data['image'])
-                all_stage_data[stage_idx]['ap_image'] = f'data:image/jpeg;base64,{base64.b64encode(buffer).decode("utf-8")}'
-                all_stage_data[stage_idx]['ap_metadata'] = backend_to_frontend_coords(ap_data.get('metadata', {})) if ap_data.get('metadata') else None
-                all_stage_data[stage_idx]['ap_side'] = ap_data.get('side')
-            
-            if ob_has_data:
-                _, buffer = cv2.imencode('.jpg', ob_data['image'])
-                all_stage_data[stage_idx]['ob_image'] = f'data:image/jpeg;base64,{base64.b64encode(buffer).decode("utf-8")}'
-                all_stage_data[stage_idx]['ob_metadata'] = backend_to_frontend_coords(ob_data.get('metadata', {})) if ob_data.get('metadata') else None
-                all_stage_data[stage_idx]['ob_side'] = ob_data.get('side')
-        
-        # Get viewmodel data for current AP and OB
-        ap_viewmodel = controller.viewmodel.imgs[0] if all_stage_data[current_stage_idx]['ap_has_data'] else {}
-        ob_viewmodel = controller.viewmodel.imgs[1] if all_stage_data[current_stage_idx]['ob_has_data'] else {}
-        
-        # Get current stage data
-        current_stage_data = all_stage_data.get(current_stage_idx, {})
-        
-        # Add checkmarks from viewmodel for the current stage
-        if current_stage_data:
-            current_stage_data['ap_checkmark'] = ap_viewmodel.get('checkmark')
-            current_stage_data['ob_checkmark'] = ob_viewmodel.get('checkmark')
-        
-        # Get error messages
-        ap_error = ap_viewmodel.get('error') if ap_viewmodel else None
-        ob_error = ob_viewmodel.get('error') if ob_viewmodel else None
-        
-        # Check if we should move to next stage
-        move_next = (ap_viewmodel.get('next', False) or ob_viewmodel.get('next', False))
-        
-        # Get measurements data
-        measurements = None
-        # Check the relevant section for the current stage
-        stage_measurement_mapping = {
-            1: 'pelvis',
-            2: 'regcup',
-            3: 'regtri'
-        }
-        
-        if current_stage_idx in stage_measurement_mapping:
-            section_data = controller.model.data.get(stage_measurement_mapping[current_stage_idx], {})
-            if section_data.get('success'):
-                measurements = section_data.get('RegsResult', None)
-        
-        return jsonify({
-            "running": True,
-            "states": states,
-            "current_stage": controller.current_stage,  # 0-indexed for frontend
-            "all_stage_data": all_stage_data,
-            "move_next": move_next,
-            "tilt_angle": states.get('tilt_angle', 0),
-            "rotation_angle": states.get('rotation_angle', 0),
-            "ap_rotation_angle": getattr(controller, 'ap_rotation_angle', None),
-            "ob_rotation_angle": getattr(controller, 'ob_rotation_angle', None),
-            "ob_rotation_angle2": getattr(controller, 'ob_rotation_angle2', None),
-            "target_tilt_angle": getattr(controller, 'target_tilt_angle', None),
-            "measurements": measurements,
-            "error": ap_error or ob_error
+
+    carm_data, combobox = Exam.get_carms(carm_folder)
+    controller.viewmodel.update_setup({'carm_model': combobox})
+
+
+@socketio.on('carm')
+def send_carmimg(id, filename):
+    global controller
+    global select
+    global carm_data
+    global cpfolder
+
+    try:
+        filename = filename.split('/')[-1]
+
+        select, cpfolder = Exam.serve_carm_select(carm_folder, filename, carm_data)
+        image_base64 = Exam.serve_carm_image(carm_folder, filename)
+
+        controller.viewmodel.update_setup({
+            'carm_img': f'data:image/jpeg;base64,{image_base64}',
+            'selectedCArm': id
         })
-'''
+    except Exception as e:
+        logger.error(f"Error serving image {filename}: {str(e)}")
+
+@socketio.on('video')
+def check_video():
+    global controller
+    global select
+    global cpfolder
+    
+    controller.update_select(select, cpfolder)      
+    controller.viewmodel.update_setup({'loading': True})
+    result = controller.connect_video()
+    controller.viewmodel.update_setup({'is_connected': result, 'loading': False})
+
+@socketio.on('step')
+def change_step(v):
+    controller.viewmodel.update_setup({'currentStep': v})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print("666666666666666666666666666666666666 Client disconnected")
 
 if __name__ == '__main__':
-    app.run(debug=False, use_reloader=False)
+    socketio.run(app, host="localhost")
